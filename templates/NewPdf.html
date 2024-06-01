@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="style1.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORM TABLE</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        font-size: 13px;
+    }
+
+    .container {
+        width: 90%;
+        margin: 20px auto;
+        position: relative;
+    }
+
+    .date {
+        margin-bottom: 17px;
+    }
+
+    .header {
+        /* width: 98%; */
+        display: grid;
+        justify-content: end;
+        margin: 10px auto;
+        position: relative;
+        padding: 20px;
+        align-content: center;
+        text-align: center;
+    }
+
+    .subheader {
+        margin: 50px auto;
+        text-align: center;
+        flex-grow: 1;
+    }
+
+    .photoframe {
+        width: 180px;
+        height: 200px;
+        text-align: center;
+        border: 1px solid #000;
+        box-sizing: border-box;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 13px;
+        border: 1px solid #000;
+    }
+
+    td {
+        padding-left: 15px;
+    }
+
+    .loadHeaderChange {
+        text-align: center;
+        font-size: 20px;
+        margin-top: 50px;
+    }
+
+    .footer-table {
+        width: 90%;
+        padding: 0px 80px 20px 80px;
+        margin: auto;
+        border: none;
+    }
+    .imgchange {
+    max-width: 100%;
+    height: 196px;
+    object-fit: fill;
+    width: 100%;
+}
+</style>
+
+<body>
+    <div id="pageHeader" style="text-align: right;"><img
+            src="https://s3.ap-south-1.amazonaws.com/dev.astafa.files/AFBDocs/ArnoldHoldings.png"
+            style="width: 300px; height: auto; margin: 12px 40px 0px 0px;" /><br /><br />
+        <hr>
+    </div>
+    <div class="container">
+        <h3 class="loadHeaderChange"><u>Loan Application Form</u></h3>
+        <table style="border: none;">
+            <tr>
+                <td width="70%"></td>
+                <td width="30%">
+                    <div class="header">
+                        <div class="date">
+                            Date:- <b> {{Date}}</b>
+                        </div>
+                        <div class="photoframe">
+                            <img class="imgchange" src={{userSelfie}}
+                                alt="image" />
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <table border="1">
+            <tr>
+                <td></td>
+                <td>Particulars</td>
+            </tr>
+            <tr>
+                <td>Name of the financiar</td>
+                <td>{{financierName}}</td>
+            </tr>
+            <tr>
+                <td>Address of financiar</td>
+                <td>TBD</td>
+            </tr>
+            <tr>
+                <td>Applied through</td>
+                <td>TBD</td>
+            </tr>
+            <tr>
+                <td> &nbsp; </td>
+                <td> </td>
+            </tr>
+            <tr>
+                <td>Borrower details</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Title</td>
+                <td>Available</td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td>{{name}}</td>
+            </tr>
+            <tr>
+                <td>Present address</td>
+                <td>{{address}}</td>
+            </tr>
+            <tr>
+                <td>City</td>
+                <td>{{city}}</td>
+            </tr>
+            <tr>
+                <td>State</td>
+                <td>{{state}} </td>
+            </tr>
+            <tr>
+                <td>Pincode</td>
+                <td>{{shopPinCode}} </td>
+            </tr>
+            <tr>
+                <td>Date of Birth</td>
+                <td>{{dateofBirth}}</td>
+            </tr>
+            <tr>
+                <td>Mobile Number</td>
+                <td>{{mobileNumber}}</td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td>{{email}}</td>
+            </tr>
+            <tr>
+                <td>PAN Number</td>
+                <td>{{panNumber}}</td>
+            </tr>
+            <tr>
+                <td>Aadhar Number</td>
+                <td>{{aadharNumber}}</td>
+            </tr>
+            <tr>
+                <td>Credit limit applied for</td>
+                <td>50,000</td>
+            </tr>
+            <tr>
+                <td>Loan Application Date</td>
+                <td>{{loanDate}}</td>
+            </tr>
+            <tr>
+                <td colspan="5">Schedule of charges
+                    </br>Processing fee: As per the Sanction Letter
+                    </br>Penal/Default interest in case of delayed payments: 24% p.a. on overdue amount
+                    </br>Cheque/ ACH dishonour charges : Rs. 500/- per instance
+                    </br>Cheque/ ACH swap charges: Rs. 500/- per instance
+                    </br>Prepayment charges (for full or partial prepayment): 4% of the prepayment amount
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5">Indicative List of Documents*
+                    <br> & co-borrower KYC as per RBI norms.
+                    <br>FI statement for 6 months, if applicable.
+                    <br>Ownership proof, if applicable.
+                    <br>*Note -Additional documents may be required for credit assessment.
+                </td>
+            </tr>
+        </table>
+        </br>
+        <table border="1">
+            <tr>
+                <td colspan="2" align="center">RING(APP) - Sanction Letter-</td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>{{loanDate}}</td>
+            </tr>
+            <tr>
+                <td>Name of the Borrower (Entity Name)</td>
+                <td>{{shopName}}</td>
+            </tr>
+            <tr>
+                <td>Co- Borrower /
+                    Guarantor's</td>
+                <td># Proprietor / Partner/ Directors</td>
+            </tr>
+            <tr>
+                <td>Constitution</td>
+                <td>{{constitution}}</td>
+            </tr>
+            <tr>
+                <td>Address</td>
+                <td>{{address}}</td>
+            </tr>
+            <tr>
+                <td>Contact Details</td>
+                <td>{{mobileNumber}}
+                    <br> {{email}} 
+                </td>
+            </tr>
+            <tr>
+                <td>Facility Amount
+                    Sanctioned</td>
+                <td> {{sanctionAmount}} </td>
+            </tr>
+            <tr>
+                <td>Purpose of Loan</td>
+                <td>Line of Credit towards Invoice Financing</td>
+            </tr>
+
+            <tr>
+                <td>Rate of Interest</td>
+                <td>Applicable Rate will be 0 % p.a (Fixed Rate of Interest) as agreed. The
+                    rate of interest payable by the Borrower/s shall be subject to changes based
+                    on guidelines/directives issued by RBI to #Financier from time to time
+                    /money market condition.</td>
+            </tr>
+            <tr>
+                <td>Validity of the Facility</td>
+                <td>12 Months</td>
+            </tr>
+            <tr>
+                <td>Credit Period</td>
+                <td>Tenor 30 Days, Grace 5 Days</td>
+            </tr>
+            <tr>
+                <td>Frequency of Repayment</td>
+                <td>The repayment of each invoice shall be within (# Days) days (“Invoice
+                    Maturity”) from the date of disbursement. The disbursement request shall
+                    be made within (# Stale) days of date of invoice. Interest will be calculated
+                    on daily basis and debited upon Invoice Maturity. Interest servicing/
+                    principal repayment via UPI/NEFT/RTGS transfer directly to the virtual
+                    account. Notwithstanding the Grace Period, the invoice repayment shall
+                    become overdue upon Invoice Maturity and the same shall be construed as
+                    an event of default. The FI reserves the right to report such overdue/ event
+                    of default to the regulatory authorities/ credit rating bureaus.</td>
+            </tr>
+            <tr>
+                <td>Penal Charges</td>
+                <td>(# PENAL ROI) %+ GST (Over and above current Rate Of Interest)</td>
+            </tr>
+            <tr>
+                <td>Instrument Return
+                    Charges</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>Processing Fee</td>
+                <td>INR {{processingFees}} + applicable taxes, shall be paid by the borrower upfront. The
+                    processing fee is payable in full upon acceptance of this sanction letter and is
+                    non-refundable (including in case the Facility is not drawn down for any
+                    reason whatsoever). Non- refundable processing fee shall be charged every
+                    year during the tenure/validity of the limits.</td>
+            </tr>
+        </table>
+
+        <br>
+        <table border="1">
+            <td colspan="15" align="justify">
+                The terms in this Sanction Letter are intended to summarize certain basic terms of the proposed
+                Facility.
+                It is not intended to be a definitive list of all requirements of the FI in connection with the proposed
+                Facility. This Sanction Letter is confidential and the property of the FI and neither this document nor
+                the
+                contents hereof shall be reproduced, communicated to or used without the FI’s prior written consent to
+                any third party other than those individuals or entities who are officers, employees or advisors of the
+                proposed Borrower/s, Promoters on a confidential and need-to-know basis and for the purposes of their
+                evaluation of the proposed financing or as may be compelled in a judicial or administrative proceeding
+                or
+                as otherwise required by applicable law. This Sanction Letter shall be governed by and construed in
+                accordance with the laws of India and supersedes any and all discussions, understandings or agreements,
+                written or oral, express or implied, between or among the parties hereto or any other person as to the
+                subject matter hereof. Furthermore, the Sanction Letter shall be subject to the terms mentioned in the
+                Facility Documents (as defined below). By accepting the terms of this Sanction Letter and its annexure,
+                the Borrower/s explicitly agrees to the following as preconditions to the Facility granted to the
+                Borrower/s by the FI:
+                <br> 1.The Borrower/s /Guarantors shall execute necessary loan agreement,
+                Undertakings, Guarantee and any other documents prescribed by the FI including security creation
+                documents (“Facility Documents”) in form and manner as may be required by the FI and submit required
+                mandate/NACH/Cheques for repayment of instalments/Facility as per the repayment schedule..
+                <br> 2. The
+                Borrowers/Guarantors agree and understand that FI may collect or exchange/share any information
+                relating to us, our firm/company/affiliates, guarantors, co-borrowers or any person associated with us
+                from/with regulatory authorities/rating agencies/credit bureau as may be required for
+                verifying/evaluating the proposed Facility and for any other purpose as it may deem fit including to
+                offer
+                any other financial products of the FI.
+                <br> 3. The Borrower/Guarantors have understood the terms and
+                conditions herein as laid out in English/ explained in the vernacular language.
+                <br> 4. The FI reserves the right
+                to stipulate any additional conditions at its sole discretion, prior to the disbursement of the above
+                sanctioned amount.
+                <br> 5. The FI reserves the right to revoke/ withdraw this Sanction Letter at its own discretion and
+                take such
+                further actions as per the term sheets and/or the loan agreement. In case of any query, please contact
+                the FI’s customer care email- id: #REPLACE EMAIL or the toll free number at # REPLACE TOLL.
+                <br><br> Yours Sincerely, For and on behalf of (#FINANCIER ) Authorized Signatory
+                <br><br><br><br>For and on behalf of the Borrower(s)/Guarantors
+                <br> Authorized Signatory
+                <br>{{BorrowerName}}
+                <br><br><br>Accepted and Acknowledged by,
+                <br>{{ENTITYNAME}}
+                <br>Date: {{Date}}
+                <br>Place:{{stateName}}
+            </td>
+        </table>
+        <br>
+        <center>
+            <h4>Key Fact Statement</h4>
+        </center>
+
+
+
+        <p align="right">Date:- {{Date}}</p>
+        <table border="1">
+            <tr>
+                <td></td>
+                <td>Name of the Regulated Entity :- NBFC NAME </td>
+                <td>Applicant Name :- {{BorrowerName}}</td>
+
+            </tr>
+            <tr>
+                <td>Sr No</td>
+                <td>Parameter </td>
+                <td>Details </td>
+
+            </tr>
+            <tr>
+                <td>(i) </td>
+                <td>Loan Amount (Amount Disbursed / to be Disbursed to the
+                    Borrower) (In Rupees) </td>
+                <td>{{disbursedAmount}} </td>
+
+            </tr>
+            <tr>
+                <td>(ii) </td>
+                <td>Purpose of the Facility </td>
+                <td>Invoice Discounting </td>
+
+            </tr>
+            <tr>
+                <td>(iii) </td>
+                <td> Invoice Maturity Date </td>
+                <td>(Tenor) Days from the date of
+                    Discounting Invoice </td>
+
+            </tr>
+            <tr>
+                <td>(iV)</td>
+                <td>Total Interest Charge During the Entire tenor of the Loan
+                    (INR) </td>
+                <td>#(ROI %) PA </td>
+
+            </tr>
+            <tr>
+                <td>a) </td>
+                <td>Processing Fee, If Any (In Rupees) </td>
+                <td>{{processingFees}} </td>
+
+            </tr>
+            <tr>
+                <td>b) </td>
+                <td>Insurance Charge </td>
+                <td>#INR </td>
+
+            </tr>
+            <tr>
+                <td>c) </td>
+                <td>Prepayment Charges </td>
+                <td>#INR </td>
+
+            </tr>
+            <tr>
+                <td>d) </td>
+                <td>Other (If Any) (In Rupees) ( Details to be Provided) </td>
+                <td>#INR </td>
+
+            </tr>
+            <tr>
+                <td>e)</td>
+                <td>Net Disbursed Amount ((i) -(iii)) (In Rupees) </td>
+                <td>#INR </td>
+
+            </tr>
+            <tr>
+                <td>(Vi) </td>
+                <td>Total Amount to be paid by the Borrower (Sum of (i),(ii) and
+                    (iii)) (In Rupees) </td>
+                <td>#INR </td>
+
+            </tr>
+            <tr>
+                <td>f) </td>
+                <td>Other (If Any) (In Rupees) ( Details to be Provided) </td>
+                <td># Cheque/ ACH dishonour charges :
+                    Rs. 500/- per instance Cheque/ ACH
+                    sw ap charges: Rs. 500/- per
+                    instance
+                    All charges exclusive of GST and
+                    other applicable taxes, present &
+                    future </td>
+
+            </tr>
+            <tr>
+                <td>Vii) </td>
+                <td>Annual Percentage Rate - Effective annualized Interest rate
+                    ( In Percentage)(Computed on net Disbursed amount using
+                    IRR approach and reducing balance Method </td>
+                <td>#ROI </td>
+
+            </tr>
+            <tr>
+                <td>Viii) </td>
+                <td>Tenor of the Loan (In Months/ days) </td>
+                <td>Days </td>
+
+            </tr>
+            <tr>
+                <td>iX) </td>
+                <td>Repayment Frequency by the Borrower</td>
+                <td>Daily/Monthly/Quarterly/Yearly </td>
+
+            </tr>
+            <tr>
+                <td>X)</td>
+                <td>Number of Instalment of Repayment </td>
+                <td>As per Invoices </td>
+
+            </tr>
+            <tr>
+                <td>Xi) </td>
+                <td>Amount of each instalment of Repayment ( In Rupees) </td>
+                <td>As per Invoices </td>
+
+            </tr>
+            <tr>
+                <td colspan="3" align="center">Details about Contingent Charges </td>
+
+            </tr>
+            <tr>
+                <td>Xii) </td>
+                <td>Rate of Annualized penal charges in case of delayed
+                    payment ( If Any) </td>
+                <td>#% PA on overdue Amount </td>
+
+            </tr>
+            <tr>
+                <td>Xiii) </td>
+                <td>Any other Default Charges if its Applicable </td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td colspan="3" align="center">Other Disclosures </td>
+            </tr>
+            <tr>
+                <td>XiV)</td>
+                <td>Cooling Off/Look-up Period </td>
+                <td># Days </td>
+
+            </tr>
+            <tr>
+                <td>XV) </td>
+                <td>Details of LSP Acting as recovery agent and Authorized to
+                    approach the borrower </td>
+                <td>#Loan Service Provider details </td>
+
+            </tr>
+            <tr>
+                <td>Xvi) </td>
+                <td>
+                    Name, Designation, Address and Phone Number if Nodal
+                    Grievance Redressal Officer </td>
+                <td># Grievance officer details </td>
+
+        </table>
+        <center>
+            <p>MITC (Most Important Terms and Condition) Document to be continued from here</p>
+        </center>
+    </div>
+    <div id="pageFooter" style="margin-bottom: 0px;">
+        <hr>
+        <table class="footer-table" style="padding:0px 80px 20px 80px;">
+            <tbody>
+                <tr>
+                    <td style="width:40%; text-align: left;">Signed By : Meenakshi Tanwar</td>
+                    <td style="width:60%; text-align: right;">Signed By : BAKULBHAI N PAREKH</td>
+                </tr>
+                <tr>
+                    <td style="width:40%; text-align: left;">on behalf of Indifi Capital Private Limited</td>
+                    <td style="width:60%; text-align: right;">Reason : For Loan availed from Indifi Capital Private
+                        Limited</td>
+                </tr>
+                <tr>
+                    <td style="width:40%; text-align: left;">IP Address: 203.122.10.50</td>
+                    <td style="width:60%; text-align: right;">sourced by Indifi Technologies Pvt. Ltd.</td>
+                </tr>
+                <tr>
+                    <td style="width:40%; text-align: left;">Date: 11/10/2023 17:10</td>
+                    <td style="width:60%; text-align: right;">eSigned using Aadhar (digio.in)</td>
+                </tr>
+                <tr>
+                    <td style="width:40%; text-align: left;"></td>
+                    <td style="width:60%; text-align: right;">Date: 2023-10-13 17:14:28 IST</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

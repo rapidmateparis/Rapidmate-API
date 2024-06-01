@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AFB Tech</title>
+  <style type="text/css">
+
+	body {
+		font-size: 18px;
+	}
+	.topHeaderMng {
+      text-align: center;
+    }
+
+    .topHeaderMng img {
+      max-width: 200px;
+      margin-top: 35px;
+    }
+
+    .topHeaderMng h4 {
+      margin-top: 10px;
+      font-size: 25px;
+      margin-bottom: 10px;
+      font-weight: 600;
+      text-decoration: underline;
+      margin-left: 20px;
+    }
+	.orderListTable {
+		width: 100%;
+		border-spacing: 0px;
+      	border-collapse: collapse;
+	}
+
+	.orderListTable tr th{
+		border: 1px solid #000;
+		font-size: 12px;
+	}
+
+	.orderListTable tr td{
+		border: 1px solid #000;
+		font-size: 12px;
+	}
+
+	.orderListTable tr td:nth-child(4){
+		min-width: 100px;
+		max-width: 100px;
+	}
+	
+    
+  </style>
+</head>
+
+<body>
+  <div >
+    <div class="topHeaderMng">
+      <!-- <img src="https://s3.ap-south-1.amazonaws.com/dev.astafa.files/AFBDocs/logo.png" alt=""> -->
+      <h4>QUOTATION</h4>
+    </div>
+    <table class="orderListTable" style="border: 1px solid #000;" >
+      <thead>
+        <tr>
+          <th>Sr. No.</th>
+          <th>Order Id</th>
+          <th>Brand</th>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Rate</th>
+          <th>Total Amount</th>
+          <th>User Id</th>
+          <th>Created Date</th>
+        </tr>
+      </thead>
+        {{dynamicTable}}
+    </table>
+    <hr>
+  </div>
+  <table width="100%" style="margin-top: 15px;">
+    <tr>
+      <td class="no-global-style" width="80%">
+      </td>
+      <td width="20%" align="center" >
+        <img style="max-width: 150px;" src="https://s3.ap-south-1.amazonaws.com/dev.astafa.files/PDFDocs/299-2992755_fake-signature-png-transparent-png.png" alt="sign">
+      </td>
+    </tr>
+  </table>    
+</body>
+
+</html>
