@@ -195,7 +195,6 @@ exports.generateOTP = () => {
 };
 
 exports.getDate = (format) => {
-  // YYYY-MM-DD HH:mm:ss
   return moment().format(format);
 };
 
@@ -307,4 +306,28 @@ exports.savePdfToS3 = async (template) => {
       resolve(buffer)
     });
   });
+}
+
+exports.nameExists = async (fieldValue,tableName,fieldname) => {
+  let query = `SELECT ${fieldname} FROM ${tableName} WHERE ${fieldname} ='${fieldValue}'`;
+  console.log(query)
+  let queryRes = await runQuery(query);
+  if (queryRes.length > 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+
+}
+
+exports.isIDGood=async (id,fieldValue,tableName)=>{
+  let query = `SELECT ${fieldValue} FROM ${tableName} WHERE ${fieldValue} ='${id}'`;
+  let queryRes = await runQuery(query);
+  if (queryRes.length > 0) {
+    return queryRes[0][fieldValue];
+  }
+  else {
+    return false;
+  }
 }

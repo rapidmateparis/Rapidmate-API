@@ -126,7 +126,7 @@ module.exports = {
       // res.status(500).json({ error: "Failed to execute the query" });
     }
   },
-
+  
   async getQuery(query) {
     try {
       return await pool
