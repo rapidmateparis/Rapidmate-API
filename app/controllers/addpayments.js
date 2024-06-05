@@ -25,7 +25,7 @@ const errorReturn = { status: 'success', statusCode: 400, message: null }
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from locations'
+    const getUserQuerye = 'SELECT adp.*,u.first_name as firstname,u.last_name as lastname,pm.name as method_type FROM add_payment_method adp JOIN users u ON adp.user_id=u.user_id JOIN payment_method pm ON adp.method_id=pm.id'
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -52,7 +52,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from locations where id='"+id+"'"
+    const getUserQuerye = "SELECT adp.*,u.first_name as firstname,u.last_name as lastname,pm.name as method_type FROM add_payment_method adp JOIN users u ON sdp.user_id = u.user_id JOIN payment_method pm ON adp.method_id=pm.id where adp.id='"+id+"'"
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -77,17 +77,17 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE locations SET location_type ='${req.location_type}',location_name='${req.location_name}',address='${req.address}',city='${req.city}',state='${req.state}',country='${req.country}',latitude='${req.latitude}',longitude='${req.longitude}' WHERE id ='${id}'`;
+    const registerQuery = `UPDATE add_payment_method SET user_id='${req.user_id}',method_id='${req.method_id}',paypal_email='${req.paypal_email}',applepay_email='${req.applepay_email}',name_on_card='${req.name_on_card}',card_number='${req.card_number}',expiry_date='${req.expiry_date}',cvv='${req.cvv}' WHERE id ='${id}'`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { location_name } = req.body;
-    const doesNameExists = await utils.nameExists(location_name,'locations','location_name')
+    const { card_number } = req.body;
+    const doesNameExists = await utils.nameExists(card_numberp,'add_payment_method','card_number')
     if (doesNameExists) {
-      utils.errorReturn.message = 'Location Name already exists';
+      utils.errorReturn.message = 'Card Number already exists';
       utils.errorReturn.statusCode = 400;
       return res.status(400).json(utils.errorReturn);
     }
@@ -111,14 +111,14 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO locations (location_type,location_name,address,city,state,country,latitude,longitude) VALUES ('${req.location_type}','${req.location_name}','${req.address}','${req.city}','${req.state}','${req.country}','${req.latitude}','${req.longitude}')`;
+    const registerQuery = `INSERT INTO add_payment_method (user_id,method_id,paypal_email,applepay_email,name_on_card,card_number,expiry_date,cvv) VALUES ('${req.user_id}','${req.method_id}','${req.paypal_email}','${req.applepay_email}','${req.name_on_card}','${req.card_number}','${req.expiry_date}','${req.cvv}')`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
     let error = false;
-    const doesNameExists =await utils.nameExists(req.body.plan_name,'locations','location_name')
+    const doesNameExists =await utils.nameExists(req.body.card_number,'add_payment_method','card_number')
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
@@ -134,7 +134,7 @@ exports.createItem = async (req, res) => {
       }
     }else{
         error = true
-        errorReturn.message = 'Location Name already exists'
+        errorReturn.message = 'Card Number already exists'
         errorReturn.statusCode = 400;
     }
     if (error) {
@@ -149,7 +149,7 @@ exports.createItem = async (req, res) => {
   }
 }
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM locations WHERE id ='${id}'`;
+    const deleteQuery = `DELETE FROM add_payment_method WHERE id ='${id}'`;
     const deleteRes = await runQuery(deleteQuery);
     return deleteRes;
 };
@@ -161,7 +161,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'id','locations')
+    const getId = await utils.isIDGood(id,'id','add_payment_method')
     if(getId){
         const deletedItem = await deleteItem(getId);
         if (deletedItem.affectedRows > 0) {

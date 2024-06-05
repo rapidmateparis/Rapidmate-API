@@ -1,5 +1,5 @@
-const controller = require('../controllers/locations')
-const validate = require('../controllers/locations.validate')
+const controller = require('../controllers/coupons')
+const validate = require('../controllers/coupons.validate')
 const AuthController = require('../controllers/auth')
 const express = require('express')
 const router = express.Router()
@@ -11,7 +11,7 @@ const requireAuth = passport.authenticate('jwt', {
 const trimRequest = require('trim-request')
 
 /*
- * Users routes
+ * vehicle types routes
  */
 
 /*
@@ -44,8 +44,8 @@ router.get(
   '/:id',
   //   requireAuth,
   //   AuthController.roleAuthorization(['admin']),
-  //   trimRequest.all,
-  //   validate.getItem,
+    trimRequest.all,
+    validate.getItem,
   controller.getItem
 )
 
@@ -54,8 +54,8 @@ router.get(
  */
 router.patch(
   '/:id',
-  // requireAuth,
-  // AuthController.roleAuthorization(['admin']),
+//   requireAuth,
+//   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -66,8 +66,8 @@ router.patch(
  */
 router.delete(
   '/:id',
-  // requireAuth,
-  // AuthController.roleAuthorization(['admin']),
+//   requireAuth,
+//   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.deleteItem,
   controller.deleteItem

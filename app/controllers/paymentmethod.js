@@ -25,7 +25,7 @@ const errorReturn = { status: 'success', statusCode: 400, message: null }
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from locations'
+    const getUserQuerye = 'select * from payment_method'
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -52,7 +52,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from locations where id='"+id+"'"
+    const getUserQuerye = "select * from payment_method where id='"+id+"'"
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -77,17 +77,17 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE locations SET location_type ='${req.location_type}',location_name='${req.location_name}',address='${req.address}',city='${req.city}',state='${req.state}',country='${req.country}',latitude='${req.latitude}',longitude='${req.longitude}' WHERE id ='${id}'`;
+    const registerQuery = `UPDATE payment_method SET name='${req.name}' WHERE id ='${id}'`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { location_name } = req.body;
-    const doesNameExists = await utils.nameExists(location_name,'locations','location_name')
+    const { name } = req.body;
+    const doesNameExists = await utils.nameExists(name,'payment_method','name')
     if (doesNameExists) {
-      utils.errorReturn.message = 'Location Name already exists';
+      utils.errorReturn.message = 'Name already exists';
       utils.errorReturn.statusCode = 400;
       return res.status(400).json(utils.errorReturn);
     }
@@ -111,14 +111,14 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO locations (location_type,location_name,address,city,state,country,latitude,longitude) VALUES ('${req.location_type}','${req.location_name}','${req.address}','${req.city}','${req.state}','${req.country}','${req.latitude}','${req.longitude}')`;
+    const registerQuery = `INSERT INTO payment_method (name) VALUES ('${req.name}')`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
     let error = false;
-    const doesNameExists =await utils.nameExists(req.body.plan_name,'locations','location_name')
+    const doesNameExists =await utils.nameExists(req.body.name,'payment_method','name')
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
@@ -134,7 +134,7 @@ exports.createItem = async (req, res) => {
       }
     }else{
         error = true
-        errorReturn.message = 'Location Name already exists'
+        errorReturn.message = 'Name already exists'
         errorReturn.statusCode = 400;
     }
     if (error) {
@@ -149,7 +149,7 @@ exports.createItem = async (req, res) => {
   }
 }
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM locations WHERE id ='${id}'`;
+    const deleteQuery = `DELETE FROM payment_method WHERE id ='${id}'`;
     const deleteRes = await runQuery(deleteQuery);
     return deleteRes;
 };
@@ -161,7 +161,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'id','locations')
+    const getId = await utils.isIDGood(id,'id','payment_method')
     if(getId){
         const deletedItem = await deleteItem(getId);
         if (deletedItem.affectedRows > 0) {

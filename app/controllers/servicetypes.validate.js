@@ -5,16 +5,12 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-  check('plan_name')
+  check('service_name')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY')
-    .trim(),
-    check('plan_description')
-    .exists()
-    .withMessage('MISSING')
     .trim(),
   (req, res, next) => {
     validationResult(req, res, next)
@@ -25,16 +21,7 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-  check('plan_name')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
-  check('plan_description')
-    .exists()
-    .withMessage('MISSING'),
-  check('id')
+  check('service_name')
     .exists()
     .withMessage('MISSING')
     .not()

@@ -310,7 +310,6 @@ exports.savePdfToS3 = async (template) => {
 
 exports.nameExists = async (fieldValue,tableName,fieldname) => {
   let query = `SELECT ${fieldname} FROM ${tableName} WHERE ${fieldname} ='${fieldValue}'`;
-  console.log(query)
   let queryRes = await runQuery(query);
   if (queryRes.length > 0) {
     return true;
