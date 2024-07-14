@@ -1,23 +1,5 @@
-const model = require('../models/vehicletypes')
-const uuid = require('uuid')
-const { matchedData } = require('express-validator')
 const utils = require('../middleware/utils')
-const db = require('../middleware/db')
-// const admin = require("firebase-admin");
-const FCM = require('fcm-node');
-// const serverKey = "BCPwVcW_NWjO1wBEy4vc4C2IsTXeQq7gbDdi_KcLOsqYfcoSihlpS90IBJ7_Joi-7AiZx_0sd2NY1G9zVgiduWk";
-const serverKey = "ryTxA-wBlCj75jl-uW7q6eAeFHKXmetmPUnwtFI5LZw";
-const fcm = new FCM(serverKey);
 const { runQuery } = require('../middleware/db')
-const cons = require('consolidate')
-/*********************
- * Private functions *
- *********************/
-/**
- * Creates a new item in database
- * @param {Object} req - request object
- */
-const errorReturn = { status: 'success', statusCode: 400, message: null }
 /********************
  * Public functions *
  ********************/
@@ -28,22 +10,15 @@ const errorReturn = { status: 'success', statusCode: 400, message: null }
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from vehicle_types'
+    const getUserQuerye = 'select * from rmt_vehicle_type'
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
     }
-    const response = {
-        message: message,
-        total: data.length,
-        status: 'success',
-        statusCode: 200,
-        data
-    };
-    return res.status(200).json(response)
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
-    utils.handleError(res, error)
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
 
@@ -55,22 +30,15 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from vehicle_types where type_id='"+id+"'"
+    const getUserQuerye = "select * from rmt_vehicle_type where ID='"+id+"'"
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
     }
-    const response = {
-        message: message,
-        total: data.length,
-        status: 'success',
-        statusCode: 200,
-        data
-    };
-    return res.status(200).json(response)
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
-    utils.handleError(res, error)
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
 
@@ -79,33 +47,31 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,name) => {
-    const registerQuery = `UPDATE vehicle_types SET name ='${name}' WHERE type_id ='${id}'`;
+const updateItem = async (id,req) => {
+    const registerQuery = `UPDATE rmt_vehicle_type SET VEHICLE_TYPE ='${req.vehicle_type}',VEHICLE_TYPE_DESC='${req.vehicle_type_desc}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
-    const doesNameExists = await utils.nameExists(name,'vehicle_types','name')
-    if (doesNameExists) {
-      utils.errorReturn.message = 'Name already exists';
-      utils.errorReturn.statusCode = 400;
-      return res.status(400).json(utils.errorReturn);
+    const getId = await utils.isIDGood(id,'ID','rmt_vehicle_type')
+    if(getId){
+      const { vehicle_type } = req.body;
+      const doesNameExists = await utils.nameExists(vehicle_type,'rmt_vehicle_type','VEHICLE_TYPE')
+      if (doesNameExists) {
+        return res.status(400).json(utils.buildErrorObject(400,'Vehicle type already exists',1001));
+      }
+      const updatedItem = await updateItem(id, req.body);
+      if (updatedItem) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
     }
-    const updatedItem = await updateItem(id, name);
-    if (updatedItem) {
-        utils.successReturn.data = updatedItem;
-        utils.successReturn.message ='Record Updated Successfully';
-        return res.status(200).json(utils.successReturn);
-    } else {
-        utils.errorReturn.message = 'Something went wrong';
-        utils.errorReturn.statusCode = 500;
-        return res.status(500).json(utils.errorReturn);
-    }
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   } catch (error) {
-    utils.handleError(res, error)
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
 /**
@@ -113,46 +79,30 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (name) => {
-    const registerQuery = `INSERT INTO vehicle_types (name) VALUES ('${name}')`;
+const createItem = async (req) => {
+    const registerQuery = `INSERT INTO rmt_vehicle_type (VEHICLE_TYPE,VEHICLE_TYPE_DESC) VALUES ('${req.vehicle_type}','${req.vehicle_type_desc}')`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
-    let error = false;
-    const doesNameExists =await utils.nameExists(req.body.name,'vehicle_types','name')
+    const doesNameExists =await utils.nameExists(req.body.vehicle_type,'rmt_vehicle_type','VEHICLE_TYPE')
     if (!doesNameExists) {
-      const item = await createItem(req.body.name)
+      const item = await createItem(req.body)
       if(item.insertId){
-        const count = item.length;
-        utils.successReturn.data = item;
-        utils.successReturn.total = count;
-        utils.successReturn.message = 'Record Inserted Successfully';
-        return res.status(200).json(utils.successReturn);
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
       }else{
-        error = true
-        errorReturn.message = 'Something went wrong'
-        errorReturn.statusCode = 500;
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
     }else{
-        error = true
-        errorReturn.message = 'Name already exists'
-        errorReturn.statusCode = 400;
-    }
-    if (error) {
-        return res.status(errorReturn.statusCode).json(errorReturn)
-    } else {
-        utils.successReturn.data = null
-        utils.successReturn.message = 'Record Inserted Successfully';
-        return res.status(200).json(utils.successReturn)
+      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
     }
   } catch (error) {
-    utils.handleError(res, error)
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM vehicle_types WHERE type_id ='${id}'`;
+    const deleteQuery = `DELETE FROM rmt_vehicle_type WHERE ID ='${id}'`;
     const deleteRes = await runQuery(deleteQuery);
     return deleteRes;
 };
@@ -164,24 +114,18 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'type_id','vehicle_types')
+    const getId = await utils.isIDGood(id,'type_id','rmt_vehicle_type')
     if(getId){
         const deletedItem = await deleteItem(getId);
         if (deletedItem.affectedRows > 0) {
-            utils.successReturn.message = 'Record Deleted Successfully';
-            utils.successReturn.total = deleteItem.length;
-            return res.status(200).json(utils.successReturn);
+          return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
         } else {
-            utils.errorReturn.message = 'Record not found';
-            utils.errorReturn.statusCode = 404;
-            return res.status(404).json(utils.errorReturn);
+          return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
         }
     }
-    utils.errorReturn.message = 'Record not found';
-    utils.errorReturn.statusCode = 404;
-    return res.status(404).json(utils.errorReturn);
+    return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    utils.handleError(res, error)
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
 

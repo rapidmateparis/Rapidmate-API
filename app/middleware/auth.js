@@ -49,7 +49,6 @@ module.exports = {
 
   decrypt(text) {
     const decipher = crypto.createDecipheriv(algorithm, key, iv)
-
     try {
       let decrypted = decipher.update(text, 'hex', 'utf8')
       decrypted += decipher.final('utf8')

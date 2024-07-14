@@ -5,13 +5,14 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-  check('name')
+  check('vehicle_type')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY')
     .trim(),
+  check('vehicle_type_desc').optional(),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -21,12 +22,14 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-  check('name')
+  check('vehicle_type')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY'),
+  check('vehicle_type_desc').optional(),
+  check('is_del').optional(),
   check('id')
     .exists()
     .withMessage('MISSING')

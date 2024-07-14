@@ -15,9 +15,6 @@ exports.createItem = [
     check('plan_description')
     .exists()
     .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
     .trim(),
   (req, res, next) => {
     validationResult(req, res, next)
@@ -34,6 +31,9 @@ exports.updateItem = [
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY'),
+  check('plan_description')
+    .exists()
+    .withMessage('MISSING'),
   check('id')
     .exists()
     .withMessage('MISSING')

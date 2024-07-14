@@ -1,0 +1,183 @@
+const utils = require('../middleware/utils')
+const db = require('../middleware/db')
+// const admin = require("firebase-admin");
+const FCM = require('fcm-node');
+// const serverKey = "BCPwVcW_NWjO1wBEy4vc4C2IsTXeQq7gbDdi_KcLOsqYfcoSihlpS90IBJ7_Joi-7AiZx_0sd2NY1G9zVgiduWk";
+const serverKey = "ryTxA-wBlCj75jl-uW7q6eAeFHKXmetmPUnwtFI5LZw";
+const fcm = new FCM(serverKey);
+const { runQuery } = require('../middleware/db')
+const cons = require('consolidate')
+/*********************
+ * Private functions *
+ *********************/
+/**
+ * Creates a new item in database
+ * @param {Object} req - request object
+ */
+const errorReturn = { status: 'success', statusCode: 400, message: null }
+/********************
+ * Public functions *
+ ********************/
+/**
+ * Get items function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItems = async (req, res) => {
+  try {
+    const getUserQuerye = 'select * from coupon_codes'
+    const data = await runQuery(getUserQuerye)
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+    }
+    const response = {
+        message: message,
+        total: data.length,
+        status: 'success',
+        statusCode: 200,
+        data
+    };
+    return res.status(200).json(response)
+  } catch (error) {
+    utils.handleError(res, error)
+  }
+}
+
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItem = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const getUserQuerye = "select * from coupon_codes where id='"+id+"'"
+    const data = await runQuery(getUserQuerye)
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+    }
+    const response = {
+        message: message,
+        total: data.length,
+        status: 'success',
+        statusCode: 200,
+        data
+    };
+    return res.status(200).json(response)
+  } catch (error) {
+    utils.handleError(res, error)
+  }
+}
+
+/**
+ * Update item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const updateItem = async (id,req) => {
+    const registerQuery = `UPDATE coupon_codes SET code='${req.code}',discount ='${req.discount}',expiry_date='${req.expiry_date}',max_usage='${req.max_usage}',current_usage='${req.current_usage}',description='${req.description}' WHERE id ='${id}'`;
+    const registerRes = await runQuery(registerQuery);
+    return registerRes;
+}
+exports.updateItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { code } = req.body;
+    const doesNameExists = await utils.nameExists(code,'coupon_codes','code')
+    if (doesNameExists) {
+      utils.errorReturn.message = 'Coupon Code already exists';
+      utils.errorReturn.statusCode = 400;
+      return res.status(400).json(utils.errorReturn);
+    }
+    const updatedItem = await updateItem(id, req.body);
+    if (updatedItem) {
+        utils.successReturn.data = updatedItem;
+        utils.successReturn.message ='Record Updated Successfully';
+        return res.status(200).json(utils.successReturn);
+    } else {
+        utils.errorReturn.message = 'Something went wrong';
+        utils.errorReturn.statusCode = 500;
+        return res.status(500).json(utils.errorReturn);
+    }
+  } catch (error) {
+    utils.handleError(res, error)
+  }
+}
+/**
+ * Create item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const createItem = async (req) => {
+    const registerQuery = `INSERT INTO coupon_codes (code,discount,expiry_date,max_usage,current_usage,description) VALUES ('${req.code}','${req.discount}','${req.expiry_date}','${req.max_usage}','${req.current_usage}','${req.description}')`;
+    const registerRes = await runQuery(registerQuery);
+    return registerRes;
+}
+exports.createItem = async (req, res) => {
+  try {
+    let error = false;
+    const doesNameExists =await utils.nameExists(req.body.code,'coupon_codes','code')
+    if (!doesNameExists) {
+      const item = await createItem(req.body)
+      if(item.insertId){
+        const count = item.length;
+        utils.successReturn.data = item;
+        utils.successReturn.total = count;
+        utils.successReturn.message = 'Record Inserted Successfully';
+        return res.status(200).json(utils.successReturn);
+      }else{
+        error = true
+        errorReturn.message = 'Something went wrong'
+        errorReturn.statusCode = 500;
+      }
+    }else{
+        error = true
+        errorReturn.message = 'Coupon Code already exists'
+        errorReturn.statusCode = 400;
+    }
+    if (error) {
+        return res.status(errorReturn.statusCode).json(errorReturn)
+    } else {
+        utils.successReturn.data = null
+        utils.successReturn.message = 'Record Inserted Successfully';
+        return res.status(200).json(utils.successReturn)
+    }
+  } catch (error) {
+    utils.handleError(res, error)
+  }
+}
+const deleteItem = async (id) => {
+    const deleteQuery = `DELETE FROM coupon_codes WHERE id ='${id}'`;
+    const deleteRes = await runQuery(deleteQuery);
+    return deleteRes;
+};
+/**
+ * Delete item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.deleteItem = async (req, res) => {
+  try {
+    const {id} =req.params
+    const getId = await utils.isIDGood(id,'id','coupon_codes')
+    if(getId){
+        const deletedItem = await deleteItem(getId);
+        if (deletedItem.affectedRows > 0) {
+            utils.successReturn.message = 'Record Deleted Successfully';
+            utils.successReturn.total = deleteItem.length;
+            return res.status(200).json(utils.successReturn);
+        } else {
+            utils.errorReturn.message = 'Record not found';
+            utils.errorReturn.statusCode = 404;
+            return res.status(404).json(utils.errorReturn);
+        }
+    }
+    utils.errorReturn.message = 'Record not found';
+    utils.errorReturn.statusCode = 404;
+    return res.status(404).json(utils.errorReturn);
+  } catch (error) {
+    utils.handleError(res, error)
+  }
+}

@@ -44,8 +44,8 @@ router.get(
   '/:id',
   //   requireAuth,
   //   AuthController.roleAuthorization(['admin']),
-  //   trimRequest.all,
-  //   validate.getItem,
+    trimRequest.all,
+    validate.getItem,
   controller.getItem
 )
 
@@ -54,8 +54,8 @@ router.get(
  */
 router.patch(
   '/:id',
-  requireAuth,
-  AuthController.roleAuthorization(['admin']),
+  // requireAuth,
+  // AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -66,8 +66,8 @@ router.patch(
  */
 router.delete(
   '/:id',
-  requireAuth,
-  AuthController.roleAuthorization(['admin']),
+  // requireAuth,
+  // AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.deleteItem,
   controller.deleteItem
