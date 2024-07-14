@@ -79,6 +79,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
+<<<<<<< HEAD
     const getUserQuerye = `
     SELECT
         sp.*,
@@ -106,6 +107,9 @@ exports.getItem = async (req, res) => {
         vehicle v ON sp.vehicle_id = v.vehicle_id
     JOIN
         vehicle_types vt ON vt.type_id = v.type_id where sp.id=${id}`
+=======
+    const getUserQuerye = "select * from plan_service_type where id='"+id+"'"
+>>>>>>> 57c607785c6804a3b5725a12d8bfaf342571d876
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
