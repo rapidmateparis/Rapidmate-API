@@ -1,11 +1,11 @@
-const controller = require('../controllers/coupons')
-const validate = require('../controllers/coupons.validate')
+const controller = require('../controllers/paymentcard')
+const validate = require('../controllers/paymentcard.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * Coupon code routes
+ * Payment card routes
  */
 
 /*

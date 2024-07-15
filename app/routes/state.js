@@ -1,11 +1,12 @@
-const controller = require('../controllers/coupons')
-const validate = require('../controllers/coupons.validate')
+const controller = require('../controllers/state.js')
+const validate = require('../controllers/state.validate')
 const express = require('express')
 const router = express.Router()
+
 const trimRequest = require('trim-request')
 
 /*
- * Coupon code routes
+ * Users routes
  */
 
 /*
@@ -34,7 +35,7 @@ router.get(
   '/:id',
     trimRequest.all,
     validate.getItem,
-  controller.getItem
+    controller.getItem
 )
 
 /*

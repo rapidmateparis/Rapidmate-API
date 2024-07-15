@@ -5,13 +5,9 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-  check('service_name')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .trim(),
+    check('question').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('answer').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('category').exists().withMessage('MISSING'),
     check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
   (req, res, next) => {
     validationResult(req, res, next)
@@ -22,11 +18,20 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-  check('service_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-  (req, res, next) => {
-    validationResult(req, res, next)
-  }
+    check('question').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('answer').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('category').exists().withMessage('MISSING'),
+    check('is_del').optional(),
+    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+    check('id')
+        .exists()
+        .withMessage('MISSING')
+        .not()
+        .isEmpty()
+        .withMessage('IS_EMPTY'),
+    (req, res, next) => {
+        validationResult(req, res, next)
+    }
 ]
 
 /**

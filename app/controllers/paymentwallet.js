@@ -1,5 +1,8 @@
 const utils = require('../middleware/utils')
+const auth = require('../middleware/auth')
 const { runQuery } = require('../middleware/db')
+
+
 /********************
  * Public functions *
  ********************/
@@ -9,19 +12,22 @@ const { runQuery } = require('../middleware/db')
  * @param {Object} res - response object
  */
 exports.getItems = async (req, res) => {
-  try {
-    const getUserQuerye = 'select * from rmt_vehicle_type'
-    const data = await runQuery(getUserQuerye)
-    let message="Items retrieved successfully";
-    if(data.length <=0){
-        message="No items found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    try {
+      const getUserQuery = 'SELECT paccount.*, d.FIRST_NAME, d.LAST_NAME FROM rmt_delivery_boy_wallet paccount JOIN rmt_delivery_boy d ON paccount.DELIVERY_BOY_ID = d.ID';
+      const data = await runQuery(getUserQuery);
+      let message = "Items retrieved successfully";
+      // Check if data is empty
+      if (data.length <= 0) {
+          message = "No items found";
+          return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+      }
+      
+      return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    } catch (error) {
+      return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
-  } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-  }
-}
+  };
+  
 
 /**
  * Get item function called by route
@@ -31,8 +37,8 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_vehicle_type where ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const getUserQuerye = "SELECT paccount.*,d.FIRST_NAME,d.LAST_NAME FROM rmt_delivery_boy_wallet paccount JOIN rmt_delivery_boy d ON paccount.DELIVERY_BOY_ID =d.ID where paccount.ID='"+id+"'"
+    const data = await runQuery(getUserQuerye);
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
@@ -50,23 +56,18 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_vehicle_type SET VEHICLE_TYPE ='${req.vehicle_type}',VEHICLE_TYPE_DESC='${req.vehicle_type_desc}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
+    const registerQuery = `UPDATE rmt_delivery_boy_wallet SET DELIVERY_BOY_ID='${req.delivery_boy_id}',BALANCE ='${req.balance}',CURRENCY='${req.currency}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_vehicle_type')
+    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy_wallet')
     if(getId){
-      const { vehicle_type } = req.body;
-      const doesNameExists = await utils.nameExists(vehicle_type,'rmt_vehicle_type','VEHICLE_TYPE')
-      if (doesNameExists) {
-        return res.status(400).json(utils.buildErrorObject(400,'Vehicle type already exists',1001));
-      }
       const updatedItem = await updateItem(id, req.body);
       if (updatedItem) {
-        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+          return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
@@ -75,6 +76,7 @@ exports.updateItem = async (req, res) => {
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
+    
 }
 /**
  * Create item function called by route
@@ -82,13 +84,14 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_vehicle_type (VEHICLE_TYPE,VEHICLE_TYPE_DESC) VALUES ('${req.vehicle_type}','${req.vehicle_type_desc}')`;
+    const registerQuery = `INSERT INTO rmt_delivery_boy_wallet(DELIVERY_BOY_ID,BALANCE,CURRENCY,IS_DEL) VALUES('${req.delivery_boy_id}','${req.balance}','${req.currency}','${req.is_del}')`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
+
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.vehicle_type,'rmt_vehicle_type','VEHICLE_TYPE')
+    const doesNameExists =await utils.nameExists(req.body.delivery_boy_id,'rmt_delivery_boy_wallet','DELIVERY_BOY_ID')
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
@@ -97,16 +100,17 @@ exports.createItem = async (req, res) => {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
+      return res.status(400).json(utils.buildErrorObject(400,'Amount already added you need to update.',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
+
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM rmt_vehicle_type WHERE ID ='${id}'`;
-    const deleteRes = await runQuery(deleteQuery);
-    return deleteRes;
+  const deleteQuery = `DELETE FROM rmt_delivery_boy_wallet WHERE ID ='${id}'`;
+  const deleteRes = await runQuery(deleteQuery);
+  return deleteRes;
 };
 /**
  * Delete item function called by route
@@ -116,27 +120,17 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'type_id','rmt_vehicle_type')
+    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy_wallet')
     if(getId){
-        const deletedItem = await deleteItem(getId);
-        if (deletedItem.affectedRows > 0) {
-          return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
-        } else {
-          return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-        }
+      const deletedItem = await deleteItem(getId);
+      if (deletedItem.affectedRows > 0) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
-
-
-
-
-
-
-
-
-
-

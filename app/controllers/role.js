@@ -18,6 +18,7 @@ exports.getItems = async (req, res) => {
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
@@ -38,6 +39,7 @@ exports.getItem = async (req, res) => {
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {

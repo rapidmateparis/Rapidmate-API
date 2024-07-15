@@ -1,11 +1,11 @@
-const controller = require('../controllers/coupons')
-const validate = require('../controllers/coupons.validate')
+const controller = require('../controllers/latlon')
+const validate = require('../controllers/latlon.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * Coupon code routes
+ * Latlon routes
  */
 
 /*

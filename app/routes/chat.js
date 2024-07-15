@@ -1,11 +1,11 @@
-const controller = require('../controllers/coupons')
-const validate = require('../controllers/coupons.validate')
+const controller = require('../controllers/chat')
+const validate = require('../controllers/chat.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * Coupon code routes
+ * Chat routes
  */
 
 /*
