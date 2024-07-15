@@ -33,6 +33,12 @@ function verifyJwtToken(token, secretKey) {
     throw new Error('Token verification failed');
   }
 }
+exports.generateOTP = () => {
+  const min = 100000;
+  const max = 999999;
+  const otp = Math.floor(Math.random() * (max - min + 1)) + min;
+  return otp;
+};
 /**
  * Handles error by printing to console in development env and builds and sends an error response
  * @param {Object} res - response object
@@ -182,6 +188,51 @@ exports.uploadFileToS3 = async (req, $filename, file = null) => {
   }
 }
 
+exports.uploadFileToS3bucket = async (req, filename, file = null) => {
+  let imageBuffer;
+  let docFilename = "";
+
+  if (file) {
+    imageBuffer = Buffer.from(file, 'base64');
+  } else {
+    const { insurance, autaar, passport, identity_card } = req.body;
+
+    if (insurance) {
+      imageBuffer = Buffer.from(insurance, 'base64');
+      docFilename = "Insurance";
+    } else if (autaar) {
+      imageBuffer = Buffer.from(autaar, 'base64');
+      docFilename = "Autaar";
+    } else if (passport) {
+      imageBuffer = Buffer.from(passport, 'base64');
+      docFilename = "Passport";
+    } else if (identity_card) {
+      imageBuffer = Buffer.from(identity_card, 'base64');
+      docFilename = "IdentityCard";
+    } else {
+      imageBuffer = Buffer.from(req.body.file, 'base64');
+    }
+  }
+
+  const params = {
+    Bucket: `${process.env.S3_BUCKET}/${docFilename}`,
+    Key: filename,
+    Body: imageBuffer
+  };
+
+  try {
+    const uploadRes = await s3.upload(params).promise();
+    return {
+      status: 'success',
+      data: uploadRes
+    };
+  } catch (error) {
+    return {
+      status: 'failed',
+      data: {}
+    };
+  }
+};
 
 exports.nameExists = async (fieldValue,tableName,fieldname) => {
   let query = `SELECT ${fieldname} FROM ${tableName} WHERE ${fieldname} ='${fieldValue}'`;
