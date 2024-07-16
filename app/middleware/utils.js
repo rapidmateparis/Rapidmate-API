@@ -195,7 +195,7 @@ exports.uploadFileToS3bucket = async (req, filename, file = null) => {
   if (file) {
     imageBuffer = Buffer.from(file, 'base64');
   } else {
-    const { insurance, autaar, passport, identity_card } = req.body;
+    const { insurance, autaar, passport, identity_card,document_file,package_image_one,package_image_two,package_image_three,vehicle_front_photo,vehicle_back_photo,rcv_photo} = req.body;
 
     if (insurance) {
       imageBuffer = Buffer.from(insurance, 'base64');
@@ -209,7 +209,35 @@ exports.uploadFileToS3bucket = async (req, filename, file = null) => {
     } else if (identity_card) {
       imageBuffer = Buffer.from(identity_card, 'base64');
       docFilename = "IdentityCard";
-    } else {
+    }else if (document_file) {
+      imageBuffer = Buffer.from(document_file, 'base64');
+      docFilename = "Orderdocument";
+    }
+    else if (package_image_one) {
+      imageBuffer = Buffer.from(package_image_one, 'base64');
+      docFilename = "Job";
+    }
+    else if (package_image_two) {
+      imageBuffer = Buffer.from(package_image_two, 'base64');
+      docFilename = "Job";
+    }
+    else if (package_image_three) {
+      imageBuffer = Buffer.from(package_image_three, 'base64');
+      docFilename = "Job";
+    }
+    else if (vehicle_front_photo) {
+      imageBuffer = Buffer.from(vehicle_front_photo, 'base64');
+      docFilename = "Vehicledocs";
+    }
+    else if (vehicle_back_photo) {
+      imageBuffer = Buffer.from(vehicle_back_photo, 'base64');
+      docFilename = "Vehicledocs";
+    }
+    else if (rcv_photo) {
+      imageBuffer = Buffer.from(rcv_photo, 'base64');
+      docFilename = "Vehicledocs";
+    }
+     else {
       imageBuffer = Buffer.from(req.body.file, 'base64');
     }
   }

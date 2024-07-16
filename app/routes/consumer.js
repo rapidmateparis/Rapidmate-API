@@ -5,7 +5,7 @@ const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * Latlon routes
+ * Consumer routes
  */
 
 /*

@@ -5,7 +5,7 @@ const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * role routes
+ * Planning setup routes
  */
 
 /*

@@ -1,11 +1,11 @@
-const controller = require('../controllers/vehicles')
-const validate = require('../controllers/vehicles.validate')
+const controller = require('../controllers/transaction')
+const validate = require('../controllers/transaction.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * vehicle types routes
+ * Transaction routes
  */
 
 /*

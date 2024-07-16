@@ -11,7 +11,7 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_planning_setup'
+    const getUserQuerye = 'select * from rmt_work_order'
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -32,7 +32,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_planning_setup where ID='"+id+"'"
+    const getUserQuerye = "select * from rmt_work_order where ID='"+id+"'"
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -51,14 +51,14 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_planning_setup SET DELIVERY_BOY_ID ='${req.delivery_boy_id}',PLAN_TYPE_ID='${req.plan_type_id}',SERVIVE_TYPE_ID='${req.service_type_id}',VEHICLE_ID='${req.vehicle_id}',PICKUP_LOCATION_ID='${req.pickup_location_id}',DROPOFF_LOCATION_ID='${req.dropoff_location_id}',PICKUP_DATE='${req.pickup_date}',PICKUP_TIME='${req.pickup_time}',IS_REPEAT='${req.is_repeat}',REPEAT_TIME='${req.repeat_time}',REPEAT_TYPE='${req.repeat_type}',REPEAT_DAY='${req.repeat_day}',REPEAT_TILL='${req.repeat_till}',REPEAT_DAY_EXCEPTION='${req.repeat_day_exception}',REPEAT_ON_DAY='${req.repeat_on_day}',REPEAT_ON_THE='${req.repeat_on_the}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
+    const registerQuery = `UPDATE rmt_work_order SET JOB_ID='${req.job_id}',WORKER_ID='${req.worker_id}',WORK_TYPE='${req.work_type}',STATUS='${req.status}',SCHEDULED_DATE='${req.schedule_date}',SCHEDULED_TIME='${req.schedule_time}',COMPLETION_DATE='${req.completion_date}',COMPLETION_TIME='${req.completion_time}',NOTES='${req.notes}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_planning_setup')
+    const getId = await utils.isIDGood(id,'ID','rmt_work_order')
     if(getId){
       const updatedItem = await updateItem(id, req.body);
       if (updatedItem) {
@@ -78,8 +78,9 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_planning_setup (DELIVERY_BOY_ID,PLAN_TYPE_ID,SERVICE_TYPE_ID,VEHICLE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID,PICKUP_DATE,PICKUP_TIME,IS_REPEAT,REPEAT_TYPE,REPEAT_DAY,REPEAT_TILL,REPEAT_DAY_EXCEPTION,REPEAT_ON_DAY,REPEAT_ON_THE,IS_DEL) VALUES ('${req.delivery_boy_id}','${req.plan_type_id}','${req.service_type_id}','${req.vehicle_id}','${req.pickup_location_id}','${req.dropoff_location_id}','${req.pickup_date}','${req.pickup_time}','${req.is_repeat}','${req.repeat_time}','${req.repeat_day}','${req.repeat_till}','${req.repeat_day_exception}','${req.repeat_on_day}','${req.repeat_on_the}','${req.is_del}')`;
+    const registerQuery = `INSERT INTO rmt_work_order (JOB_ID,WORKER_ID,WORK_TYPE,STATUS,SCHEDULED_DATE,SCHEDULED_TIME,COMPLETION_DATE,COMPLETION_TIME,NOTES,IS_DEL) VALUES ('${req.job_id}','${req.worker_id}','${req.work_type}','${req.status}','${req.schedule_date}','${req.schedule_time}','${req.completion_date}','${req.completion_time}','${req.notes}','${req.is_del}')`;
     const registerRes = await runQuery(registerQuery);
+    console.log(registerQuery)
     return registerRes;
 }
 exports.createItem = async (req, res) => {
@@ -95,7 +96,7 @@ exports.createItem = async (req, res) => {
   }
 }
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM rmt_planning_setup WHERE ID ='${id}'`;
+    const deleteQuery = `DELETE FROM rmt_work_order WHERE ID ='${id}'`;
     const deleteRes = await runQuery(deleteQuery);
     return deleteRes;
 };
@@ -107,7 +108,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_planning_setup')
+    const getId = await utils.isIDGood(id,'ID','rmt_work_order')
     if(getId){
         const deletedItem = await deleteItem(getId);
         if (deletedItem.affectedRows > 0) {

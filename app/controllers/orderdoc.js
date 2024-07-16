@@ -1,5 +1,6 @@
 const utils = require('../middleware/utils')
 const { runQuery } = require('../middleware/db')
+const auth = require('../middleware/auth')
 
 /********************
  * Public functions *
@@ -11,12 +12,12 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_planning_setup'
+    const getUserQuerye = 'select * from rmt_order_document'
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="No items found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+      message="No items found"
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
@@ -32,7 +33,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_planning_setup where ID='"+id+"'"
+    const getUserQuerye = "select * from rmt_order_document where DOCUMENT_ID='"+id+"'"
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -50,19 +51,27 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_planning_setup SET DELIVERY_BOY_ID ='${req.delivery_boy_id}',PLAN_TYPE_ID='${req.plan_type_id}',SERVIVE_TYPE_ID='${req.service_type_id}',VEHICLE_ID='${req.vehicle_id}',PICKUP_LOCATION_ID='${req.pickup_location_id}',DROPOFF_LOCATION_ID='${req.dropoff_location_id}',PICKUP_DATE='${req.pickup_date}',PICKUP_TIME='${req.pickup_time}',IS_REPEAT='${req.is_repeat}',REPEAT_TIME='${req.repeat_time}',REPEAT_TYPE='${req.repeat_type}',REPEAT_DAY='${req.repeat_day}',REPEAT_TILL='${req.repeat_till}',REPEAT_DAY_EXCEPTION='${req.repeat_day_exception}',REPEAT_ON_DAY='${req.repeat_on_day}',REPEAT_ON_THE='${req.repeat_on_the}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
+const updateItem = async (id,req,doc_path,doc_name) => {
+    const registerQuery = `UPDATE rmt_order_document SET ORDER_ID='${req.order_id}',DOCUMENT_TYPE='${req.document_type}',DOCUMENT_NAME='${doc_name}',DOCUMENT_PATH='${doc_path}' WHERE DOCUMENT_ID='${id}'`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
+
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_planning_setup')
+    const getId = await utils.isIDGood(id,'DOCUMENT_ID','rmt_order_document')
     if(getId){
-      const updatedItem = await updateItem(id, req.body);
-      if (updatedItem) {
-          return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+        let doc_path='';
+        const {document_name,order_id,document_file}=req.body;
+        if(document_file != '') {
+            filename =document_name+'_'+order_id+'_'+Date.now()+'.jpg';
+            doc_path = await utils.uploadFileToS3bucket(req,filename);
+            doc_path =doc_path.data.Location
+        }  
+      const updatedItem = await updateItem(id,req.body,doc_path,document_name);
+      if(updatedItem) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
@@ -71,33 +80,43 @@ exports.updateItem = async (req, res) => {
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
+    
 }
 /**
  * Create item function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_planning_setup (DELIVERY_BOY_ID,PLAN_TYPE_ID,SERVICE_TYPE_ID,VEHICLE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID,PICKUP_DATE,PICKUP_TIME,IS_REPEAT,REPEAT_TYPE,REPEAT_DAY,REPEAT_TILL,REPEAT_DAY_EXCEPTION,REPEAT_ON_DAY,REPEAT_ON_THE,IS_DEL) VALUES ('${req.delivery_boy_id}','${req.plan_type_id}','${req.service_type_id}','${req.vehicle_id}','${req.pickup_location_id}','${req.dropoff_location_id}','${req.pickup_date}','${req.pickup_time}','${req.is_repeat}','${req.repeat_time}','${req.repeat_day}','${req.repeat_till}','${req.repeat_day_exception}','${req.repeat_on_day}','${req.repeat_on_the}','${req.is_del}')`;
+const createItem = async (req,doc_path,doc_name) => {
+    const registerQuery = `INSERT INTO rmt_order_document(ORDER_ID,DOCUMENT_TYPE,DOCUMENT_NAME,DOCUMENT_PATH) VALUES('${req.order_id}','${req.document_type}','${doc_name}','${doc_path}')`;
     const registerRes = await runQuery(registerQuery);
+    console.log(registerQuery)
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
-    const item = await createItem(req.body)
+    let doc_path='';
+    const {document_name,order_id,document_file}=req.body;
+    if(document_file != '') {
+        filename =document_name+'_'+order_id+'_'+Date.now()+'.jpg';
+        doc_path = await utils.uploadFileToS3bucket(req,filename);
+        doc_path =doc_path.data.Location
+    } 
+    const item = await createItem(req.body,doc_path,document_name)
     if(item.insertId){
-      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+    return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
     }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
+
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM rmt_planning_setup WHERE ID ='${id}'`;
-    const deleteRes = await runQuery(deleteQuery);
-    return deleteRes;
+  const deleteQuery = `DELETE FROM rmt_order_document WHERE DOCUMENT_ID='${id}'`;
+  const deleteRes = await runQuery(deleteQuery);
+  return deleteRes;
 };
 /**
  * Delete item function called by route
@@ -107,27 +126,17 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_planning_setup')
+    const getId = await utils.isIDGood(id,'DOCUMENT_ID','rmt_order_document')
     if(getId){
-        const deletedItem = await deleteItem(getId);
-        if (deletedItem.affectedRows > 0) {
-            return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
-        } else {
-          return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-        }
+      const deletedItem = await deleteItem(getId);
+      if(deletedItem.affectedRows > 0) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
-
-
-
-
-
-
-
-
-
-
