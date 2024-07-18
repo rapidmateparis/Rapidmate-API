@@ -47,6 +47,26 @@ exports.getItem = async (req, res) => {
 }
 
 /**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getSingleItem = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const getUserQuerye = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID where vs.DELIVERY_BOY_ID='"+id+"'"
+    const data = await runQuery(getUserQuerye)
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+/**
  * Update item function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object

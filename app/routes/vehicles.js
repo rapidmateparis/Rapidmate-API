@@ -36,6 +36,15 @@ router.get(
     validate.getItem,
   controller.getItem
 )
+/*
+ * Get delivery boy item route
+ */
+router.get(
+  '/getdboyvehicle/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getSingleItem
+)
 
 /*
  * Update item route
