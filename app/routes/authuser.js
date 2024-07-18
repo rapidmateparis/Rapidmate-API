@@ -28,4 +28,22 @@ router.post('/signup',function (req, res, next) {
     }).catch(next);
 })
 
+router.post('/login', trimRequest.all,
+    function (req, res, next) {
+
+        if(req.body) {
+            logger.info('/login request', req.body)
+        }
+        else {
+            logger.error(' /login Status 400 Invalid request format')
+            return res.status(400).json({error: 'Invalid request format'});
+        }
+    
+        controller.login(req.body.info).then(user => {
+            logger.info('/login response',user)
+            return res.json(user);
+        }).catch(next);
+    }
+)
+
 module.exports = router
