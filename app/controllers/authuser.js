@@ -456,37 +456,38 @@ function linkCognitoUserWithLocalDatabase(userInfo, isLoginSuccess) {
 
 function forgotPassword(userInfo) {
 
-  return new Promise(resolve => {
+    return new Promise(resolve => {
 
-            var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-            var userData =
+        var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        var userData =
+        {
+            Username : userInfo["userName"],
+            Pool : userPool
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        cognitoUser.forgotPassword (
+        {
+            onSuccess: function (result)
             {
-                Username : userInfo["userName"],
-                Pool : userPool
-            };
-            var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            cognitoUser.forgotPassword (
+                logger.info('result: ');
+                logger.info(result);
+                resolve(result);
+            },
+            onFailure: function(err)
             {
-                onSuccess: function (result)
-                {
-                    logger.info('result: ');
-                    logger.info(result);
-                    resolve(result);
-                },
-                onFailure: function(err)
-                {
-                    logger.error('err: ');
-                    logger.error(err);
-                    resolve(err);
-                },
-                inputVerificationCode : function()
-                {
-                    var body = {};
-                    body["error"] = {"message" : "inputVerificationCode"};
-                    resolve(body);
-                }
-            });
-      });
+                logger.error('err: ');
+                logger.error(err);
+                resolve(err);
+            },
+            inputVerificationCode : function()
+            {
+                var body = {};
+                body["response"] = {"message": "An OTP has been sent to your registered email address. Please check your email to proceed with resetting your password."};
+
+                resolve(body);
+            }
+        });
+    });
 }
 
 function resetPassword(userInfo) {
