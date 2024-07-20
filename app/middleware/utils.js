@@ -195,7 +195,7 @@ exports.uploadFileToS3bucket = async (req, filename, file = null) => {
   if (file) {
     imageBuffer = Buffer.from(file, 'base64');
   } else {
-    const { insurance, autaar, passport, identity_card,document_file,package_image_one,package_image_two,package_image_three,vehicle_front_photo,vehicle_back_photo,rcv_photo} = req.body;
+    const { insurance, autaar, passport, identity_card,document_file,package_image_one,package_image_two,package_image_three,vehicle_front_photo,vehicle_back_photo,rcv_photo,package_attach} = req.body;
 
     if (insurance) {
       imageBuffer = Buffer.from(insurance, 'base64');
@@ -211,6 +211,10 @@ exports.uploadFileToS3bucket = async (req, filename, file = null) => {
       docFilename = "IdentityCard";
     }else if (document_file) {
       imageBuffer = Buffer.from(document_file, 'base64');
+      docFilename = "Orderdocument";
+    }
+    else if(package_attach){
+      imageBuffer = Buffer.from(package_attach, 'base64');
       docFilename = "Orderdocument";
     }
     else if (package_image_one) {

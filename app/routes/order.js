@@ -2,6 +2,7 @@ const controller = require('../controllers/order')
 const validate = require('../controllers/order.validate')
 const express = require('express')
 const router = express.Router()
+const isAuthorized = require("../middleware/authorization")
 const trimRequest = require('trim-request')
 
 /*
@@ -13,6 +14,7 @@ const trimRequest = require('trim-request')
  */
 router.get(
   '/',
+  isAuthorized,
   trimRequest.all,
   controller.getItems
 )
@@ -32,6 +34,7 @@ router.post(
  */
 router.get(
   '/:id',
+  isAuthorized,
     trimRequest.all,
     validate.getItem,
   controller.getItem
@@ -45,6 +48,16 @@ router.patch(
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
+)
+
+/*
+ * Update order status route
+ */
+router.patch(
+  '/status/:id',
+  trimRequest.all,
+  validate.updateStatus,
+  controller.updateStatus
 )
 
 /*

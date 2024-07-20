@@ -9,6 +9,7 @@ const passport = require('passport')
 const requireAuth = passport.authenticate('jwt', {
   session: false
 })
+
 const trimRequest = require('trim-request')
 
 /*
@@ -56,7 +57,7 @@ router.post(
 router.get(
   '/token',
   requireAuth,
-  AuthController.roleAuthorization(['user', 'admin']),
+  AuthController.roleAuthorization(['consumer', 'admin']),
   trimRequest.all,
   controller.getRefreshToken
 )

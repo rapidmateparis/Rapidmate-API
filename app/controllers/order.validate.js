@@ -4,7 +4,7 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-    check('user_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('consumer_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('order_date').exists().withMessage('MISSING')
     .isISO8601().withMessage('INVALID_DATE')
     .custom((value) => {
@@ -40,10 +40,10 @@ exports.createItem = [
 ]
 
 /**
- * Validates update item request
+ * Validates update order request
  */
 exports.updateItem = [
-    check('user_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('consumer_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('order_date').exists().withMessage('MISSING')
     .isISO8601().withMessage('INVALID_DATE')
     .custom((value) => {
@@ -77,6 +77,17 @@ exports.updateItem = [
     (req, res, next) => {
         validationResult(req, res, next)
     }
+]
+
+/**
+ * Validates update order statis request
+ */
+exports.updateStatus=[
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  (req, res, next) => {
+      validationResult(req, res, next)
+  }
 ]
 
 /**

@@ -5,97 +5,74 @@ const { check } = require('express-validator')
  * Validates register request
  */
 exports.register = [
-  check('firstName')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
+  check('info.email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('info.phoneNumber').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('info.userrole').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('info.password').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  },
+  (req, res, next) => {
+    if (req.body.info.userrole === 'consumer') {
+      check('info.userName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.accountType').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY')
+    validationResult(req, res, next)
 
-  check('lastName')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
+    }else if(req.body.info.userrole === 'delivery boy'){
+      check('info.firstName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.lastName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.city').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.state').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.siretNo').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.termone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY')
+    validationResult(req, res, next)
 
-  check('email')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
+    }else if(req.body.info.userrole === 'enterprise'){
+      check('info.firstName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.lastName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.companyName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.industry').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.hourPerMonth').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.city').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.state').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.siretNo').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.termone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.termtwo').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.description').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY')
+    validationResult(req, res, next)
 
-  check('mobileNumber')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .trim(),
-
-  // check('shopCategoryId')
-  //   .exists()
-  //   .withMessage('MISSING')
-  //   .not()
-  //   .isEmpty()
-  //   .withMessage('IS_EMPTY')
-  //   .trim(),
-
-  check('businessType')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .trim(),
-
-  // check('shopName')
-  //   .exists()
-  //   .withMessage('MISSING')
-  //   .not()
-  //   .isEmpty()
-  //   .withMessage('IS_EMPTY')
-  //   .trim(),
-
-  // check('shopPinCode')
-  //   .exists()
-  //   .withMessage('MISSING')
-  //   .not()
-  //   .isEmpty()
-  //   .withMessage('IS_EMPTY')
-  //   .trim(),
-  check('shopCategoryId').optional(),
-  check('shopName').optional(),
-  check('shopPinCode').optional(),
-  check('fcmToken').optional(),
+    }else{
+      validationResult(req, res, next)
+    }
+  },
   (req, res, next) => {
     validationResult(req, res, next)
   }
-]
+];
 
 /**
  * Validates login request
  */
 exports.login = [
-  check('email')
+  check('info.userName')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
-    .withMessage('IS_EMPTY')
-    .isEmail()
-    .withMessage('EMAIL_IS_NOT_VALID'),
-  check('password')
+    .withMessage('IS_EMPTY'),
+  check('info.password')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY')
     .isLength({
-      min: 5
+      min: 6
     })
-    .withMessage('PASSWORD_TOO_SHORT_MIN_5'),
+    .withMessage('PASSWORD_TOO_SHORT_MIN_6'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -105,12 +82,34 @@ exports.login = [
  * Validates verify request
  */
 exports.verify = [
-  check('id')
+  check('info.userName')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY'),
+    check('info.extId')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+    check('info.role')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+  check('info.code')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY')
+    .isLength({
+      min: 6
+    })
+    .withMessage('PASSWORD_TOO_SHORT_MIN_6'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -120,14 +119,12 @@ exports.verify = [
  * Validates forgot password request
  */
 exports.forgotPassword = [
-  check('email')
+  check('info.userName')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
-    .withMessage('IS_EMPTY')
-    .isEmail()
-    .withMessage('EMAIL_IS_NOT_VALID'),
+    .withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -137,78 +134,34 @@ exports.forgotPassword = [
  * Validates reset password request
  */
 exports.resetPassword = [
-  check('id')
+  check('info.userName')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY'),
-  check('password')
+  check('info.verificationCode')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
-    .withMessage('IS_EMPTY')
-    .isLength({
-      min: 5
-    })
-    .withMessage('PASSWORD_TOO_SHORT_MIN_5'),
+    .withMessage('IS_EMPTY'),
+  check('info.verificationCode')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('info.newPassword'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
 ]
 
 /**
- * Validates reset password request
+ * Validates get refresh token request
  */
-exports.sendOtp = [
-  check('mobileNumber')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .isLength({
-      min: 10
-    })
-    .withMessage('MOBILE_NUMBER_TOO_SHORT_MIN_10'),
-  (req, res, next) => {
-    validationResult(req, res, next)
-  }
-]
-
-exports.verifyOtp = [
-  check('mobileNumber')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .isLength({
-      min: 10
-    })
-    .withMessage('MOBILE_NUMBER_TOO_SHORT_MIN_10'),
-
-  check('otp')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .isLength({
-      min: 6
-    })
-    .withMessage('OTP_TOO_SHORT_MIN_6'),
-  (req, res, next) => {
-    validationResult(req, res, next)
-  }
-]
-
-/**
- * Validates getLogin request
- */
-exports.getLogin = [
-  check('username')
+exports.getAccessToken = [
+  check('info.userName')
     .exists()
     .withMessage('MISSING')
     .not()
@@ -216,16 +169,12 @@ exports.getLogin = [
     .withMessage('IS_EMPTY'),
     // .isEmail()
     // .withMessage('EMAIL_IS_NOT_VALID'),
-  check('password')
+  check('info.refreshtoken')
     .exists()
     .withMessage('MISSING')
     .not()
     .isEmpty()
-    .withMessage('IS_EMPTY')
-    .isLength({
-      min: 5
-    })
-    .withMessage('PASSWORD_TOO_SHORT_MIN_5'),
+    .withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
