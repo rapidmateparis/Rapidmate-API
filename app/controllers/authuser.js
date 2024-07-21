@@ -1,13 +1,19 @@
+const bcrypt = require('bcrypt');
+const { runQuery } = require("../middleware/db");
 const { CognitoJwtVerifier } = require("aws-jwt-verify");
 var AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+const utils=require("../middleware/utils");
 var AWS = require("aws-sdk");
+const { table } = require('console');
 var cognito_poolId = process.env.COGNITO_POOLID;
 var cognito_region = process.env.COGNITO_REGION;
 var cognito_accessKeyId = process.env.COGNITO_ACCESS_KEY_ID;
 var cognito_secretAccessKey = process.env.COGNITO_SECRET_ACCESS_KEY;
 const userPoolId = process.env.USER_POOLID;
 const ClientId = process.env.CLIENT_ID;
-const DELEIVERY_BOY_ROLE = "deliveryboy";
+const DELEIVERY_BOY_ROLE = "DELIVERY_BOY";
+const ENTERPRISE_ROLE = "ENTERPRISE";
+const CONSUMER_ROLE = "CONSUMER";
 const logger = require('log4js').getLogger(require('path').basename(__filename));
 var poolData =
 {
@@ -92,69 +98,89 @@ function createUser(userInfo) {
   });
 }
 
-function signup(userInfo) {
-  return new Promise((resolve, reject) => {
-    logger.info("selfSignUp called");
-
-    const UserAttributes = [
-       // this field only in consumer
-      {
-        Name: 'name',
-        Value: userInfo["userName"]
-      },
-      // end 
-      {
-        Name: 'email',
-        Value: userInfo["email"]
-      },
-      {
-        Name: 'phone_number',
-        Value: userInfo["phoneNumber"]
+async function signup(userInfo) {
+    try {
+      logger.info("selfSignUp called");
+  
+      const UserAttributes = [
+        { Name: 'name', Value: userInfo["userName"] },
+        { Name: 'email', Value: userInfo["email"] },
+        { Name: 'phone_number', Value: userInfo["phoneNumber"] }
+        // Add other attributes as needed
+      ];
+  
+      const params = {
+        ClientId: ClientId, // Your app client id here
+        Username: userInfo["userName"],
+        Password: userInfo["password"], // Collect user password for self-signup
+        UserAttributes: UserAttributes
+      };
+  
+      const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider({
+        region: cognito_region,
+        accessKeyId: cognito_accessKeyId,
+        secretAccessKey: cognito_secretAccessKey
+      });
+  
+      // Wrap the signUp method in a promise
+      const signUpPromise = () => {
+        return new Promise((resolve, reject) => {
+          cognitoidentityserviceprovider.signUp(params, (err, data) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(data);
+            }
+          });
+        });
+      };
+  
+      const data = await signUpPromise();
+  
+      logger.info(data);
+      logger.info("selfSignUp completion");
+  
+      let extIds = '';
+      if (userInfo['userrole'] === CONSUMER_ROLE) {
+        extIds = "cxtid_"+utils.generateOTP();
+        const item = await createItem(userInfo, "rmt_consumer",extIds);
+      } else if (userInfo['userrole'] === DELEIVERY_BOY_ROLE) {
+        extIds = "dxtid_"+utils.generateOTP();
+        const item = await createItem(userInfo, "rmt_delivery_boy",extIds);
+      } else if (userInfo['userrole'] === ENTERPRISE_ROLE) {
+        extIds = "extid_"+utils.generateOTP();
+        const item = await createItem(userInfo, "rmt_enterprise",extIds);
+        
       }
-      
-      
-      // end 
-
-      /*,
-      {
-        Name: 'custom:userrole',
-        Value: userInfo["userrole"]
-      }*/
-    ];
-
-    const params = {
-      ClientId: ClientId, // Your app client id here
-      Username: userInfo["userName"],
-      Password: userInfo["password"], // Collect user password for self-signup
-      UserAttributes: UserAttributes
-    };
-
-    const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider({
-      region: cognito_region,
-      accessKeyId: cognito_accessKeyId,
-      secretAccessKey: cognito_secretAccessKey
-    });
-
-    cognitoidentityserviceprovider.signUp(params, function(err, data) {
-      if (err) {
-        logger.error('selfSignUp error');
-        logger.error(err);
-        reject(err);
-      } else {
-        logger.info(data);
-        logger.info("selfSignUp completion");
-        resolve(data);
-      }
-    });
-  });
+  
+      return { extId: extIds,role:userInfo['userrole'], ...data };
+  
+    } catch (err) {
+      logger.error('selfSignUp error');
+      logger.error(err);
+      throw err;
+    }
+  }
+  
+async  function createItem(userinfo,tablename,extIds){
+    var registerQuery=""
+    const password=await bcrypt.hash(userinfo['password'], 10);
+    if(tablename=='rmt_consumer'){
+      registerQuery = `INSERT INTO rmt_consumer(CXT_ID,USER_NAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,ROLE,COUNTRY_ID,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['userrole']}','${userinfo['country']}','1')`;
+    }
+    if(tablename=='rmt_delivery_boy'){
+        registerQuery = `INSERT INTO rmt_delivery_boy(DXT_ID,USER_NAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,ROLE,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['userrole']}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}')`;
+    }
+    if(tablename=='rmt_enterprise'){
+        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USER_NAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,ROLE,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,HOUR_PER_MONTH,ENTERPRISE_NAME,INDUSTRY) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['userrole']}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['hourPerMonth']}','${userinfo['companyName']}','${userinfo['industry']}')`;
+    }
+    console.log("queery "+registerQuery)
+    const registerRes =await runQuery(registerQuery);
+    return registerRes;
 }
-
 function signupVerify(userInfo) {
   return new Promise((resolve, reject) => {
     logger.info("selfSignUp called");
-
-
-
     const params = {
       ClientId: ClientId, // Your app client id here
       Username: userInfo["userName"],
@@ -200,7 +226,7 @@ function login(userInfo) {
                 Pool : userPool
             };
             var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-
+            console.log("=> "+cognitoUser)
             cognitoUser.authenticateUser(authenticationDetails,
             {
                 newPasswordRequired: function (userAttributes, requiredAttributes)
@@ -246,7 +272,12 @@ function login(userInfo) {
                     logger.info("onSuccess");
                     logger.info(result);
                     //resolve(setandSendUserInfo(cognitoUser, result));
-                    resolve(result);
+                    resolve({
+                        token:result.accessToken.jwtToken,
+                        refreshtoken:result.refreshToken.token,
+                        user: result
+                    })
+                    // resolve(result);
                 },
                 onFailure: function(cognitoErr)
                 {
@@ -440,14 +471,11 @@ function linkCognitoUserWithLocalDatabase(userInfo, isLoginSuccess) {
         }
 
         userInfoDict["login_time"] = db.fn.now(); // For update login time
-        var tablename = "dashboard_users";
+        var tablename = "consumer";
         var user_id = "dashboard_user_id";
 
         logger.info("userrole " + userInfoDict["role"]);
         var userRole = userInfoDict["role"];
-
-
-
 
     });
 
@@ -677,7 +705,11 @@ function getAccessToken(userInfo) {
                 resolve(body)
             } else {
                 logger.info(session);
-                resolve(session)
+                resolve({
+                    token:result.accessToken.jwtToken,
+                    refreshtoken:result.refreshToken.token,
+                    user: result
+                })
             }
         });
     });
