@@ -6,7 +6,12 @@ const { check } = require('express-validator')
  */
 exports.createItem = [
   check('vehicle_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('vehicle_type_desc').exists().withMessage('MISSING'),
+  check('length').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('height').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('width').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
+    req.body.vehicle_type_desc = req.body.vehicle_type_desc || null;
     validationResult(req, res, next)
   }
 ]
@@ -16,6 +21,16 @@ exports.createItem = [
  */
 exports.updateItem = [
   check('vehicle_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('vehicle_type_desc').exists().withMessage('MISSING')
+  .custom(value => {
+    if (value === undefined) {
+      throw new Error('vehicle description is undefined');
+    }
+    return true;
+  }),
+  check('length').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('height').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('width').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('id')
     .exists()
     .withMessage('MISSING')

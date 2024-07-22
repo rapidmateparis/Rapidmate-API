@@ -1,6 +1,7 @@
 const utils = require('../middleware/utils')
-const { runQuery } = require('../middleware/db')
+const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
 const auth = require('../middleware/auth')
+const {FETCH_VEHILCLE_ALL,FETCH_VEHICLE_BY_ID,FETCH_Vl_DB_ID,INSERT_VEHICLE_QUERY,UPDATE_VEHICLE_QUERY,DELETE_VEHICLE_QUERY,transformKeysToLowercase}=require("../db/database.query")
 
 /********************
  * Public functions *
@@ -12,14 +13,14 @@ const auth = require('../middleware/auth')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID"
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_VEHILCLE_ALL)
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -33,14 +34,14 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID where vs.ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_VEHICLE_BY_ID,[id])
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -54,14 +55,14 @@ exports.getItem = async (req, res) => {
 exports.getSingleItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID where vs.DELIVERY_BOY_ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_Vl_DB_ID,[id])
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -72,9 +73,8 @@ exports.getSingleItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req,vehicle_front_photo,vehicle_back_photo,rcv_photo) => {
-    
-    const registerQuery = `UPDATE rmt_vehicle SET DELIVERY_BOY_ID='${req.delivery_boy_id}',VEHICLE_TYPE_ID='${req.vehicle_type_id}',PLAT_NO='${req.plat_no}',MODAL='${req.modal}',VEHICLE_FRONT_PHOTO='${vehicle_front_photo}',VEHICLE_BACK_PHOTO='${vehicle_back_photo}',rcv_no='${req.rcv_no}',RCV_PHOTO='${rcv_photo}',IS_DEL='${req.is_del}'  WHERE ID='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+    const reqdata=[req.delivery_boy_id,req.vehicle_type_id,req.plat_no,req.modal,vehicle_front_photo,vehicle_back_photo,req.rcv_no,rcv_photo,id];
+    const registerRes = await updateQuery(UPDATE_VEHICLE_QUERY,reqdata);
     return registerRes;
 }
 
@@ -123,9 +123,8 @@ exports.updateItem = async (req, res) => {
  */
 const createItem = async (req,vehicle_front_photo,vehicle_back_photo,rcv_photo) => {
     try {
-      const registerQuery = `INSERT INTO rmt_vehicle(DELIVERY_BOY_ID,VEHICLE_TYPE_ID,PLAT_NO,MODAL,VEHICLE_FRONT_PHOTO,VEHICLE_BACK_PHOTO,RCV_NO,RCV_PHOTO) VALUES((select id from rmt_delivery_boy where ext_id='${req.delivery_boy_ext_id}'),'${req.vehicle_type_id}','${req.plat_no}','${req.modal}','${vehicle_front_photo}','${vehicle_back_photo}','${req.rcv_no}','${rcv_photo}')`;
-      const registerRes = await runQuery(registerQuery);
-      console.log(registerQuery)
+      const reqData=[req.delivery_boy_id,vehicle_type_id,req.plat_no,req.modal,vehicle_front_photo,vehicle_back_photo,req.rcv_no,rcv_photo]
+      const registerRes = await insertQuery(INSERT_VEHICLE_QUERY,reqData);
       return registerRes;
     } catch (error) {
       console.log(error);
@@ -158,7 +157,9 @@ exports.createItem = async (req, res) => {
     const item = await createItem(req.body,vehicle_front_photo,vehicle_back_photo,rcv_photo)
     console.log("Block 2" + item.insertId);
     if(item.insertId){
-      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+      const currentdata=await fetch(FETCH_VEHICLE_BY_ID,[item.insertId]);
+      const filterdata=await transformKeysToLowercase(currentdata)
+      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',filterdata))
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
@@ -169,8 +170,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_vehicle WHERE ID='${id}'`;
-  const deleteRes = await runQuery(deleteQuery);
+  const deleteRes = await fetch(DELETE_VEHICLE_QUERY,[id]);
   return deleteRes;
 };
 /**
@@ -204,14 +204,15 @@ exports.deleteItem = async (req, res) => {
 exports.getItemByVehicleTypeId = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID where vt.ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_Vl_DB_ID,[id])
+    
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    const filterdata=await transformKeysToLowercase(data)
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
