@@ -66,4 +66,11 @@ router.delete(
   controller.deleteItem
 )
 
+router.get(
+  '/type/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getItemByVehicleTypeId
+)
+
 module.exports = router

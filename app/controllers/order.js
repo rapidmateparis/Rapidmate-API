@@ -13,7 +13,7 @@ const AuthController=require("../controllers/authuser")
 exports.getItems = async (req, res) => {
   try {
     const getUserQuerye =
-      'select o.*,CONCAT(c.FIRST_NAME," ",c.LAST_NAME) as CONSUMER_NAME from rmt_order o left join rmt_consumer c on o.USER_ID=c.CONSUMER_ID';
+      'select * from rmt_order WHERE IS_DEL=0';
     const data = await runQuery(getUserQuerye);
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
@@ -35,14 +35,12 @@ exports.getItems = async (req, res) => {
  */
 exports.getItem = async (req, res) => {
   try {
-    const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
-    console.log(isAuththorized)
-    if(isAuththorized.status==200){
+    //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
+    //console.log(isAuththorized)
+    //if(isAuththorized.status==200){
       const id = req.params.id;
       const getUserQuerye =
-        "select o.*,CONCAT(c.FIRST_NAME,' ',c.LAST_NAME) as CONSUMER_NAME from rmt_order o left join rmt_consumer as c on o.USER_ID=c.CONSUMER_ID where o.ORDER_ID='" +
-        id +
-        "'";
+        "select * from rmt_order where IS_DEL=0 AND  ORDER_NUMBER='" + id + "'";
       const data = await runQuery(getUserQuerye);
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
@@ -50,9 +48,9 @@ exports.getItem = async (req, res) => {
         return res.status(400).json(utils.buildErrorObject(400, message, 1001));
       }
       return res.status(200).json(utils.buildcreatemessage(200, message, data));
-    }else{
-      return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
-    }
+    //}else{
+   //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
+   // }
     
   } catch (error) {
     return res
@@ -61,6 +59,67 @@ exports.getItem = async (req, res) => {
   }
 };
 
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItemByConsumerExtId = async (req, res) => {
+  try {
+    //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
+    //console.log(isAuththorized)
+    //if(isAuththorized.status==200){
+      const id = req.params.id;
+      const getUserQuerye =
+        "select * from rmt_order where IS_DEL=0 AND consumer_id =(select id from rmt_consumer where ext_id = '" + id + "')";
+      const data = await runQuery(getUserQuerye);
+      let message = "Items retrieved successfully";
+      if (data.length <= 0) {
+        message = "No items found";
+        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+      }
+      return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    //}else{
+   //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
+   // }
+    
+  } catch (error) {
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
+
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItemByDeliveryBoyExtId = async (req, res) => {
+  try {
+    //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
+    //console.log(isAuththorized)
+    //if(isAuththorized.status==200){
+      const id = req.params.id;
+      const getUserQuerye =
+        "select * from rmt_order where IS_DEL=0 AND delivery_boy_id =(select id from rmt_delivery_boy where ext_id = '" + id + "')";
+      const data = await runQuery(getUserQuerye);
+      let message = "Items retrieved successfully";
+      if (data.length <= 0) {
+        message = "No items found";
+        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+      }
+      return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    //}else{
+   //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
+   // }
+    
+  } catch (error) {
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
 /**
  * Update item function called by route
  * @param {Object} req - request object
@@ -111,7 +170,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateStatus = async (id, status) => {
-  const registerQuery = `UPDATE rmt_order SET DELIVERY_STATUS='${status}' WHERE ORDER_ID='${id}'`;
+  const registerQuery = `UPDATE rmt_order SET DELIVERY_STATUS='${status}' WHERE IS_DEL=0 AND  ORDER_ID='${id}'`;
   const registerRes = await runQuery(registerQuery);
   return registerRes;
 };
@@ -147,24 +206,18 @@ exports.updateStatus = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req, package_attach) => {
-  const registerQuery = `INSERT INTO rmt_order(USER_ID,FIRST_NAME,LAST_NAME,EMAIL,COMPANY_NAME,PHONE_NUMBER,PACKAGE_ID,PACKAGE_ATTACH,PACKAGE_NOTES,ORDER_DATE,ORDER_STATUS,AMOUNT,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID,IS_ACTIVE,SERVICE_TYPE_ID,SHIFT_START_TIME,SHIFT_END_TIME,DELIVERY_DATE,DELIVERY_STATUS,IS_DEL) VALUES('${req.user_id}','${req.first_name}','${req.last_name}','${req.email}','${req.company_name}','${req.phone_number}','${req.package_id}','${package_attach}','${req.package_notes}','${req.order_date}','${req.order_status}','${req.amount}','${req.vehicle_type_id}','${req.pickup_location_id}','${req.dropoff_location_id}','${req.is_active}','${req.service_type_id}','${req.shift_start_time}','${req.shift_end_time}','${req.delivery_date}','${req.delivery_status}','${req.is_del}')`;
+const createItem = async (req) => {
+  const registerQuery = `INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,DELIVERY_BOY_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID) VALUES
+  ((now()+1),(select id from rmt_consumer where ext_id='${req.consumer_ext_id}'),(select id from rmt_delivery_boy where ext_id='${req.delivery_boy_ext_id}'),'${req.service_type_id}',
+  '${req.vehicle_type_id}','${req.pickup_location_id}','${req.dropoff_location_id}')`;
   const registerRes = await runQuery(registerQuery);
-  // console.log(registerQuery)
+  console.log(registerQuery)
   return registerRes;
 };
 exports.createItem = async (req, res) => {
   try {
     const pickupData = req.body;
-    let package_attachs = "";
-    const { package_attach } = req.body;
-    if (package_attach != "") {
-      
-      filename = "attachfile_" + Date.now() + ".jpg";
-      package_attachs = await utils.uploadFileToS3bucket(req, filename);
-      package_attachs = doc_path.data.Location;
-    }
-    const item = await createItem(req.body, package_attachs);
+    const item = await createItem(req.body);
     if (item.insertId) {
       return res
         .status(200)
@@ -187,7 +240,7 @@ exports.createItem = async (req, res) => {
 };
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_order WHERE ORDER_ID='${id}'`;
+  const deleteQuery = `UPDATE rmt_order SET IS_DEL =1 WHERE ORDER_NUMBER='${id}'`;
   const deleteRes = await runQuery(deleteQuery);
   return deleteRes;
 };
@@ -199,7 +252,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id, "ID", "rmt_order");
+    const getId = await utils.isIDGood(id, "ORDER_NUMBER", "rmt_order");
     if (getId) {
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {

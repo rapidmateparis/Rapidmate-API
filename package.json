@@ -8,7 +8,7 @@
     "url": ""
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=production pm2 start server.js",
+    "start": "cross-env NODE_ENV=production nodemon server.js",
     "mocha": "nyc mocha --timeout=5000 --exit",
     "dev": "cross-env NODE_ENV=development nodemon server.js",
     "format": "prettier --write --config .prettierrc.json \"**/*.js\"",
@@ -73,7 +73,7 @@
     "husky": "^4.2.3",
     "mocha": "^7.1.1",
     "mongo-seeding": "^3.4.0",
-    "nodemon": "^2.0.2",
+    "nodemon": "^2.0.22",
     "nyc": "^15.0.1",
     "prettier": "^2.0.3",
     "prettier-eslint": "^9.0.1"

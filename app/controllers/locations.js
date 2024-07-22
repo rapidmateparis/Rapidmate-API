@@ -86,7 +86,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_location (LOCATION_TYPE,LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE,IS_DEL) VALUES ('${req.location_type}','${req.location_name}','${req.address}','${req.city}','${req.state}','${req.country}','${req.latitude}','${req.longitude}','${req.is_del}')`;
+    const registerQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES ('${req.location_name}','${req.address}','${req.city}','${req.state}','${req.country}','${req.latitude}','${req.longitude}')`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
