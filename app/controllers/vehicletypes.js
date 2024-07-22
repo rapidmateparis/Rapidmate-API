@@ -1,5 +1,7 @@
 const utils = require('../middleware/utils')
 const { runQuery } = require('../middleware/db')
+const { fetch } = require('../middleware/db')
+var VEHICLE_DB_QUERY  = require('../db/vehilcle.type')
 /********************
  * Public functions *
  ********************/
@@ -10,8 +12,7 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_vehicle_type'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(VEHICLE_DB_QUERY.FETCH_ALL);
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
@@ -31,15 +32,16 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_vehicle_type where ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const getUserQuerye = "select id as Vehicle_id, VEHICLE_TYPE as Vehicle_name from rmt_vehicle_type where ID=?"
+    const data = await fetch(getUserQuerye, [id])
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="No items found"
+        message="Invalid vehicle type"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
+    console.info(error);
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
@@ -91,13 +93,16 @@ exports.createItem = async (req, res) => {
     const doesNameExists =await utils.nameExists(req.body.vehicle_type,'rmt_vehicle_type','VEHICLE_TYPE')
     if (!doesNameExists) {
       const item = await createItem(req.body)
+      console.log(item.insertId);
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        const getUserQuerye = "select id as Vehicle_id, VEHICLE_TYPE as Vehicle_name from rmt_vehicle_type where ID=?"
+        const currentData = await fetch(getUserQuerye, [item.insertId])
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentData))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
+      return res.status(400).json(utils.buildErrorObject(400,'Vehicle Type already exists',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));

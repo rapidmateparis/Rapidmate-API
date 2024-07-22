@@ -140,15 +140,15 @@ async function signup(userInfo) {
       logger.info(data);
       logger.info("selfSignUp completion");
   
-      let extIds = '';
+      let externalId = new Date().getTime();
       if (userInfo['userrole'] === CONSUMER_ROLE) {
-        extIds = "cxtid_"+utils.generateOTP();
+        extIds = "C" + externalId;
         const item = await createItem(userInfo, "rmt_consumer",extIds);
       } else if (userInfo['userrole'] === DELEIVERY_BOY_ROLE) {
-        extIds = "dxtid_"+utils.generateOTP();
+        extIds = "D"+  externalId;
         const item = await createItem(userInfo, "rmt_delivery_boy",extIds);
       } else if (userInfo['userrole'] === ENTERPRISE_ROLE) {
-        extIds = "extid_"+utils.generateOTP();
+        extIds = "E" + externalId;
         const item = await createItem(userInfo, "rmt_enterprise",extIds);
         
       }
@@ -166,13 +166,13 @@ async  function createItem(userinfo,tablename,extIds){
     var registerQuery=""
     const password=await bcrypt.hash(userinfo['password'], 10);
     if(tablename=='rmt_consumer'){
-      registerQuery = `INSERT INTO rmt_consumer(CXT_ID,USER_NAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,ROLE,COUNTRY_ID,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['userrole']}','${userinfo['country']}','1')`;
+      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1')`;
     }
     if(tablename=='rmt_delivery_boy'){
-        registerQuery = `INSERT INTO rmt_delivery_boy(DXT_ID,USER_NAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,ROLE,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['userrole']}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}')`;
+        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}')`;
     }
     if(tablename=='rmt_enterprise'){
-        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USER_NAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,ROLE,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,HOUR_PER_MONTH,ENTERPRISE_NAME,INDUSTRY) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['userrole']}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['hourPerMonth']}','${userinfo['companyName']}','${userinfo['industry']}')`;
+        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,HOUR_PER_MONTH,ENTERPRISE_NAME,INDUSTRY) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['hourPerMonth']}','${userinfo['companyName']}','${userinfo['industry']}')`;
     }
     console.log("queery "+registerQuery)
     const registerRes =await runQuery(registerQuery);

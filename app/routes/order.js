@@ -14,7 +14,6 @@ const trimRequest = require('trim-request')
  */
 router.get(
   '/',
-  isAuthorized,
   trimRequest.all,
   controller.getItems
 )
@@ -25,7 +24,7 @@ router.get(
 router.post(
   '/',
   trimRequest.all,
-  validate.createItem,
+  validate.createGeneralOrder,
   controller.createItem
 )
 
@@ -34,10 +33,23 @@ router.post(
  */
 router.get(
   '/:id',
-  isAuthorized,
     trimRequest.all,
     validate.getItem,
   controller.getItem
+)
+
+router.get(
+  '/consumer/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getItemByConsumerExtId
+)
+
+router.get(
+  '/deliveryboy/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getItemByDeliveryBoyExtId
 )
 
 /*

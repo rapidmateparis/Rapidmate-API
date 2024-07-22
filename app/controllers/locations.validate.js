@@ -4,13 +4,6 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-  check('location_type')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
-
   check('location_name')
     .exists()
     .withMessage('MISSING')
@@ -38,8 +31,6 @@ exports.createItem = [
   check('longitude')
     .exists()
     .withMessage('MISSING'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-
   (req, res, next) => {
     validationResult(req, res, next)
   }

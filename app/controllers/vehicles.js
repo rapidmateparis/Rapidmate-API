@@ -122,10 +122,15 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req,vehicle_front_photo,vehicle_back_photo,rcv_photo) => {
-    const registerQuery = `INSERT INTO rmt_vehicle(DELIVERY_BOY_ID,VEHICLE_TYPE_ID,PLAT_NO,MODAL,VEHICLE_FRONT_PHOTO,VEHICLE_BACK_PHOTO,RCV_NO,RCV_PHOTO,IS_DEL) VALUES('${req.delivery_boy_id}','${req.vehicle_type_id}','${req.plat_no}','${req.modal}','${vehicle_front_photo}','${vehicle_back_photo}','${req.rcv_no}','${rcv_photo}','${req.is_del}')`;
-    const registerRes = await runQuery(registerQuery);
-    // console.log(registerQuery)
-    return registerRes;
+    try {
+      const registerQuery = `INSERT INTO rmt_vehicle(DELIVERY_BOY_ID,VEHICLE_TYPE_ID,PLAT_NO,MODAL,VEHICLE_FRONT_PHOTO,VEHICLE_BACK_PHOTO,RCV_NO,RCV_PHOTO) VALUES((select id from rmt_delivery_boy where ext_id='${req.delivery_boy_ext_id}'),'${req.vehicle_type_id}','${req.plat_no}','${req.modal}','${vehicle_front_photo}','${vehicle_back_photo}','${req.rcv_no}','${rcv_photo}')`;
+      const registerRes = await runQuery(registerQuery);
+      console.log(registerQuery)
+      return registerRes;
+    } catch (error) {
+      console.log(error);
+    }
+    return null;
 }
 exports.createItem = async (req, res) => {
   try {
@@ -133,7 +138,7 @@ exports.createItem = async (req, res) => {
     let vehicle_back_photo='';
     let rcv_photo='';
     let filename='';
-    // console.log(req.body)
+    console.log(req.body)
     if(req.body.vehicle_front_photo != '') {
       filename ='vehicle_front_'+Date.now()+'.jpg';
       vehicle_front_photo = await utils.uploadFileToS3bucket(req,filename);
@@ -149,14 +154,17 @@ exports.createItem = async (req, res) => {
       rcv_photo = await utils.uploadFileToS3bucket(req,filename);
       rcv_photo =rcv_photo.data.Location
     } 
+    console.log("Block 1");
     const item = await createItem(req.body,vehicle_front_photo,vehicle_back_photo,rcv_photo)
+    console.log("Block 2" + item.insertId);
     if(item.insertId){
       return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    console.info(error);
+    return res.status(500).json(utils.buildErrorObject(500,'Error : Something went wrong',1001));
   }
 }
 
@@ -183,6 +191,27 @@ exports.deleteItem = async (req, res) => {
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItemByVehicleTypeId = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const getUserQuerye = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID where vt.ID='"+id+"'"
+    const data = await runQuery(getUserQuerye)
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }

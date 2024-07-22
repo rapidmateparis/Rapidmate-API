@@ -110,6 +110,35 @@ module.exports = {
     }
   },
 
+  async fetch(query, param = []) {
+    try {
+      
+      return await pool
+        .execute(query, param)
+        .then(([rows, fields]) => {
+          return rows
+        })
+        .catch((err) => {
+          return err
+          // res.status(500).json({ error: "Something Went wrong" });
+        })
+    } catch (error) {
+      return error
+      // res.status(500).json({ error: "Failed to execute the query" });
+
+      // Error handling
+      // if (error.code === 'ETIMEDOUT') {
+      //     // Handle the connection timeout error
+      //     console.error('Connection timed out:', error);
+      //     // Send an appropriate response or perform any necessary actions
+      // } else {
+      //     // Handle other types of errors
+      //     console.error('Error occurred:', error);
+      //     // Send an appropriate response or perform any necessary actions
+      // }
+    }
+  },
+
   async insertQuery(query) {
     try {
       return await pool

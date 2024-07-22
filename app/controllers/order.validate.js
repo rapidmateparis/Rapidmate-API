@@ -39,6 +39,18 @@ exports.createItem = [
   }
 ]
 
+exports.createGeneralOrder = [
+  check('consumer_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('dropoff_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
+
 /**
  * Validates update order request
  */
