@@ -201,10 +201,11 @@ exports.updateStatus = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  const registerRes = await insertQuery(INSERT_ORDER_QUERY,[req.consumer_ext_id,req.delivery_boy_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id]);
+  const registerRes = await insertQuery(INSERT_ORDER_QUERY,[req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id]);
   return registerRes;
 };
 exports.createItem = async (req, res) => {
+ 
   try {
     const item = await createItem(req.body);
     if (item.insertId) {
@@ -217,6 +218,7 @@ exports.createItem = async (req, res) => {
         .json(utils.buildErrorObject(500, "Something went wrong", 1001));
     }
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
