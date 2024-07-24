@@ -1,9 +1,9 @@
 //---------------------RMT_VEHICLE_TYPE----------------------------
-exports.FETCH_VT_ALL = "SELECT ID as Vehicle_type_id,VEHICLE_TYPE,VEHICLE_TYPE_DESC,LENGTH,HEIGHT,WIDTH,CREATED_BY, CREATED_ON,UPDATED_BY, UPDATED_ON FROM rmt_vehicle_type;";
-exports.FETCH_VT_BY_ID="select ID as Vehicle_type_id, VEHICLE_TYPE as Vehicle_name,VEHICLE_TYPE_DESC as description,LENGTH,HEIGHT,WIDTH,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON from rmt_vehicle_type where ID=?";
+exports.FETCH_VT_ALL = "SELECT ID as Vehicle_type_id,VEHICLE_TYPE,VEHICLE_TYPE_DESC,LENGTH,HEIGHT,WIDTH,CREATED_BY, CREATED_ON,UPDATED_BY, UPDATED_ON FROM rmt_vehicle_type WHERE IS_DEL=0";
+exports.FETCH_VT_BY_ID="select ID as Vehicle_type_id, VEHICLE_TYPE as Vehicle_name,VEHICLE_TYPE_DESC as description,LENGTH,HEIGHT,WIDTH,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON from rmt_vehicle_type where IS_DEL=0 AND ID=?";
 exports.INSERT_VT_QUERY=`INSERT INTO rmt_vehicle_type (VEHICLE_TYPE,VEHICLE_TYPE_DESC,LENGTH,HEIGHT,WIDTH) VALUES (?,?,?,?,?)`;
 exports.UPDATE_VT_QUERY= `UPDATE rmt_vehicle_type SET VEHICLE_TYPE =?,VEHICLE_TYPE_DESC=?,LENGTH=?,HEIGHT=?,WIDTH=? WHERE ID=?`;
-exports.DELETE_VT_QUERY=`DELETE FROM rmt_vehicle_type WHERE ID=?`;
+exports.DELETE_VT_QUERY=`UPDATE rmt_vehicle_type SET IS_DEL=1 WHERE ID=?`;
 
 //------------------------RMT_VEHICLE------------------------------
 exports.FETCH_VEHILCLE_ALL = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as delivery_boy__name  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID"
@@ -92,6 +92,32 @@ exports.UPDATE_ORDER_QUERY=`UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NA
 exports.UPDATE_ORDER_BY_STATUS=`UPDATE rmt_order SET DELIVERY_STATUS=? WHERE IS_DEL=0 AND  ORDER_ID=?`;
 exports.DELETE_ORDER_QUERY=`UPDATE rmt_order SET IS_DEL =1 WHERE ORDER_NUMBER=?`;
 
+//-----------------------rmt_transaction---------------------------------
+exports.FETCH_TRAN_QUERY=`SELECT * FROM rmt_transaction WHERE IS_DEL=0`;
+exports.FETCH_TRAN_BY_ID=`SELECT * FROM rmt_transaction WHERE IS_DEL=0 AND ID=?`;
+exports.FETCH_TRAN_BY_USERID=`SELECT * FROM rmt_transaction WHERE IS_DEL=0 AND USER_ID=?`;
+exports.INSERT_TRAN_QUERY=`INSERT INTO rmt_transaction(WALLET_ID,USER_ID,TYPE,AMOUNT,CURRENCY,DESCRIPTION) VALUES(?,?,?,?,?,?)`;
+exports.UPDATE_TRAN_QUERY=`UPDATE rmt_transaction SET WALLET_ID=?USER_ID=?TYPE=?,AMOUNT=?,CURRENCY,DESCRIPTION=? WHERE ID=?`;
+exports.DELETE_TRAN_QUERY=`UPDATE rmt_transaction SET IS_DEL=1 WHERE ID=?`;
+
+//------------------------RMT_WORK_ORDER----------------------------------------
+
+exports.FETCH_WORK_ORDER_QUERY=`SELECT * FROM rmt_work_order WHERE IS_DEL=0`;
+exports.FETCH_WORK_ORDER_BY_ID=`SELECT * FROM rmt_work_order WHERE IS_DEL=0 AND ID=?`;
+exports.INSERT_WORK_ORDER_QUERY=`INSERT INTO rmt_work_order(ORDER_ID,WORK_TYPE,STATUS,SCHEDULED_DATE,SCHEDULED_TIME,COMPLETION_DATE,COMPLETION_TIME,NOTES) VALUES(?,?,?,?,?,?,?,?)`;
+exports.UPDATE_WORK_ORDER_QUERY=`UPDATE rmt_work_order SET ORDER_ID=?,WORK_TYPE=?,STATUS=?,SCHEDULED_DATE=?,SCHEDULED_TIME=?,COMPLETION_DATE=?,COMPLETION_TIME=?,NOTES=? WHERE ID=?`;
+exports.DELETE_WORK_ORDER_QUERY=`UPDATE rmt_work_order SET IS_DEL=1 WHERE ID=?`;
+
+//--------------------check driver---------------------------
+exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, allocated, service_type, slot_status,
+      (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance
+      FROM rmt_delivery_boy_location
+      WHERE active = true AND allocated = false
+      HAVING distance < ?
+      AND service_type = ?
+      AND slot_status = ?
+      ORDER BY distance
+    `
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {

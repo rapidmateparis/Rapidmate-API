@@ -85,7 +85,16 @@ exports.getItem = [
     validationResult(req, res, next)
   }
 ]
-
+exports.getNearbydriver=[
+    check('currentLat').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('currentLng').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('requiredServiceType').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('requiredSlot').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('radius').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    (req, res, next) => {
+        validationResult(req, res, next)
+    }
+]
 /**
  * Validates delete item request
  */

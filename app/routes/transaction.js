@@ -38,6 +38,15 @@ router.get(
 )
 
 /*
+ * Get item by user route
+ */
+router.get(
+  '/getbyuser/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getItemByUserId
+)
+/*
  * Update item route
  */
 router.patch(
