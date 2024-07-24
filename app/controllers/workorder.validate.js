@@ -14,7 +14,6 @@ exports.createItem = [
   check('completion_date').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
   check('completion_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
   check('notes').exists().withMessage('MISSING'),
-  check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -33,7 +32,6 @@ exports.updateItem = [
     check('completion_date').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
     check('completion_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
     check('notes').exists().withMessage('MISSING'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
     check('id').exists().withMessage('MISSING').not()
     .isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {

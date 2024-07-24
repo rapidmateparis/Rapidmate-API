@@ -96,7 +96,7 @@ exports.createItem = async (req, res) => {
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',{location_id : item.insertId}))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }

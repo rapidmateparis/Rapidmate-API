@@ -1,5 +1,6 @@
 const utils = require('../middleware/utils')
-const { runQuery } = require('../middleware/db')
+const { runQuery,fetch,insertQuery,updateQuery } = require('../middleware/db');
+const { FETCH_WORK_ORDER_QUERY, transformKeysToLowercase, FETCH_WORK_ORDER_BY_ID, UPDATE_WORK_ORDER_QUERY, INSERT_WORK_ORDER_QUERY, DELETE_WORK_ORDER_QUERY } = require('../db/database.query');
 
 /********************
  * Public functions *
@@ -11,14 +12,14 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_work_order'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_WORK_ORDER_QUERY)
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -32,8 +33,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_work_order where ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data =await transformKeysToLowercase(await fetch(FETCH_WORK_ORDER_BY_ID,[id]))
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
@@ -51,8 +51,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_work_order SET JOB_ID='${req.job_id}',WORKER_ID='${req.worker_id}',WORK_TYPE='${req.work_type}',STATUS='${req.status}',SCHEDULED_DATE='${req.schedule_date}',SCHEDULED_TIME='${req.schedule_time}',COMPLETION_DATE='${req.completion_date}',COMPLETION_TIME='${req.completion_time}',NOTES='${req.notes}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await updateQuery(UPDATE_WORK_ORDER_QUERY,[req.job_id,req.worker_id,req.work_type,req.status,req.schedule_date,req.schedule_time,req.completion_date,req.completion_time,req.notes,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
@@ -61,7 +60,7 @@ exports.updateItem = async (req, res) => {
     const getId = await utils.isIDGood(id,'ID','rmt_work_order')
     if(getId){
       const updatedItem = await updateItem(id, req.body);
-      if (updatedItem) {
+      if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -78,8 +77,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_work_order (JOB_ID,WORKER_ID,WORK_TYPE,STATUS,SCHEDULED_DATE,SCHEDULED_TIME,COMPLETION_DATE,COMPLETION_TIME,NOTES,IS_DEL) VALUES ('${req.job_id}','${req.worker_id}','${req.work_type}','${req.status}','${req.schedule_date}','${req.schedule_time}','${req.completion_date}','${req.completion_time}','${req.notes}','${req.is_del}')`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await insertQuery(INSERT_WORK_ORDER_QUERY,[req.job_id,req.worker_id,req.work_type,req.status,req.schedule_date,req.schedule_time,req.completion_date,req.completion_time,req.notes]);
     console.log(registerQuery)
     return registerRes;
 }
@@ -87,7 +85,8 @@ exports.createItem = async (req, res) => {
   try {
     const item = await createItem(req.body)
     if(item.insertId){
-      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+      const currData=await transformKeysToLowercase(await fetch(FETCH_WORK_ORDER_BY_ID,[item.insertId]))
+      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currData))
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
@@ -96,8 +95,7 @@ exports.createItem = async (req, res) => {
   }
 }
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM rmt_work_order WHERE ID ='${id}'`;
-    const deleteRes = await runQuery(deleteQuery);
+    const deleteRes = await fetch(DELETE_WORK_ORDER_QUERY,[id]);
     return deleteRes;
 };
 /**
