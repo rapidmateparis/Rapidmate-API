@@ -1,6 +1,7 @@
 const utils = require('../middleware/utils')
-const { runQuery } = require('../middleware/db')
+const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
 const auth = require('../middleware/auth')
+const { FETCH_TRAN_QUERY, transformKeysToLowercase, FETCH_TRAN_BY_ID, UPDATE_TRAN_QUERY, INSERT_TRAN_QUERY, DELETE_TRAN_QUERY, FETCH_TRAN_BY_USERID } = require('../db/database.query')
 
 /********************
  * Public functions *
@@ -12,14 +13,14 @@ const auth = require('../middleware/auth')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_transaction'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_TRAN_QUERY)
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -33,27 +34,46 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_transaction where ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_TRAN_BY_ID,[id]);
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
 
 /**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItemByUserId = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await fetch(FETCH_TRAN_BY_USERID,[id]);
+    const filterdata=await transformKeysToLowercase(data)
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+/**
  * Update item function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_transaction SET WALLET_ID='${req.wallet_id}',USER_ID='${req.user_id}',TYPE='${req.type}',AMOUNT='${req.amount}',CURRENCY='${req.currency}',DESCRIPTION='${req.description}',IS_DEL='${req.is_del}'  WHERE ID='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await updateQuery(UPDATE_TRAN_QUERY,[req.wallet_id,req.user_id,req.type,req.amount,req.currency,req.description,id]);
     return registerRes;
 }
 
@@ -63,7 +83,7 @@ exports.updateItem = async (req, res) => {
     const getId = await utils.isIDGood(id,'ID','rmt_transaction')
     if(getId){
       const updatedItem = await updateItem(id,req.body);
-      if(updatedItem) {
+      if(updatedItem.affectedRows >0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -81,17 +101,18 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_transaction(WALLET_ID,USER_ID,TYPE,AMOUNT,CURRENCY,DESCRIPTION,IS_DEL) VALUES('${req.wallet_id}','${req.user_id}','${req.type}','${req.amount}','${req.currency}','${req.description}','${req.is_del}')`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await insertQuery(INSERT_TRAN_QUERY,[req.wallet_id,req.user_id,req.type,req.amount,req.currency,req.description]);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
     const item = await createItem(req.body)
     if(item.insertId){
-    return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+      const currData=await fetch(FETCH_TRAN_BY_ID,[item.insertId])
+      const filterdata=await transformKeysToLowercase(currData)
+      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',filterdata))
     }else{
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -99,8 +120,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_transaction WHERE ID='${id}'`;
-  const deleteRes = await runQuery(deleteQuery);
+  const deleteRes = await fetch(DELETE_TRAN_QUERY,[id]);
   return deleteRes;
 };
 /**

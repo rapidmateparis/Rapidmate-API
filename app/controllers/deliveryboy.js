@@ -1,6 +1,7 @@
 const utils = require('../middleware/utils')
-const { runQuery } = require('../middleware/db')
+const { runQuery,fetch} = require('../middleware/db')
 const auth = require('../middleware/auth')
+const { FETCH_DRIVER_AVAILABLE } = require('../db/database.query')
 
 /********************
  * Public functions *
@@ -26,6 +27,31 @@ exports.getItems = async (req, res) => {
 }
 
 /**
+ * Get items function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getNearbydriver = async (req, res) => {
+  try {
+    const{ currentLat, currentLng, requiredServiceType, requiredSlot, radius } = req.body;
+    if(typeof currentLat !== 'number' || typeof currentLng !== 'number' ||
+        typeof requiredServiceType !== 'string' || typeof requiredSlot !== 'string' ||
+        typeof radius !== 'number') {
+      return res.status(400).json(utils.buildErrorObject(400,'Invalid input',1001));
+    }
+    // Find nearby drivers based on current location
+    const [data]= await fetch(FETCH_DRIVER_AVAILABLE, [currentLat, currentLng, currentLat, radius, requiredServiceType, requiredSlot]);
+    if(data){
+      return res.status(200).json(utils.buildcreatemessage(200,message,{ availableDrivers: data })) 
+    }else{
+      message="No items found"
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+/**
  * Get item function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object
@@ -45,7 +71,6 @@ exports.getItem = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
-
 /**
  * Update item function called by route
  * @param {Object} req - request object
