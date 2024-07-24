@@ -1,6 +1,7 @@
 const utils = require('../middleware/utils')
 const db = require('../middleware/db')
-const { runQuery } = require('../middleware/db')
+const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
+const { FETCH_FAQ_QUERY, transformKeysToLowercase, FETCH_FAQ_BY_ID, UPDATE_FAQ_QUERY, INSERT_FAQ_QUERY, DELETE_FAQ_QUERY } = require('../db/database.query')
 
 
 /********************
@@ -13,14 +14,14 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_faq'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_FAQ_QUERY)
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -34,14 +35,14 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_faq where FAQ_ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_FAQ_BY_ID,[id])
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -53,8 +54,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_faq SET QUESTION='${req.question}',ANSWER ='${req.answer}',CATEGORY ='${req.category}',IS_DEL='${req.is_del}' WHERE FAQ_ID ='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await updateQuery(UPDATE_FAQ_QUERY,[req.question,req.answer,req.category,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
@@ -63,7 +63,7 @@ exports.updateItem = async (req, res) => {
     const getId = await utils.isIDGood(id,'FAQ_ID','rmt_faq')
     if(getId){
       const updatedItem = await updateItem(id, req.body);
-      if (updatedItem) {
+      if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -81,8 +81,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_faq (QUESTION,ANSWER,CATEGORY,IS_DEL) VALUES ('${req.question}','${req.answer}','${req.category}','${req.is_del}')`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await insertQuery(INSERT_FAQ_QUERY,[req.question,req.answer,req.category]);
     return registerRes;
 }
 
@@ -92,7 +91,9 @@ exports.createItem = async (req, res) => {
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        const currData=await fetch(FETCH_FAQ_BY_ID,[id])
+        const filterdata=await transformKeysToLowercase(currData)
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',filterdata))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
@@ -105,8 +106,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_faq WHERE FAQ_ID ='${id}'`;
-  const deleteRes = await runQuery(deleteQuery);
+  const deleteRes = await fetch(DELETE_FAQ_QUERY,[id]);
   return deleteRes;
 };
 /**

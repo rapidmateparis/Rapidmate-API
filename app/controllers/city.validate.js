@@ -9,7 +9,6 @@ exports.createItem = [
   check('country_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('area').exists().withMessage('MISSING'),
   check('capital').exists().withMessage('MISSING'),
-  check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -24,7 +23,6 @@ exports.updateItem = [
     check('country_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('area').exists().withMessage('MISSING'),
     check('capital').exists().withMessage('MISSING'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)

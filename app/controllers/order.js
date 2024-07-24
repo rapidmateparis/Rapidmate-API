@@ -1,7 +1,8 @@
 const utils = require("../middleware/utils");
-const { runQuery } = require("../middleware/db");
+const { runQuery,fetch, insertQuery, updateQuery } = require("../middleware/db");
 const auth = require("../middleware/auth");
-const AuthController=require("../controllers/authuser")
+const AuthController=require("../controllers/authuser");
+const { INSERT_ORDER_QUERY, DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID } = require("../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -12,15 +13,14 @@ const AuthController=require("../controllers/authuser")
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye =
-      'select * from rmt_order WHERE IS_DEL=0';
-    const data = await runQuery(getUserQuerye);
+    const data = await runQuery(FETCH_ORDER_QUERY);
+    const filterdata=await transformKeysToLowercase(data)
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
       message = "No items found";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
   } catch (error) {
     return res
       .status(500)
@@ -39,15 +39,14 @@ exports.getItem = async (req, res) => {
     //console.log(isAuththorized)
     //if(isAuththorized.status==200){
       const id = req.params.id;
-      const getUserQuerye =
-        "select * from rmt_order where IS_DEL=0 AND  ORDER_NUMBER='" + id + "'";
-      const data = await runQuery(getUserQuerye);
+      const data = await fetch(FETCH_ORDER_BY_ID,[id]);
+      const filterdata=await transformKeysToLowercase(data)
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
         message = "No items found";
         return res.status(400).json(utils.buildErrorObject(400, message, 1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200, message, data));
+      return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
     //}else{
    //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
    // }
@@ -70,15 +69,14 @@ exports.getItemByConsumerExtId = async (req, res) => {
     //console.log(isAuththorized)
     //if(isAuththorized.status==200){
       const id = req.params.id;
-      const getUserQuerye =
-        "select * from rmt_order where IS_DEL=0 AND consumer_id =(select id from rmt_consumer where ext_id = '" + id + "')";
-      const data = await runQuery(getUserQuerye);
+      const data = await fetch(FETCH_ORDER_BY_CONSUMER_ID,[id]);
+      const filterdata=await transformKeysToLowercase(data)
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
         message = "No items found";
         return res.status(400).json(utils.buildErrorObject(400, message, 1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200, message, data));
+      return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
     //}else{
    //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
    // }
@@ -101,9 +99,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     //console.log(isAuththorized)
     //if(isAuththorized.status==200){
       const id = req.params.id;
-      const getUserQuerye =
-        "select * from rmt_order where IS_DEL=0 AND delivery_boy_id =(select id from rmt_delivery_boy where ext_id = '" + id + "')";
-      const data = await runQuery(getUserQuerye);
+      const data = await transformKeysToLowercase(await fetch(FETCH_ORDER_DELIVERY_BOY_ID,[id]));
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
         message = "No items found";
@@ -126,8 +122,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id, req, package_attach) => {
-  const registerQuery = `UPDATE rmt_order SET  USER_ID='${req.user_id}',FIRST_NAME='${req.first_name}',LAST_NAME='${req.last_name}',EMAIL='${req.email}',COMPANY_NAME='${req.company}',PHONE_NUMBER='${req.phone_number}',PACKAGE_ID='${req.package_id}',PACKAGE_ATTACH='${package_attach}',PACKAGE_NOTES='${req.package_notes}',ORDER_DATE='${req.order_date}',ORDER_STATUS='${req.order_status}',AMOUNT='${req.amount}',VEHICLE_TYPE_ID='${req.vehicle_type_id}',PICKUP_LOCATION_ID='${req.pickup_location_id}',DROPOFF_LOCATION_ID='${req.dropoff_location_id}',IS_ACTIVE='${req.is_active}',SERVICE_TYPE_ID='${req.service_type_id}',SHIFT_START_TIME='${req.shift_start_time}',SHIFT_END_TIME='${req.shift_end_time}',DELIVERY_DATE='${req.delivery_date}',DELIVERY_STATUS='${req.delivery_status}',IS_DEL='${req.is_del}'  WHERE ORDER_ID='${id}'`;
-  const registerRes = await runQuery(registerQuery);
+  const registerRes = await updateQuery(UPDATE_ORDER_QUERY,[req.user_id,req.first_name,req.last_name,req.email,req.company,req.phone_number,req.package_id,package_attach,req.package_notes,req.order_date,req.order_status,req.amount,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id,req.is_active,req.service_type_id,req.shift_start_time,req.shift_end_time,req.delivery_date,req.delivery_status,id]);
   return registerRes;
 };
 
@@ -144,7 +139,7 @@ exports.updateItem = async (req, res) => {
         package_attachs = doc_path.data.Location;
       }
       const updatedItem = await updateItem(id, req.body, package_attachs);
-      if (updatedItem) {
+      if (updatedItem.affectedRows >0) {
         return res
           .status(200)
           .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
@@ -170,8 +165,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateStatus = async (id, status) => {
-  const registerQuery = `UPDATE rmt_order SET DELIVERY_STATUS='${status}' WHERE IS_DEL=0 AND  ORDER_ID='${id}'`;
-  const registerRes = await runQuery(registerQuery);
+  const registerRes = await updateQuery(UPDATE_ORDER_BY_STATUS,[status,id]);
   return registerRes;
 };
 
@@ -207,26 +201,16 @@ exports.updateStatus = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  const registerQuery = `INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,DELIVERY_BOY_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID) VALUES
-  ((now()+1),(select id from rmt_consumer where ext_id='${req.consumer_ext_id}'),(select id from rmt_delivery_boy where ext_id='${req.delivery_boy_ext_id}'),'${req.service_type_id}',
-  '${req.vehicle_type_id}','${req.pickup_location_id}','${req.dropoff_location_id}')`;
-  const registerRes = await runQuery(registerQuery);
-  console.log(registerQuery)
+  const registerRes = await insertQuery(INSERT_ORDER_QUERY,[req.consumer_ext_id,req.delivery_boy_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id]);
   return registerRes;
 };
 exports.createItem = async (req, res) => {
   try {
-    const pickupData = req.body;
     const item = await createItem(req.body);
     if (item.insertId) {
-      return res
-        .status(200)
-        .json(
-          utils.buildcreatemessage(200, "Record Inserted Successfully", {
-            id: item.insertId,
-            ...pickupData,
-          })
-        );
+      const currData=await fetch(FETCH_ORDER_BY_ID,[item.insertId])
+      const filterdata=await transformKeysToLowercase(currData)
+      return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",filterdata));
     } else {
       return res
         .status(500)
@@ -240,8 +224,7 @@ exports.createItem = async (req, res) => {
 };
 
 const deleteItem = async (id) => {
-  const deleteQuery = `UPDATE rmt_order SET IS_DEL =1 WHERE ORDER_NUMBER='${id}'`;
-  const deleteRes = await runQuery(deleteQuery);
+  const deleteRes = await updateQuery(DELETE_ORDER_QUERY,[id]);
   return deleteRes;
 };
 /**

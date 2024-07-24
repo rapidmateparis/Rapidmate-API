@@ -1,8 +1,7 @@
 const utils = require('../middleware/utils')
 const db = require('../middleware/db')
-const { runQuery } = require('../middleware/db')
-
-
+const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
+const {FETCH_AC_ALL,FETCH_AC_BY_ID,INSERT_AC_QUERY,UPDATE_AC_QUERY,DELETE_AC_QUERY,transformKeysToLowercase}=require("../db/database.query")
 /********************
  * Public functions *
  ********************/
@@ -13,14 +12,14 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_account_type'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_AC_ALL)
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -34,14 +33,14 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_account_type where ACCOUNT_TYPE_ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_AC_BY_ID,[id])
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="No items found"
+        message="Invalid account type."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -53,8 +52,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_account_type SET ACCOUNT_TYPE_NAME='${req.account_type_name}',DESCRIPTION ='${req.description}',IS_DEL='${req.is_del}' WHERE ACCOUNT_TYPE_ID ='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await updateQuery(UPDATE_AC_QUERY,[req.account_type_name,req.description,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
@@ -63,7 +61,7 @@ exports.updateItem = async (req, res) => {
     const getId = await utils.isIDGood(id,'ACCOUNT_TYPE_ID','rmt_account_type')
     if(getId){
       const updatedItem = await updateItem(id, req.body);
-      if (updatedItem) {
+      if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -81,8 +79,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_account_type (ACCOUNT_TYPE_NAME,DESCRIPTION,IS_DEL) VALUES ('${req.account_type_name}','${req.description}','${req.is_del}')`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await insertQuery(INSERT_AC_QUERY,[req.account_type_name,req.description]);
     return registerRes;
 }
 
@@ -92,7 +89,8 @@ exports.createItem = async (req, res) => {
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        const currentdata=await fetch(FETCH_AC_BY_ID,[item.insertId])
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
@@ -105,8 +103,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_account_type WHERE ACCOUNT_TYPE_ID ='${id}'`;
-  const deleteRes = await runQuery(deleteQuery);
+  const deleteRes = await fetch(DELETE_AC_QUERY,[id]);
   return deleteRes;
 };
 /**

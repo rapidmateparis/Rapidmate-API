@@ -1,6 +1,7 @@
 const utils = require('../middleware/utils')
 const db = require('../middleware/db')
-const { runQuery } = require('../middleware/db')
+const { runQuery,fetch,updateQuery,insertQuery} = require('../middleware/db')
+const { FETCH_CODE_QUERY, FETCH_CODE_BY_ID, UPDATE_CODE_QUERY, INSERT_CODE_QUERY, DELETE_CODE_QUERY, transformKeysToLowercase } = require('../db/database.query')
 
 
 /********************
@@ -13,14 +14,14 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_coupon_code'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_CODE_QUERY)
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -34,14 +35,14 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_coupon_code where ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_CODE_BY_ID,[id])
+    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -53,8 +54,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_coupon_code SET CODE='${req.code}',DISCOUNT ='${req.discount}',EXPIRY_dATE='${req.expiry_date}',MAX_USAGE='${req.max_usage}',CURRENT_USAGE='${req.current_usage}',IS_DEL='${req.is_del}' WHERE ID ='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await updateQuery(UPDATE_CODE_QUERY,[req.code,req.discount,req.expiry_date,req.max_usage,req.current_usage,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
@@ -68,7 +68,7 @@ exports.updateItem = async (req, res) => {
         return res.status(400).json(utils.buildErrorObject(400,'Coupon Code already exists',1001));
       }
       const updatedItem = await updateItem(id, req.body);
-      if (updatedItem) {
+      if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -86,8 +86,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_coupon_code (CODE,DISCOUNT,EXPIRY_DATE,MAX_USAGE,CURRENT_USAGE,IS_DEL) VALUES ('${req.code}','${req.discount}','${req.expiry_date}','${req.max_usage}','${req.current_usage}','${req.is_del}')`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await insertQuery(INSERT_CODE_QUERY,[req.code,req.discount,req.expiry_date,req.max_usage,req.current_usage]);
     return registerRes;
 }
 
@@ -97,7 +96,9 @@ exports.createItem = async (req, res) => {
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        const currData=await fetch(FETCH_CODE_BY_ID,[id])
+        const filterdata=await transformKeysToLowercase(currData)
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',filterdata))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
@@ -110,8 +111,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_coupon_code WHERE ID ='${id}'`;
-  const deleteRes = await runQuery(deleteQuery);
+  const deleteRes = await fetch(DELETE_CODE_QUERY,[id]);
   return deleteRes;
 };
 /**

@@ -95,18 +95,6 @@ module.exports = {
         })
     } catch (error) {
       return error
-      // res.status(500).json({ error: "Failed to execute the query" });
-
-      // Error handling
-      // if (error.code === 'ETIMEDOUT') {
-      //     // Handle the connection timeout error
-      //     console.error('Connection timed out:', error);
-      //     // Send an appropriate response or perform any necessary actions
-      // } else {
-      //     // Handle other types of errors
-      //     console.error('Error occurred:', error);
-      //     // Send an appropriate response or perform any necessary actions
-      // }
     }
   },
 
@@ -120,30 +108,15 @@ module.exports = {
         })
         .catch((err) => {
           return err
-          // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
       return error
-      // res.status(500).json({ error: "Failed to execute the query" });
-
-      // Error handling
-      // if (error.code === 'ETIMEDOUT') {
-      //     // Handle the connection timeout error
-      //     console.error('Connection timed out:', error);
-      //     // Send an appropriate response or perform any necessary actions
-      // } else {
-      //     // Handle other types of errors
-      //     console.error('Error occurred:', error);
-      //     // Send an appropriate response or perform any necessary actions
-      // }
     }
   },
 
-  async insertQuery(query) {
+  async insertQuery(query,param=[]) {
     try {
-      return await pool
-        .execute(query, [])
-        .then(([rows, fields]) => {
+      return await pool.execute(query, param).then(([rows, fields]) => {
           return rows
         })
         .catch((err) => {
@@ -156,27 +129,10 @@ module.exports = {
     }
   },
   
-  async getQuery(query) {
+  async updateQuery(query,param=[]) {
     try {
       return await pool
-        .execute(query, [])
-        .then(([rows, fields]) => {
-          return rows
-        })
-        .catch((err) => {
-          return err
-          // res.status(500).json({ error: "Something Went wrong" });
-        })
-    } catch (error) {
-      return error
-      // res.status(500).json({ error: "Failed to execute the query" });
-    }
-  },
-
-  async updateQuery(query) {
-    try {
-      return await pool
-        .execute(query, [])
+        .execute(query,param)
         .then(([rows, fields]) => {
           return rows
         })
@@ -189,20 +145,4 @@ module.exports = {
       // res.status(500).json({ error: "Failed to execute the query" });
     }
   }
-
-  // async runQuery(query) {
-  //   try {
-  //     return await pool
-  //       .execute(query, [])
-  //       .then(([rows, fields]) => {
-  //         return rows
-  //       })
-  //       .catch((err) => {
-  //         return err
-  //         // res.status(500).json({ error: "Something Went wrong" });
-  //       })
-  //   } catch (error) {
-  //     return error
-  //   }
-  // }
 }
