@@ -2,6 +2,7 @@ const utils = require('../middleware/utils')
 const { runQuery,fetch} = require('../middleware/db')
 const auth = require('../middleware/auth')
 const { FETCH_DRIVER_AVAILABLE } = require('../db/database.query')
+const DriverBoy = require('../models/Driveryboy')
 
 /********************
  * Public functions *
@@ -209,3 +210,29 @@ exports.deleteItem = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
+
+/**
+ * Update location called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.updateLocation = async (req, res) => {
+  const { coordinates, drivery_boy_id } = req.body;
+  try {
+    const deliveryboy = await DriverBoy.findOne({ drivery_boy_id: drivery_boy_id });
+    if (!deliveryboy) {
+      const newDeliveryBoy = new DriverBoy({ 
+        drivery_boy_id,
+        location: { type: 'Point', coordinates }
+      });
+      await newDeliveryBoy.save();
+      return res.status(200).json(utils.buildcreatemessage(200, 'Record Created Successfully', newDeliveryBoy));
+    } else {
+      deliveryboy.location = { type: 'Point', coordinates };
+      await deliveryboy.save();
+      return res.status(200).json(utils.buildcreatemessage(200, 'Record Updated Successfully', deliveryboy));
+    }
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+  }
+};
