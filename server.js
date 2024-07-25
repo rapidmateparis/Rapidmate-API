@@ -1,78 +1,80 @@
-require('dotenv-safe').config()
-const express = require('express')
-const bodyParser = require('body-parser')
-const morgan = require('morgan')
-const compression = require('compression')
-const helmet = require('helmet')
-const cors = require('cors')
-const passport = require('passport')
-const app = express()
-const i18n = require('i18n')
-const path = require('path')
+require('dotenv-safe').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const compression = require('compression');
+const helmet = require('helmet');
+const cors = require('cors');
+const passport = require('passport');
+const i18n = require('i18n');
+const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
+const mongoose = require('mongoose');
 
-// Setup express server port from ENV, default: 3000
-app.set('port', process.env.PORT || 3004)
+const app = express();
+mongoose.connect('mongodb://localhost:27017/pickup-dropoff', { useNewUrlParser: true, useUnifiedTopology: true });
 
-// Enable only in development HTTP request logger middleware
+const server = http.createServer(app);
+const io = socketIo(server);
+
+app.set('port', process.env.PORT || 3004);
+app.set('io', io);
+
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'))
+  app.use(morgan('dev'));
 }
 
-// Redis cache enabled by env variable
-if (process.env.USE_REDIS === 'true') {
-  const getExpeditiousCache = require('express-expeditious')
-  const cache = getExpeditiousCache({
-    namespace: 'expresscache',
-    defaultTtl: '1 minute',
-    engine: require('expeditious-engine-redis')({
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT
-    })
-  })
-  app.use(cache)
-}
-
-// for parsing json
 app.use(
   bodyParser.json({
-    limit: '20mb'
+    limit: '20mb',
   })
-)
-// for parsing application/x-www-form-urlencoded
+);
+
 app.use(
   bodyParser.urlencoded({
     limit: '20mb',
-    extended: true
+    extended: true,
   })
-)
+);
 
-// i18n
 i18n.configure({
   locales: ['en', 'es'],
   directory: `${__dirname}/locales`,
   defaultLocale: 'en',
-  objectNotation: true
-})
-app.use(i18n.init)
+  objectNotation: true,
+});
+app.use(i18n.init);
 
-// Init all other stuff
-app.use(cors({
-  origin: '*'
-}))
-app.use(passport.initialize())
-app.use(compression())
-app.use(helmet())
-app.use(express.static('public'))
-app.set('views', path.join(__dirname, 'views'))
-app.engine('html', require('ejs').renderFile)
-app.set('view engine', 'html')
-// app.use(require('./app/routes'))
-app.use('/api', require('./app/routes'))
-app.listen(app.get('port'))
+app.use(
+  cors({
+    origin: '*',
+  })
+);
+app.use(passport.initialize());
+app.use(compression());
+app.use(helmet());
+app.use(express.static('public'));
+app.set('views', path.join(__dirname, 'views'));
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+app.use('/api', require('./app/routes'));
 
-console.log(' Port: --- ', app.get('port'))
+io.on('connection', (socket) => {
+  console.log('A user connected', socket.id);
 
-// Init MongoDB
-// initMongo()
+  socket.on('join', (driverId) => {
+    socket.join(driverId);
+    console.log(`Driver ${driverId} joined room ${driverId}`);
+  });
 
-module.exports = app // for testing
+  socket.on('disconnect', () => {
+    console.log('User disconnected', socket.id);
+  });
+});
+
+server.listen(app.get('port'), () => {
+  console.log('Server is running on port', app.get('port'));
+});
+
+module.exports = app;

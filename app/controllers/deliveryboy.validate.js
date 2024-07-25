@@ -109,3 +109,14 @@ exports.deleteItem = [
     validationResult(req, res, next)
   }
 ]
+
+/**
+ * Validation update location request
+ */
+exports.updateLocation=[
+  check('drivery_boy_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('coordinates').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]

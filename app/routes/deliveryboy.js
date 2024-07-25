@@ -77,4 +77,5 @@ router.post('/findNearbyDrivers', async (req, res) => {
   }
 });
 
+router.put('/update/location',trimRequest.all,validate.updateLocation,controller.updateLocation)
 module.exports = router
