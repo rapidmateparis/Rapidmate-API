@@ -287,7 +287,7 @@ function login(userInfo) {
 }
 
 async function loginResponseData(resolve, result) {
-    const dbUserProfile = await fetch("select ext_id, first_name, last_name from rmt_delivery_boy where username = ?", [username]);
+    const dbUserProfile = await fetch("select ext_id, first_name, last_name from rmt_consumer where username = ?", [username]);
     console.log(dbUserProfile);
     resolve({
         token:result.accessToken.jwtToken,
