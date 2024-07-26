@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { runQuery } = require("../middleware/db");
+const { runQuery , fetch} = require("../middleware/db");
 const { CognitoJwtVerifier } = require("aws-jwt-verify");
 var AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 const utils=require("../middleware/utils");
@@ -271,12 +271,9 @@ function login(userInfo) {
                 {
                     logger.info("onSuccess");
                     logger.info(result);
-                    //resolve(setandSendUserInfo(cognitoUser, result));
-                    resolve({
-                        token:result.accessToken.jwtToken,
-                        refreshtoken:result.refreshToken.token,
-                        user: result
-                    })
+                    username = userInfo["userName"];
+                    console.log(username);
+                    loginResponseData(resolve, result);
                     // resolve(result);
                 },
                 onFailure: function(cognitoErr)
@@ -287,6 +284,17 @@ function login(userInfo) {
                 },
             });
       });
+}
+
+async function loginResponseData(resolve, result) {
+    const dbUserProfile = await fetch("select ext_id, first_name, last_name from rmt_consumer where username = ?", [username]);
+    console.log(dbUserProfile);
+    resolve({
+        token:result.accessToken.jwtToken,
+        refreshtoken:result.refreshToken.token,
+        user: result,
+        user_profile : dbUserProfile
+    })
 }
 
 function setandSendUserInfo(cognitoUser, sessionInfo) {
