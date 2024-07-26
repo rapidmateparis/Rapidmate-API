@@ -201,6 +201,8 @@ exports.deleteItem = async (req, res) => {
       const deletedItem = await deleteItem(getId);
       if(deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
+
+        
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
