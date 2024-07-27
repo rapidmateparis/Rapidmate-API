@@ -73,4 +73,10 @@ router.delete(
   controller.deleteItem
 )
 
+router.post(
+  '/calculate',
+  trimRequest.all,
+  validate.calculateAmount,
+  controller.calculateAmount
+)
 module.exports = router
