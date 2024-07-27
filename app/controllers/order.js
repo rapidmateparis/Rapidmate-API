@@ -2,7 +2,7 @@ const utils = require("../middleware/utils");
 const { runQuery,fetch, insertQuery, updateQuery } = require("../middleware/db");
 const auth = require("../middleware/auth");
 const AuthController=require("../controllers/authuser");
-const { INSERT_ORDER_QUERY, DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID } = require("../db/database.query");
+const { INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY } = require("../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -201,7 +201,28 @@ exports.updateStatus = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  const registerRes = await insertQuery(INSERT_ORDER_QUERY,[req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id]);
+  var requestBody = [req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id];
+  var createOrderQuery = INSERT_ORDER_QUERY;
+  console.log(req.is_my_self);
+  if(req.is_my_self == '0'){
+    requestBody.push(req.first_name);
+    requestBody.push(req.last_name);
+    //requestBody.push(req.company_name);
+    requestBody.push(req.email);
+    requestBody.push(req.mobile);
+    //requestBody.push(req.package_photo);
+    //requestBody.push(req.package_id);
+    //requestBody.push(req.package_notes);
+    requestBody.push(req.is_my_self);
+    createOrderQuery = INSERT_ORDER_FOR_ANOTHER_QUERY;
+  }
+  var requestBodyNew = requestBody.filter(function(item) {
+    return item !== undefined;
+  });
+  console.info(requestBodyNew);
+  const registerRes = await insertQuery(createOrderQuery, requestBodyNew);
+  console.info(registerRes);
+  console.info(registerRes);
   return registerRes;
 };
 exports.createItem = async (req, res) => {

@@ -266,7 +266,7 @@ exports.uploadFileToS3bucket = async (req, filename, file = null) => {
   }
 };
 
-exports.nameExists = async (fieldValue,tableName,fieldname) => {
+exports.nameExists = async (fieldValue, tableName, fieldname) => {
   let query = `SELECT ${fieldname} FROM ${tableName} WHERE ${fieldname} ='${fieldValue}'`;
   let queryRes = await runQuery(query);
   if (queryRes.length > 0) {
