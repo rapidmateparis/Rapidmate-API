@@ -1,7 +1,8 @@
 const uploadFile = require("../middleware/document.utils");
 const fs = require("fs");
 const utils = require('../middleware/utils')
-const { runQuery,fetch} = require('../middleware/db')
+const { runQuery,fetch} = require('../middleware/db');
+const { Console } = require("console");
 const BASE_DIR  = process.env.BASE_RESOURCE_DIR;
 const upload = async (req, res) => {
   try {
@@ -11,10 +12,10 @@ const upload = async (req, res) => {
     var dbTable = "";
     console.log(process.env.ORDER_DOC);
     console.log(process.env.BASE_RESOURCE_DIR);
-    if(uploadType = "ORDER_DOC"){
+    if(uploadType == "ORDER_DOC"){
         uploadDir = process.env.ORDER_DOC;
         dbTable = "rmt_order_document";
-    }else if(uploadType = "DELIVERY_BOY"){
+    }else if(uploadType == "DELIVERY_BOY"){
         uploadDir = process.env.DELIVERY_BOY;
         dbTable = "rmt_delivery_boy_document";
     } else{
@@ -69,13 +70,13 @@ const getListFiles = (req, res) => {
 };
 
 const download = async (req, res) => {
-  const fileName = req.params.name;
-  var uploadType = req.headers.upload_type;
+  console.log(req.query.ut);
+  var uploadType = req.query.ut;
   var dbTable = "";
-  if(uploadType = "ORDER_DOC"){
+  if(uploadType == "ORDER_DOC"){
       uploadDir = process.env.ORDER_DOC;
       dbTable = "rmt_order_document";
-  }else if(uploadType = "DELIVERY_BOY"){
+  }else if(uploadType == "DELIVERY_BOY"){
       uploadDir = process.env.DELIVERY_BOY;
       dbTable = "rmt_delivery_boy_document";
   } else{
@@ -88,7 +89,8 @@ const download = async (req, res) => {
         message="File not found";
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-
+    console.log(data[0].file_name);
+    console.log(data[0].path);
     res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
         if (err) {
           res.status(500).send({
