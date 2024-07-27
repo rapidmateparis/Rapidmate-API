@@ -13,10 +13,10 @@ const upload = async (req, res) => {
     console.log(process.env.BASE_RESOURCE_DIR);
     if(uploadType = "ORDER_DOC"){
         uploadDir = process.env.ORDER_DOC;
-        dbTable = "RMT_ORDER_DOCUMENT";
+        dbTable = "rmt_order_document";
     }else if(uploadType = "DELIVERY_BOY"){
         uploadDir = process.env.DELIVERY_BOY;
-        dbTable = "RMT_DELIVERY_BOY_DOCUMENT";
+        dbTable = "rmt_delivery_boy_document";
     } else{
         uploadDir = "common";
     }
@@ -25,7 +25,7 @@ const upload = async (req, res) => {
     if (req.file == undefined) {
       return res.status(400).send({ error: "unable to upload", id : null });
     }
-    const persist = "INSERT INTO "+ dbTable +  "(FILE_NAME, PATH) VALUES('" + req.file.originalname + "','" + uploadDir + "')";
+    const persist = "INSERT INTO "+ dbTable +  "(file_name, path) VALUES('" + req.file.originalname + "','" + uploadDir + "')";
     const persistRes = await runQuery(persist);
     res.status(200).send({
         id: persistRes.insertId , error: null
@@ -74,10 +74,10 @@ const download = async (req, res) => {
   var dbTable = "";
   if(uploadType = "ORDER_DOC"){
       uploadDir = process.env.ORDER_DOC;
-      dbTable = "RMT_ORDER_DOCUMENT";
+      dbTable = "rmt_order_document";
   }else if(uploadType = "DELIVERY_BOY"){
       uploadDir = process.env.DELIVERY_BOY;
-      dbTable = "RMT_DELIVERY_BOY_DOCUMENT";
+      dbTable = "rmt_delivery_boy_document";
   } else{
       uploadDir = "common";
   }
@@ -89,7 +89,7 @@ const download = async (req, res) => {
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
 
-    res.download(process.env.BASE_RESOURCE_DIR + data[0].PATH + data[0].FILE_NAME, data[0].FILE_NAME, (err) => {
+    res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
         if (err) {
           res.status(500).send({
             message: "Could not download the file. " + err,

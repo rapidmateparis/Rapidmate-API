@@ -1,603 +1,593 @@
-drop database if exists rapidmate_dev_db;
-create database if not exists rapidmate_dev_db;
-use rapidmate_dev_db;
+drop database if exists rapidmate_dev_db_new;
+create database if not exists rapidmate_dev_db_new;
+use rapidmate_dev_db_new;
 
-CREATE TABLE `RMT_RAPIDMATE_INTERNAL_USER` (
-  `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-  `FIRST_NAME` varchar(100) DEFAULT NULL,
-  `LAST_NAME` varchar(100) DEFAULT NULL,
-  `EMAIL` varchar(100) DEFAULT NULL,
-  `IS_EMAIL_VERIFIED` tinyint(1) DEFAULT NULL,
-  `MOBILE` varchar(100) DEFAULT NULL,
-  `IS_MOBILE_VERIFIED` tinyint(1) DEFAULT NULL,
-  `PASSWORD` varchar(100) DEFAULT NULL,
-  `AUTAAR` varchar(255) DEFAULT NULL,
-  `ROLE_ID` tinyint(2) DEFAULT NULL,
-  `CITY_ID` smallint DEFAULT NULL,
-  `STATE_ID` smallint(11) DEFAULT NULL,
-  `COUNTRY_ID` tinyint(3) DEFAULT NULL,
-  `ADDRESS` text DEFAULT NULL,
-  `SIRET_NO` varchar(50) DEFAULT NULL,
-  `STATUS` tinyint(2) DEFAULT 1,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_rapidmate_internal_user` (
+  `id` bigint primary key auto_increment,
+  `first_name` varchar(100) default null,
+  `last_name` varchar(100) default null,
+  `email` varchar(100) default null,
+  `is_email_verified` tinyint(1) default null,
+  `mobile` varchar(100) default null,
+  `is_mobile_verified` tinyint(1) default null,
+  `password` varchar(100) default null,
+  `autaar` varchar(255) default null,
+  `role_id` tinyint(2) default null,
+  `city_id` smallint default null,
+  `state_id` smallint(11) default null,
+  `country_id` tinyint(3) default null,
+  `address` text default null,
+  `siret_no` varchar(50) default null,
+  `status` tinyint(2) default 1,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
-CREATE TABLE `RMT_VEHICLE_TYPE` (
-  `ID` TINYINT(2) NOT NULL AUTO_INCREMENT PRIMARY KEY , 
-  `VEHICLE_TYPE` VARCHAR(50) DEFAULT NULL,
-  `VEHICLE_TYPE_DESC` VARCHAR(100) NOT NULL,
-  `LENGTH` float(5,2) DEFAULT NULL,
-  `HEIGHT`  float(5,2) DEFAULT NULL,
-  `WIDTH`  float(5,2) DEFAULT NULL,
-  `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_vehicle_type` (
+  `id` tinyint(2) not null auto_increment primary key , 
+  `vehicle_type` varchar(50) default null,
+  `vehicle_type_desc` varchar(100) not null,
+  `length` float(5,2) default null,
+  `height`  float(5,2) default null,
+  `width`  float(5,2) default null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
-CREATE TABLE `RMT_DELIVERY_BOY` (
-  `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-  `EXT_ID` varchar(50) NOT NULL,
-  `USERNAME` varchar(100) DEFAULT NULL,
-  `FIRST_NAME` varchar(100) DEFAULT NULL,
-  `LAST_NAME` varchar(100) DEFAULT NULL,
-  `EMAIL` varchar(100) DEFAULT NULL,
-  `EMAIL_VERIFICATION` varchar(200) DEFAULT NULL,
-  `PHONE` varchar(100) DEFAULT NULL,
-  `PASSWORD` varchar(100) DEFAULT NULL,
-  `AUTAAR` varchar(255) DEFAULT NULL,
-  `ROLE_ID` int(11) DEFAULT NULL,
-  `CITY_ID` int(11) DEFAULT NULL,
-  `STATE_ID` int(11) DEFAULT NULL,
-  `COUNTRY_ID` int(11) DEFAULT NULL,
-  `ADDRESS` text DEFAULT NULL,
-  `SIRET_NO` varchar(50) DEFAULT NULL,
-  `VEHICLE_ID` int(11) DEFAULT NULL,
-  `DRIVER_LICENCE_NO` varchar(100) DEFAULT NULL,
-  `INSURANCE` varchar(100) DEFAULT NULL,
-  `PASSPORT` varchar(100) DEFAULT NULL,
-  `IDENTITY_CARD` varchar(255) DEFAULT NULL,
-  `COMPANY_NAME` varchar(100) DEFAULT NULL,
-  `INDUSTRY` varchar(100) DEFAULT NULL,
-  `DESCRIPTION` text DEFAULT NULL,
-  `TERM_COND1` int(11) DEFAULT 0,
-  `TERM_COND2` int(11) DEFAULT 0,
-  `ACCOUNT_TYPE` enum('individual','company') DEFAULT 'individual' COMMENT 'individual: Account for individual customers, company: Account for corporate customers',
-  `ACTIVE` int(11) DEFAULT 1,
-  `OTP` varchar(100) DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_delivery_boy` (
+  `id` bigint primary key auto_increment,
+  `ext_id` varchar(50) not null,
+  `username` varchar(100) default null,
+  `first_name` varchar(100) default null,
+  `last_name` varchar(100) default null,
+  `email` varchar(100) default null,
+  `email_verification` varchar(200) default null,
+  `phone` varchar(100) default null,
+  `password` varchar(100) default null,
+  `autaar` varchar(255) default null,
+  `role_id` int(11) default null,
+  `city_id` int(11) default null,
+  `state_id` int(11) default null,
+  `country_id` int(11) default null,
+  `address` text default null,
+  `siret_no` varchar(50) default null,
+  `vehicle_id` int(11) default null,
+  `driver_licence_no` varchar(100) default null,
+  `insurance` varchar(100) default null,
+  `passport` varchar(100) default null,
+  `identity_card` varchar(255) default null,
+  `company_name` varchar(100) default null,
+  `industry` varchar(100) default null,
+  `description` text default null,
+  `term_cond1` int(11) default 0,
+  `term_cond2` int(11) default 0,
+  `account_type` enum('individual','company') default 'individual' comment 'individual: account for individual customers, company: account for corporate customers',
+  `active` int(11) default 1,
+  `otp` varchar(100) default null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
-CREATE TABLE RMT_DELIVERY_BOY_OTP(
-  `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-  `OTP` varchar(100) DEFAULT NULL,
-  `STATUS` TINYINT(1) DEFAULT 0, -- 0 PENDING, 1 VERIFIED, 2 EXPIRED
-  `DELIVERY_BOY_ID` BIGINT NOT NULL,
-  `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table rmt_delivery_boy_otp(
+  `id` bigint primary key auto_increment,
+  `otp` varchar(100) default null,
+  `status` tinyint(1) default 0, -- 0 pending, 1 verified, 2 expired
+  `delivery_boy_id` bigint not null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 
 );
 
-DROP TABLE IF EXISTS RMT_VEHICLE;
-CREATE TABLE `RMT_VEHICLE` (
-  `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-  `DELIVERY_BOY_ID` int(11) NOT NULL,
-  `VEHICLE_TYPE_ID` TINYINT(2) DEFAULT NULL,
-  `PLAT_NO` varchar(100) DEFAULT NULL,
-  `MODAL` varchar(100) DEFAULT NULL,
-  `VEHICLE_FRONT_PHOTO` varchar(255) DEFAULT NULL,
-  `VEHICLE_BACK_PHOTO` varchar(255) DEFAULT NULL,
-  `RCV_NO` varchar(255) DEFAULT NULL,
-  `RCV_PHOTO` varchar(255) DEFAULT NULL,
-  `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`VEHICLE_TYPE_ID`) REFERENCES `RMT_VEHICLE_TYPE` (`ID`)
+drop table if exists rmt_vehicle;
+create table `rmt_vehicle` (
+  `id` bigint primary key auto_increment,
+  `delivery_boy_id` int(11) not null,
+  `vehicle_type_id` tinyint(2) default null,
+  `plat_no` varchar(100) default null,
+  `modal` varchar(100) default null,
+  `vehicle_front_photo` varchar(255) default null,
+  `vehicle_back_photo` varchar(255) default null,
+  `rcv_no` varchar(255) default null,
+  `rcv_photo` varchar(255) default null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  foreign key (`vehicle_type_id`) references `rmt_vehicle_type` (`id`)
 );
 
-CREATE TABLE `RMT_DELIVERY_BOY_WALLET` (
-  `ID` INT PRIMARY KEY AUTO_INCREMENT,
-  `DELIVERY_BOY_ID` int(11) DEFAULT NULL,
-  `BALANCE` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `CURRENCY` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_delivery_boy_wallet` (
+  `id` int primary key auto_increment,
+  `delivery_boy_id` int(11) default null,
+  `balance` decimal(10,2) not null default 0.00,
+  `currency` varchar(11) character set utf8 collate utf8_general_ci default null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
-CREATE TABLE `RMT_DELIVERY_BOY_ACCOUNT` (
-  `ID` INT PRIMARY KEY AUTO_INCREMENT,
-  `DELIVERY_BOY_ID` int(11) DEFAULT NULL,
-	 `ACCOUNT_NUMBER`  VARCHAR(16) NOT NULL,
-	`BANK_NAME` VARCHAR(50) NOT NULL,
-	`IFSC` VARCHAR(20) NOT NULL,
-	`ADDRESS`  VARCHAR(255) NOT NULL,
-  `CURRENCY` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_delivery_boy_account` (
+  `id` int primary key auto_increment,
+  `delivery_boy_id` int(11) default null,
+	 `account_number`  varchar(16) not null,
+	`bank_name` varchar(50) not null,
+	`ifsc` varchar(20) not null,
+	`address`  varchar(255) not null,
+  `currency` varchar(11) character set utf8 collate utf8_general_ci default null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
-CREATE TABLE `RMT_DELIVERY_BOY_PAYMENT_CARD` (
-    `ID` INT PRIMARY KEY AUTO_INCREMENT,
-	  `DELIVERY_BOY_ID` int(11) DEFAULT NULL,
-    `CARD_NUMBER` VARCHAR(16) NOT NULL,
-    `CARD_HOLDER_NAME` VARCHAR(100) NOT NULL,
-    `EXPIRATION_DATE` DATE NOT NULL,
-    `CVV` VARCHAR(4) NOT NULL,
-    `BILLING_ADDRESS` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-     `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+create table `rmt_delivery_boy_payment_card` (
+    `id` int primary key auto_increment,
+	  `delivery_boy_id` int(11) default null,
+    `card_number` varchar(16) not null,
+    `card_holder_name` varchar(100) not null,
+    `expiration_date` date not null,
+    `cvv` varchar(4) not null,
+    `billing_address` text character set utf8 collate utf8_general_ci not null,
+     `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp,
+    `updated_by` varchar(100) default 'user',
+    `updated_on` datetime default current_timestamp on update current_timestamp
 );
 
-CREATE TABLE RMT_CONSUMER (
-  `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-   `EXT_ID` varchar(50) NOT NULL,
-   `USERNAME` varchar(100) DEFAULT NULL,
-  `FIRST_NAME` varchar(100) DEFAULT NULL,
-  `LAST_NAME` varchar(100) DEFAULT NULL,
-  `EMAIL` varchar(100) DEFAULT NULL,
-  `EMAIL_VERIFICATION` varchar(200) DEFAULT NULL,
-  `PHONE` varchar(100) DEFAULT NULL,
-  `PASSWORD` varchar(100) DEFAULT NULL,
-  `AUTAAR` varchar(255) DEFAULT NULL,
-  `ROLE_ID` int(11) DEFAULT NULL,
-  `CITY_ID` int(11) DEFAULT NULL,
-  `STATE_ID` int(11) DEFAULT NULL,
-  `COUNTRY_ID` int(11) DEFAULT NULL,
-  `ADDRESS` text DEFAULT NULL,
-  `SIRET_NO` varchar(50) DEFAULT NULL,
-  `VEHICLE_ID` int(11) DEFAULT NULL,
-  `DRIVER_LICENCE_NO` varchar(100) DEFAULT NULL,
-  `INSURANCE` varchar(100) DEFAULT NULL,
-  `PASSPORT` varchar(100) DEFAULT NULL,
-  `IDENTITY_CARD` varchar(255) DEFAULT NULL,
-  `COMPANY_NAME` varchar(100) DEFAULT NULL,
-  `INDUSTRY` varchar(100) DEFAULT NULL,
-  `DESCRIPTION` text DEFAULT NULL,
-  `TERM_COND1` int(11) DEFAULT 0,
-  `TERM_COND2` int(11) DEFAULT 0,
-  `ACCOUNT_TYPE` enum('INDIVIDUAL','COMPANY') DEFAULT 'INDIVIDUAL' COMMENT 'individual: Account for individual customers, company: Account for corporate customers',
-  `STATUS` TINYINT(1) DEFAULT 1,
-  `OTP` varchar(100) DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table rmt_consumer (
+  `id` bigint primary key auto_increment,
+   `ext_id` varchar(50) not null,
+   `username` varchar(100) default null,
+  `first_name` varchar(100) default null,
+  `last_name` varchar(100) default null,
+  `email` varchar(100) default null,
+  `email_verification` varchar(200) default null,
+  `phone` varchar(100) default null,
+  `password` varchar(100) default null,
+  `autaar` varchar(255) default null,
+  `role_id` int(11) default null,
+  `city_id` int(11) default null,
+  `state_id` int(11) default null,
+  `country_id` int(11) default null,
+  `address` text default null,
+  `siret_no` varchar(50) default null,
+  `vehicle_id` int(11) default null,
+  `driver_licence_no` varchar(100) default null,
+  `insurance` varchar(100) default null,
+  `passport` varchar(100) default null,
+  `identity_card` varchar(255) default null,
+  `company_name` varchar(100) default null,
+  `industry` varchar(100) default null,
+  `description` text default null,
+  `term_cond1` int(11) default 0,
+  `term_cond2` int(11) default 0,
+  `account_type` enum('individual','company') default 'individual' comment 'individual: account for individual customers, company: account for corporate customers',
+  `status` tinyint(1) default 1,
+  `otp` varchar(100) default null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
-CREATE TABLE `RMT_FAQ` (
-    `FAQ_ID` INT PRIMARY KEY AUTO_INCREMENT,
-    `QUESTION` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    `ANSWER` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-     `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CATEGORY` VARCHAR(100) DEFAULT NULL,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+create table `rmt_faq` (
+    `faq_id` int primary key auto_increment,
+    `question` text character set utf8 collate utf8_general_ci not null,
+    `answer` text character set utf8 collate utf8_general_ci not null,
+     `is_del` tinyint(1) default 0,
+    `category` varchar(100) default null,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp,
+    `updated_by` varchar(100) default 'user',
+    `updated_on` datetime default current_timestamp on update current_timestamp
 );
 
-CREATE TABLE `RMT_ACCOUNT_TYPE` (
-    `ACCOUNT_TYPE_ID` INT PRIMARY KEY AUTO_INCREMENT,
-    `ACCOUNT_TYPE_NAME` VARCHAR(100) NOT NULL,
-    `DESCRIPTION` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
-     `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+create table `rmt_account_type` (
+    `account_type_id` int primary key auto_increment,
+    `account_type_name` varchar(100) not null,
+    `description` text character set utf8 collate utf8_general_ci,
+     `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp,
+    `updated_by` varchar(100) default 'user',
+    `updated_on` datetime default current_timestamp on update current_timestamp
 );
 
-CREATE TABLE `RMT_SERVICE` (
-  `ID` TINYINT(1) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `SERVICE_NAME` VARCHAR(100) NOT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_service` (
+  `id` tinyint(1) not null primary key auto_increment,
+  `service_name` varchar(100) not null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
-INSERT INTO RMT_SERVICE(SERVICE_NAME) VALUES('PICKUP-DROPOFF'), ('SCHEDULED');
+insert into rmt_service(service_name) values('Pickup-dropoff'), ('Scheduled');
 
-DROP TABLE IF EXISTS RMT_LOCATION;
-CREATE TABLE `RMT_LOCATION` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `LOCATION_NAME` varchar(100) NOT NULL,
-  `ADDRESS` varchar(255) DEFAULT NULL,
-  `CITY` varchar(50) DEFAULT NULL,
-  `STATE` varchar(50) DEFAULT NULL,
-  `POSTAL_CODE` varchar(20) DEFAULT NULL,
-  `COUNTRY` varchar(50) DEFAULT NULL,
-  `LATITUDE` decimal(10,8) DEFAULT NULL,
-  `LONGITUDE` decimal(11,8) DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ID`)
+drop table if exists rmt_location;
+create table `rmt_location` (
+  `id` int(11) not null auto_increment,
+  `location_name` varchar(100) not null,
+  `address` varchar(255) default null,
+  `city` varchar(50) default null,
+  `state` varchar(50) default null,
+  `postal_code` varchar(20) default null,
+  `country` varchar(50) default null,
+  `latitude` decimal(10,8) default null,
+  `longitude` decimal(11,8) default null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  primary key (`id`)
 );
 
-DROP TABLE  IF EXISTS RMT_ORDER;
-CREATE TABLE `RMT_ORDER` (
-  `ID` BIGINT NOT NULL AUTO_INCREMENT,
-  `ORDER_NUMBER` varchar(20) NOT NULL,
-  `CONSUMER_ID`  BIGINT NOT NULL,
-  `DELIVERY_BOY_ID` BIGINT NULL,
-  `SERVICE_TYPE_ID` TINYINT(1) NOT NULL,
-  `VEHICLE_TYPE_ID` TINYINT(2) NOT NULL,
-  `ORDER_DATE` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  `PICKUP_LOCATION_ID` int(11) DEFAULT NULL,
-  `DROPOFF_LOCATION_ID` int(11) DEFAULT NULL,
-  `SHIFT_START_TIME` time NULL,
-  `SHIFT_END_TIME` time NULL,
-  `ORDER_STATUS` enum('ORDER_PLACED', 'CONIRMED', 'PAYMENT_FAILED', 'ORDER_ACCEPTED', 'ORDER_REJECTED', 'ON_THE_WAY_PICKUP', 'PICKUP_COMPLETED', 'ON_THE_WAY_DROP_OFF', 'COMPLETED', 'CANCELLED') DEFAULT 'ORDER_PLACED',
-  `DELIVERY_DATE` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  `IS_MY_SELF` tinyint(1) DEFAULT 1,
-  `FIRST_NAME` varchar(50) DEFAULT NULL,
-  `LAST_NAME` varchar(50) DEFAULT NULL,
-  `COMPANY_NAME` varchar(100) DEFAULT NULL,
-  `EMAIL` varchar(100) DEFAULT NULL,
-  `MOBILE` varchar(15) DEFAULT NULL,
-  `PACKAGE_PHOTO` varchar(100) DEFAULT NULL,
-  `PACKAGE_ID` varchar(100) DEFAULT NULL,
-  `PICKUP_NOTES` varchar(255) DEFAULT NULL,
-  `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ID`),
-  FOREIGN KEY (`CONSUMER_ID`) REFERENCES `RMT_CONSUMER`(`ID`),
-  FOREIGN KEY (`DELIVERY_BOY_ID`) REFERENCES `RMT_DELIVERY_BOY`(`ID`),
-  FOREIGN KEY (`PICKUP_LOCATION_ID`) REFERENCES `RMT_LOCATION`(`ID`),
-  FOREIGN KEY (`DROPOFF_LOCATION_ID`) REFERENCES `RMT_LOCATION`(`ID`),
-  FOREIGN KEY (`SERVICE_TYPE_ID`) REFERENCES `RMT_SERVICE`(`ID`),
-  FOREIGN KEY (`VEHICLE_TYPE_ID`) REFERENCES `RMT_VEHICLE_TYPE` (`ID`)
+drop table  if exists rmt_order;
+create table `rmt_order` (
+  `id` bigint not null auto_increment,
+  `order_number` varchar(20) not null,
+  `consumer_id`  bigint not null,
+  `delivery_boy_id` bigint null,
+  `service_type_id` tinyint(1) not null,
+  `vehicle_type_id` tinyint(2) not null,
+  `order_date` datetime not null default current_timestamp(),
+  `pickup_location_id` int(11) default null,
+  `dropoff_location_id` int(11) default null,
+  `shift_start_time` time null,
+  `shift_end_time` time null,
+  `order_status` enum('ORDER_PLACED', 'CONIRMED', 'PAYMENT_FAILED', 'ORDER_ACCEPTED', 'ORDER_REJECTED', 'ON_THE_WAY_PICKUP', 'PICKUP_COMPLETED', 'ON_THE_WAY_DROP_OFF', 'COMPLETED', 'CANCELLED') DEFAULT 'ORDER_PLACED',
+  `delivery_date` datetime not null default current_timestamp(),
+  `is_my_self` tinyint(1) default 1,
+  `first_name` varchar(50) default null,
+  `last_name` varchar(50) default null,
+  `company_name` varchar(100) default null,
+  `email` varchar(100) default null,
+  `mobile` varchar(15) default null,
+  `package_photo` varchar(100) default null,
+  `package_id` varchar(100) default null,
+  `pickup_notes` varchar(255) default null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  primary key (`id`),
+  foreign key (`consumer_id`) references `rmt_consumer`(`id`),
+  foreign key (`delivery_boy_id`) references `rmt_delivery_boy`(`id`),
+  foreign key (`pickup_location_id`) references `rmt_location`(`id`),
+  foreign key (`dropoff_location_id`) references `rmt_location`(`id`),
+  foreign key (`service_type_id`) references `rmt_service`(`id`),
+  foreign key (`vehicle_type_id`) references `rmt_vehicle_type` (`id`)
 );
 
-DROP TABLE IF EXISTS RMT_PAYMENT;
-CREATE TABLE `RMT_PAYMENT` (
-    `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `AMOUNT` DECIMAL(10, 2) NOT NULL,
-    `CURRENCY` VARCHAR(10) NOT NULL,
-    `PAYMENT_MODE` ENUM('WALLET', 'ONLINE', 'CASH') NOT NULL,
-    `PAYMENT_STATUS` ENUM('PENDING', 'SUCCESS', 'FAILED') NOT NULL,
-    `DESCRIPTION` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
-    `RETRY_COUNT` TINYINT(1) DEFAULT 0,
-    `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+drop table if exists rmt_payment;
+create table `rmt_payment` (
+    `id` bigint primary key auto_increment,
+    `amount` decimal(10, 2) not null,
+    `currency` varchar(10) not null,
+    `payment_mode` enum('WALLET', 'ONLINE', 'CASH') NOT NULL,
+    `payment_status` enum('PENDING', 'SUCCESS', 'FAILED') NOT NULL,
+    `description` text character set utf8 collate utf8_general_ci,
+    `retry_count` tinyint(1) default 0,
+    `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp,
+    `updated_by` varchar(100) default 'user',
+    `updated_on` datetime default current_timestamp on update current_timestamp
 );
 
-DROP TABLE IF EXISTS RMT_TRANSACTION;
-CREATE TABLE `RMT_TRANSACTION` (
-  `ID` INT PRIMARY KEY AUTO_INCREMENT,
-  `PAYMENT_ID` BIGINT NOT NULL,
-  `ORDER_ID` BIGINT NOT NULL,
-  `PAYMENT_TYPE` ENUM('WALLET_ID', 'PAYPAL', 'CREDIT_CARD', 'DEBIT_CARD') NOT NULL,
-  `REF_ID` VARCHAR(11) DEFAULT NULL,
-  `WALLET_ID` int(11) DEFAULT NULL,
-  `PAYPAL_ID`  VARCHAR(50) NOT NULL,
-  `CARD_HOLDER`  VARCHAR(50) NOT NULL,
-  `CARD_NUMBER`  VARCHAR(16) NOT NULL,
-	`EXPIRED_DATE` VARCHAR(19) NOT NULL,
-	`AMOUNT` decimal(10,2) DEFAULT NULL,
-  `CURRENCY` varchar(10) NOT NULL,
-  `DESCRIPTION` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-   FOREIGN KEY (`PAYMENT_ID`) REFERENCES `RMT_PAYMENT` (`ID`),
-   FOREIGN KEY (`ORDER_ID`) REFERENCES `RMT_ORDER` (`ID`)
+drop table if exists rmt_transaction;
+create table `rmt_transaction` (
+  `id` int primary key auto_increment,
+  `payment_id` bigint not null,
+  `order_id` bigint not null,
+  `payment_type` enum('WALLET_ID', 'PAYPAL', 'CREDIT_CARD', 'DEBIT_CARD') NOT NULL,
+  `ref_id` varchar(11) default null,
+  `wallet_id` int(11) default null,
+  `paypal_id`  varchar(50) not null,
+  `card_holder`  varchar(50) not null,
+  `card_number`  varchar(16) not null,
+	`expired_date` varchar(19) not null,
+	`amount` decimal(10,2) default null,
+  `currency` varchar(10) not null,
+  `description` text character set utf8 collate utf8_general_ci not null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+   foreign key (`payment_id`) references `rmt_payment` (`id`),
+   foreign key (`order_id`) references `rmt_order` (`id`)
 );
 
-CREATE TABLE `RMT_TRACK_ORDER` (
-  `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-  `ORDER_NUMBER` VARCHAR(50) NOT NULL,
-  `DELIVERY_BOY_ID` BIGINT NOT NULL,
-  `STATUS` ENUM('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled') NOT NULL,
-  `TOTAL_AMOUNT` DECIMAL(10, 2) NOT NULL,
-  `CURRENCY` VARCHAR(10) NOT NULL,
-  `SHIPPING_ADDRESS` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `ORDER_DATE` DATE NOT NULL,
-  `EXPECTED_DELIVERY_DATE` DATE,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'ADMIN',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'ADMIN',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (`DELIVERY_BOY_ID`) REFERENCES `RMT_DELIVERY_BOY`(`ID`)
+create table `rmt_track_order` (
+  `id` bigint primary key auto_increment,
+  `order_number` varchar(50) not null,
+  `delivery_boy_id` bigint not null,
+  `status` enum('pending', 'processing', 'shipped', 'delivered', 'cancelled') not null,
+  `total_amount` decimal(10, 2) not null,
+  `currency` varchar(10) not null,
+  `shipping_address` text character set utf8 collate utf8_general_ci not null,
+  `order_date` date not null,
+  `expected_delivery_date` date,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'admin',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'admin',
+  `updated_on` datetime default current_timestamp on update current_timestamp,
+  foreign key (`delivery_boy_id`) references `rmt_delivery_boy`(`id`)
 );
 
-drop table if exists RMT_ORDER_DOCUMENT;
-CREATE TABLE `RMT_ORDER_DOCUMENT` (
-    `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `FILE_NAME` VARCHAR(255) NULL,
-    `PATH` VARCHAR(255) NOT NULL,
-    `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+drop table if exists rmt_order_document;
+create table `rmt_order_document` (
+    `id` bigint primary key auto_increment,
+    `file_name` varchar(255) null,
+    `path` varchar(255) not null,
+    `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp
 );
 
-drop table if exists RMT_DELIVERY_BOY_DOCUMENT;
-CREATE TABLE `RMT_DELIVERY_BOY_DOCUMENT` (
-    `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `FILE_NAME` VARCHAR(255) NULL,
-    `PATH` VARCHAR(255) NOT NULL,
-    `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-
-CREATE TABLE `RMT_REFUND` (
-    `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `ORDER_ID` BIGINT NOT NULL,
-    `REFUND_DATE` DATE NOT NULL,
-    `AMOUNT` DECIMAL(10, 2) NOT NULL,
-    `CURRENCY` VARCHAR(10) NOT NULL,
-    `REASON` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    `STATUS` ENUM('Requested', 'Processing', 'Approved', 'Rejected') NOT NULL,
-     `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`ORDER_ID`) REFERENCES `RMT_ORDER` (`ID`)
-);
-
-CREATE TABLE `RMT_RATING` (
-    `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `ORDER_ID` BIGINT NOT NULL,
-    `CONSUMER_ID` BIGINT NOT NULL,
-    `RATING` DECIMAL(3, 1) NOT NULL,
-    `COMMENT` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
-     `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`ORDER_ID`) REFERENCES `RMT_ORDER` (`ID`),
-    FOREIGN KEY (`CONSUMER_ID`) REFERENCES `RMT_CONSUMER` (`ID`)
-);
-
-CREATE TABLE `RMT_NOTIFICATION` (
-    `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `CONSUMER_ID` BIGINT NOT NULL,
-    `NOTIFICATION_TYPE` ENUM('Email', 'SMS', 'Push') NOT NULL,
-    `MESSAGE` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    `IS_READ` BOOLEAN DEFAULT FALSE,
-     `IS_DEL` TINYINT(1) DEFAULT 0,
-    `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-    `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`CONSUMER_ID`) REFERENCES `RMT_CONSUMER` (`ID`)
+drop table if exists rmt_delivery_boy_document;
+create table `rmt_delivery_boy_document` (
+    `id` bigint primary key auto_increment,
+    `file_name` varchar(255) null,
+    `path` varchar(255) not null,
+    `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp
 );
 
 
-CREATE TABLE `RMT_ENTERPRISE` (
-    `ID` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `ENTERPRISE_NAME` VARCHAR(100) NOT NULL,
-    `ADDRESS` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
-    `CITY` VARCHAR(50),
-    `STATE` VARCHAR(50),
-    `COUNTRY` VARCHAR(50),
-    `POSTAL_CODE` VARCHAR(20),
-    `PHONE_NUMBER` VARCHAR(20),
-    `EMAIL` VARCHAR(100),
-    `WEBSITE` VARCHAR(100),
-    `INDUSTRY` VARCHAR(100),
-    `FOUNDED_DATE` DATE,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_refund` (
+    `id` bigint primary key auto_increment,
+    `order_id` bigint not null,
+    `refund_date` date not null,
+    `amount` decimal(10, 2) not null,
+    `currency` varchar(10) not null,
+    `reason` text character set utf8 collate utf8_general_ci not null,
+    `status` enum('requested', 'processing', 'approved', 'rejected') not null,
+     `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp,
+    `updated_by` varchar(100) default 'user',
+    `updated_on` datetime default current_timestamp on update current_timestamp,
+    foreign key (`order_id`) references `rmt_order` (`id`)
 );
 
-CREATE TABLE `RMT_WORK_ORDER` (
-  `ID` BIGint NOT NULL AUTO_INCREMENT,
-  `ORDER_ID` BIGint NOT NULL,
-  `WORK_TYPE` enum('maintenance','repair','installation') DEFAULT 'maintenance',
-  `STATUS` enum('Pending','InProgress','Completed','Cancelled') DEFAULT 'Pending',
-  `SCHEDULED_DATE` date DEFAULT NULL,
-  `SCHEDULED_TIME` time DEFAULT NULL,
-  `COMPLETION_DATE` date DEFAULT NULL,
-  `COMPLETION_TIME` time DEFAULT NULL,
-  `NOTES` text DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ID`),
-  FOREIGN KEY (`ORDER_ID`) REFERENCES `RMT_ORDER`(`ID`)
+create table `rmt_rating` (
+    `id` bigint primary key auto_increment,
+    `order_id` bigint not null,
+    `consumer_id` bigint not null,
+    `rating` decimal(3, 1) not null,
+    `comment` text character set utf8 collate utf8_general_ci,
+     `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp,
+    `updated_by` varchar(100) default 'user',
+    `updated_on` datetime default current_timestamp on update current_timestamp,
+    foreign key (`order_id`) references `rmt_order` (`id`),
+    foreign key (`consumer_id`) references `rmt_consumer` (`id`)
+);
+
+create table `rmt_notification` (
+    `id` bigint primary key auto_increment,
+    `consumer_id` bigint not null,
+    `notification_type` enum('email', 'sms', 'push') not null,
+    `message` text character set utf8 collate utf8_general_ci not null,
+    `is_read` boolean default false,
+     `is_del` tinyint(1) default 0,
+    `created_by` varchar(100) default 'user',
+    `created_on` datetime default current_timestamp,
+    `updated_by` varchar(100) default 'user',
+    `updated_on` datetime default current_timestamp on update current_timestamp,
+    foreign key (`consumer_id`) references `rmt_consumer` (`id`)
+);
+
+
+create table `rmt_enterprise` (
+    `id` bigint primary key auto_increment,
+    `enterprise_name` varchar(100) not null,
+    `address` text character set utf8 collate utf8_general_ci,
+    `city` varchar(50),
+    `state` varchar(50),
+    `country` varchar(50),
+    `postal_code` varchar(20),
+    `phone_number` varchar(20),
+    `email` varchar(100),
+    `website` varchar(100),
+    `industry` varchar(100),
+    `founded_date` date,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
+);
+
+create table `rmt_work_order` (
+  `id` bigint not null auto_increment,
+  `order_id` bigint not null,
+  `work_type` enum('maintenance','repair','installation') default 'maintenance',
+  `status` enum('pending','inprogress','completed','cancelled') default 'pending',
+  `scheduled_date` date default null,
+  `scheduled_time` time default null,
+  `completion_date` date default null,
+  `completion_time` time default null,
+  `notes` text default null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  primary key (`id`),
+  foreign key (`order_id`) references `rmt_order`(`id`)
   );
 
-CREATE TABLE `RMT_COUPON_CODE` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `CODE` varchar(50) NOT NULL,
-  `DISCOUNT` decimal(10,2) NOT NULL,
-  `EXPIRY_DATE` date NOT NULL,
-  `MAX_USAGE` int(11) DEFAULT 0,
-  `CURRENT_USAGE` int(11) DEFAULT 0,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_code` (`code`)
+create table `rmt_coupon_code` (
+  `id` int(11) not null auto_increment,
+  `code` varchar(50) not null,
+  `discount` decimal(10,2) not null,
+  `expiry_date` date not null,
+  `max_usage` int(11) default 0,
+  `current_usage` int(11) default 0,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  primary key (`id`),
+  unique key `unique_code` (`code`)
+);
+
+drop table if EXISTS rmt_city;
+drop table if EXISTS rmt_state;
+drop table if EXISTS rmt_country;
+
+create table `rmt_country` (
+  `id` int primary key auto_increment,
+  `country_name` varchar(100) not null,
+  `country_code` char(3) not null,
+  `phone_code` int not null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
+);
+
+create table `rmt_state` (
+  `id` int primary key auto_increment,
+  `state_name` varchar(100) not null,
+  `country_id` int not null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  foreign key (`country_id`) references `rmt_country` (`id`)
 );
 
 
-CREATE TABLE `RMT_COUNTRY` (
-  `ID` INT PRIMARY KEY AUTO_INCREMENT,
-  `COUNTRY_NAME` VARCHAR(100) NOT NULL,
-  `COUNTRY_CODE` CHAR(3) NOT NULL,
-  `AREA` DECIMAL(15, 2) DEFAULT NULL,
-  `CAPITAL` VARCHAR(100) DEFAULT NULL,
-  `REGION` VARCHAR(100) DEFAULT NULL,
-  `SUBREGION` VARCHAR(100) DEFAULT NULL,
-  `OFFICIAL_LANGUAGES` VARCHAR(255) DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_city` (
+  `id` int primary key auto_increment,
+  `city_name` varchar(100) not null,
+  `state_id` int not null,
+  `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  foreign key (`state_id`) references `rmt_state` (`id`)
 );
 
-CREATE TABLE `RMT_STATE` (
-  `ID` INT PRIMARY KEY AUTO_INCREMENT,
-  `STATE_NAME` VARCHAR(100) NOT NULL,
-  `STATE_CODE` VARCHAR(10) NOT NULL,
-  `COUNTRY_ID` INT NOT NULL,
-  `AREA` DECIMAL(15, 2) DEFAULT NULL,
-  `CAPITAL` VARCHAR(100) DEFAULT NULL,
-  `REGION` VARCHAR(100) DEFAULT NULL,
-  `SUBREGION` VARCHAR(100) DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`COUNTRY_ID`) REFERENCES `RMT_COUNTRY` (`ID`)
-);
-
-
-CREATE TABLE `RMT_CITY` (
-  `CITY_ID` INT PRIMARY KEY AUTO_INCREMENT,
-  `CITY_NAME` VARCHAR(100) NOT NULL,
-  `STATE_ID` INT NOT NULL,
-  `COUNTRY_ID` INT NOT NULL,
-  `AREA` DECIMAL(15, 2) DEFAULT NULL,
-  `CAPITAL` BOOLEAN DEFAULT FALSE,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`STATE_ID`) REFERENCES `RMT_STATE` (`ID`),
-  FOREIGN KEY (`COUNTRY_ID`) REFERENCES `RMT_COUNTRY` (`ID`)
-);
-
-CREATE TABLE `RMT_CHAT` (
-  `CHAT_ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `CONVERSATION_ID` int(11) NOT NULL,
-  `USER_ID` int(11) NOT NULL,
-  `CONTENT` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `MESSAGE_TYPE` enum('text','voice') NOT NULL,
- `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP
+create table `rmt_chat` (
+  `id` int(11) not null auto_increment primary key,
+  `conversation_id` int(11) not null,
+  `user_id` int(11) not null,
+  `content` varchar(100) character set utf8 collate utf8_general_ci default null,
+  `message_type` enum('text','voice') not null,
+ `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
 ---------------- ---------------- ---------------- ---------------- ---------------- ---------------- 
----------------- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX NEED TO VERIFY           XXXXXXXXXXXXXXXXXXXXXXXXXXXX
----------------- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX DONT EXECUTE BELOW QUERY XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+---------------- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx need to verify           xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+---------------- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx dont execute below query xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ---------------- ---------------- ---------------- ---------------- ---------------- ---------------- 
 
 
-CREATE TABLE `RMT_PLANNING` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `DELIVERY_ID` int(11) NOT NULL,
-  `PLAN_TYPE_ID` int(11) NOT NULL,
-  `SERVICE_TYPE_ID` int(11) NOT NULL,
-  `VEHICLE_ID` int(11) NOT NULL,
-  `PICKUP_LOCATION_ID` int(11) DEFAULT NULL,
-  `DROPOFF_LOCATION_ID` int(11) DEFAULT NULL,
-  `PICKUP_DATE` date NOT NULL,
-  `PICKUP_TIME` time NOT NULL,
-  `IS_REPEAT` tinyint(1) DEFAULT 0,
-  `REPEAT_TYPE` enum('Daily','Weekly','Monthly') DEFAULT NULL,
-  `REPEAT_DAY` int(11) DEFAULT NULL,
-  `REPEAT_TILL` date DEFAULT NULL,
-  `REPEAT_DAY_EXCEPTION` text DEFAULT NULL,
-  `REPEAT_ON_DAY` enum('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday') DEFAULT NULL,
-  `REPEAT_ON_THE` enum('First','Second','Third','Fourth','Last') DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ID`),
-  FOREIGN KEY (`USER_ID`) REFERENCES `RMT_CONSUMER`(`USER_ID`),
-  FOREIGN KEY (`PLAN_TYPE_ID`) REFERENCES `RMT_PLANNING_SLOT`(`ID`),
-  FOREIGN KEY (`SERVICE_TYPE_ID`) REFERENCES `RMT_SERVICE`(`ID`),
-  FOREIGN KEY (`VEHICLE_ID`) REFERENCES `RMT_VECHILE`(`ID`),
-  FOREIGN KEY (`PICKUP_LOCATION_ID`) REFERENCES `RMT_LOCATION`(`ID`),
-  FOREIGN KEY (`DROPOFF_LOCATION_ID`) REFERENCES `RMT_LOCATION`(`ID`)
+create table `rmt_planning` (
+  `id` int(11) not null auto_increment,
+  `delivery_id` int(11) not null,
+  `plan_type_id` int(11) not null,
+  `service_type_id` int(11) not null,
+  `vehicle_id` int(11) not null,
+  `pickup_location_id` int(11) default null,
+  `dropoff_location_id` int(11) default null,
+  `pickup_date` date not null,
+  `pickup_time` time not null,
+  `is_repeat` tinyint(1) default 0,
+  `repeat_type` enum('daily','weekly','monthly') default null,
+  `repeat_day` int(11) default null,
+  `repeat_till` date default null,
+  `repeat_day_exception` text default null,
+  `repeat_on_day` enum('sunday','monday','tuesday','wednesday','thursday','friday','saturday') default null,
+  `repeat_on_the` enum('first','second','third','fourth','last') default null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  primary key (`id`),
+  foreign key (`user_id`) references `rmt_consumer`(`user_id`),
+  foreign key (`plan_type_id`) references `rmt_planning_slot`(`id`),
+  foreign key (`service_type_id`) references `rmt_service`(`id`),
+  foreign key (`vehicle_id`) references `rmt_vechile`(`id`),
+  foreign key (`pickup_location_id`) references `rmt_location`(`id`),
+  foreign key (`dropoff_location_id`) references `rmt_location`(`id`)
 );
 
 
 --
--- Table structure for table `RMT_PLANNING_SLOT`
+-- table structure for table `rmt_planning_slot`
 --
 
-CREATE TABLE `RMT_PLANNING_SLOT` (
-  `ID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `PLAN_NAME` varchar(100) NOT NULL,
-  `PLAN_DESCRIPTION` text DEFAULT NULL,
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
+create table `rmt_planning_slot` (
+  `id` int(11) not null primary key auto_increment,
+  `plan_name` varchar(100) not null,
+  `plan_description` text default null,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
 );
 
 
 --
--- Table structure for table `RMT_DEFAULT_PLANNING_CONFIGURATION`
+-- table structure for table `rmt_default_planning_configuration`
 --
 
-CREATE TABLE `RMT_DEFAULT_PLANNING_CONFIGURATION` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `PLAN_TYPE_ID` int(11) NOT NULL,
-  `SERVICE_TYPE_ID` int(11) NOT NULL,
-  `PICKUP_LOCATION_ID` int(11) DEFAULT NULL,
-  `DROPOFF_LOCATION_ID` int(11) DEFAULT NULL,
-  `DEFAULT_PICKUP_TIME` time NOT NULL,
-  `IS_REPEATABLE` tinyint(1) NOT NULL DEFAULT 0,
-  `REPEAT_INTERVAL` int(11) DEFAULT NULL,  
-   `IS_DEL` TINYINT(1) DEFAULT 0,
-  `CREATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `CREATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `UPDATED_BY` VARCHAR(100) DEFAULT 'USER',
-  `UPDATED_ON` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ID`),
-  FOREIGN KEY (`PLAN_TYPE_ID`) REFERENCES `RMT_PLANNING_SLOT`(`ID`),
-  FOREIGN KEY (`SERVICE_TYPE_ID`) REFERENCES `RMT_SERVICE`(`ID`),
-  FOREIGN KEY (`PICKUP_LOCATION_ID`) REFERENCES `RMT_LOCATION`(`ID`),
-  FOREIGN KEY (`DROPOFF_LOCATION_ID`) REFERENCES `RMT_LOCATION`(`ID`)
+create table `rmt_default_planning_configuration` (
+  `id` int(11) not null auto_increment,
+  `plan_type_id` int(11) not null,
+  `service_type_id` int(11) not null,
+  `pickup_location_id` int(11) default null,
+  `dropoff_location_id` int(11) default null,
+  `default_pickup_time` time not null,
+  `is_repeatable` tinyint(1) not null default 0,
+  `repeat_interval` int(11) default null,  
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp,
+  primary key (`id`),
+  foreign key (`plan_type_id`) references `rmt_planning_slot`(`id`),
+  foreign key (`service_type_id`) references `rmt_service`(`id`),
+  foreign key (`pickup_location_id`) references `rmt_location`(`id`),
+  foreign key (`dropoff_location_id`) references `rmt_location`(`id`)
 );

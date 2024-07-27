@@ -1,4 +1,4 @@
-INSERT INTO `rmt_state` (`id`, `STATE_NAME`, `COUNTRY_ID`) VALUES
+INSERT INTO `rmt_state` (`id`, `state_name`, `country_id`) VALUES
 (1, 'Andaman and Nicobar Islands', 101),
 (2, 'Andhra Pradesh', 101),
 (3, 'Arunachal Pradesh', 101),
@@ -2182,7 +2182,7 @@ INSERT INTO `rmt_state` (`id`, `STATE_NAME`, `COUNTRY_ID`) VALUES
 (2190, 'Sawfajjin', 124),
 (2191, 'Surt', 124),
 (2192, 'Tarabulus', 124);
-INSERT INTO `states` (`id`, `name`, `country_id`) VALUES
+INSERT INTO `rmt_state` (`id`, `name`, `country_id`) VALUES
 (2193, 'Tarhunah', 124),
 (2194, 'Tripolitania', 124),
 (2195, 'Tubruq', 124),
