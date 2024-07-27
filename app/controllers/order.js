@@ -221,8 +221,6 @@ const createItem = async (req) => {
   });
   console.info(requestBodyNew);
   const registerRes = await insertQuery(createOrderQuery, requestBodyNew);
-  console.info(registerRes);
-  console.info(registerRes);
   return registerRes;
 };
 exports.createItem = async (req, res) => {
