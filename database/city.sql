@@ -1,4 +1,4 @@
-INSERT INTO `RMT_CITY` (`ID`, `CITY_NAME`, `STATE_ID`) VALUES
+insert into `rmt_city` (`id`, `city_name`, `state_id`) values
 (1, 'Bombuflat', 1),
 (2, 'Garacharma', 1),
 (3, 'Port Blair', 1),
@@ -2320,7 +2320,7 @@ INSERT INTO `RMT_CITY` (`ID`, `CITY_NAME`, `STATE_ID`) VALUES
 (2319, 'Mauganj', 21),
 (2320, 'Meghnagar', 21),
 (2321, 'Mehara Gaon', 21);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (2322, 'Mehgaon', 21),
 (2323, 'Mhaugaon', 21),
 (2324, 'Mhow', 21),
@@ -4478,7 +4478,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (4476, 'Mandamarri', 36),
 (4477, 'Manuguru', 36),
 (4478, 'Medak', 36);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (4479, 'Medchal', 36),
 (4480, 'Miryalaguda', 36),
 (4481, 'Nagar Karnul', 36),
@@ -6629,7 +6629,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (6626, 'Gladstone', 269),
 (6627, 'Gold Coast', 269),
 (6628, 'Gowrie Junction', 269);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (6629, 'Gympie', 269),
 (6630, 'Helensvale', 269),
 (6631, 'Hervey Bay', 269),
@@ -8722,7 +8722,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (8718, 'Ibicarai', 516),
 (8719, 'Ibicui', 516),
 (8720, 'Ibipeba', 516);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (8721, 'Ibirapitanga', 516),
 (8722, 'Ibirataia', 516),
 (8723, 'Ibotirama', 516),
@@ -10720,7 +10720,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (10715, 'Saint-Cesaire', 673),
 (10716, 'Saint-Cyrill-de-Wendover', 673),
 (10717, 'Saint-Damase', 673);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (10718, 'Saint-Damien-de-Buckland', 673),
 (10719, 'Saint-Denis', 673),
 (10720, 'Saint-Donat-de-Montcalm', 673),
@@ -12801,7 +12801,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (13204, 'Cerro San Antonio', 794),
 (13205, 'Chivolo', 794),
 (13206, 'Cienaga', 794);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (13207, 'Concordia', 794),
 (13208, 'El Banco', 794),
 (13209, 'El Pinon', 794),
@@ -14840,7 +14840,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (15242, 'Tollose', 962),
 (15243, 'Vipperod', 962),
 (15244, 'Aalestrup', 963);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (15245, 'Bjerringbro', 963),
 (15246, 'Hanstholm', 963),
 (15247, 'Hojslev', 963),
@@ -16860,7 +16860,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (17261, 'Bretigny-sur-Orge', 1221),
 (17262, 'Brunoy', 1221),
 (17263, 'Bures-sur-Yvette', 1221);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (17264, 'Chilly-Mazarin', 1221),
 (17265, 'Corbeil-Essonnes', 1221),
 (17266, 'Courcouronnes', 1221),
@@ -18707,7 +18707,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (19107, 'Bad Soden-Salmunster', 1367),
 (19108, 'Bad Sooden-Allendorf', 1367),
 (19109, 'Bad Vilbel', 1367);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (19110, 'Bad Wildungen', 1367),
 (19111, 'Baunatal', 1367),
 (19112, 'Bebra', 1367),
@@ -20646,7 +20646,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (21045, 'Kistelek', 1642),
 (21046, 'Kiszombor', 1642),
 (21047, 'Mako', 1642);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (21048, 'Mindszent', 1642),
 (21049, 'Morahalom', 1642),
 (21050, 'Pusztaszer', 1642),
@@ -22533,7 +22533,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (22937, 'Besozzo', 1847),
 (22938, 'Biassono', 1847),
 (22939, 'Bienate', 1847);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (22940, 'Bollate', 1847),
 (22941, 'Botticino', 1847),
 (22942, 'Bovisio-Masciago', 1847),
@@ -24466,7 +24466,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (24870, 'Sakai', 1951),
 (24871, 'Sennan', 1951),
 (24872, 'Settsu', 1951);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (24873, 'Shijonawate', 1951),
 (24874, 'Shimamoto', 1951),
 (24875, 'Suita', 1951),
@@ -26446,7 +26446,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (26849, 'Nosy Varika', 2276),
 (26850, 'Vangaindrano', 2276),
 (26851, 'Vondrozo', 2276);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (26852, 'Ambato Boina', 2277),
 (26853, 'Antsohihy', 2277),
 (26854, 'Bealanana', 2277),
@@ -28307,7 +28307,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (28709, 'Pochutla', 2447),
 (28710, 'Puerto Escondido', 2447),
 (28711, 'Putla', 2447);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (28712, 'Quetzaltepec', 2447),
 (28713, 'Rincon Viejo', 2447),
 (28714, 'Rio Grande', 2447),
@@ -30228,7 +30228,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (30629, 'Masaya', 2634),
 (30630, 'Nandasmo', 2634),
 (30631, 'Nindiri', 2634);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (30632, 'Niquinohomo', 2634),
 (30633, 'Ciudad Dario', 2635),
 (30634, 'Esquipulas', 2635),
@@ -32213,7 +32213,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (32613, 'Konskie', 2888),
 (32614, 'Ostrowiec Swietokrzyski', 2888),
 (32615, 'Pinczow', 2888);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (32616, 'Polaniec', 2888),
 (32617, 'Sandomierz', 2888),
 (32618, 'Skarzysko-Kamienna', 2888),
@@ -34178,7 +34178,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (34577, 'Mugeni', 2955),
 (34578, 'Ocland', 2955),
 (34579, 'Odorheiu Secuiesc', 2955);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (34580, 'Pauleni-Ciuc', 2955),
 (34581, 'Plaiesii-de-Jos', 2955),
 (34582, 'Praid', 2955),
@@ -36136,7 +36136,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (36534, 'Nizhnij Odes', 3015),
 (36535, 'Pechora', 3015),
 (36536, 'Promyshlennyj', 3015);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (36537, 'Severnyj', 3015),
 (36538, 'Sosnogorsk', 3015),
 (36539, 'Syktyvkar', 3015),
@@ -38051,7 +38051,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (38448, 'Loja', 3285),
 (38449, 'Maracena', 3285),
 (38450, 'Motril', 3285);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (38451, 'Ogijares', 3285),
 (38452, 'Peligros', 3285),
 (38453, 'Pinos Puente', 3285),
@@ -40003,7 +40003,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (40399, 'Ulus', 3675),
 (40400, 'Batman', 3676),
 (40401, 'Besiri', 3676);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (40402, 'Gercus', 3676),
 (40403, 'Hasankeyf', 3676),
 (40404, 'Kozluk', 3676),
@@ -41969,7 +41969,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (42364, 'Burntisland', 3889),
 (42365, 'Carluke', 3889),
 (42366, 'Carnoustie', 3889);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (42367, 'Coatbridge', 3889),
 (42368, 'Cowdenbeath', 3889),
 (42369, 'Cumbernauld', 3889),
@@ -43852,7 +43852,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (44246, 'Johnston City', 3934),
 (44247, 'Joliet', 3934),
 (44248, 'Justice', 3934);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (44249, 'Kankakee', 3934),
 (44250, 'Kenilworth', 3934),
 (44251, 'Kewanee', 3934),
@@ -45753,7 +45753,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (46146, 'Southampton', 3963),
 (46147, 'Springfield', 3963),
 (46148, 'State College', 3963);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (46149, 'Strasburg', 3963),
 (46150, 'Sunbury', 3963),
 (46151, 'Susquehanna', 3963),
@@ -47685,7 +47685,7 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (48077, 'Salamanca', 3956),
 (48078, 'Salina', 3956),
 (48079, 'Saratoga Springs', 3956);
-INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+INSERT INTO `rmt_city` (`id`, `city_name`, `state_id`)  VALUES
 (48080, 'Saugerties', 3956),
 (48081, 'Scarsdale', 3956),
 (48082, 'Schenectady', 3956),
@@ -47963,28 +47963,3 @@ INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
 (48354, 'Yotoco', 805),
 (48355, 'Yumbo', 805),
 (48356, 'Zarzal', 805);
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `cities`
---
-ALTER TABLE `cities`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `cities`
---
-ALTER TABLE `cities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48357;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
