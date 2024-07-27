@@ -7,9 +7,9 @@ let storage = multer.diskStorage({
     var uploadType = req.headers.upload_type;
     var uploadDir = "common";
     console.log(uploadType);
-    if(uploadType = "ORDER_DOC"){
+    if(uploadType == "ORDER_DOC"){
         uploadDir = process.env.ORDER_DOC
-    } else if(uploadType = "DELIVERY_BOY"){
+    } else if(uploadType == "DELIVERY_BOY"){
         uploadDir = process.env.DELIVERY_BOY
     } else{
         uploadDir = "common";
