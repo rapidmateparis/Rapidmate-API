@@ -11,7 +11,15 @@ const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
-
+require('log4js').configure({
+  appenders: {
+    out: { type: 'stdout' },
+    app: { type: 'file', filename: 'apptracklog.log' }
+  },
+  categories: {
+    default: { appenders: ['out', 'app'], level: 'debug' }
+  }
+});
 const app = express();
 mongoose.connect('mongodb://localhost:27017/pickup-dropoff', { useNewUrlParser: true, useUnifiedTopology: true });
 
