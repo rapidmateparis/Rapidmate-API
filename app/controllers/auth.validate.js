@@ -88,12 +88,6 @@ exports.verify = [
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY'),
-    check('info.extId')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
     check('info.role')
     .exists()
     .withMessage('MISSING')
