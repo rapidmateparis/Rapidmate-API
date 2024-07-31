@@ -13,3 +13,57 @@ INSERT INTO `rmt_vehicle_type` (`ID`, `VEHICLE_TYPE`, `BASE_PRICE`, `KM_PRICE`, 
 (5, 'Van', 80.00, 7.50, 0, NULL, 0, NULL, 'test', NULL, NULL, NULL, 0, 'USER', '2024-07-22 17:27:18', 'USER', '2024-07-22 17:27:18'),
 (7, 'Pickup', 0.00, 0.00, 1, 4, 0, '5', '', '20 feet', '12 feet', '7 feet', 0, 'USER', '2024-07-27 16:54:47', 'USER', '2024-07-27 16:54:47'),
 (8, 'Truck', 80.00, 10.00, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 'USER', '2024-07-27 18:24:50', 'USER', '2024-07-27 18:24:50');
+
+DROP TABLE IF EXISTS rmt_rapidmate_internal_user;
+create table `rmt_rapidmate_internal_user` (
+  `id` bigint primary key auto_increment,
+   `username` varchar(100) default null,
+  `ext_id` varchar(50) not null,
+  `first_name` varchar(100) default null,
+  `last_name` varchar(100) default null,
+  `email` varchar(100) default null,
+  `is_email_verified` tinyint(1) default null,
+  `phone` varchar(100) default null,
+  `is_mobile_verified` tinyint(1) default null,
+  `password` varchar(100) default null,
+  `autaar` varchar(255) default null,
+  `role_id` tinyint(2) default null,
+  `city_id` smallint default null,
+  `state_id` smallint(11) default null,
+  `country_id` tinyint(3) default null,
+  `address` text default null,
+  `siret_no` varchar(50) default null,
+  `status` tinyint(2) default 1,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
+);
+
+DROP TABLE IF EXISTS rmt_enterprise;
+create table `rmt_enterprise` (
+    `id` bigint primary key auto_increment,
+    `ext_id` varchar(50) not null,  
+     `username` varchar(100) default null,
+    `enterprise_name` varchar(100) not null,
+    `address` text character set utf8 collate utf8_general_ci,
+    `city` varchar(50),
+    `state` varchar(50),
+    `country` varchar(50),
+    `postal_code` varchar(20),
+    `email` varchar(100),
+    `is_email_verified` tinyint(1) default null,
+  `phone` varchar(100) default null,
+  `is_mobile_verified` tinyint(1) default null,
+    `website` varchar(100),
+    `industry` varchar(100),
+    `founded_date` date,
+   `is_del` tinyint(1) default 0,
+  `created_by` varchar(100) default 'user',
+  `created_on` datetime default current_timestamp,
+  `updated_by` varchar(100) default 'user',
+  `updated_on` datetime default current_timestamp
+);
+
+create or replace view vw_rmt_user as select ext_id,'DELIVERY_BOY' as role,username, first_name, last_name, email, phone from rmt_delivery_boy union select ext_id, 'CONSUMER' as role, username, first_name, last_name, email, phone from rmt_consumer union select ext_id, 'ENTERPRISE' as role, username, enterprise_name as first_name, null as last_name, email, phone from rmt_enterprise union select ext_id, 'ADMIN' as role, username, first_name, last_name, email, phone from rmt_rapidmate_internal_user;

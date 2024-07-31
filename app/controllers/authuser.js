@@ -142,18 +142,18 @@ async function signup(userInfo) {
   
       let externalId = new Date().getTime();
       if (userInfo['userrole'] === CONSUMER_ROLE) {
-        extIds = "C" + externalId;
-        const item = await createItem(userInfo, "rmt_consumer",extIds);
+        makeRoleExtId = "C" + externalId;
+        const item = await createItem(userInfo, "rmt_consumer",makeRoleExtId);
       } else if (userInfo['userrole'] === DELEIVERY_BOY_ROLE) {
-        extIds = "D"+  externalId;
-        const item = await createItem(userInfo, "rmt_delivery_boy",extIds);
+        makeRoleExtId = "D"+  externalId;
+        const item = await createItem(userInfo, "rmt_delivery_boy",makeRoleExtId);
       } else if (userInfo['userrole'] === ENTERPRISE_ROLE) {
-        extIds = "E" + externalId;
-        const item = await createItem(userInfo, "rmt_enterprise",extIds);
+        makeRoleExtId = "E" + externalId;
+        const item = await createItem(userInfo, "rmt_enterprise",makeRoleExtId);
         
       }
   
-      return { extId: extIds,role:userInfo['userrole'], ...data };
+      return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], ...data };
   
     } catch (err) {
       logger.error('selfSignUp error');
@@ -162,11 +162,12 @@ async function signup(userInfo) {
     }
   }
   
-async  function createItem(userinfo,tablename,extIds){
+function createItem(userinfo,tablename,extIds){
     var registerQuery=""
-    const password=await bcrypt.hash(userinfo['password'], 10);
+    //const password=await bcrypt.hash(userinfo['password'], 10);
+    password = userinfo['password'];
     if(tablename=='rmt_consumer'){
-      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1')`;
+      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}')`;
     }
     if(tablename=='rmt_delivery_boy'){
         registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}')`;
@@ -175,7 +176,7 @@ async  function createItem(userinfo,tablename,extIds){
         registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,HOUR_PER_MONTH,ENTERPRISE_NAME,INDUSTRY) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['hourPerMonth']}','${userinfo['companyName']}','${userinfo['industry']}')`;
     }
     console.log("queery "+registerQuery)
-    const registerRes =await runQuery(registerQuery);
+    const registerRes = runQuery(registerQuery);
     return registerRes;
 }
 function signupVerify(userInfo) {
@@ -273,7 +274,7 @@ function login(userInfo) {
                     logger.info(result);
                     username = userInfo["userName"];
                     console.log(username);
-                    loginResponseData(resolve, result);
+                    loginResponseData(resolve, result, username);
                     // resolve(result);
                 },
                 onFailure: function(cognitoErr)
@@ -286,15 +287,18 @@ function login(userInfo) {
       });
 }
 
-async function loginResponseData(resolve, result) {
-    const dbUserProfile = await fetch("select ext_id, first_name, last_name from rmt_consumer where username = ?", [username]);
-    console.log(dbUserProfile);
+async function loginResponseData(resolve, result, username) {
     resolve({
         token:result.accessToken.jwtToken,
         refreshtoken:result.refreshToken.token,
         user: result,
-        user_profile : dbUserProfile
+        user_profile : await getUserProfile(username)
     })
+}
+
+function getUserProfile(username){
+    const dbUserProfile = fetch("select ext_id, first_name, last_name, email, phone, username from vw_rmt_user where username = ?", [username]);
+    return dbUserProfile;
 }
 
 function setandSendUserInfo(cognitoUser, sessionInfo) {
