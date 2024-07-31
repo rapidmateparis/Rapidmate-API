@@ -4,6 +4,7 @@ use rapidmate_dev_db_new;
 
 create table `rmt_rapidmate_internal_user` (
   `id` bigint primary key auto_increment,
+  `ext_id` varchar(50) not null,
   `first_name` varchar(100) default null,
   `last_name` varchar(100) default null,
   `email` varchar(100) default null,
