@@ -1,8 +1,8 @@
 //---------------------RMT_VEHICLE_TYPE----------------------------
-exports.FETCH_VT_ALL = "SELECT ID as Vehicle_type_id,VEHICLE_TYPE,VEHICLE_TYPE_DESC,LENGTH,HEIGHT,WIDTH,CREATED_BY, CREATED_ON,UPDATED_BY, UPDATED_ON FROM rmt_vehicle_type WHERE IS_DEL=0";
-exports.FETCH_VT_BY_ID="select ID as Vehicle_type_id, VEHICLE_TYPE as Vehicle_name,VEHICLE_TYPE_DESC as description,LENGTH,HEIGHT,WIDTH,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON from rmt_vehicle_type where IS_DEL=0 AND ID=?";
-exports.INSERT_VT_QUERY=`INSERT INTO rmt_vehicle_type (VEHICLE_TYPE,VEHICLE_TYPE_DESC,LENGTH,HEIGHT,WIDTH) VALUES (?,?,?,?,?)`;
-exports.UPDATE_VT_QUERY= `UPDATE rmt_vehicle_type SET VEHICLE_TYPE =?,VEHICLE_TYPE_DESC=?,LENGTH=?,HEIGHT=?,WIDTH=? WHERE ID=?`;
+exports.FETCH_VT_ALL = "SELECT ID as Vehicle_type_id,VEHICLE_TYPE,VEHICLE_TYPE_DESC,LENGTH,HEIGHT,WIDTH,BASE_PRICE,KM_PRICE,IS_PRICE,PERCENT,VT_TYPE_ID,WITH_PRICE,CREATED_BY, CREATED_ON,UPDATED_BY, UPDATED_ON FROM rmt_vehicle_type WHERE IS_DEL=0";
+exports.FETCH_VT_BY_ID="select ID as Vehicle_type_id, VEHICLE_TYPE as Vehicle_name,VEHICLE_TYPE_DESC as description,LENGTH,HEIGHT,WIDTH,BASE_PRICE,KM_PRICE,IS_PRICE,PERCENT,VT_TYPE_ID,WITH_PRICE,CREATED_ON,UPDATED_BY,UPDATED_ON from rmt_vehicle_type where IS_DEL=0 AND ID=?";
+exports.INSERT_VT_QUERY=`INSERT INTO rmt_vehicle_type (VEHICLE_TYPE,VEHICLE_TYPE_DESC,LENGTH,HEIGHT,WIDTH,BASE_PRICE,KM_PRICE,IS_PRICE,PERCENT,VT_TYPE_ID,WITH_PRICE) VALUES (?,?,?,?,?,?,?,?,?,?,?)`;
+exports.UPDATE_VT_QUERY= `UPDATE rmt_vehicle_type SET VEHICLE_TYPE =?,VEHICLE_TYPE_DESC=?,LENGTH=?,HEIGHT=?,WIDTH=?,BASE_PRICE=?,KM_PRICE,IS_PRICE=?,PERCENT=?,VT_TYPE_ID=?,WITH_PRICE=? WHERE ID=?`;
 exports.DELETE_VT_QUERY=`UPDATE rmt_vehicle_type SET IS_DEL=1 WHERE ID=?`;
 
 //------------------------RMT_VEHICLE------------------------------
@@ -88,6 +88,8 @@ exports.FETCH_ORDER_BY_ID=`select * from rmt_order where IS_DEL=0 AND ID=?`;
 exports.FETCH_ORDER_BY_CONSUMER_ID=`select * from rmt_order where IS_DEL=0 AND CONSUMER_ID =(select ID from rmt_consumer where EXT_ID =?)`
 exports.FETCH_ORDER_DELIVERY_BOY_ID=`select * from rmt_order where IS_DEL=0 AND DELIVERY_BOY_ID=(select ID from rmt_delivery_boy where EXT_ID=?)`
 exports.INSERT_ORDER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID) VALUES ((now()+1),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?)`;
+exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,EMAIL,MOBILE,'/IS_MY_SELF) VALUES ((now()+1),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?)`;
+//exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,COMPANY_NAME,EMAIL,MOBILE,PACKAGE_PHOTO,PACKAGE_ID,PICKUP_NOTES,IS_MY_SELF) VALUES ((now()+1),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?,?,?,?,0)`;
 exports.UPDATE_ORDER_QUERY=`UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NAME=?,EMAIL=?,COMPANY_NAME=?,PHONE_NUMBER=?,PACKAGE_ID=?,PACKAGE_ATTACH=?,PACKAGE_NOTES=?,ORDER_DATE=?,ORDER_STATUS=?,AMOUNT=?,VEHICLE_TYPE_ID=?,PICKUP_LOCATION_ID=?,DROPOFF_LOCATION_ID=?,IS_ACTIVE=?,SERVICE_TYPE_ID=?,SHIFT_START_TIME=?,SHIFT_END_TIME=?,DELIVERY_DATE=?,DELIVERY_STATUS=?  WHERE ORDER_ID=?`;
 exports.UPDATE_ORDER_BY_STATUS=`UPDATE rmt_order SET DELIVERY_STATUS=? WHERE IS_DEL=0 AND  ORDER_ID=?`;
 exports.DELETE_ORDER_QUERY=`UPDATE rmt_order SET IS_DEL =1 WHERE ORDER_NUMBER=?`;
@@ -107,7 +109,16 @@ exports.FETCH_WORK_ORDER_BY_ID=`SELECT * FROM rmt_work_order WHERE IS_DEL=0 AND 
 exports.INSERT_WORK_ORDER_QUERY=`INSERT INTO rmt_work_order(ORDER_ID,WORK_TYPE,STATUS,SCHEDULED_DATE,SCHEDULED_TIME,COMPLETION_DATE,COMPLETION_TIME,NOTES) VALUES(?,?,?,?,?,?,?,?)`;
 exports.UPDATE_WORK_ORDER_QUERY=`UPDATE rmt_work_order SET ORDER_ID=?,WORK_TYPE=?,STATUS=?,SCHEDULED_DATE=?,SCHEDULED_TIME=?,COMPLETION_DATE=?,COMPLETION_TIME=?,NOTES=? WHERE ID=?`;
 exports.DELETE_WORK_ORDER_QUERY=`UPDATE rmt_work_order SET IS_DEL=1 WHERE ID=?`;
+exports.UPDATE_ORDER_REQUEST_STATUS=`UPDATE SET DELIVERY_STATUS=?,DELIVERY_BOY_ID=? WHERE ID=?`;
 
+//-------------------------------rmt_payment-----------------------------------------------------\
+exports.FETCH_PAYMENT_QUERY=`SELECT * FROM rmt_payment WHERE IS_DEL=0`;
+exports.FETCH_PAYMENT_BY_ID=`SELECT * FROM rmt_payment WHERE IS_DEL=0 AND PAYMENT_ID=?`;
+exports.FETCH_PAYMENT_BY_USERID=`SELECT * FROM rmt_payment WHERE IS_DEL=0 AND USER_ID=?`;
+exports.INSERT_PAYMENT_QUERY=`INSERT INTO rmt_payment(TRANSACTION_ID,USER_ID,WALLET_ID,AMOUNT,CURRENCY,PAYMENT_METHOD,PAYMENT_STATUS,DESCRIPTION) VALUES(?,?,?,?,?,?,?,?)`;
+exports.UPDATE_PAYMENT_QUERY=`UPDATE rmt_payment SET TRANSACTION_ID=?,USER_ID=?,WALLET_ID=?,AMOUNT=?,CURRENCY=?,PAYMENT_METHOD=?,PAYMENT_STATUS=?,DESCRIPTION=? WHERE PAYMENT_ID=?`;
+exports.DELETE_PAYMENT_QUERY=`UPDATE rmt_payment SET IS_DEL=1 WHERE PAYMENT_ID=?`;
+exports.UPDATE_PAYMENT_BY_STATUS=`UPDATE rmt_payment SET PAYMENT_STATUS=? WHERE PAYMENT_ID=?`;
 //--------------------check driver---------------------------
 exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, allocated, service_type, slot_status,
       (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance
@@ -118,6 +129,66 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
       AND slot_status = ?
       ORDER BY distance
     `
+exports.INSERT_PLANNING_QUERY=`INSERT INTO rmt_planning(is_24x7,is_apply_for_all_days,delivery_boy_id) values(?,?,?)`
+exports.INSERT_SLOT_QUERY=`INSERT INTO rmt_planning_slot(planning_id,day,from_time,to_time) values(?,?,?,?)`
+exports.FETCH_PLANNING_BY_ID=`SELECT * FROM rmt_planning WHERE ID=?`
+exports.GET_ALL_PLANNING_WITH_SLOTS_QUERY = `
+  SELECT 
+    p.id AS planning_id,
+    p.is_24x7,
+    p.is_apply_for_all_days,
+    p.delivery_boy_id,
+    p.created_by,
+    p.created_on,
+    p.updated_by,
+    p.updated_on,
+    s.id AS slot_id,
+    s.day,
+    s.from_time,
+    s.to_time
+  FROM 
+    rmt_planning p
+  LEFT JOIN 
+    rmt_planning_slot s ON p.id = s.planning_id
+  ORDER BY 
+    p.id, s.day
+`;
+exports.GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY = `
+  SELECT 
+    p.id AS planning_id,
+    p.is_24x7,
+    p.is_apply_for_all_days,
+    p.delivery_boy_id,
+    p.created_by,
+    p.created_on,
+    p.updated_by,
+    p.updated_on,
+    s.id AS slot_id,
+    s.day,
+    s.from_time,
+    s.to_time
+  FROM 
+    rmt_planning p
+  LEFT JOIN 
+    rmt_planning_slot s ON p.id = s.planning_id
+  WHERE 
+    p.delivery_boy_id = ?
+  ORDER BY 
+    p.id, s.day
+`;
+//---------------------------------------Admin side-------------------------
+//user list AND join request list
+exports.FETCH_DELIVERY_BOY=`SELECT * FROM rmt_delvery_boy WHERE IS_DEL=0 AND ACTIVE=?`
+exports.FETCH_CONSUMER=`SELECT * FROM rmt_consumer WHERE IS_DEL=0 AND STATUS=?`
+exports.FETCH_ENTERPRISE=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 AND ACTIVE=?`
+//join request views
+exports.FETCH_DELIVERY_BOY_ID=`SELECT * FROM rmt_delvery_boy WHERE IS_DEL=0 AND ID=?`
+exports.FETCH_CONSUMER_ID=`SELECT * FROM rmt_consumer WHERE IS_DEL=0 AND COMSUMER_ID=?`
+exports.FETCH_ENTERPRISE_ID=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 AND ID=?`
+//join request udpate
+exports.UPDATE_DELIVERY_BOY_STATUS=`UPDATE rmt_delivery_boy SET ACTIVE=?,REASON=? WHERE ID=?`
+exports.UPDATE_CONSUMER_STATUS=`UPDATE rmt_consumer SET STATUS=? WHERE COMSUMER_ID=?`
+exports.UPDATE_ENTERPRISE_STATUS=`UPDATE rmt_enterprise SET ACTIVE=?, REASON=? WHERE ID=?`
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {

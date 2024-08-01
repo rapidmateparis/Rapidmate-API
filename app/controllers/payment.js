@@ -1,0 +1,179 @@
+const utils = require('../middleware/utils')
+const db = require('../middleware/db')
+const { runQuery,insertQuery,fetch,updateQuery} = require('../middleware/db')
+const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID } = require('../db/database.query')
+
+/********************
+ * Public functions *
+ ********************/
+/**
+ * Get items function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItems = async (req, res) => {
+  try {
+    const data =await transformKeysToLowercase(await runQuery(FETCH_PAYMENT_QUERY))
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItem = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data =await transformKeysToLowercase(await fetch(FETCH_PAYMENT_BY_ID,[id]))
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+/**
+ * Get item by user id function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItemByuser = async (req, res) => {
+    try {
+      const id = req.params.id;
+      const data =await transformKeysToLowercase(await fetch(FETCH_PAYMENT_BY_USERID,[id]))
+      let message="Items retrieved successfully";
+      if(data.length <=0){
+          message="No items found"
+          return res.status(400).json(utils.buildErrorObject(400,message,1001));
+      }
+      return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    } catch (error) {
+      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    }
+  }
+/**
+ * Update item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const updateItem = async (id,req) => {
+    const registerRes = await updateQuery(UPDATE_PAYMENT_QUERY,[req.transaction_id,req.user_id,req.wallet_id,req.amount,req.currency,req.payment_method,req.payment_status,req.description,id]);
+    return registerRes;
+}
+
+exports.updateItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getId = await utils.isIDGood(id,'PAYMENT_ID','rmt_payment')
+    if(getId){
+      const updatedItem = await updateItem(id, req.body);
+      if (updatedItem.affectedRows >0) {
+          return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+    }
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+    
+}
+
+/**
+ * Update item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const updateItemBystatus = async (id,status) => {
+    console.log(id)
+    const registerRes = await updateQuery(UPDATE_PAYMENT_BY_STATUS,[status,id]);
+    return registerRes;
+}
+
+exports.updateItemBystatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const getId = await utils.isIDGood(id,'PAYMENT_ID','rmt_payment')
+    if(getId){
+      const updatedItem = await updateItemBystatus(id,status);
+      if (updatedItem.affectedRows >0) {
+          return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+    }
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+    
+}
+/**
+ * Create item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const createItem = async (req) => {
+    const registerRes = await insertQuery(INSERT_PAYMENT_QUERY,[req.transaction_id,req.user_id,req.wallet_id,req.amount,req.currency,req.payment_method,req.payment_status,req.description]);
+    return registerRes;
+}
+exports.createItem = async (req, res) => {
+  try {
+    const doesNameExists =await utils.nameExists(req.body.transaction_id,'rmt_payment','TRANSACTION_ID')
+    if (!doesNameExists) {
+      const item = await createItem(req.body)
+      if(item.insertId){
+        const currData=await transformKeysToLowercase(await fetch(FETCH_PAYMENT_BY_ID,[item.insertId]));
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currData))
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+    }else{
+      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
+    }
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+const deleteItem = async (id) => {
+  const deleteRes = await updateQuery(DELETE_PAYMENT_QUERY,[id]);
+  return deleteRes;
+};
+/**
+ * Delete item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.deleteItem = async (req, res) => {
+  try {
+    const {id} =req.params
+    const getId = await utils.isIDGood(id,'PAYMENT_ID','rmt_payment')
+    if(getId){
+      const deletedItem = await deleteItem(getId);
+      if (deletedItem.affectedRows > 0) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+    }
+    return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}

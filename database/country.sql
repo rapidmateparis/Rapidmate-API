@@ -1,4 +1,4 @@
-INSERT INTO `rmt_country` (`id`, `COUNTRY_CODE`, `COUNTRY_NAME`, `PHONE_CODE`) VALUES
+INSERT INTO `rmt_country` (`id`, `country_code`, `country_name`, `phone_code`) VALUES
 (1, 'AF', 'Afghanistan', 93),
 (2, 'AL', 'Albania', 355),
 (3, 'DZ', 'Algeria', 213),

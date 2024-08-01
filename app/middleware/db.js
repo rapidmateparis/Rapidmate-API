@@ -1,4 +1,5 @@
 const pool = require('../../config/database')
+const {INSERT_PLANNING_QUERY, INSERT_SLOT_QUERY,GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY } = require('../db/database.query')
 
 /**
  * Builds sorting
@@ -143,6 +144,157 @@ module.exports = {
     } catch (error) {
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
+    }
+  },
+  // insertPlanningWithSlots
+
+  async insertPlanningWithSlots(planning,slots) {
+    const connection = await pool.getConnection(); // Get a connection from the pool
+    try {
+      connection.beginTransaction()
+      const [planningResult] = await connection.execute(INSERT_PLANNING_QUERY, [
+        planning.is_24x7 || 0,
+        planning.is_apply_for_all_days || 0,
+        planning.delivery_boy_id
+      ]);
+  
+      const planningId = planningResult.insertId;
+
+      let slotValues = [];
+
+      if (planning.is_apply_for_all_days) {
+        const days = ['All'];
+        slotValues = days.map(day => [
+          planningId,
+          day,
+          slots[0].from_time,
+          slots[0].to_time
+        ]);
+      } else {
+        slotValues = slots.map(slot => [
+          planningId,
+          slot.day,
+          slot.from_time,
+          slot.to_time
+        ]);
+      }
+      const slotQuery = 'INSERT INTO rmt_planning_slot (planning_id, day, from_time, to_time) VALUES ?';
+      await connection.query(slotQuery, [slotValues]);
+      await connection.commit();
+      return planningId;
+    } catch (error) {
+      return error
+    }
+  },
+  async getAllPlanningWithSlots() {
+    const connection = await pool.getConnection();
+    try {
+      const [rows] = await connection.execute(GET_ALL_PLANNING_WITH_SLOTS_QUERY);
+
+      console.log('Query result:', rows); // Debug: Output raw rows
+
+      // Create a map to store planning records and their associated slots
+      const planningMap = new Map();
+
+      // Populate the map with planning data and associated slots
+      rows.forEach(row => {
+        let planningData = planningMap.get(row.planning_id);
+
+        if (!planningData) {
+          // Create a new entry for each planning record
+          planningData = {
+            planning_id: row.planning_id,
+            is_24x7: row.is_24x7,
+            is_apply_for_all_days: row.is_apply_for_all_days,
+            delivery_boy_id: row.delivery_boy_id,
+            created_by: row.created_by,
+            created_on: row.created_on,
+            updated_by: row.updated_by,
+            updated_on: row.updated_on,
+            slots: []
+          };
+          planningMap.set(row.planning_id, planningData);
+        }
+
+        if (row.slot_id) {
+          // Add slot data to the planning record
+          planningData.slots.push({
+            slot_id: row.slot_id,
+            day: row.day,
+            from_time: row.from_time,
+            to_time: row.to_time
+          });
+        }
+      });
+
+      // Convert the map to an array of planning records
+      const result = Array.from(planningMap.values());
+      console.log('Processed result:', result); // Debug: Output processed result
+
+      return result;
+    } catch (error) {
+      console.error('Error fetching planning data with slots:', error); // Debug: Output error
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+  /**
+   * Fetches all planning data along with its slots filtered by delivery_boy_id
+   * @param {number} deliveryBoyId - The ID of the delivery boy
+   * @returns {Promise<Array>} - A promise that resolves to an array of planning objects, each with associated slots
+   */
+  async getPlanningWithSlotsByDeliveryBoy(deliveryBoyId) {
+    const connection = await pool.getConnection();
+    try {
+      const [rows] = await connection.execute(GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY, [deliveryBoyId]);
+
+      console.log('Query result:', rows); // Debug: Output raw rows
+
+      // Create a map to store planning records and their associated slots
+      const planningMap = new Map();
+
+      // Populate the map with planning data and associated slots
+      rows.forEach(row => {
+        let planningData = planningMap.get(row.planning_id);
+
+        if (!planningData) {
+          // Create a new entry for each planning record
+          planningData = {
+            planning_id: row.planning_id,
+            is_24x7: row.is_24x7,
+            is_apply_for_all_days: row.is_apply_for_all_days,
+            delivery_boy_id: row.delivery_boy_id,
+            created_by: row.created_by,
+            created_on: row.created_on,
+            updated_by: row.updated_by,
+            updated_on: row.updated_on,
+            slots: []
+          };
+          planningMap.set(row.planning_id, planningData);
+        }
+
+        if (row.slot_id) {
+          // Add slot data to the planning record
+          planningData.slots.push({
+            slot_id: row.slot_id,
+            day: row.day,
+            from_time: row.from_time,
+            to_time: row.to_time
+          });
+        }
+      });
+
+      // Convert the map to an array of planning records
+      const result = Array.from(planningMap.values());
+      console.log('Processed result:', result); // Debug: Output processed result
+
+      return result;
+    } catch (error) {
+      console.error('Error fetching planning data with slots by delivery_boy_id:', error); // Debug: Output error
+      throw error;
+    } finally {
+      connection.release();
     }
   }
 }
