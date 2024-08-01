@@ -129,6 +129,66 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
       AND slot_status = ?
       ORDER BY distance
     `
+exports.INSERT_PLANNING_QUERY=`INSERT INTO rmt_planning(is_24x7,is_apply_for_all_days,delivery_boy_id) values(?,?,?)`
+exports.INSERT_SLOT_QUERY=`INSERT INTO rmt_planning_slot(planning_id,day,from_time,to_time) values(?,?,?,?)`
+exports.FETCH_PLANNING_BY_ID=`SELECT * FROM rmt_planning WHERE ID=?`
+exports.GET_ALL_PLANNING_WITH_SLOTS_QUERY = `
+  SELECT 
+    p.id AS planning_id,
+    p.is_24x7,
+    p.is_apply_for_all_days,
+    p.delivery_boy_id,
+    p.created_by,
+    p.created_on,
+    p.updated_by,
+    p.updated_on,
+    s.id AS slot_id,
+    s.day,
+    s.from_time,
+    s.to_time
+  FROM 
+    rmt_planning p
+  LEFT JOIN 
+    rmt_planning_slot s ON p.id = s.planning_id
+  ORDER BY 
+    p.id, s.day
+`;
+exports.GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY = `
+  SELECT 
+    p.id AS planning_id,
+    p.is_24x7,
+    p.is_apply_for_all_days,
+    p.delivery_boy_id,
+    p.created_by,
+    p.created_on,
+    p.updated_by,
+    p.updated_on,
+    s.id AS slot_id,
+    s.day,
+    s.from_time,
+    s.to_time
+  FROM 
+    rmt_planning p
+  LEFT JOIN 
+    rmt_planning_slot s ON p.id = s.planning_id
+  WHERE 
+    p.delivery_boy_id = ?
+  ORDER BY 
+    p.id, s.day
+`;
+//---------------------------------------Admin side-------------------------
+//user list AND join request list
+exports.FETCH_DELIVERY_BOY=`SELECT * FROM rmt_delvery_boy WHERE IS_DEL=0 AND ACTIVE=?`
+exports.FETCH_CONSUMER=`SELECT * FROM rmt_consumer WHERE IS_DEL=0 AND STATUS=?`
+exports.FETCH_ENTERPRISE=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 AND ACTIVE=?`
+//join request views
+exports.FETCH_DELIVERY_BOY_ID=`SELECT * FROM rmt_delvery_boy WHERE IS_DEL=0 AND ID=?`
+exports.FETCH_CONSUMER_ID=`SELECT * FROM rmt_consumer WHERE IS_DEL=0 AND COMSUMER_ID=?`
+exports.FETCH_ENTERPRISE_ID=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 AND ID=?`
+//join request udpate
+exports.UPDATE_DELIVERY_BOY_STATUS=`UPDATE rmt_delivery_boy SET ACTIVE=?,REASON=? WHERE ID=?`
+exports.UPDATE_CONSUMER_STATUS=`UPDATE rmt_consumer SET STATUS=? WHERE COMSUMER_ID=?`
+exports.UPDATE_ENTERPRISE_STATUS=`UPDATE rmt_enterprise SET ACTIVE=?, REASON=? WHERE ID=?`
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {

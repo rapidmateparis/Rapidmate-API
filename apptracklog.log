@@ -1,0 +1,164 @@
+[2024-07-30T20:06:12.508] [INFO] authuser.js - /signup request {
+  userName: 'driveruserDd',
+  email: 'techajsborrne@gmail.com',
+  phoneNumber: '+917502434654',
+  password: 'Syszoo12!',
+  userrole: 'DELIVERY_BOY',
+  firstName: 'kalim',
+  lastName: 'Ansari',
+  city: '1',
+  state: '1',
+  country: '1',
+  siretNo: '4352354',
+  termone: 1
+}
+[2024-07-30T20:06:12.549] [INFO] authuser.js - selfSignUp called
+[2024-07-30T20:06:13.679] [ERROR] authuser.js - selfSignUp error
+[2024-07-30T20:06:13.680] [ERROR] authuser.js - UsernameExistsException: User already exists
+    at Request.extractError (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\protocol\json.js:80:27)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:106:20)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9)
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:688:12)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:116:18)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9) {
+  code: 'UsernameExistsException',
+  '[__type]': 'See error.__type for details.',
+  time: 2024-07-30T14:36:13.677Z,
+  requestId: '84908da1-41f6-448a-b73a-4de75b7d8eee',
+  statusCode: 400,
+  retryable: false,
+  retryDelay: 5.03546329029716
+}
+[2024-07-30T20:06:13.685] [ERROR] authuser.js - Error in /signup UsernameExistsException: User already exists
+    at Request.extractError (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\protocol\json.js:80:27)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:106:20)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9)
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:688:12)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:116:18)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9) {
+  code: 'UsernameExistsException',
+  '[__type]': 'See error.__type for details.',
+  time: 2024-07-30T14:36:13.677Z,
+  requestId: '84908da1-41f6-448a-b73a-4de75b7d8eee',
+  statusCode: 400,
+  retryable: false,
+  retryDelay: 5.03546329029716
+}
+[2024-07-30T20:06:53.897] [INFO] authuser.js - /signup request {
+  userName: 'driveruserDdd',
+  email: 'techajsborrne@gmail.com',
+  phoneNumber: '+917502434654',
+  password: 'Syszoo12!',
+  userrole: 'DELIVERY_BOY',
+  firstName: 'kalim',
+  lastName: 'Ansari',
+  city: '1',
+  state: '1',
+  country: '1',
+  siretNo: '4352354',
+  termone: 1
+}
+[2024-07-30T20:06:53.905] [INFO] authuser.js - selfSignUp called
+[2024-07-30T20:06:54.799] [INFO] authuser.js - {
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 't***@g***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '50fc995c-e0b1-7000-69d6-553ecc489a2e'
+}
+[2024-07-30T20:06:54.804] [INFO] authuser.js - selfSignUp completion
+[2024-07-30T20:06:55.255] [INFO] authuser.js - /signup response {
+  extId: 'D1722350214805',
+  role: 'DELIVERY_BOY',
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 't***@g***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '50fc995c-e0b1-7000-69d6-553ecc489a2e'
+}
+[2024-07-30T20:08:03.744] [INFO] authuser.js - /signupVerifysignupVerify request {
+  userName: 'techajsborrne@gmail.com',
+  code: '974406',
+  role: 'DELIVERY_BOY'
+}
+[2024-07-30T20:08:03.747] [INFO] authuser.js - selfSignUp called
+[2024-07-30T20:08:04.498] [ERROR] authuser.js - selfSignUp error
+[2024-07-30T20:08:04.499] [ERROR] authuser.js - ExpiredCodeException: Invalid code provided, please request a code again.
+    at Request.extractError (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\protocol\json.js:80:27)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:106:20)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9)
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:688:12)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:116:18)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9) {
+  code: 'ExpiredCodeException',
+  '[__type]': 'See error.__type for details.',
+  time: 2024-07-30T14:38:04.498Z,
+  requestId: '9e99f1bd-dccf-4fa6-81af-575355327585',
+  statusCode: 400,
+  retryable: false,
+  retryDelay: 79.32769553770439
+}
+[2024-07-30T20:08:04.506] [ERROR] authuser.js - Error in /signupverify ExpiredCodeException: Invalid code provided, please request a code again.
+    at Request.extractError (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\protocol\json.js:80:27)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:106:20)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9)
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:688:12)
+    at Request.callListeners (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:116:18)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\rapidmateapi\rapidmatenewapi\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9) {
+  code: 'ExpiredCodeException',
+  '[__type]': 'See error.__type for details.',
+  time: 2024-07-30T14:38:04.498Z,
+  requestId: '9e99f1bd-dccf-4fa6-81af-575355327585',
+  statusCode: 400,
+  retryable: false,
+  retryDelay: 79.32769553770439
+}
+[2024-07-30T20:08:29.549] [INFO] authuser.js - /signupVerifysignupVerify request { userName: 'driveruserDdd', code: '974406', role: 'DELIVERY_BOY' }
+[2024-07-30T20:08:29.550] [INFO] authuser.js - selfSignUp called
+[2024-07-30T20:08:30.281] [INFO] authuser.js - {}
+[2024-07-30T20:08:30.282] [INFO] authuser.js - selfSignUp completion
+[2024-07-30T20:08:30.284] [INFO] authuser.js - /signupVerify response {}
