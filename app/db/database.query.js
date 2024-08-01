@@ -5,6 +5,14 @@ exports.INSERT_VT_QUERY=`INSERT INTO rmt_vehicle_type (VEHICLE_TYPE,VEHICLE_TYPE
 exports.UPDATE_VT_QUERY= `UPDATE rmt_vehicle_type SET VEHICLE_TYPE =?,VEHICLE_TYPE_DESC=?,LENGTH=?,HEIGHT=?,WIDTH=?,BASE_PRICE=?,KM_PRICE,IS_PRICE=?,PERCENT=?,VT_TYPE_ID=?,WITH_PRICE=? WHERE ID=?`;
 exports.DELETE_VT_QUERY=`UPDATE rmt_vehicle_type SET IS_DEL=1 WHERE ID=?`;
 
+//=========================rmt_vehicle_sub_type=========================
+exports.FETCH_SUB_VT_ALL=`SELECT * FROM rmt_vehicle_sub_type WHERE IS_DEL=0`;
+exports.FETCH_SUB_VT_BY_ID=`SELECT * FROM rmt_vehicle_sub_type WHERE IS_DEL=0 AND ID=?`;
+exports.FETCH_SUB_VT_BY_TYPEID=`SELECT * FROM rmt_vehicle_sub_type WHERE IS_DEL=0 AND vehicle_type_id=?`;
+exports.INSERT_SUB_VT=`INSERT INTO rmt_vehicle_sub_type(vehicle_sub_type,vehicle_sub_type_desc,vehicle_type_id) VALUES(?,?,?)`;
+exports.UPDATE_SUB_VT=`UPDATE rmt_vehicle_sub_type SET vehicle_sub_type=?,vehicle_sub_type_desc=?,vehicle_type_id=? WHERE ID=?`;
+exports.DELETE_SUB_VT=`UPDATE rmt_vehicle_sub_type SET is_del=0 WHERE ID=?`;
+
 //------------------------RMT_VEHICLE------------------------------
 exports.FETCH_VEHILCLE_ALL = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as delivery_boy__name  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID"
 exports.FETCH_VEHICLE_BY_ID=`select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID where vs.ID=?`;
@@ -129,53 +137,7 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
       AND slot_status = ?
       ORDER BY distance
     `
-exports.INSERT_PLANNING_QUERY=`INSERT INTO rmt_planning(is_24x7,is_apply_for_all_days,delivery_boy_id) values(?,?,?)`
-exports.INSERT_SLOT_QUERY=`INSERT INTO rmt_planning_slot(planning_id,day,from_time,to_time) values(?,?,?,?)`
-exports.FETCH_PLANNING_BY_ID=`SELECT * FROM rmt_planning WHERE ID=?`
-exports.GET_ALL_PLANNING_WITH_SLOTS_QUERY = `
-  SELECT 
-    p.id AS planning_id,
-    p.is_24x7,
-    p.is_apply_for_all_days,
-    p.delivery_boy_id,
-    p.created_by,
-    p.created_on,
-    p.updated_by,
-    p.updated_on,
-    s.id AS slot_id,
-    s.day,
-    s.from_time,
-    s.to_time
-  FROM 
-    rmt_planning p
-  LEFT JOIN 
-    rmt_planning_slot s ON p.id = s.planning_id
-  ORDER BY 
-    p.id, s.day
-`;
-exports.GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY = `
-  SELECT 
-    p.id AS planning_id,
-    p.is_24x7,
-    p.is_apply_for_all_days,
-    p.delivery_boy_id,
-    p.created_by,
-    p.created_on,
-    p.updated_by,
-    p.updated_on,
-    s.id AS slot_id,
-    s.day,
-    s.from_time,
-    s.to_time
-  FROM 
-    rmt_planning p
-  LEFT JOIN 
-    rmt_planning_slot s ON p.id = s.planning_id
-  WHERE 
-    p.delivery_boy_id = ?
-  ORDER BY 
-    p.id, s.day
-`;
+
 //---------------------------------------Admin side-------------------------
 //user list AND join request list
 exports.FETCH_DELIVERY_BOY=`SELECT * FROM rmt_delvery_boy WHERE IS_DEL=0 AND ACTIVE=?`
@@ -189,6 +151,15 @@ exports.FETCH_ENTERPRISE_ID=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 AND ID=
 exports.UPDATE_DELIVERY_BOY_STATUS=`UPDATE rmt_delivery_boy SET ACTIVE=?,REASON=? WHERE ID=?`
 exports.UPDATE_CONSUMER_STATUS=`UPDATE rmt_consumer SET STATUS=? WHERE COMSUMER_ID=?`
 exports.UPDATE_ENTERPRISE_STATUS=`UPDATE rmt_enterprise SET ACTIVE=?, REASON=? WHERE ID=?`
+
+//======================================== Enterprise ===========================================================
+exports.FETCH_BRANCH_QUERY=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0`
+exports.FETCH_BRANCH_BY_ID=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0 AND id=?`
+exports.FETCH_BRANCH_BY_ENTERPRISEID=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0 AND enterprise_id=?`
+exports.INSERT_BRANCH_QUERY=`INSERT INTO rmt_enterprise_branch(branch_name,address,city,state,postal_code,country,latitude,longitude,enterprise_id) VALUES(?,?,?,?,?,?,?,?,?)`
+exports.UPDATE_BRANCH_QUERY=`UPDATE rmt_enterprise_branch SET branch_name=?,address=?,city=?,state=?,postal_code=?,country=?,latitude=?,longitude=?,enterprise_id=? WHERE id=?`
+exports.DELETE_BRANCH_QUERY=`UPDATE rmt_enterprise_branch SET is_del=1 WHERE id=?`
+
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {
