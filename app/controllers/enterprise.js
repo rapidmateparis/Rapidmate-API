@@ -1,7 +1,6 @@
 const utils = require('../middleware/utils')
 const { runQuery } = require('../middleware/db')
 const auth = require('../middleware/auth')
-
 /********************
  * Public functions *
  ********************/

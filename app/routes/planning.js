@@ -32,5 +32,15 @@ router.get(
     controller.getItemBydeliveryboyid
 )
 
+/*
+ * Delete item route
+ */
+router.delete(
+  '/:id',
+  trimRequest.all,
+  validate.deleteItem,
+  controller.deleteItem
+)
+
 
 module.exports = router

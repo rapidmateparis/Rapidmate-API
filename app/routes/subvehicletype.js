@@ -38,6 +38,15 @@ router.get(
     controller.getItem
 )
 
+/**
+ * Get item by vehicle type id route
+ */
+router.get(
+  '/vehicletypeid/:id',
+  trimRequest.all,
+  validate.getItem,
+  controller.getByVehicleTypeID
+)
 /*
  * Update item route
  */

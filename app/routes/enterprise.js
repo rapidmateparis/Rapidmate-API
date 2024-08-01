@@ -3,7 +3,7 @@ const validate = require('../controllers/enterprise.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-
+const branchRouter =require('../middleware/branch')
 /*
  * Latlon routes
  */
@@ -57,4 +57,8 @@ router.delete(
   controller.deleteItem
 )
 
+/*
+ * Branch routes
+ */
+router.use('/branch', branchRouter);
 module.exports = router
