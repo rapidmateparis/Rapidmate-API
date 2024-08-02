@@ -121,10 +121,11 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req,vehicle_front_photo,vehicle_back_photo,rcv_photo) => {
+const createItem = async (req) => {
     try {
-      const reqData=[req.delivery_boy_id,vehicle_type_id,req.plat_no,req.modal,vehicle_front_photo,vehicle_back_photo,req.rcv_no,rcv_photo]
-      const registerRes = await insertQuery(INSERT_VEHICLE_QUERY,reqData);
+      const reqData=[req.delivery_boy_ext_id,req.vehicle_type_id,req.plat_no,req.modal,req.make,req.variant,req.reg_doc,req.driving_license,req.insurance,req.passport];
+      const registerRes = await insertQuery(INSERT_VEHICLE_QUERY, reqData);
+      console.log(registerRes);
       return registerRes;
     } catch (error) {
       console.log(error);
@@ -133,29 +134,7 @@ const createItem = async (req,vehicle_front_photo,vehicle_back_photo,rcv_photo) 
 }
 exports.createItem = async (req, res) => {
   try {
-    let vehicle_front_photo='';
-    let vehicle_back_photo='';
-    let rcv_photo='';
-    let filename='';
-    console.log(req.body)
-    if(req.body.vehicle_front_photo != '') {
-      filename ='vehicle_front_'+Date.now()+'.jpg';
-      vehicle_front_photo = await utils.uploadFileToS3bucket(req,filename);
-      vehicle_front_photo =vehicle_front_photo.data.Location
-    }
-    if(req.body.vehicle_back_photo != '') {
-      filename ='vehicle_back_'+Date.now()+'.jpg';
-      vehicle_back_photo = await utils.uploadFileToS3bucket(req,filename);
-      vehicle_back_photo =vehicle_back_photo.data.Location
-    }
-    if(req.body.rcv_photo != '') {
-      filename ='rcv_'+Date.now()+'.jpg';
-      rcv_photo = await utils.uploadFileToS3bucket(req,filename);
-      rcv_photo =rcv_photo.data.Location
-    } 
-    console.log("Block 1");
-    const item = await createItem(req.body,vehicle_front_photo,vehicle_back_photo,rcv_photo)
-    console.log("Block 2" + item.insertId);
+    const item = await createItem(req.body)
     if(item.insertId){
       const currentdata=await fetch(FETCH_VEHICLE_BY_ID,[item.insertId]);
       const filterdata=await transformKeysToLowercase(currentdata)

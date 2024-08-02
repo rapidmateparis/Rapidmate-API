@@ -1,21 +1,19 @@
-const controller = require('../controllers/subvehicletypes')
-const validate = require('../controllers/subvehicletypes.validate')
-const AuthController = require('../controllers/auth')
+const controller = require('../controllers/enterprise/branch')
+const validate = require('../controllers/enterprise/branch.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-
 /*
- * sub vehicle types routes
+ * Branch routes
  */
 
 /*
  * Get items route
  */
 router.get(
-  '/',
+  '/getbyenterprise/:id',
   trimRequest.all,
-  controller.getItems
+  controller.getBranchByEnterpriseId
 )
 
 /*
@@ -35,18 +33,9 @@ router.get(
   '/:id',
     trimRequest.all,
     validate.getItem,
-    controller.getItem
+  controller.getItem
 )
 
-/**
- * Get item by vehicle type id route
- */
-router.get(
-  '/vehicletypeid/:id',
-  trimRequest.all,
-  validate.getItem,
-  controller.getByVehicleTypeID
-)
 /*
  * Update item route
  */

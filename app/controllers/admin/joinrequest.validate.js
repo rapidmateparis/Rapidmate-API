@@ -19,7 +19,7 @@ exports.updateItem = [
   check('role').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('reason').exists().withMessage('MISSING'),
-  check('id')
+  check('ext_id')
     .exists()
     .withMessage('MISSING')
     .not()
