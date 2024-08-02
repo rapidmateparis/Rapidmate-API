@@ -58,37 +58,42 @@ const createItem = async (is_24x7,is_apply_for_all_days,delivery_boy_id) => {
 }
 exports.createItem = async (req, res) => {
   try {
-    const {is_24x7,is_apply_for_all_days,delivery_boy_id}=req.body.planningData
-    const [getPlanningId]=await fetch(GET_PLANNING_ID,[delivery_boy_id]);
-    let planningid=0
+    const {is_24x7,is_apply_for_all_days,delivery_boy_ext_id}=req.body
+    const [getPlanningId]=await fetch(GET_PLANNING_ID,[delivery_boy_ext_id]);
+    let planningid=0;
+    console.log(getPlanningId);
     if(getPlanningId!=undefined){
       planningid=getPlanningId.id
     }
     let planningId=0;
     const planningData={
-      planning_id:planningid,
-      ...req.body.planningData
+      planningid,
+      ...req.body
     }
     let status=false
+    console.log("Test Data");
     if(is_24x7==0){
         planningId=await insertOrUpdatePlanningWithSlots(planningData,req.body.slots)
         status=(planningId)?true:false
     }else{
         if(planningid){
-          const updatedItem=await updateQuery(UPDATE_PLANNING_QUERY,[is_24x7,is_apply_for_all_days,delivery_boy_id,planningid])
+          const updatedItem=await updateQuery(UPDATE_PLANNING_QUERY,[is_24x7,is_apply_for_all_days,delivery_boy_ext_id,planningid])
           status=(updatedItem.affectedRows >0)?true:false
         }else{
-          const item = await createItem(is_24x7,is_apply_for_all_days,delivery_boy_id)
+          console.log("Test Data2");
+          const item = await createItem(is_24x7,is_apply_for_all_days,delivery_boy_ext_id)
+          console.log(item);
           status=(item.insertId)?true:false
         }
     }
-    // console.log("sadfsaf =>"+planningId)
+   
     if(status){
       return res.status(200).json(utils.buildUpdatemessage(200, "Setup has been updated successfully."));
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
