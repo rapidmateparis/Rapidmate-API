@@ -11,6 +11,7 @@ var cognito_accessKeyId = process.env.COGNITO_ACCESS_KEY_ID;
 var cognito_secretAccessKey = process.env.COGNITO_SECRET_ACCESS_KEY;
 const userPoolId = process.env.USER_POOLID;
 const ClientId = process.env.CLIENT_ID;
+const ADMIN_ROLE = "ADMIN";
 const DELEIVERY_BOY_ROLE = "DELIVERY_BOY";
 const ENTERPRISE_ROLE = "ENTERPRISE";
 const CONSUMER_ROLE = "CONSUMER";
@@ -150,8 +151,10 @@ async function signup(userInfo) {
       } else if (userInfo['userrole'] === ENTERPRISE_ROLE) {
         makeRoleExtId = "E" + externalId;
         const item = await createItem(userInfo, "rmt_enterprise",makeRoleExtId);
-        
-      }
+      } else if (userInfo['userrole'] === ADMIN_ROLE) {
+        makeRoleExtId = "A" + externalId;
+        const item = await createItem(userInfo, "rmt_admin_user",makeRoleExtId);
+      } 
   
       return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], ...data };
   
@@ -174,6 +177,9 @@ function createItem(userinfo,tablename,extIds){
     }
     if(tablename=='rmt_enterprise'){
         registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,HOUR_PER_MONTH,ENTERPRISE_NAME,INDUSTRY) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['hourPerMonth']}','${userinfo['companyName']}','${userinfo['industry']}')`;
+    }
+    if(tablename=='rmt_admin_user'){
+        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,HOUR_PER_MONTH,ENTERPRISE_NAME,INDUSTRY) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['hourPerMonth']}','${userinfo['companyName']}','${userinfo['industry']}')`;
     }
     console.log("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);

@@ -1,5 +1,5 @@
 const pool = require('../../config/database')
-const {INSERT_PLANNING_QUERY, INSERT_SLOT_QUERY,GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY } = require('../db/database.query')
+const {INSERT_PLANNING_QUERY,GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY, UPDATE_PLANNING_QUERY, DELETE_SLOTS_QUERY, INSERT_SLOTS_QUERY } = require('../db/planning.query')
 
 /**
  * Builds sorting
@@ -147,21 +147,37 @@ module.exports = {
     }
   },
   // insertPlanningWithSlots
-
-  async insertPlanningWithSlots(planning,slots) {
+  async insertOrUpdatePlanningWithSlots(planning, slots) {
     const connection = await pool.getConnection(); // Get a connection from the pool
     try {
-      connection.beginTransaction()
-      const [planningResult] = await connection.execute(INSERT_PLANNING_QUERY, [
-        planning.is_24x7 || 0,
-        planning.is_apply_for_all_days || 0,
-        planning.delivery_boy_id
-      ]);
+      await connection.beginTransaction();
   
-      const planningId = planningResult.insertId;
-
+      let planningId = planning.planning_id; // Assuming you have planning_id in the planning object
+  
+      if (planningId) {
+        // Update existing planning
+        await connection.execute(UPDATE_PLANNING_QUERY, [
+          planning.is_24x7 || 0,
+          planning.is_apply_for_all_days || 0,
+          planning.delivery_boy_id,
+          planningId
+        ]);
+  
+        // Delete existing slots for this planning
+        await connection.execute(DELETE_SLOTS_QUERY, [planningId]);
+      } else {
+        // Insert new planning
+        const [planningResult] = await connection.execute(INSERT_PLANNING_QUERY, [
+          planning.is_24x7 || 0,
+          planning.is_apply_for_all_days || 0,
+          planning.delivery_boy_id
+        ]);
+  
+        planningId = planningResult.insertId;
+      }
+  
       let slotValues = [];
-
+  
       if (planning.is_apply_for_all_days) {
         const days = ['All'];
         slotValues = days.map(day => [
@@ -178,12 +194,16 @@ module.exports = {
           slot.to_time
         ]);
       }
-      const slotQuery = 'INSERT INTO rmt_planning_slot (planning_id, day, from_time, to_time) VALUES ?';
-      await connection.query(slotQuery, [slotValues]);
+  
+      await connection.query(INSERT_SLOTS_QUERY, [slotValues]);
+  
       await connection.commit();
       return planningId;
     } catch (error) {
-      return error
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
     }
   },
   async getAllPlanningWithSlots() {

@@ -1,6 +1,5 @@
 const utils = require('../middleware/utils')
 const { runQuery,fetch,insertQuery, updateQuery, checkQueryString } = require('../middleware/db')
-var VEHICLE_DB_QUERY  = require('../db/vehilcle.type')
 const {FETCH_VT_ALL,FETCH_VT_BY_ID,INSERT_VT_QUERY,UPDATE_VT_QUERY,DELETE_VT_QUERY,transformKeysToLowercase}=require("../db/database.query")
 
 /********************
