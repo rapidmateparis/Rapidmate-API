@@ -1,6 +1,6 @@
-const utils = require('../middleware/utils')
-const { runQuery,fetch,insertQuery, updateQuery, checkQueryString } = require('../middleware/db')
-const {FETCH_VT_ALL,FETCH_VT_BY_ID,INSERT_VT_QUERY,UPDATE_VT_QUERY,DELETE_VT_QUERY,transformKeysToLowercase}=require("../db/database.query")
+const utils = require('../../../middleware/utils')
+const { runQuery,fetch,insertQuery, updateQuery } = require('../../../middleware/db')
+const {FETCH_VT_ALL,FETCH_VT_BY_ID,INSERT_VT_QUERY,UPDATE_VT_QUERY,DELETE_VT_QUERY}=require("../../../db/database.query")
 
 /********************
  * Public functions *
@@ -13,13 +13,12 @@ const {FETCH_VT_ALL,FETCH_VT_BY_ID,INSERT_VT_QUERY,UPDATE_VT_QUERY,DELETE_VT_QUE
 exports.getItems = async (req, res) => {
   try {
     const data = await runQuery(FETCH_VT_ALL);
-    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -34,13 +33,12 @@ exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
     const data = await fetch(FETCH_VT_BY_ID, [id])
-    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="Invalid vehicle type"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     console.info(error);
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -53,16 +51,16 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_VT_QUERY,[req.vehicle_type,req.vehicle_type_desc,req.length,req.height,req.width,req.base_price,req.km_price,req.is_price,req.percent,req.vt_type_id,req.with_price,id]);
+    const registerRes = await updateQuery(UPDATE_VT_QUERY,[req.vehicle_type,req.vehicle_type_desc,req.length,req.height,req.width,req.base_price,req.km_price,req.is_price,req.percent,req.vt_type_id,req.with_price,req.is_parent,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_vehicle_type')
+    const getId = await utils.isIDGood(id,'id','rmt_vehicle_type')
     if(getId){
       const { vehicle_type } = req.body;
-      const doesNameExists = await utils.nameExists(vehicle_type,'rmt_vehicle_type','VEHICLE_TYPE')
+      const doesNameExists = await utils.nameExists(vehicle_type,'rmt_vehicle_type','vehicle_type')
       if (doesNameExists) {
         return res.status(400).json(utils.buildErrorObject(400,'Vehicle type already exists',1001));
       }
@@ -84,18 +82,17 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_VT_QUERY,[req.vehicle_type,req.vehicle_type_desc,req.length,req.height,req.width,req.base_price,req.km_price,req.is_price,req.percent,req.vt_type_id,req.with_price]);
+    const registerRes = await insertQuery(INSERT_VT_QUERY,[req.vehicle_type,req.vehicle_type_desc,req.length,req.height,req.width,req.base_price,req.km_price,req.is_price,req.percent,req.vt_type_id,req.with_price,req.is_parent]);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.vehicle_type,'rmt_vehicle_type','VEHICLE_TYPE')
+    const doesNameExists =await utils.nameExists(req.body.vehicle_type,'rmt_vehicle_type','vehicle_type')
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
         const currentData = await fetch(FETCH_VT_BY_ID,[item.insertId])
-        const filterdata=await transformKeysToLowercase(currentData)
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',filterdata))
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentData))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }

@@ -1,16 +1,11 @@
-const { validationResult } = require('../middleware/utils')
+const { validationResult } = require('../../../middleware/utils')
 const { check } = require('express-validator')
 /**
  * Validates create new item request
  */
 exports.createItem = [
   check('state_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('state_code').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('country_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('area').exists().withMessage('MISSING'),
-  check('capital').exists().withMessage('MISSING'),
-  check('region').exists().withMessage('MISSING'),
-  check('subregion').exists().withMessage('MISSING'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -21,12 +16,7 @@ exports.createItem = [
  */
 exports.updateItem = [
     check('state_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('state_code').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('country_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('area').exists().withMessage('MISSING'),
-    check('capital').exists().withMessage('MISSING'),
-    check('region').exists().withMessage('MISSING'),
-    check('subregion').exists().withMessage('MISSING'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
