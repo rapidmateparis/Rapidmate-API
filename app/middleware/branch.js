@@ -1,20 +1,19 @@
-const controller = require('../controllers/planningconfigure')
-const validate = require('../controllers/planningconfigure.validate')
+const controller = require('../controllers/enterprise/branch')
+const validate = require('../controllers/enterprise/branch.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-
 /*
- * Planning configure routes
+ * Branch routes
  */
 
 /*
  * Get items route
  */
 router.get(
-  '/',
+  '/getbyenterprise/:id',
   trimRequest.all,
-  controller.getItems
+  controller.getBranchByEnterpriseId
 )
 
 /*
