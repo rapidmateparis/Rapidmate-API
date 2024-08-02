@@ -162,3 +162,214 @@
 [2024-07-30T20:08:30.281] [INFO] authuser.js - {}
 [2024-07-30T20:08:30.282] [INFO] authuser.js - selfSignUp completion
 [2024-07-30T20:08:30.284] [INFO] authuser.js - /signupVerify response {}
+[2024-08-01T23:59:04.339] [INFO] authuser.js - /signup request {
+  userName: 'jesejo8267@digdy.com',
+  email: 'support@syszoo.com',
+  phoneNumber: '+916374746320',
+  password: 'Syszoo12!',
+  userrole: 'CONSUMER',
+  firstName: 'Syszoo',
+  lastName: 'Support',
+  city: '1',
+  state: '1',
+  country: '1',
+  siretNo: '4352354',
+  termone: 1
+}
+[2024-08-01T23:59:04.341] [INFO] authuser.js - selfSignUp called
+[2024-08-01T23:59:05.473] [INFO] authuser.js - {
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 's***@s***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '003cd99c-20c1-7051-a755-b1b8ae3e2ff2'
+}
+[2024-08-01T23:59:05.479] [INFO] authuser.js - selfSignUp completion
+[2024-08-01T23:59:05.519] [INFO] authuser.js - /signup response {
+  user_profile: Error: Table 'rapidmate_dev_db_new.vw_rmt_user' doesn't exist
+      at PromisePool.execute (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\mysql2\promise.js:374:22)
+      at fetch (D:\External Projects\Rapidmate\Source\Rapidmate-API\app\middleware\db.js:106:10)
+      at getUserProfile (D:\External Projects\Rapidmate\Source\Rapidmate-API\app\controllers\authuser.js:306:27)
+      at Object.signup (D:\External Projects\Rapidmate\Source\Rapidmate-API\app\controllers\authuser.js:159:38)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async D:\External Projects\Rapidmate\Source\Rapidmate-API\app\routes\authuser.js:36:18 {
+    code: 'ER_NO_SUCH_TABLE',
+    errno: 1146,
+    sql: 'select ext_id, first_name, last_name, email, phone, username, role from vw_rmt_user where username = ?',
+    sqlState: '42S02',
+    sqlMessage: "Table 'rapidmate_dev_db_new.vw_rmt_user' doesn't exist"
+  },
+  extId: 'C1722536945491',
+  role: 'CONSUMER',
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 's***@s***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '003cd99c-20c1-7051-a755-b1b8ae3e2ff2'
+}
+[2024-08-01T23:59:29.433] [INFO] authuser.js - /signup request {
+  userName: 'jesejo8267@digdy.com',
+  email: 'support@syszoo.com',
+  phoneNumber: '+916374746320',
+  password: 'Syszoo12!',
+  userrole: 'DELIVERY_BOY',
+  firstName: 'Syszoo',
+  lastName: 'Support',
+  city: '1',
+  state: '1',
+  country: '1',
+  siretNo: '4352354',
+  termone: 1
+}
+[2024-08-01T23:59:29.435] [INFO] authuser.js - selfSignUp called
+[2024-08-01T23:59:30.205] [ERROR] authuser.js - selfSignUp error
+[2024-08-01T23:59:30.206] [ERROR] authuser.js - UsernameExistsException: User already exists
+    at Request.extractError (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\protocol\json.js:80:27)
+    at Request.callListeners (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:106:20)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9)
+    at Request.<anonymous> (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:688:12)
+    at Request.callListeners (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:116:18)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9) {
+  code: 'UsernameExistsException',
+  '[__type]': 'See error.__type for details.',
+  time: 2024-08-01T18:29:30.200Z,
+  requestId: '32cf75c2-7c5a-4529-8a34-4e0b7d85a830',
+  statusCode: 400,
+  retryable: false,
+  retryDelay: 44.665127624067715
+}
+[2024-08-01T23:59:30.273] [ERROR] authuser.js - Error in /signup UsernameExistsException: User already exists
+    at Request.extractError (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\protocol\json.js:80:27)
+    at Request.callListeners (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:106:20)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9)
+    at Request.<anonymous> (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:688:12)
+    at Request.callListeners (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:116:18)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\sequential_executor.js:78:10)
+    at Request.emit (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:686:14)
+    at Request.transition (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:22:10)
+    at AcceptorStateMachine.runTo (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:14:12)
+    at D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\state_machine.js:26:10
+    at Request.<anonymous> (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\aws-sdk\lib\request.js:38:9) {
+  code: 'UsernameExistsException',
+  '[__type]': 'See error.__type for details.',
+  time: 2024-08-01T18:29:30.200Z,
+  requestId: '32cf75c2-7c5a-4529-8a34-4e0b7d85a830',
+  statusCode: 400,
+  retryable: false,
+  retryDelay: 44.665127624067715
+}
+[2024-08-01T23:59:53.339] [INFO] authuser.js - /signup request {
+  userName: 'sedagam667@leacore.com',
+  email: 'support@syszoo.com',
+  phoneNumber: '+916374746320',
+  password: 'Syszoo12!',
+  userrole: 'DELIVERY_BOY',
+  firstName: 'Syszoo',
+  lastName: 'Support',
+  city: '1',
+  state: '1',
+  country: '1',
+  siretNo: '4352354',
+  termone: 1
+}
+[2024-08-01T23:59:53.339] [INFO] authuser.js - selfSignUp called
+[2024-08-01T23:59:54.211] [INFO] authuser.js - {
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 's***@s***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '805c09bc-6021-707a-4e2f-1fa740231a75'
+}
+[2024-08-01T23:59:54.214] [INFO] authuser.js - selfSignUp completion
+[2024-08-01T23:59:54.246] [INFO] authuser.js - /signup response {
+  user_profile: Error: Table 'rapidmate_dev_db_new.vw_rmt_user' doesn't exist
+      at PromisePool.execute (D:\External Projects\Rapidmate\Source\Rapidmate-API\node_modules\mysql2\promise.js:374:22)
+      at fetch (D:\External Projects\Rapidmate\Source\Rapidmate-API\app\middleware\db.js:106:10)
+      at getUserProfile (D:\External Projects\Rapidmate\Source\Rapidmate-API\app\controllers\authuser.js:306:27)
+      at Object.signup (D:\External Projects\Rapidmate\Source\Rapidmate-API\app\controllers\authuser.js:159:38)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async D:\External Projects\Rapidmate\Source\Rapidmate-API\app\routes\authuser.js:36:18 {
+    code: 'ER_NO_SUCH_TABLE',
+    errno: 1146,
+    sql: 'select ext_id, first_name, last_name, email, phone, username, role from vw_rmt_user where username = ?',
+    sqlState: '42S02',
+    sqlMessage: "Table 'rapidmate_dev_db_new.vw_rmt_user' doesn't exist"
+  },
+  extId: 'D1722536994229',
+  role: 'DELIVERY_BOY',
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 's***@s***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '805c09bc-6021-707a-4e2f-1fa740231a75'
+}
+[2024-08-02T00:02:34.258] [INFO] authuser.js - /signup request {
+  userName: 'dahewo1629@fuzitea.com',
+  email: 'support@syszoo.com',
+  phoneNumber: '+916374746320',
+  password: 'Syszoo12!',
+  userrole: 'DELIVERY_BOY',
+  firstName: 'Syszoo',
+  lastName: 'Support',
+  city: '1',
+  state: '1',
+  country: '1',
+  siretNo: '4352354',
+  termone: 1
+}
+[2024-08-02T00:02:34.259] [INFO] authuser.js - selfSignUp called
+[2024-08-02T00:02:35.230] [INFO] authuser.js - {
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 's***@s***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '205c096c-6001-707b-deef-ba929556d360'
+}
+[2024-08-02T00:02:35.231] [INFO] authuser.js - selfSignUp completion
+[2024-08-02T00:02:35.253] [INFO] authuser.js - /signup response {
+  user_profile: [
+    {
+      ext_id: 'D1722537155241',
+      first_name: 'Syszoo',
+      last_name: 'Support',
+      email: 'support@syszoo.com',
+      phone: '+916374746320',
+      username: 'dahewo1629@fuzitea.com',
+      role: 'DELIVERY_BOY'
+    }
+  ],
+  extId: 'D1722537155241',
+  role: 'DELIVERY_BOY',
+  UserConfirmed: false,
+  CodeDeliveryDetails: {
+    Destination: 's***@s***',
+    DeliveryMedium: 'EMAIL',
+    AttributeName: 'email'
+  },
+  UserSub: '205c096c-6001-707b-deef-ba929556d360'
+}

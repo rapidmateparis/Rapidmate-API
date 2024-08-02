@@ -9,10 +9,9 @@ exports.createItem = [
     check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
     check('plat_no').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
     check('modal').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
-    check('rcv_no').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
-    check('vehicle_front_photo').exists().withMessage('MISSING'),
-    check('vehicle_back_photo').exists().withMessage('MISSING'),
-    check('rcv_photo').exists().withMessage('MISSING'),
+    check('reg_doc').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
+    check('driving_license').exists().withMessage('MISSING'),
+    check('insurance').exists().withMessage('MISSING'),
     (req, res, next) => {
         validationResult(req, res, next)
     }
@@ -23,13 +22,12 @@ exports.createItem = [
  */
 exports.updateItem = [
   check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
-  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
-  check('plat_no').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
-  check('modal').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
-  check('rcv_no').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
-  check('vehicle_front_photo').exists().withMessage('MISSING'),
-  check('vehicle_back_photo').exists().withMessage('MISSING'),
-  check('rcv_photo').exists().withMessage('MISSING'),
+    check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
+    check('plat_no').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
+    check('modal').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
+    check('reg_doc').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').trim(),
+    check('driving_license').exists().withMessage('MISSING'),
+    check('insurance').exists().withMessage('MISSING'),
   check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)

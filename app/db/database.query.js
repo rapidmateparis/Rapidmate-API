@@ -16,7 +16,7 @@ exports.DELETE_SUB_VT=`UPDATE rmt_vehicle_sub_type SET is_del=0 WHERE ID=?`;
 //------------------------RMT_VEHICLE------------------------------
 exports.FETCH_VEHILCLE_ALL = "select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as delivery_boy__name  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID"
 exports.FETCH_VEHICLE_BY_ID=`select vs.*,vt.VEHICLE_TYPE, CONCAT(dbs.FIRST_NAME,' ',dbs.LAST_NAME) as DELIVERY_BOY_NAME  from rmt_vehicle vs JOIN rmt_vehicle_type as vt ON vs.VEHICLE_TYPE_ID=vt.ID JOIN rmt_delivery_boy as dbs ON vs.DELIVERY_BOY_ID=dbs.ID where vs.ID=?`;
-exports.INSERT_VEHICLE_QUERY=`INSERT INTO rmt_vehicle(DELIVERY_BOY_ID,VEHICLE_TYPE_ID,PLAT_NO,MODAL,VEHICLE_FRONT_PHOTO,VEHICLE_BACK_PHOTO,RCV_NO,RCV_PHOTO) VALUES(?,?,?,?,?,?,?,?)`;
+exports.INSERT_VEHICLE_QUERY=`INSERT INTO rmt_vehicle(delivery_boy_id,vehicle_type_id,plat_no,modal,make,variant,reg_doc,driving_license,insurance,passport) VALUES((select id from rmt_delivery_boy where ext_id=?),?,?,?,?,?,?,?,?,?)`;
 exports.UPDATE_VEHICLE_QUERY=`UPDATE rmt_vehicle SET DELIVERY_BOY_ID=?,VEHICLE_TYPE_ID=?,PLAT_NO=?,MODAL=?,VEHICLE_FRONT_PHOTO=?,VEHICLE_BACK_PHOTO=?,RCV_NO=?,RCV_PHOTO=? WHERE ID=?`;
 exports.DELETE_VEHICLE_QUERY=`DELETE FROM rmt_vehicle WHERE ID=?`;
 //GET delivery boy vehicle  type id
@@ -140,17 +140,17 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
 
 //---------------------------------------Admin side-------------------------
 //user list AND join request list
-exports.FETCH_DELIVERY_BOY=`SELECT * FROM rmt_delvery_boy WHERE IS_DEL=0 AND ACTIVE=?`
+exports.FETCH_DELIVERY_BOY=`SELECT * FROM rmt_delivery_boy WHERE IS_DEL=0 and is_active=?`
 exports.FETCH_CONSUMER=`SELECT * FROM rmt_consumer WHERE IS_DEL=0 AND STATUS=?`
-exports.FETCH_ENTERPRISE=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 AND ACTIVE=?`
+exports.FETCH_ENTERPRISE=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 and is_active=?`
 //join request views
 exports.FETCH_DELIVERY_BOY_ID=`SELECT * FROM rmt_delvery_boy WHERE IS_DEL=0 AND ID=?`
 exports.FETCH_CONSUMER_ID=`SELECT * FROM rmt_consumer WHERE IS_DEL=0 AND COMSUMER_ID=?`
 exports.FETCH_ENTERPRISE_ID=`SELECT * FROM rmt_enterprise WHERE IS_DEL=0 AND ID=?`
 //join request udpate
-exports.UPDATE_DELIVERY_BOY_STATUS=`UPDATE rmt_delivery_boy SET ACTIVE=?,REASON=? WHERE ID=?`
+exports.UPDATE_DELIVERY_BOY_STATUS=`UPDATE rmt_delivery_boy SET is_active=?,reason=? WHERE ext_id=?`
 exports.UPDATE_CONSUMER_STATUS=`UPDATE rmt_consumer SET STATUS=? WHERE COMSUMER_ID=?`
-exports.UPDATE_ENTERPRISE_STATUS=`UPDATE rmt_enterprise SET ACTIVE=?, REASON=? WHERE ID=?`
+exports.UPDATE_ENTERPRISE_STATUS=`UPDATE rmt_enterprise SET is_active=?, reason=? WHERE ext_id=?`
 
 //======================================== Enterprise ===========================================================
 exports.FETCH_BRANCH_QUERY=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0`
