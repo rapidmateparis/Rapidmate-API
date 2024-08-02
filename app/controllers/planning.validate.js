@@ -5,11 +5,11 @@ const { check, body } = require('express-validator');
  * Validates create item request
  */
 exports.createItem = [
-  check('planningData.is_24x7').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-  check('planningData.is_apply_for_all_days').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-  check('planningData.delivery_boy_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('is_24x7').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+  check('is_apply_for_all_days').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+  check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('slots').optional().isArray().withMessage('SLOTS_MUST_BE_ARRAY'),
-  body('planningData.is_24x7').custom((value, { req }) => {
+  body('is_24x7').custom((value, { req }) => {
     if (value === 0 && (!req.body.slots || req.body.slots.length === 0)) {
       throw new Error('Slots data is mandatory when is_24x7 is 0');
     }
