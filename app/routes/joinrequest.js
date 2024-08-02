@@ -1,5 +1,5 @@
-const joinrequest = require('../controllers/admin/joinrequest')
-const validate = require('../controllers/admin/joinrequest.validate')
+const joinrequest = require('../controllers/admin/joinrequests/join')
+const validate = require('../controllers/admin/joinrequests/join.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
@@ -21,8 +21,8 @@ router.post(
 /**
  * view single joinRequest
  */
-router.get(
-  '/get/:id',
+router.post(
+  '/getjoinrequest',
   trimRequest.all,
   validate.viewJoinRequest,
   joinrequest.viewJoinRequest

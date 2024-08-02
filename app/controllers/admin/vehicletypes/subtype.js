@@ -1,6 +1,6 @@
-const utils = require('../middleware/utils')
-const { runQuery,fetch,insertQuery, updateQuery, checkQueryString } = require('../middleware/db')
-const {transformKeysToLowercase, FETCH_SUB_VT_ALL, FETCH_SUB_VT_BY_ID, UPDATE_SUB_VT, INSERT_SUB_VT, DELETE_SUB_VT, FETCH_SUB_VT_BY_TYPEID}=require("../db/database.query")
+const utils = require('../../../middleware/utils')
+const { runQuery,fetch,insertQuery, updateQuery} = require('../../../middleware/db')
+const {FETCH_SUB_VT_ALL, FETCH_SUB_VT_BY_ID, UPDATE_SUB_VT, INSERT_SUB_VT, DELETE_SUB_VT, FETCH_SUB_VT_BY_TYPEID}=require("../../../db/database.query")
 
 /********************
  * Public functions *
@@ -13,13 +13,12 @@ const {transformKeysToLowercase, FETCH_SUB_VT_ALL, FETCH_SUB_VT_BY_ID, UPDATE_SU
 exports.getItems = async (req, res) => {
   try {
     const data = await runQuery(FETCH_SUB_VT_ALL);
-    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -34,13 +33,12 @@ exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
     const data = await fetch(FETCH_SUB_VT_BY_ID, [id])
-    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="Invalid vehicle type"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     console.info(error);
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -56,13 +54,12 @@ exports.getByVehicleTypeID = async (req, res) => {
   try {
     const id = req.params.id;
     const data = await fetch(FETCH_SUB_VT_BY_TYPEID, [id])
-    const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="Invalid vehicle type"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     console.info(error);
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -81,7 +78,7 @@ const updateItem = async (id,req) => {
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_vehicle_sub_type')
+    const getId = await utils.isIDGood(id,'id','rmt_vehicle_sub_type')
     if(getId){
       const { vehicle_sub_type } = req.body;
       const doesNameExists = await utils.nameExists(vehicle_sub_type,'rmt_vehicle_sub_type','vehicle_sub_type')
@@ -116,8 +113,7 @@ exports.createItem = async (req, res) => {
       const item = await createItem(req.body)
       if(item.insertId){
         const currentData = await fetch(FETCH_SUB_VT_BY_ID,[item.insertId])
-        const filterdata=await transformKeysToLowercase(currentData)
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',filterdata))
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentData))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
@@ -140,7 +136,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_vehicle_sub_type')
+    const getId = await utils.isIDGood(id,'id','rmt_vehicle_sub_type')
     if(getId){
         const deletedItem = await deleteItem(getId);
         if (deletedItem.affectedRows > 0) {

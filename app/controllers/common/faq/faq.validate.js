@@ -1,4 +1,4 @@
-const { validationResult } = require('../middleware/utils')
+const { validationResult } = require('../../../middleware/utils')
 const { check } = require('express-validator')
 
 /**
@@ -7,7 +7,6 @@ const { check } = require('express-validator')
 exports.createItem = [
     check('question').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('answer').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('category').exists().withMessage('MISSING'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -19,7 +18,6 @@ exports.createItem = [
 exports.updateItem = [
     check('question').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('answer').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('category').exists().withMessage('MISSING'),
     check('id')
         .exists()
         .withMessage('MISSING')

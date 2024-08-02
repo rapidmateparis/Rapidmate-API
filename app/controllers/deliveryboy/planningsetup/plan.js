@@ -1,7 +1,6 @@
-const utils = require('../middleware/utils')
-const {insertQuery,fetch,insertOrUpdatePlanningWithSlots,getAllPlanningWithSlots,getPlanningWithSlotsByDeliveryBoy, updateQuery} = require('../middleware/db')
-const {transformKeysToLowercase} = require('../db/database.query')
-const { INSERT_PLANNING_QUERY,FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY, DELETE_SLOTS_LIST } = require('../db/planning.query')
+const utils = require('../../../middleware/utils')
+const {insertQuery,fetch,insertOrUpdatePlanningWithSlots,getAllPlanningWithSlots,getPlanningWithSlotsByDeliveryBoy, updateQuery} = require('../../../middleware/db')
+const { INSERT_PLANNING_QUERY,FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY, DELETE_SLOTS_LIST } = require('../../../db/planning.query')
 
 /********************
  * Public functions *

@@ -1,4 +1,4 @@
-const { validationResult } = require('../middleware/utils')
+const { validationResult } = require('../../../middleware/utils')
 const { check } = require('express-validator')
 /**
  * Validates create new item request
@@ -6,9 +6,6 @@ const { check } = require('express-validator')
 exports.createItem = [
   check('city_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('state_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('country_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('area').exists().withMessage('MISSING'),
-  check('capital').exists().withMessage('MISSING'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -20,9 +17,6 @@ exports.createItem = [
 exports.updateItem = [
     check('city_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('state_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('country_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('area').exists().withMessage('MISSING'),
-    check('capital').exists().withMessage('MISSING'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
@@ -33,12 +27,7 @@ exports.updateItem = [
  * Validates get item request
  */
 exports.getItem = [
-  check('id')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
+  check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -48,12 +37,7 @@ exports.getItem = [
  * Validates delete item request
  */
 exports.deleteItem = [
-  check('id')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
+  check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   }

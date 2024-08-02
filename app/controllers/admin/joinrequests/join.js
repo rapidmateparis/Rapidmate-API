@@ -1,7 +1,6 @@
-const utils =require('../../middleware/utils')
-const {runQuery,fetch, updateQuery}=require('../../middleware/db')
-const auth =require('../../middleware/auth')
-const { FETCH_CONSUMER, FETCH_DELIVERY_BOY, FETCH_ENTERPRISE, FETCH_DELIVERY_BOY_ID, FETCH_ENTERPRISE_ID, transformKeysToLowercase, UPDATE_DELIVERY_BOY_STATUS, UPDATE_ENTERPRISE_STATUS } = require('../../db/database.query')
+const utils =require('../../../middleware/utils')
+const {runQuery,fetch, updateQuery}=require('../../../middleware/db')
+const { FETCH_CONSUMER, FETCH_DELIVERY_BOY, FETCH_ENTERPRISE, FETCH_DELIVERY_BOY_ID, FETCH_ENTERPRISE_ID, transformKeysToLowercase, UPDATE_DELIVERY_BOY_STATUS, UPDATE_ENTERPRISE_STATUS } = require('../../../db/database.query')
 const DELIVERY_BOY='DELIVERY_BOY'
 const CONSUMER='CONSUMER'
 const ENTERPRISE='ENTERPRISE'
@@ -58,14 +57,13 @@ exports.getJoinRequest=async (req,res)=>{
  */
 exports.viewJoinRequest=async (req,res)=>{
     try{
-        const {role}=req.body
-        const id = req.params.id;
+        const {role,ext_id}=req.body
         if(role==DELIVERY_BOY){
             queryReq=FETCH_DELIVERY_BOY_ID
         }else if(role==ENTERPRISE){
             queryReq=FETCH_ENTERPRISE_ID
         }
-        const data=await transformKeysToLowercase(await fetch(queryReq,[id]))
+        const data=await fetch(queryReq,[ext_id])
         let message="Users retrieved successfully";
         if(data.length <=0){
             message="No items found"
@@ -109,10 +107,8 @@ exports.acceptOrRejectJoinRequest=async (req,res)=>{
             filterValue=0
         }
         const getId = await utils.isIDGood(ext_id,columnName,tableName)
-        console.log(getId);
         if(getId){
             const updatedItem = await updateQuery(queryReq,[filterValue,reason,ext_id]);
-            console.log(updatedItem);
             if (updatedItem.affectedRows >0) {
                 return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
             } else {
