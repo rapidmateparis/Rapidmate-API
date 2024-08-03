@@ -28,6 +28,14 @@ router.post(
   controller.createItem
 )
 
+router.post(
+  '/deliveryboy/allocate',
+  trimRequest.all,
+  validate.allocateDeliveryBoy,
+  controller.allocateDeliveryBoy
+)
+
+
 /*
  * Get item route
  */

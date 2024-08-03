@@ -20,6 +20,14 @@ router.get(
 )
 
 /*
+ * Get items route
+ */
+router.get(
+  '/availability',
+  trimRequest.all,
+  controller.getDriverAvailablity
+)
+/*
  * Create new item route
  */
 router.post(
