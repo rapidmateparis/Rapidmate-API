@@ -169,7 +169,7 @@ const calcAmount=async (req,distance)=>{
 
 }
 const fetchVehicltype=async(vehicle_type_id)=>{
-  return await transformKeysToLowercase(await fetch(FETCH_VT_BY_ID,[vehicle_type_id]))
+  return await fetch(FETCH_VT_BY_ID,[vehicle_type_id])
 }
 exports.calculateAmount= async (req,res)=>{
   const {vehicle_type_id,pickupLocation,dropoffLocation}=req.body

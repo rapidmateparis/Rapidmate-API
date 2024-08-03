@@ -139,28 +139,50 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
       ORDER BY distance
     `
 
-//---------------------------------------Admin side-------------------------
-//user list AND join request list
-exports.FETCH_DELIVERY_BOY=`SELECT * FROM rmt_delivery_boy WHERE is_del=0 and is_active=?`
-exports.FETCH_CONSUMER=`SELECT * FROM rmt_consumer WHERE is_del=0 AND STATUS=?`
-exports.FETCH_ENTERPRISE=`SELECT * FROM rmt_enterprise WHERE is_del=0 and is_active=?`
-//join request views
-exports.FETCH_DELIVERY_BOY_ID=`SELECT * FROM rmt_delivery_boy WHERE is_del=0 AND ext_id=?`
-exports.FETCH_CONSUMER_ID=`SELECT * FROM rmt_consumer WHERE is_del=0 AND ext_id=?`
-exports.FETCH_ENTERPRISE_ID=`SELECT * FROM rmt_enterprise WHERE is_del=0 AND ext_id=?`
-//join request udpate
-exports.UPDATE_DELIVERY_BOY_STATUS=`UPDATE rmt_delivery_boy SET is_active=?,reason=? WHERE ext_id=?`
-exports.UPDATE_CONSUMER_STATUS=`UPDATE rmt_consumer SET STATUS=? WHERE ext_id=?`
-exports.UPDATE_ENTERPRISE_STATUS=`UPDATE rmt_enterprise SET is_active=?, reason=? WHERE ext_id=?`
+//==============================================Admin=============================================================
+  //user list AND join request list
+  exports.FETCH_DELIVERY_BOY=`SELECT * FROM rmt_delivery_boy WHERE is_del=0 and is_active=?`
+  exports.FETCH_CONSUMER=`SELECT * FROM rmt_consumer WHERE is_del=0 AND STATUS=?`
+  exports.FETCH_ENTERPRISE=`SELECT * FROM rmt_enterprise WHERE is_del=0 and is_active=?`
+  //join request views
+  exports.FETCH_DELIVERY_BOY_ID=`SELECT * FROM rmt_delivery_boy WHERE is_del=0 AND ext_id=?`
+  exports.FETCH_CONSUMER_ID=`SELECT * FROM rmt_consumer WHERE is_del=0 AND ext_id=?`
+  exports.FETCH_ENTERPRISE_ID=`SELECT * FROM rmt_enterprise WHERE is_del=0 AND ext_id=?`
+  //join request udpate
+  exports.UPDATE_DELIVERY_BOY_STATUS=`UPDATE rmt_delivery_boy SET is_active=?,reason=? WHERE ext_id=?`
+  exports.UPDATE_CONSUMER_STATUS=`UPDATE rmt_consumer SET STATUS=? WHERE ext_id=?`
+  exports.UPDATE_ENTERPRISE_STATUS=`UPDATE rmt_enterprise SET is_active=?, reason=? WHERE ext_id=?`
+  // add work type 
+  exports.FETCH_WORK_TYPE=`select * from rmt_work_type where is_del=0`
+  exports.FETCH_WORK_TYPE_BYID=`select * from rmt_work_type where is_del=0 and id=?`
+  exports.INSERT_WORK_TYPE=`INSERT INTO rmt_work_type(work_type,is_del) VALUES(?,?)`
+  exports.UPDATE_WORK_TYPE=`UPDATE rmt_work_type SET work_type=?,is_del=? WHERE id=?`
+  exports.DELETE_WORK_TYPE=`UPDATE rmt_work_type SET is_del=1 WHERE id=?`
+  // refund
+  exports.FETCH_REFUND_ALL=`SELECT * FROM rmt_refund WHERE is_del=0`
+  exports.FETCH_REFUND_BYID=`SELECT * FROM rmt_refund WHERE is_del=0 AND id=?`
+  exports.FETCH_REFUND_OREDRID=`SELECT * FROM rmt_refund WHERE is_del=0 AND order_id=?`
+  exports.INSERT_REFUND_QUERY=`INSERT INTO rmt_refund(order_id,refund_date,amount,currency,reason,status) VALUES(?,?,?,?,?,?)`
+  exports.UPDATE_REFUND_QUERY=`UPDATE rmt_refund SET order_id=?,refund_date=?,amount=?,currency=?,reason=?,status=? WHERE id=?`
+  exports.DELETE_REFUND_QUERY=`UPDATE rmt_refund SET is_del=1 WHERE id=?`
+  exports.UPDATE_REFUND_STATUS=`UPDATE rmt_refund SET status=? WHERE id=?`
 
 //======================================== Enterprise ===========================================================
-exports.FETCH_BRANCH_QUERY=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0`
-exports.FETCH_BRANCH_BY_ID=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0 AND id=?`
-exports.FETCH_BRANCH_BY_ENTERPRISEID=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0 AND enterprise_id=?`
-exports.INSERT_BRANCH_QUERY=`INSERT INTO rmt_enterprise_branch(branch_name,address,city,state,postal_code,country,latitude,longitude,enterprise_id) VALUES(?,?,?,?,?,?,?,?,?)`
-exports.UPDATE_BRANCH_QUERY=`UPDATE rmt_enterprise_branch SET branch_name=?,address=?,city=?,state=?,postal_code=?,country=?,latitude=?,longitude=?,enterprise_id=? WHERE id=?`
-exports.DELETE_BRANCH_QUERY=`UPDATE rmt_enterprise_branch SET is_del=1 WHERE id=?`
-
+  exports.FETCH_BRANCH_QUERY=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0`
+  exports.FETCH_BRANCH_BY_ID=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0 AND id=?`
+  exports.FETCH_BRANCH_BY_ENTERPRISEID=`SELECT * FROM rmt_enterprise_branch WHERE is_del=0 AND enterprise_id=?`
+  exports.INSERT_BRANCH_QUERY=`INSERT INTO rmt_enterprise_branch(branch_name,address,city,state,postal_code,country,latitude,longitude,enterprise_id) VALUES(?,?,?,?,?,?,?,?,?)`
+  exports.UPDATE_BRANCH_QUERY=`UPDATE rmt_enterprise_branch SET branch_name=?,address=?,city=?,state=?,postal_code=?,country=?,latitude=?,longitude=?,enterprise_id=? WHERE id=?`
+  exports.DELETE_BRANCH_QUERY=`UPDATE rmt_enterprise_branch SET is_del=1 WHERE id=?`
+  //-----------------------delivery boy connection-------------------------------------------------------------------------------------
+  exports.FETCH_CONNECTION_WITH_DELIVERYBOY=`SELECT cn.*, CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name, en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE cn.is_del = 0`
+  exports.FETCH_CONNECTION_WITH_DELIVERYBOY_BYID=`SELECT cn.*, CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name, en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE cn.id = ? AND cn.is_del = 0`
+  exports.FETCH_CONNECTION_WITH_DELIVERYBOY_BYENTERPRISEID = `SELECT cn.*, CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name, en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE en.id = (SELECT id FROM rmt_enterprise WHERE ext_id = ?) AND cn.is_del = 0`;
+  exports.FETCH_CONNECTION_WITH_DELIVERYBOY_BYDELIVERYBOYID=`SELECT cn.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name,en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND cn.is_del = 0`
+  exports.INSERT_CONNECTION_WITH_DELIVERYBOY=`INSERT INTO rmt_delivery_boy_enterprise_connections(enterprise_id,delivery_boy_id,is_active) VALUES(?,?,?)`
+  exports.UPDATE_CONNECTION_WITH_DELIVERYBOY=`UPDATE rmt_delivery_boy_enterprise_connections SET enterprise_id=?,delivery_boy_id=?,is_active=? WHERE id=? AND is_del=0`
+  exports.DELETE_CONNECTION_WITH_DELIVERYBOY=`UPDATE rmt_delivery_boy_enterprise_connections SET is_del=1 WHERE id=?`
+  exports.CONNECTION_EXIT_OR_NOT=`SELECT * FROM rmt_delivery_boy_enterprise_connections WHERE enterprise_id=? AND delivery_boy_id=? AND is_del = 0`
 //============================= Driver doc=================
 exports.DRIVER_DOC_TABLE=`INSERT INTO rmt_delivery_boy_document(file_name,path) values(?,?)`
 
@@ -168,6 +190,11 @@ exports.DRIVER_DOC_TABLE=`INSERT INTO rmt_delivery_boy_document(file_name,path) 
 exports.INSERT_DELIVERY_BOY_ALLOCATE=`INSERT INTO rmt_order_allocation(order_id, delivery_boy_id) values((select id from rmt_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?))`;
 exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS=`UPDATE rmt_delivery_boy SET is_availability = 0 WHERE ext_id=?`;
 exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
+
+//======================================= DELIVERY BOY=========================================================
+exports.FETCH_DELIVERYBOY_QUERY=`SELECT * FROM rmt_delivery_boy WHERE is_del=0`
+exports.UPDATE_DELIVERYBOY_WORK_TYPE=`UPDATE rmt_delivery_boy SET is_work_type=? WHERE ext_id=? AND is_del=0`
+exports.UPDATE_DELIVERYBOY_AVAILABLE=`UPDATE rmt_delivery_boy SET is_availability=? WHERE ext_id=? AND is_del=0`
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {

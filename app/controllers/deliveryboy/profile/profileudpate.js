@@ -1,8 +1,7 @@
-const utils = require('../middleware/utils')
-const { runQuery,fetch} = require('../middleware/db')
-const auth = require('../middleware/auth')
-const { FETCH_DRIVER_AVAILABLE } = require('../db/database.query')
-const DriverBoy = require('../models/Driveryboy')
+const utils = require('../../../middleware/utils')
+const { runQuery,fetch,updateQuery} = require('../../../middleware/db')
+const { FETCH_DRIVER_AVAILABLE, UPDATE_DELIVERYBOY_WORK_TYPE, UPDATE_DELIVERYBOY_AVAILABLE } = require('../../../db/database.query')
+const DriverBoy = require('../../../models/Driveryboy')
 
 /********************
  * Public functions *
@@ -254,3 +253,48 @@ exports.updateLocation = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
   }
 };
+
+/**
+ * Update work preferance called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+
+exports.updatePreferance=async (req, res) =>{
+    try{
+        const {perefer_id,ext_id}=req.body
+        const getId = await utils.isIDGood(ext_id,'ext_id','rmt_delivery_boy')
+        if(!getId){
+            return res.status(404).json(utils.buildErrorObject(404,'Detail not matched.',1001));
+        }
+        const updatedItem=await updateQuery(UPDATE_DELIVERYBOY_WORK_TYPE,[perefer_id,ext_id]);
+        if(updatedItem.affectedRows >0){
+            return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+        } else {
+          return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        }
+    }catch(error){
+         return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+
+    }
+}
+
+exports.updateAvailability=async (req, res) =>{
+    try{
+        const {is_available}=req.body
+        const {id}=req.params
+        const getId = await utils.isIDGood(id,'ext_id','rmt_delivery_boy')
+        if(!getId){
+            return res.status(404).json(utils.buildErrorObject(404,'Detail not matched.',1001));
+        }
+        const updatedItem=await updateQuery(UPDATE_DELIVERYBOY_AVAILABLE,[is_available,id]);
+        if(updatedItem.affectedRows >0){
+            return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+        } else {
+          return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        }
+    }catch(error){
+         return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+
+    }
+}
