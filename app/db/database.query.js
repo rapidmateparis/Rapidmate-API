@@ -163,6 +163,11 @@ exports.DELETE_BRANCH_QUERY=`UPDATE rmt_enterprise_branch SET is_del=1 WHERE id=
 
 //============================= Driver doc=================
 exports.DRIVER_DOC_TABLE=`INSERT INTO rmt_delivery_boy_document(file_name,path) values(?,?)`
+
+//============================= Driver allocate=================
+exports.INSERT_DELIVERY_BOY_ALLOCATE=`INSERT INTO rmt_order_allocation(order_id, delivery_boy_id) values((select id from rmt_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?))`;
+exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS=`UPDATE rmt_delivery_boy SET is_availability = 0 WHERE ext_id=?`;
+exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {
