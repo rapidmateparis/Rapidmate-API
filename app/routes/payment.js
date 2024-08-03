@@ -12,7 +12,7 @@ const trimRequest = require('trim-request')
  * Get items route
  */
 router.get(
-  '/',
+  '/list',
   trimRequest.all,
   controller.getItems
 )
@@ -50,7 +50,7 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
+router.put(
   '/:id',
   trimRequest.all,
   validate.updateItem,

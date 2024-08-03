@@ -2,6 +2,7 @@ const utils = require('../middleware/utils')
 const db = require('../middleware/db')
 const { runQuery,insertQuery,fetch,updateQuery} = require('../middleware/db')
 const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID } = require('../db/database.query')
+const { v4: uuidv4 } = require("uuid");
 
 /********************
  * Public functions *
@@ -69,26 +70,29 @@ exports.getItemByuser = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_PAYMENT_QUERY,[req.transaction_id,req.user_id,req.wallet_id,req.amount,req.currency,req.payment_method,req.payment_status,req.description,id]);
-    return registerRes;
+const updateItem = async (req) => {
+    const execuateUpdatePayment = await updateQuery(UPDATE_PAYMENT_QUERY,[req.status, req.ref_id]);
+    console.log(execuateUpdatePayment);
+    return execuateUpdatePayment;
 }
 
 exports.updateItem = async (req, res) => {
   try {
-    const { id } = req.params;
-    const getId = await utils.isIDGood(id,'PAYMENT_ID','rmt_payment')
-    if(getId){
-      const updatedItem = await updateItem(id, req.body);
-      if (updatedItem.affectedRows >0) {
-          return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+    const paymentRequest = req.body;
+    const isValidateData = await utils.isIDGood(paymentRequest.ref_id,'ref_id','rmt_payment')
+    console.log(isValidateData);
+    if(isValidateData){
+      const updatedPayment = await updateItem(paymentRequest);
+      if (updatedPayment.affectedRows >0) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Payment has been updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Payment failed',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Invalid payment ref id',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    console.error(error);
+    return res.status(500).json(utils.buildErrorObject(500,'Payment failed',1001));
   }
     
 }
@@ -129,22 +133,19 @@ exports.updateItemBystatus = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_PAYMENT_QUERY,[req.transaction_id,req.user_id,req.wallet_id,req.amount,req.currency,req.payment_method,req.payment_status,req.description]);
+    const paymentRefNumber = uuidv4();
+    const registerRes = await insertQuery(INSERT_PAYMENT_QUERY,[req.amount, req.order_number, paymentRefNumber]);
+    console.log(registerRes);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.transaction_id,'rmt_payment','TRANSACTION_ID')
-    if (!doesNameExists) {
-      const item = await createItem(req.body)
-      if(item.insertId){
-        const currData=await transformKeysToLowercase(await fetch(FETCH_PAYMENT_BY_ID,[item.insertId]));
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currData))
-      }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-      }
+    const item = await createItem(req.body)
+    if(item.insertId){
+      const currData=await transformKeysToLowercase(await fetch(FETCH_PAYMENT_BY_ID,[item.insertId]));
+      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currData))
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
+      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));

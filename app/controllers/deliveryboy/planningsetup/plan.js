@@ -1,6 +1,7 @@
 const utils = require('../../../middleware/utils')
 const {insertQuery,fetch,insertOrUpdatePlanningWithSlots,getAllPlanningWithSlots,getPlanningWithSlotsByDeliveryBoy, updateQuery} = require('../../../middleware/db')
 const { INSERT_PLANNING_QUERY,FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY, DELETE_SLOTS_LIST } = require('../../../db/planning.query')
+const { consumers } = require('form-data')
 
 /********************
  * Public functions *
@@ -52,38 +53,38 @@ exports.getItemBydeliveryboyid = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (is_24x7,is_apply_for_all_days,delivery_boy_id) => {
+  console.log(delivery_boy_id);
     const registerRes = await insertQuery(INSERT_PLANNING_QUERY,[is_24x7,is_apply_for_all_days,delivery_boy_id]);
     return registerRes;
 }
+
+const updateItem = async (is_24x7,is_apply_for_all_days,planningId) => {
+  const registerRes = await insertQuery(UPDATE_PLANNING_QUERY,[is_24x7,is_apply_for_all_days,planningId]);
+  return registerRes;
+}
 exports.createItem = async (req, res) => {
   try {
-    const {is_24x7,is_apply_for_all_days,delivery_boy_ext_id}=req.body
+    const {is_24x7,is_apply_for_all_days,delivery_boy_ext_id, slots}=req.body
     const [getPlanningId]=await fetch(GET_PLANNING_ID,[delivery_boy_ext_id]);
-    let planningid=0;
+    var planningID=0;
     console.log(getPlanningId);
+    let dbResult;
     if(getPlanningId!=undefined){
-      planningid=getPlanningId.id
-    }
-    let planningId=0;
-    const planningData={
-      planningid,
-      ...req.body
-    }
-    let status=false
-    console.log("Test Data");
-    if(is_24x7==0){
-        planningId=await insertOrUpdatePlanningWithSlots(planningData,req.body.slots)
-        status=(planningId)?true:false
+      planningID=getPlanningId.id;
+      dbResult = await updateItem(is_24x7,is_apply_for_all_days,planningID);
     }else{
-        if(planningid){
-          const updatedItem=await updateQuery(UPDATE_PLANNING_QUERY,[is_24x7,is_apply_for_all_days,delivery_boy_ext_id,planningid])
-          status=(updatedItem.affectedRows >0)?true:false
-        }else{
-          console.log("Test Data2");
-          const item = await createItem(is_24x7,is_apply_for_all_days,delivery_boy_ext_id)
-          console.log(item);
-          status=(item.insertId)?true:false
-        }
+      dbResult = await createItem(is_24x7,is_apply_for_all_days,delivery_boy_ext_id);
+      planningID = dbResult.insertId;
+    }
+    let status=false;
+    if(planningID){
+      if(slots){
+        const deletedItem = await deleteItem(planningID);
+        console.log(deletedItem);
+        slotResult=await insertOrUpdatePlanningWithSlots(planningID,req.body.slots)
+        console.log(slotResult);
+        status=(slotResult)?true:false
+      }
     }
    
     if(status){
@@ -98,6 +99,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
+  console.log(id);
   const deleteRes = await updateQuery(DELETE_SLOTS_LIST,[id]);
   return deleteRes;
 };

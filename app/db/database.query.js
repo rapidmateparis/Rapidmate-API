@@ -121,11 +121,11 @@ exports.DELETE_WORK_ORDER_QUERY=`UPDATE rmt_work_order SET IS_DEL=1 WHERE ID=?`;
 exports.UPDATE_ORDER_REQUEST_STATUS=`UPDATE SET DELIVERY_STATUS=?,DELIVERY_BOY_ID=? WHERE ID=?`;
 
 //-------------------------------rmt_payment-----------------------------------------------------\
-exports.FETCH_PAYMENT_QUERY=`SELECT * FROM rmt_payment WHERE IS_DEL=0`;
-exports.FETCH_PAYMENT_BY_ID=`SELECT * FROM rmt_payment WHERE IS_DEL=0 AND PAYMENT_ID=?`;
-exports.FETCH_PAYMENT_BY_USERID=`SELECT * FROM rmt_payment WHERE IS_DEL=0 AND USER_ID=?`;
-exports.INSERT_PAYMENT_QUERY=`INSERT INTO rmt_payment(TRANSACTION_ID,USER_ID,WALLET_ID,AMOUNT,CURRENCY,PAYMENT_METHOD,PAYMENT_STATUS,DESCRIPTION) VALUES(?,?,?,?,?,?,?,?)`;
-exports.UPDATE_PAYMENT_QUERY=`UPDATE rmt_payment SET TRANSACTION_ID=?,USER_ID=?,WALLET_ID=?,AMOUNT=?,CURRENCY=?,PAYMENT_METHOD=?,PAYMENT_STATUS=?,DESCRIPTION=? WHERE PAYMENT_ID=?`;
+exports.FETCH_PAYMENT_QUERY=`SELECT * FROM rmt_payment WHERE is_del=0`;
+exports.FETCH_PAYMENT_BY_ID=`SELECT * FROM rmt_payment WHERE is_del=0 AND id=?`;
+exports.FETCH_PAYMENT_BY_USERID=`SELECT * FROM rmt_payment WHERE is_del=0 AND order_id=?`;
+exports.INSERT_PAYMENT_QUERY=`INSERT INTO rmt_payment(amount, order_id, ref_id) VALUES(?,(select id from rmt_order where order_number = ?), ?)`;
+exports.UPDATE_PAYMENT_QUERY=`UPDATE rmt_payment SET payment_status=? WHERE ref_id=?`;
 exports.DELETE_PAYMENT_QUERY=`UPDATE rmt_payment SET IS_DEL=1 WHERE PAYMENT_ID=?`;
 exports.UPDATE_PAYMENT_BY_STATUS=`UPDATE rmt_payment SET PAYMENT_STATUS=? WHERE PAYMENT_ID=?`;
 //--------------------check driver---------------------------
