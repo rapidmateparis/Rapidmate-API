@@ -49,6 +49,14 @@ exports.createGeneralOrder = [
 }
 ]
 
+exports.allocateDeliveryBoy = [
+  check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
 
 /**
  * Validates update order request
