@@ -4,15 +4,9 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-    check('transaction_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('user_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('wallet_id').exists().withMessage('MISSING'),
     check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('payment_method').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('payment_status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('description').exists().withMessage('MISSING'),
-  (req, res, next) => {
+    check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    (req, res, next) => {
     validationResult(req, res, next)
   }
 ]
@@ -21,15 +15,8 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('transaction_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('user_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('wallet_id').exists().withMessage('MISSING'),
-    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('payment_method').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('payment_status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('description').exists().withMessage('MISSING'),
-    check('id')
+    check('ref_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('status')
         .exists()
         .withMessage('MISSING')
         .not()
