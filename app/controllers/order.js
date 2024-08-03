@@ -2,7 +2,7 @@ const utils = require("../middleware/utils");
 const { runQuery,fetch, insertQuery, updateQuery } = require("../middleware/db");
 const auth = require("../middleware/auth");
 const AuthController=require("../controllers/authuser");
-const { INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY } = require("../db/database.query");
+const { UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY } = require("../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -100,6 +100,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     //if(isAuththorized.status==200){
       const id = req.params.id;
       const data = await transformKeysToLowercase(await fetch(FETCH_ORDER_DELIVERY_BOY_ID,[id]));
+      console.log(data);
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
         message = "No items found";
@@ -207,12 +208,8 @@ const createItem = async (req) => {
   if(req.is_my_self == '0'){
     requestBody.push(req.first_name);
     requestBody.push(req.last_name);
-    //requestBody.push(req.company_name);
     requestBody.push(req.email);
     requestBody.push(req.mobile);
-    //requestBody.push(req.package_photo);
-    //requestBody.push(req.package_id);
-    //requestBody.push(req.package_notes);
     requestBody.push(req.is_my_self);
     createOrderQuery = INSERT_ORDER_FOR_ANOTHER_QUERY;
   }
@@ -223,14 +220,37 @@ const createItem = async (req) => {
   const registerRes = await insertQuery(createOrderQuery, requestBodyNew);
   return registerRes;
 };
+
 exports.createItem = async (req, res) => {
- 
   try {
     const item = await createItem(req.body);
     if (item.insertId) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.insertId])
       const filterdata=await transformKeysToLowercase(currData)
       return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",filterdata));
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
+
+exports.allocateDeliveryBoy = async (req, res) => {
+  try {
+    var requestData = req.body;
+    console.log(requestData);
+    const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE, [requestData.order_number, requestData.delivery_boy_ext_id]);
+    console.log(allocateDeliveryBoyResult);
+    if (allocateDeliveryBoyResult.insertId) {
+      const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER,[requestData.delivery_boy_ext_id, requestData.order_number]);
+      const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[requestData.delivery_boy_ext_id]);
+      return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully"));
     } else {
       return res
         .status(500)
