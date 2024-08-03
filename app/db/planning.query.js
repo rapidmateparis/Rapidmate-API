@@ -47,8 +47,8 @@ exports.GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY = `
     p.id, s.day
 `;
 
-exports.UPDATE_PLANNING_QUERY = `UPDATE rmt_planning SET is_24x7 = ?, is_apply_for_all_days = ?, delivery_boy_id = ? WHERE id = ? `;
+exports.UPDATE_PLANNING_QUERY = `UPDATE rmt_planning SET is_24x7 = ?, is_apply_for_all_days = ? WHERE id = ? `;
 exports.GET_PLANNING_ID=`SELECT id from rmt_planning WHERE delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?)`
 exports.DELETE_SLOTS_QUERY = `DELETE FROM rmt_planning_slot WHERE planning_id = ?`;
 exports.INSERT_SLOTS_QUERY = `INSERT INTO rmt_planning_slot (planning_id, day, from_time, to_time) VALUES ?`;
-exports.DELETE_SLOTS_LIST=`DELETE FROM rmt_planning_slot WHERE id = ?`
+exports.DELETE_SLOTS_LIST=`DELETE FROM rmt_planning_slot WHERE planning_id = ?`

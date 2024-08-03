@@ -1,8 +1,7 @@
-const controller = require('../controllers/city.js')
-const validate = require('../controllers/city.validate')
+const controller = require('../controllers/common/city/city')
+const validate = require('../controllers/common/city/city.validate')
 const express = require('express')
 const router = express.Router()
-
 const trimRequest = require('trim-request')
 
 /*
@@ -36,6 +35,15 @@ router.get(
     trimRequest.all,
     validate.getItem,
     controller.getItem
+)
+/*
+ * Get item route
+ */
+router.get(
+  '/state/:id',
+    trimRequest.all,
+    validate.getItem,
+    controller.getItemByState
 )
 
 /*

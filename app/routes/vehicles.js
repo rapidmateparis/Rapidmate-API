@@ -1,5 +1,5 @@
-const controller = require('../controllers/vehicles')
-const validate = require('../controllers/vehicles.validate')
+const controller = require('../controllers/deliveryboy/vehicles/vehicle')
+const validate = require('../controllers/deliveryboy/vehicles/vehicle.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
@@ -39,10 +39,10 @@ router.get(
 /*
  * Get delivery boy item route
  */
-router.get(
-  '/getdboyvehicle/:id',
+router.post(
+  '/getdboyvehicle',
     trimRequest.all,
-    validate.getItem,
+    validate.getSingleItem,
   controller.getSingleItem
 )
 

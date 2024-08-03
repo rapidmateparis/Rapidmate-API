@@ -1,5 +1,5 @@
-const controller = require('../controllers/planning')
-const validate = require('../controllers/planning.validate')
+const controller = require('../controllers/deliveryboy/planningsetup/plan')
+const validate = require('../controllers/deliveryboy/planningsetup/plan.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')

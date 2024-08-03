@@ -147,53 +147,19 @@ module.exports = {
     }
   },
   // insertPlanningWithSlots
-  async insertOrUpdatePlanningWithSlots(planning, slots) {
+  async insertOrUpdatePlanningWithSlots(planningId, slots) {
     const connection = await pool.getConnection(); // Get a connection from the pool
     try {
       await connection.beginTransaction();
   
-      let planningId = planning.planning_id; // Assuming you have planning_id in the planning object
-  
-      if (planningId) {
-        // Update existing planning
-        await connection.execute(UPDATE_PLANNING_QUERY, [
-          planning.is_24x7 || 0,
-          planning.is_apply_for_all_days || 0,
-          planning.delivery_boy_id,
-          planningId
-        ]);
-  
-        // Delete existing slots for this planning
-        await connection.execute(DELETE_SLOTS_QUERY, [planningId]);
-      } else {
-        // Insert new planning
-        const [planningResult] = await connection.execute(INSERT_PLANNING_QUERY, [
-          planning.is_24x7 || 0,
-          planning.is_apply_for_all_days || 0,
-          planning.delivery_boy_id
-        ]);
-  
-        planningId = planningResult.insertId;
-      }
-  
       let slotValues = [];
   
-      if (planning.is_apply_for_all_days) {
-        const days = ['All'];
-        slotValues = days.map(day => [
-          planningId,
-          day,
-          slots[0].from_time,
-          slots[0].to_time
-        ]);
-      } else {
-        slotValues = slots.map(slot => [
-          planningId,
-          slot.day,
-          slot.from_time,
-          slot.to_time
-        ]);
-      }
+      slotValues = slots.map(slot => [
+        planningId,
+        slot.day,
+        slot.from_time,
+        slot.to_time
+      ]);
   
       await connection.query(INSERT_SLOTS_QUERY, [slotValues]);
   

@@ -1,5 +1,5 @@
-const controller = require('../controllers/country.js')
-const validate = require('../controllers/country.validate')
+const controller = require('../controllers/common/country/country')
+const validate = require('../controllers/common/country/country.validate')
 const express = require('express')
 const router = express.Router()
 

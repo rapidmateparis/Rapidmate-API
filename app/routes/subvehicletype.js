@@ -1,5 +1,5 @@
-const controller = require('../controllers/subvehicletypes')
-const validate = require('../controllers/subvehicletypes.validate')
+const controller = require('../controllers/admin/vehicletypes/subtype')
+const validate = require('../controllers/admin/vehicletypes/subtype.validate')
 const AuthController = require('../controllers/auth')
 const express = require('express')
 const router = express.Router()
