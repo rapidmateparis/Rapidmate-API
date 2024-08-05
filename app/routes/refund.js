@@ -1,5 +1,5 @@
-const controller = require('../controllers/order')
-const validate = require('../controllers/order.validate')
+const controller = require('../controllers/admin/paymentrefund/refund')
+const validate = require('../controllers/admin/paymentrefund/refund.validate')
 const express = require('express')
 const router = express.Router()
 const isAuthorized = require("../middleware/authorization")
@@ -24,24 +24,9 @@ router.get(
 router.post(
   '/',
   trimRequest.all,
-  validate.createGeneralOrder,
+  validate.createItem,
   controller.createItem
 )
-
-router.post(
-  '/deliveryboy/allocate',
-  trimRequest.all,
-  validate.allocateDeliveryBoy,
-  controller.allocateDeliveryBoy
-)
-
-router.get(
-  '/allocated/details',
-  trimRequest.all,
-  validate.getAllocateDeliveryBoy,
-  controller.allocateDeliveryBoyByOrderNumber
-)
-
 
 /*
  * Get item route
@@ -53,19 +38,15 @@ router.get(
   controller.getItem
 )
 
+/*
+ * Get item route
+ */
 router.get(
-  '/consumer/:id',
-    trimRequest.all,
-    validate.getItem,
-  controller.getItemByConsumerExtId
-)
-
-router.get(
-  '/deliveryboy/:id',
-    trimRequest.all,
-    validate.getItem,
-  controller.getItemByDeliveryBoyExtId
-)
+    '/getbyorderid/:id',
+        trimRequest.all,
+        validate.getItem,
+        controller.getItemByOrderId
+  )
 
 /*
  * Update item route

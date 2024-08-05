@@ -1,5 +1,5 @@
-const controller = require('../controllers/deliveryboy')
-const validate = require('../controllers/deliveryboy.validate')
+const controller = require('../controllers/deliveryboy/profile/profileudpate')
+const validate = require('../controllers/deliveryboy/profile/profileupdate.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
@@ -36,7 +36,15 @@ router.post(
   validate.createItem,
   controller.createItem
 )
-
+/*
+ * Create new item route
+ */
+router.post(
+  '/pereferance',
+  trimRequest.all,
+  validate.updatePreferance,
+  controller.updatePreferance
+)
 /*
  * Get item route
  */
@@ -55,6 +63,16 @@ router.patch(
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
+)
+
+/**
+ * update availability route
+ */
+router.patch(
+  '/updateavailability/:id',
+  trimRequest.all,
+  validate.updateAvailability,
+  controller.updateAvailability 
 )
 
 /*
