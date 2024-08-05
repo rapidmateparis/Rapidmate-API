@@ -151,7 +151,7 @@ exports.updateItem = async (req, res) => {
 const createItem = async (req,insurantdoc_id,passport_id,reg_docId,driver_lcId) => {
     try {
 
-      const reqData=[req.delivery_boy_id,req.vehicle_type_id,req.plat_no,req.modal,req.make,req.variant,reg_docId,driver_lcId,insurantdoc_id,passport_id];
+      const reqData=[req.delivery_boy_ext_id,req.vehicle_type_id,req.plat_no,req.modal,req.make,req.variant,reg_docId,driver_lcId,insurantdoc_id,passport_id];
       const registerRes = await insertQuery(INSERT_VEHICLE_QUERY, reqData);
       console.log(registerRes);
       return registerRes;
