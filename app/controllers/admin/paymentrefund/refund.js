@@ -1,0 +1,171 @@
+const utils = require('../../../middleware/utils')
+const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
+const { FETCH_REFUND_ALL, FETCH_REFUND_BYID, FETCH_REFUND_OREDRID, UPDATE_REFUND_QUERY, INSERT_REFUND_QUERY, DELETE_REFUND_QUERY, UPDATE_REFUND_STATUS } = require('../../../db/database.query')
+
+/********************
+ * Public functions *
+ ********************/
+/**
+ * Get items function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItems = async (req, res) => {
+  try {
+    const data = await runQuery(FETCH_REFUND_ALL)
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+      message="No items found"
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItem = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await fetch(FETCH_REFUND_BYID,[id]);
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItemByOrderId = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await fetch(FETCH_REFUND_OREDRID,[id]);
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+/**
+ * Update item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const updateItem = async (id,req) => {
+    const registerRes = await updateQuery(UPDATE_REFUND_QUERY,[req.order_id,req.refund_date,req.amount,req.currency,req.reason,req.status,id]);
+    return registerRes;
+}
+
+exports.updateItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getId = await utils.isIDGood(id,'id','rmt_refund')
+    if(getId){
+      const updatedItem = await updateItem(id,req.body);
+      if(updatedItem.affectedRows >0) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+    }
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+    
+}
+
+/**
+ * Update item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const updateStatus = async (id, status) => {
+    const registerRes = await updateQuery(UPDATE_REFUND_STATUS,[status,id]);
+    return registerRes;
+  };
+  
+exports.updateStatus = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const getId = await utils.isIDGood(id, "id", "rmt_refund");
+      if (getId) {
+        const updatedItem = await updateStatus(id, status);
+        if (updatedItem) {
+          return res.status(200).json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
+        } else {
+          return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+        }
+      }
+      return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    } catch (error) {
+      return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    }
+  };
+/**
+ * Create item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const createItem = async (req) => {
+    const registerRes = await insertQuery(INSERT_REFUND_QUERY,[req.order_id,req.refund_date,req.amount,req.currency,req.reason,req.status]);
+    return registerRes;
+}
+exports.createItem = async (req, res) => {
+  try {
+    const item = await createItem(req.body)
+    if(item.insertId){
+      const currData=await fetch(FETCH_REFUND_BYID,[item.insertId])
+      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currData))
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    }
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+const deleteItem = async (id) => {
+  const deleteRes = await fetch(DELETE_REFUND_QUERY,[id]);
+  return deleteRes;
+};
+/**
+ * Delete item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.deleteItem = async (req, res) => {
+  try {
+    const {id} =req.params
+    const getId = await utils.isIDGood(id,'id','rmt_refund')
+    if(getId){
+      const deletedItem = await deleteItem(getId);
+      if(deletedItem.affectedRows > 0) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+    }
+    return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
