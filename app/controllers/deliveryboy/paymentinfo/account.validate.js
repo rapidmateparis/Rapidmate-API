@@ -1,0 +1,64 @@
+const { validationResult } = require('../../../middleware/utils')
+const { check } = require('express-validator')
+
+/**
+ * Validates create new item request
+ */
+exports.createItem = [
+    check('delivery_boy_extid').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('account_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('bank_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('ifsc').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('address').exists().withMessage('MISSING'),
+    check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]
+
+/**
+ * Validates update item request
+ */
+exports.updateItem = [
+    check('delivery_boy_extid').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('account_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('bank_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('ifsc').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('address').exists().withMessage('MISSING'),
+    check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+    check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    (req, res, next) => {
+        validationResult(req, res, next)
+    }
+]
+
+/**
+ * Validates get item request
+ */
+exports.getItem = [
+  check('id')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]
+
+/**
+ * Validates delete item request
+ */
+exports.deleteItem = [
+  check('id')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]

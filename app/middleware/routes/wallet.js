@@ -1,20 +1,18 @@
-const controller = require('../controllers/paymentmethod')
-const validate = require('../controllers/paymentmethod.validate')
+const controller = require('../../controllers/deliveryboy/paymentinfo/wallet')
+const validate = require('../../controllers/deliveryboy/paymentinfo/wallet.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * vehicle types routes
+ * job routes
  */
 
 /*
  * Get items route
  */
 router.get(
-  '/',
-  //   requireAuth,
-  //   AuthController.roleAuthorization(['admin']),
+  '/getall',
   trimRequest.all,
   controller.getItems
 )
@@ -24,8 +22,6 @@ router.get(
  */
 router.post(
   '/',
-  //   requireAuth,
-  //   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.createItem,
   controller.createItem
@@ -36,20 +32,25 @@ router.post(
  */
 router.get(
   '/:id',
-  //   requireAuth,
-  //   AuthController.roleAuthorization(['admin']),
     trimRequest.all,
     validate.getItem,
   controller.getItem
 )
+/**
+ * Get by ext id route
+ */
 
+router.get(
+  '/getwallet/:id',
+  trimRequest.all,
+  validate.getItem,
+  controller.getBydeliveryBoyExtid
+)
 /*
  * Update item route
  */
 router.patch(
   '/:id',
-//   requireAuth,
-//   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -60,8 +61,6 @@ router.patch(
  */
 router.delete(
   '/:id',
-//   requireAuth,
-//   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.deleteItem,
   controller.deleteItem

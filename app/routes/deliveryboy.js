@@ -5,6 +5,9 @@ const router = express.Router()
 const trimRequest = require('trim-request')
 const { runQuery ,fetch} = require('../middleware/db')
 const { FETCH_DRIVER_AVAILABLE } = require('../db/database.query')
+const accountRouter =require('../middleware/routes/account')
+const paymentRouter =require('../middleware/routes/paymentcard')
+const walletRouter =require('../middleware/routes/wallet')
 
 /*
  * Consumer routes
@@ -104,4 +107,10 @@ router.post('/findNearbyDrivers', async (req, res) => {
 });
 
 router.put('/update/location',trimRequest.all,validate.updateLocation,controller.updateLocation)
+
+//router add 
+router.use('/account', accountRouter);
+router.use('/wallet', walletRouter);
+router.use('/paymentcard', paymentRouter);
+
 module.exports = router
