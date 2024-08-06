@@ -1,7 +1,6 @@
-const utils = require('../middleware/utils')
-const { runQuery } = require('../middleware/db')
-
-
+const utils = require('../../../middleware/utils')
+const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
+const {FETCH_ACCOUNT_ALL, FETCH_ACCOUNT_BY_ID, FETCH_ACCOUNT_BY_EXTID, UPDATE_ACCOUNT, INSERT_ACCOUNT, DELETE_ACCOUNT} =require('../../../db/database.query')
 /********************
  * Public functions *
  ********************/
@@ -12,8 +11,7 @@ const { runQuery } = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_role'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_ACCOUNT_ALL)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
@@ -33,11 +31,30 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_role where ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_ACCOUNT_BY_ID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="No items found"
+        message="Invalid account type."
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+/**
+ * Get item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getBydeliveryBoyExtid = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await fetch(FETCH_ACCOUNT_BY_EXTID,[id])
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="Invalid account type."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
@@ -51,23 +68,17 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,name) => {
-    const registerQuery = `UPDATE rmt_role SET ROLE_NAME ='${name}' WHERE ID ='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+const updateItem = async (id,req) => {
+    const registerRes = await updateQuery(UPDATE_ACCOUNT,[req.account_number,req.bank_name,req.ifsc,req.address,req.currency,req.is_del,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
-    const getId = await utils.isIDGood(id,'ID','rmt_vehicle_type')
+    const getId = await utils.isIDGood(id,'id','rmt_delivery_boy_account')
     if(getId){
-      const doesNameExists = await utils.nameExists(name,'rmt_role','ROLE_NAME')
-      if (doesNameExists) {
-        return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
-      }
-      const updatedItem = await updateItem(id, name);
-      if (updatedItem) {
+      const updatedItem = await updateItem(id, req.body);
+      if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -77,38 +88,40 @@ exports.updateItem = async (req, res) => {
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
+    
 }
 /**
  * Create item function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (name) => {
-    const registerQuery = `INSERT INTO rmt_role (ROLE_NAME) VALUES ('${name}')`;
-    const registerRes = await runQuery(registerQuery);
+const createItem = async (req) => {
+    const registerRes = await insertQuery(INSERT_ACCOUNT,[req.delivery_boy_extid,req.account_number,req.bank_name,req.ifsc,req.address,req.currency]);
     return registerRes;
 }
+
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.name,'rmt_role','ROLE_NAME')
+    const doesNameExists =await utils.nameExists(req.body.account_number,'rmt_delivery_boy_account','account_number')
     if (!doesNameExists) {
-      const item = await createItem(req.body.name)
+      const item = await createItem(req.body)
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        const currentdata=await fetch(FETCH_ACCOUNT_BY_ID,[item.insertId])
+        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
+      return res.status(400).json(utils.buildErrorObject(400,'Account number already exists',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
+
 const deleteItem = async (id) => {
-    const deleteQuery = `DELETE FROM rmt_role WHERE ID ='${id}'`;
-    const deleteRes = await runQuery(deleteQuery);
-    return deleteRes;
+  const deleteRes = await fetch(DELETE_ACCOUNT,[id]);
+  return deleteRes;
 };
 /**
  * Delete item function called by route
@@ -118,27 +131,17 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_role')
+    const getId = await utils.isIDGood(id,'id','rmt_delivery_boy_account')
     if(getId){
-        const deletedItem = await deleteItem(getId);
-        if (deletedItem.affectedRows > 0) {
-            return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
-        } else {
-          return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-        }
+      const deletedItem = await deleteItem(getId);
+      if (deletedItem.affectedRows > 0) {
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
-
-
-
-
-
-
-
-
-
-
