@@ -192,9 +192,40 @@ exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS=`UPDATE rmt_delivery_boy SET is_
 exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
 
 //======================================= DELIVERY BOY=========================================================
-exports.FETCH_DELIVERYBOY_QUERY=`SELECT * FROM rmt_delivery_boy WHERE is_del=0`
-exports.UPDATE_DELIVERYBOY_WORK_TYPE=`UPDATE rmt_delivery_boy SET is_work_type=? WHERE ext_id=? AND is_del=0`
-exports.UPDATE_DELIVERYBOY_AVAILABLE=`UPDATE rmt_delivery_boy SET is_availability=? WHERE ext_id=? AND is_del=0`
+  exports.FETCH_DELIVERYBOY_QUERY=`SELECT * FROM rmt_delivery_boy WHERE is_del=0`
+  exports.UPDATE_DELIVERYBOY_WORK_TYPE=`UPDATE rmt_delivery_boy SET is_work_type=? WHERE ext_id=? AND is_del=0`
+  exports.UPDATE_DELIVERYBOY_AVAILABLE=`UPDATE rmt_delivery_boy SET is_availability=? WHERE ext_id=? AND is_del=0`
+
+//=================================================Account===========================================================
+  //admin side
+  exports.FETCH_ACCOUNT_ALL=`SELECT at.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_account AS at JOIN rmt_delivery_boy AS dbs ON at.delivery_boy_id = dbs.id  WHERE at.is_del = 0`
+  exports.FETCH_ACCOUNT_BY_ID=`SELECT at.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_account AS at JOIN rmt_delivery_boy AS dbs ON at.delivery_boy_id = dbs.id  WHERE at.id =? AND at.is_del = 0`
+  // deliveryboy side
+  exports.FETCH_ACCOUNT_BY_EXTID=`SELECT at.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_account AS at JOIN rmt_delivery_boy AS dbs ON at.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND at.is_del = 0`
+  exports.INSERT_ACCOUNT=`INSERT INTO rmt_delivery_boy_account(delivery_boy_id,account_number,bank_name,ifsc,address,currency) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?)`
+  exports.UPDATE_ACCOUNT=`UPDATE rmt_delivery_boy_account SET account_number=?,bank_name=?,ifsc=?,address=?,currency=?,is_del=? WHERE id=?`
+  exports.DELETE_ACCOUNT=`UPDATE rmt_delivery_boy_account SET is_del=1 WHERE id=?`
+//===================================================Wallet=============================================================
+//admin side
+exports.FETCH_WALLET_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_wallet AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_WALLET_BY_ID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_wallet AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
+exports.INSERT_WALLET=`INSERT INTO rmt_delivery_boy_wallet(delivery_boy_id,balance,currency) VALUES(?,?,?)`
+exports.UPDATE_WALLET=`UPDATE rmt_delivery_boy_wallet SET balance=? WHERE id=?`
+exports.DELETE_WALLET=`UPDATE rmt_delivery_boy_wallet SET is_del=1 WHERE id=?`
+// deliveryboy side
+exports.FETCH_WALLET_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_wallet AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND wt.is_del = 0`
+
+
+//===================================================Payment card=============================================================
+//admin side
+exports.FETCH_PAYMENTCARD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_PAYMENTCARD_BY_ID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
+exports.INSERT_PAYMENTCARD=`INSERT INTO rmt_delivery_boy_payment_card(delivery_boy_id,card_number,card_holder_name,expiration_date,cvv,billing_address) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?)`
+// deliveryboy side
+exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND wt.is_del = 0`
+exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET card_number=?,card_holder_name=?,expiration_date=?,cvv=?,biling_address=? WHERE id=?`
+exports.DELETE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET is_del=1 WHERE id=?`
+
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {
