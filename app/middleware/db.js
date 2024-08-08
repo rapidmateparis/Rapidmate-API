@@ -147,25 +147,40 @@ module.exports = {
     }
   },
   // insertPlanningWithSlots
-  async insertOrUpdatePlanningWithSlots(planningId, slots) {
+  async insertOrUpdatePlanningWithSlots(planningSetupId, slots) {
     const connection = await pool.getConnection(); // Get a connection from the pool
     try {
       await connection.beginTransaction();
   
-      let slotValues = [];
+      arySlotValues = [];
   
-      slotValues = slots.map(slot => [
-        planningId,
+      slots.forEach(async slot => {
+        console.log("Time", slot);
+        slot.times.forEach(timeData => {
+         arySlotValues.push({
+              planningSetupId : planningSetupId,
+              day : slot.day,
+              from_time : timeData.from_time,
+              to_time : timeData.to_time
+            });
+          }
+        );
+      });
+      console.log("arySlotValues", arySlotValues);
+      let mapSlots = arySlotValues.map(slot => [
+        slot.planningSetupId,
         slot.day,
         slot.from_time,
         slot.to_time
-      ]);
-  
-      await connection.query(INSERT_SLOTS_QUERY, [slotValues]);
-  
+      ]
+      );
+      console.log("mapSlots", mapSlots);
+      await connection.query(INSERT_SLOTS_QUERY, [mapSlots]);
       await connection.commit();
-      return planningId;
+      console.log("------------");
+      return planningSetupId;
     } catch (error) {
+      console.log(error);
       await connection.rollback();
       throw error;
     } finally {
