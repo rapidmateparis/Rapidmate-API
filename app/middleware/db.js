@@ -1,6 +1,12 @@
 const pool = require('../../config/database')
 const {INSERT_PLANNING_QUERY,GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY, UPDATE_PLANNING_QUERY, DELETE_SLOTS_QUERY, INSERT_SLOTS_QUERY } = require('../db/planning.query')
 
+function generateOrderNumber() {
+  const min = 100000000;
+  const max = 999999999;
+  const oredernumber = Math.floor(Math.random() * (max - min + 1)) + min;
+  return oredernumber;
+}
 /**
  * Builds sorting
  * @param {string} sort - field to sort from
@@ -297,5 +303,69 @@ module.exports = {
     } finally {
       connection.release();
     }
+  },
+
+  //Enterprise planning 
+  async insertEnterprisePlanning(req, slots) {
+    const connection = await pool.getConnection(); // Get a connection from the pool
+    try {
+      await connection.beginTransaction();
+      
+      const {
+        branch_id,
+        delivery_boy_id,
+        delivery_type_id,
+        service_type_id,
+        vehicle_type_id,
+        order_date,
+        from_latitude,
+        from_longitude,
+        to_latitude,
+        to_longitude,
+        pickup_location,
+        pickup_date,
+        dropoff_location,
+        delivery_date,
+        delivery_start_time,
+        delivery_end_time,
+        total_hours,
+        is_repeat_mode,
+        is_same_slot_all_days,
+        repeat_mode,
+        repeat_every,
+        repeat_until,
+        repeat_day
+      } = req.body;
+  
+      const order_number = generateOrderNumber(); // Generate random order number  
+      const [result] = await connection.query(
+        `INSERT INTO rmt_enterprise_order (
+          order_number, branch_id, delivery_boy_id, delivery_type_id, service_type_id, vehicle_type_id, order_date,
+          from_latitude, from_longitude, to_latitude, to_longitude, pickup_location, pickup_date, dropoff_location, 
+          delivery_date, delivery_start_time, delivery_end_time, total_hours, is_repeat_mode, is_same_slot_all_days, 
+          repeat_mode, repeat_every, repeat_until, repeat_day
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
+        [
+          order_number, branch_id, delivery_boy_id, delivery_type_id, service_type_id, vehicle_type_id, order_date,
+          from_latitude, from_longitude, to_latitude, to_longitude, pickup_location, pickup_date, dropoff_location,
+          delivery_date, delivery_start_time, delivery_end_time, total_hours, is_repeat_mode, is_same_slot_all_days,
+          repeat_mode, repeat_every, repeat_until, repeat_day
+        ]
+      );
+  
+      await connection.commit(); // Commit the transaction
+  
+      return { id: result.insertId, order_number };
+    } catch (error) {
+      await connection.rollback(); // Rollback the transaction in case of error
+      throw error;
+    } finally {
+      connection.release(); // Release the connection back to the pool
+    }
   }
+  
+ 
+  
+
+
 }
