@@ -86,22 +86,18 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES ('${req.location_name}','${req.address}','${req.city}','${req.state}','${req.country}','${req.latitude}','${req.longitude}')`;
+    const registerQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES (now(),'${req.address}','${req.city}','${req.state}','${req.country}','${req.latitude}','${req.longitude}')`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
     const doesNameExists =await utils.nameExists(req.body.location_name,'rmt_location','LOCATION_NAME')
-    if (!doesNameExists) {
-      const item = await createItem(req.body)
-      if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',{location_id : item.insertId}))
-      }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-      }
+    const item = await createItem(req.body)
+    if(item.insertId){
+      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',{location_id : item.insertId}))
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
+      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));

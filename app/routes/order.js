@@ -35,6 +35,13 @@ router.post(
   controller.allocateDeliveryBoy
 )
 
+router.get(
+  '/allocated/details',
+  trimRequest.all,
+  validate.getAllocateDeliveryBoy,
+  controller.allocateDeliveryBoyByOrderNumber
+)
+
 
 /*
  * Get item route
