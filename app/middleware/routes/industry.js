@@ -1,18 +1,18 @@
-const controller = require('../controllers/admin/accounttypes/accounttype')
-const validate = require('../controllers/admin/accounttypes/accounttype.validate')
+const controller = require('../../controllers/enterprise/industry')
+const validate = require('../../controllers/enterprise/industry.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * Account types routes
+ * job routes
  */
 
 /*
  * Get items route
  */
 router.get(
-  '/',
+  '/getall',
   trimRequest.all,
   controller.getItems
 )
@@ -34,8 +34,9 @@ router.get(
   '/:id',
     trimRequest.all,
     validate.getItem,
-  controller.getItem
+   controller.getItem
 )
+
 
 /*
  * Update item route

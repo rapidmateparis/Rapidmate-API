@@ -11,6 +11,7 @@ const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
+const { updateDeliveryboyLatlng, addLatlng } = require('./app/middleware/utils');
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -75,6 +76,23 @@ io.on('connection', (socket) => {
     socket.join(driverId);
     console.log(`Driver ${driverId} joined room ${driverId}`);
   });
+
+  socket.on('update-latlng',async (data)=>{
+    const {delivery_boy_id,latitude,longitute}=data
+    //update delivery boy latitude and longitude
+    const res =await updateDeliveryboyLatlng(delivery_boy_id,latitude,longitute)
+    if(res){
+      io.emit('new-latlng',data)
+    } 
+  });
+  // add mongo db latlng here
+  socket.on('add-latlng',async (data)=>{
+    const {delivery_boy_id,latitude,longitute}=data
+    const res=await addLatlng(delivery_boy_id,latitude,longitute);
+    if(res){
+      io.emit('get-latng',{delivery_boy_id});
+    }
+  })
 
   socket.on('disconnect', () => {
     console.log('User disconnected', socket.id);
