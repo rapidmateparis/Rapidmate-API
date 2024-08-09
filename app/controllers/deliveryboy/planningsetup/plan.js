@@ -30,6 +30,7 @@ exports.getItems = async (req, res) => {
     planningData = plannings[0];
     if (planninSetupgData && planninSetupgData.length > 0) {
       var currentDay = 0;
+      var isSelected = false;
       var responseSetupData = {};
       responseSetupData.slots = [];
       var times = [];
@@ -45,13 +46,15 @@ exports.getItems = async (req, res) => {
         if (currentDay != presentDay) {
           slotData = {
             day: currentDay,
-            times: times
+            times: times,
+            selected : isSelected
           }
           if (!firstData) {
             responseSetupData.slots.push(slotData);
           }
           times = [];
           currentDay = data.day;
+          isSelected = data.is_selected==1;
           firstData = false;
         }
         times.push({
@@ -61,7 +64,8 @@ exports.getItems = async (req, res) => {
       })
       slotData = {
         day: currentDay,
-        times: times
+        times: times,
+        selected : isSelected
       }
       responseSetupData.slots.push(slotData);
       responseSetupDataSet.push(responseSetupData);
@@ -152,7 +156,6 @@ const planningSetupConfig = async (req, res) => {
       if(getPlanningsSetupId){
         const deletedSetupSlotItem = await deleteSetupSlotItem(getPlanningsSetupId.id);
         const deletedSetupItem = await deleteSetupItem(getPlanningsSetupId.id);
-        
       }
       setup.forEach(async data => {
         dbSetupData = await createSetup(planningID, data);

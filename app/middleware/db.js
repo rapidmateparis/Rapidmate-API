@@ -161,7 +161,8 @@ module.exports = {
               planningSetupId : planningSetupId,
               day : slot.day,
               from_time : timeData.from_time,
-              to_time : timeData.to_time
+              to_time : timeData.to_time,
+              is_selected : slot.selected?1:0
             });
           }
         );
@@ -171,7 +172,8 @@ module.exports = {
         slot.planningSetupId,
         slot.day,
         slot.from_time,
-        slot.to_time
+        slot.to_time,
+        slot.is_selected
       ]
       );
       console.log("mapSlots", mapSlots);
