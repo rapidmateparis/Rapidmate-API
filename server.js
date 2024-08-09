@@ -11,7 +11,7 @@ const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
-const { updateDeliveryboyLatlng, addLatlng } = require('./app/middleware/utils');
+const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -93,7 +93,12 @@ io.on('connection', (socket) => {
       io.emit('get-latng',{delivery_boy_id});
     }
   })
-
+  
+  socket.on('add-order-latlng',async (data)=>{
+    const {order_number,latitude,longitute}=data
+    const res=await addOrderLatlng(order_number,latitude,longitute)
+    io.emit('send-location',{order_number,latitude,longitute})
+  })
   socket.on('disconnect', () => {
     console.log('User disconnected', socket.id);
   });
