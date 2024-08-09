@@ -1,4 +1,4 @@
-const { validationResult } = require('../middleware/utils')
+const { validationResult } = require('../../../middleware/utils')
 const { check } = require('express-validator')
 
 /**
@@ -23,13 +23,13 @@ exports.createItem = [
  */
 exports.updateItem = [
     check('account_type_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('description').exists().withMessage('MISSING')
-    .custom(value => {
+    check('description').exists().withMessage('MISSING').custom(value => {
       if (value === undefined) {
         throw new Error('vehicle description is undefined');
       }
       return true;
     }),
+    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
     check('id')
         .exists()
         .withMessage('MISSING')

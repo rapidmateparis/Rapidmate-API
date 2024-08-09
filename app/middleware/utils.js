@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const requestIp = require('request-ip')
 const { validationResult } = require('express-validator')
 const moment = require('moment');
-const { runQuery } = require('./db');
+const { runQuery,updateQuery} = require('./db');
 const AWS = require('aws-sdk');
 
 const { v4: uuidv4 } = require('uuid');
@@ -286,5 +286,73 @@ exports.isIDGood=async (id,fieldValue,tableName)=>{
   }
   else {
     return false;
+  }
+}
+
+const Latlng =require('../models/Latlng')
+const Order =require('../models/Order')
+exports.addLatlng = async (delivery_boy_id, lat, long) => {
+  try {
+    const newLatlng = new Latlng({
+      delivery_boy_id,
+      latitude: lat,
+      longitude: long,
+    });
+    
+    const savedLatlng = await newLatlng.save();
+    return !!savedLatlng; 
+  } catch (error) {
+    console.error('Error adding LatLng:', error);
+    return false;
+  }
+};
+exports.addOrderLatlng = async (order_number, lat, long) => {
+  try {
+    const newLatlng = new Order({
+      order_number,
+      latitude: lat,
+      longitude: long,
+    });
+    
+    const savedLatlng = await newLatlng.save();
+    return !!savedLatlng; 
+  } catch (error) {
+    console.error('Error adding LatLng:', error);
+    return false;
+  }
+};
+
+exports.getOrderLatlng = async (order_number) => {
+  try {
+    const latlongitude = await Order.findOne({ order_number: order_number });
+    return latlongitude || false; 
+  } catch (error) {
+    console.error('Error getting LatLng:', error);
+    return false;
+  }
+};
+
+exports.getLatlng = async (deliveryboyId) => {
+  try {
+    const latlongitude = await Latlng.findOne({ delivery_boy_id: deliveryboyId });
+    return latlongitude || false; 
+  } catch (error) {
+    console.error('Error getting LatLng:', error);
+    return false;
+  }
+};
+
+exports.updateDeliveryboyLatlng=async (delivery_boy_id,latitude,longitude)=>{
+  try{
+    const query=`UPDATE rmt_delivery_boy SET latitude=?, longitude=? WHERE id=?`
+    const result= await updateQuery(query,[delivery_boy_id,latitude,longitude]);
+    if(result.affectedRows > 0){
+      return true
+    }else{
+      return false
+    }
+  }catch(error){
+    console.error('Error getting LatLng:', error)
+    return false
   }
 }
