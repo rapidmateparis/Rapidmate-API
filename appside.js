@@ -18,6 +18,7 @@ if(driverId){
     }, 6000); // Simulate a 6-second delay before deciding
     });
 
+
     // Function to reject a request
     function rejectRequest(requestId) {
     fetch('http://localhost:3000/request/reject-request', {

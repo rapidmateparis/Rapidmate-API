@@ -289,7 +289,19 @@ exports.isIDGood=async (id,fieldValue,tableName)=>{
   }
 }
 
+exports.getValueById=async (value, tableName, conditionParam, conditionValue)=>{
+  let query = `SELECT ${value} FROM ${tableName} WHERE ${conditionParam} ='${conditionValue}'`;
+  let queryRes = await runQuery(query);
+  if (queryRes.length > 0) {
+    return queryRes[0][value];
+  }
+  else {
+    return false;
+  }
+}
+
 const Latlng =require('../models/Latlng')
+const Order =require('../models/Order')
 exports.addLatlng = async (delivery_boy_id, lat, long) => {
   try {
     const newLatlng = new Latlng({
@@ -302,6 +314,31 @@ exports.addLatlng = async (delivery_boy_id, lat, long) => {
     return !!savedLatlng; 
   } catch (error) {
     console.error('Error adding LatLng:', error);
+    return false;
+  }
+};
+exports.addOrderLatlng = async (order_number, lat, long) => {
+  try {
+    const newLatlng = new Order({
+      order_number,
+      latitude: lat,
+      longitude: long,
+    });
+    
+    const savedLatlng = await newLatlng.save();
+    return !!savedLatlng; 
+  } catch (error) {
+    console.error('Error adding LatLng:', error);
+    return false;
+  }
+};
+
+exports.getOrderLatlng = async (order_number) => {
+  try {
+    const latlongitude = await Order.findOne({ order_number: order_number });
+    return latlongitude || false; 
+  } catch (error) {
+    console.error('Error getting LatLng:', error);
     return false;
   }
 };

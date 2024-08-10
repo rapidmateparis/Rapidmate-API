@@ -5,13 +5,13 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
+    check('enterprise_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('branch_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('address').exists().withMessage('MISSING'),
     check('city').exists().withMessage('MISSING'),
     check('state').exists().withMessage('MISSING'),
     check('country').exists().withMessage('MISSING'),
     check('postal_code').exists().withMessage('MISSING'),
-    check('enterprise_id').exists().withMessage('MISSING').not().isEmpty().withMessage('this field is required.'),
     check('latitude').exists().withMessage('MISSING').not().isEmpty().withMessage('this field is required.'),
     check('longitude').exists().withMessage('MISSING').not().isEmpty().withMessage('this field is required.'),
   (req, res, next) => {
