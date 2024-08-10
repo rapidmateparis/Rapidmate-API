@@ -5,6 +5,7 @@ const router = express.Router()
 const trimRequest = require('trim-request')
 const branchRouter =require('./enterprisebranch')
 const orderRouter =require('../middleware/routes/order')
+const shiftRouter =require('../middleware/routes/shift')
 /*
  * Latlon routes
  */
@@ -63,4 +64,5 @@ router.delete(
  */
 router.use('/branch', branchRouter);
 router.use('/order', orderRouter);
+router.use('/shift', shiftRouter);
 module.exports = router
