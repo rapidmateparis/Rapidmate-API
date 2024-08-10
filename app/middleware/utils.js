@@ -288,3 +288,15 @@ exports.isIDGood=async (id,fieldValue,tableName)=>{
     return false;
   }
 }
+
+exports.getValueById=async (value, tableName, conditionParam, conditionValue)=>{
+  let query = `SELECT ${value} FROM ${tableName} WHERE ${conditionParam} ='${conditionValue}'`;
+  let queryRes = await runQuery(query);
+  if (queryRes.length > 0) {
+    return queryRes[0][value];
+  }
+  else {
+    return false;
+  }
+}
+

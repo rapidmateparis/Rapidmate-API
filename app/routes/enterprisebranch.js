@@ -11,7 +11,7 @@ const trimRequest = require('trim-request')
  * Get items route
  */
 router.get(
-  '/getbyenterprise/:id',
+  '/get/:ext_id',
   trimRequest.all,
   controller.getBranchByEnterpriseId
 )

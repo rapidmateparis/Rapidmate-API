@@ -3,7 +3,7 @@ const validate = require('../controllers/enterprise.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-const branchRouter =require('../middleware/branch')
+const branchRouter =require('./enterprisebranch')
 /*
  * Latlon routes
  */

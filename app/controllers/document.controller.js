@@ -1,35 +1,32 @@
 const uploadFile = require("../middleware/document.utils");
 const fs = require("fs");
+const moment = require("moment");
 const utils = require('../middleware/utils')
 const { runQuery,fetch} = require('../middleware/db');
 const { Console } = require("console");
 const BASE_DIR  = process.env.BASE_RESOURCE_DIR;
+const { v4: uuidv4 } = require('uuid');
+
 const upload = async (req, res) => {
   try {
-
-    var uploadType = req.headers.upload_type;
-    var uploadDir = "common";
-    var dbTable = "";
-    console.log(process.env.ORDER_DOC);
-    console.log(process.env.BASE_RESOURCE_DIR);
-    if(uploadType == "ORDER_DOC"){
-        uploadDir = process.env.ORDER_DOC;
-        dbTable = "rmt_order_document";
-    }else if(uploadType == "DELIVERY_BOY"){
-        uploadDir = process.env.DELIVERY_BOY;
-        dbTable = "rmt_delivery_boy_document";
-    } else{
-        uploadDir = "common";
+    var uploadDirectory = moment(new Date()).format("YYYY/MM/DD/HH/");
+    console.log(uploadDirectory);
+    var fullDirectoryPath = BASE_DIR + uploadDirectory;
+    if (!fs.existsSync(fullDirectoryPath)){
+        fs.mkdirSync(fullDirectoryPath, { recursive: true });
     }
-     await uploadFile(req, res);
+    req.dir = fullDirectoryPath;
+    console.log(req.dir);
+    await uploadFile(req, res);
    
     if (req.file == undefined) {
       return res.status(400).send({ error: "unable to upload", id : null });
     }
-    const persist = "INSERT INTO "+ dbTable +  "(file_name, path) VALUES('" + req.file.originalname + "','" + uploadDir + "')";
+    const refNo = uuidv4().replaceAll("-","");
+    const persist = "INSERT INTO rmt_document(file_name, path, ref_no) VALUES('" + req.file.originalname + "','" + uploadDirectory + "', '" + refNo + "')";
     const persistRes = await runQuery(persist);
     res.status(200).send({
-        id: persistRes.insertId , error: null
+        id: refNo , error: null
     });
   } catch (err) {
     console.log(err);
@@ -70,27 +67,14 @@ const getListFiles = (req, res) => {
 };
 
 const download = async (req, res) => {
-  console.log(req.query.ut);
-  var uploadType = req.query.ut;
-  var dbTable = "";
-  if(uploadType == "ORDER_DOC"){
-      uploadDir = process.env.ORDER_DOC;
-      dbTable = "rmt_order_document";
-  }else if(uploadType == "DELIVERY_BOY"){
-      uploadDir = process.env.DELIVERY_BOY;
-      dbTable = "rmt_delivery_boy_document";
-  } else{
-      uploadDir = "common";
-  }
+  console.log(req.params.name);
   try {
-    const data =await runQuery("select * from " + dbTable + " where id = " + req.params.name);
+    const data =await runQuery("select * from rmt_document where ref_no = '" + req.params.name + "'");
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="File not found";
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    console.log(data[0].file_name);
-    console.log(data[0].path);
     res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
         if (err) {
           res.status(500).send({
