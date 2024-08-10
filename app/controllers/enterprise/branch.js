@@ -12,11 +12,11 @@ const {FETCH_BRANCH_BY_ID, INSERT_BRANCH_QUERY, UPDATE_BRANCH_QUERY, DELETE_BRAN
  */
 exports.getBranchByEnterpriseId = async (req, res) => {
     try {
-        const id = req.params.id;
-        const data = await fetch(FETCH_BRANCH_BY_ENTERPRISEID,[id])
+        const ext_id = req.params.ext_id;
+        const data = await fetch(FETCH_BRANCH_BY_ENTERPRISEID,[ext_id])
         let message="Items retrieved successfully";
         if(data.length <=0){
-            message="Invalid branch."
+            message="Invalid branch.";
             return res.status(400).json(utils.buildErrorObject(400,message,1001));
         }
         return res.status(200).json(utils.buildcreatemessage(200,message,data))
@@ -77,16 +77,21 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_BRANCH_QUERY,[req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,req.enterprise_id]);
-    return registerRes;
+const createEnterpriseBranch = async (req, enterprise_id) => {
+    const params = [req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id];
+    console.log(params);
+    const executeBranch = await insertQuery(INSERT_BRANCH_QUERY,[req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id]);
+    console.log(executeBranch);
+    return executeBranch;
 }
 
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.branch_name,'rmt_enterprise_branch','branch_name')
-    if (!doesNameExists) {
-      const item = await createItem(req.body)
+    const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.body.enterprise_ext_id);
+    console.log(enterprise_id);
+    if (enterprise_id) {
+      console.log(enterprise_id);
+      const item = await createEnterpriseBranch(req.body, enterprise_id);
       if(item.insertId){
         const currentdata=await fetch(FETCH_BRANCH_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
