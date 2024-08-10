@@ -24,26 +24,19 @@ exports.FETCH_VEHICLE_BY_DLID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name
 exports.FETCH_VEHICLE_BY_TYPE_ID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and vt.id=?`
 
 //------------------------------------RMT_ACCOUNT_TYPE-----------------------------------------
-exports.FETCH_AC_ALL = "select ACCOUNT_TYPE_ID as account_type_id, ACCOUNT_TYPE_NAME as account_name,DESCRIPTION as description,CREATED_BY as created_by,CREATED_ON as crea,UPDATED_BY as updated_by,UPDATED_ON as updated_on from rmt_account_type";
-exports.FETCH_AC_BY_ID="select ACCOUNT_TYPE_ID as account_type_id, ACCOUNT_TYPE_NAME as account_name,DESCRIPTION as description,CREATED_BY as created_by,CREATED_ON as creted_onated_on,UPDATED_BY as updated_by,UPDATED_ON as updated_on where ACCOUNT_TYPE_ID=?";
-exports.INSERT_AC_QUERY=`INSERT INTO rmt_account_type (ACCOUNT_TYPE_NAME,DESCRIPTION) VALUES (?,?)`;
-exports.UPDATE_AC_QUERY= `UPDATE rmt_account_type SET ACCOUNT_TYPE_NAME =?,DESCRIPTION=? WHERE ACCOUNT_TYPE_ID=?`;
-exports.DELETE_AC_QUERY=`DELETE FROM rmt_account_type WHERE ACCOUNT_TYPE_ID =?`;
-
-//-------------------------RMT_DELIVERY_BOY_ACCOUNT--------------------------------------
-exports.FETCH_DA_FETCH='SELECT paccount.*,d.FIRST_NAME,d.LAST_NAME FROM rmt_delivery_boy_account paccount JOIN rmt_delivery_boy d ON paccount.DELIVERY_BOY_ID =d.ID'
-exports.FETCH_DA_BY_ID=`SELECT paccount.*,d.FIRST_NAME,d.LAST_NAME FROM rmt_delivery_boy_account paccount JOIN rmt_delivery_boy d ON paccount.DELIVERY_BOY_ID =d.ID where paccount.ID=?`
-exports.UPDATE_DA_QUERY=`UPDATE rmt_delivery_boy_account SET DELIVERY_BOY_ID=?,ACCOUNT_NUMBER=?,BANK_NAME=?,IFSC =?,ADDRESS =? WHERE ID =?`;
-exports.INSERT_DA_QUERY=`INSERT INTO rmt_delivery_boy_account(DELIVERY_BOY_ID,ACCOUNT_NUMBER,BANK_NAME,IFSC,ADDRESS) VALUES(?,?,?,?,?)`;
-exports.DELECT_DA_QUERY=`DELETE FROM rmt_delivery_boy_account WHERE ID=?`;
+exports.FETCH_AC_ALL = "select * from rmt_account_type where is_del=0";
+exports.FETCH_AC_BY_ID="select * from rmt_account_type where is_del=0 and account_type_id=?";
+exports.INSERT_AC_QUERY=`INSERT INTO rmt_account_type(account_type_name,description) VALUES (?,?)`;
+exports.UPDATE_AC_QUERY= `UPDATE rmt_account_type SET account_type =?,description=?,is_del=? WHERE account_type_id=?`;
+exports.DELETE_AC_QUERY=`UPDATE rmt_account_type SET is_del=1 WHERE account_type_id =?`;
 
 //-------------------------RMT_CHAT------------------------------------------------------
 
 exports.FETCH_CHAT_FETCH='select * from rmt_chat';
-exports.FETCH_CHAT_BY_ID=`select * from rmt_chat where CHAT_ID=?`;
-exports.UPDATE_CHAT_QUERY=`UPDATE rmt_chat SET CONVERSATION_ID=?,USER_ID=?,CONTENT=?,MESSAGE_TYPE=? WHERE CHAT_ID=?`;
-exports.INSERT_CHAT_QUERY=`INSERT INTO rmt_chat (CONVERSATION_ID,USER_ID,CONTENT,MESSAGE_TYPE) VALUES (?,?,?,?)`;
-exports.DELECT_CHAT_QUERY=`DELETE FROM rmt_chat WHERE CHAT_ID=?`;
+exports.FETCH_CHAT_BY_ID=`select * from rmt_chat where id=?`;
+exports.UPDATE_CHAT_QUERY=`UPDATE rmt_chat SET conversation_id=?,user_id=?,content=?,message_type=? WHERE CHAT_ID=?`;
+exports.INSERT_CHAT_QUERY=`INSERT INTO rmt_chat (conversation_id,user_id,content,message_type) VALUES (?,?,?,?)`;
+exports.DELECT_CHAT_QUERY=`DELETE FROM rmt_chat WHERE id=?`;
 
 //--------------------------RMT_CITY------------------------------------------------------
 
@@ -79,7 +72,7 @@ exports.DELETE_CN_QUERY=`DELETE FROM rmt_consumer WHERE CONSUMER_ID=?`;
 
 //---------------------------------RMT_COUPON------------------------------------------------
 exports.FETCH_CODE_QUERY=`select * from rmt_coupon_code`;
-exports.FETCH_CODE_BY_ID=`select * from rmt_coupon_code where ID=?`;
+exports.FETCH_CODE_BY_ID=`select * from rmt_coupon_code where id=?`;
 exports.INSERT_CODE_QUERY=`INSERT INTO rmt_coupon_code (CODE,DISCOUNT,EXPIRY_DATE,MAX_USAGE,CURRENT_USAGE) VALUES (?,?,?,?)`;
 exports.UPDATE_CODE_QUERY=`UPDATE rmt_coupon_code SET CODE=?,DISCOUNT=?,EXPIRY_dATE=?,MAX_USAGE=?,CURRENT_USAGE=? WHERE ID =?`;
 exports.DELETE_CODE_QUERY=`DELETE FROM rmt_coupon_code WHERE ID=?`;
@@ -220,7 +213,7 @@ exports.FETCH_WALLET_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_
 //admin side
 exports.FETCH_PAYMENTCARD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`
 exports.FETCH_PAYMENTCARD_BY_ID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
-exports.INSERT_PAYMENTCARD=`INSERT INTO rmt_delivery_boy_payment_card(delivery_boy_id,card_number,card_holder_name,expiration_date,cvv,billing_address) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?)`
+exports.INSERT_PAYMENTCARD=`INSERT INTO rmt_delivery_boy_payment_card(delivery_boy_id,card_number,card_holder_name,expiration_date,cvv,billing_address,is_del) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?,?)`
 // deliveryboy side
 exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND wt.is_del = 0`
 exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET card_number=?,card_holder_name=?,expiration_date=?,cvv=?,biling_address=? WHERE id=?`

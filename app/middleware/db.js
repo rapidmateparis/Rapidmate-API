@@ -299,5 +299,38 @@ module.exports = {
     } finally {
       connection.release();
     }
+  },
+
+  //Enterprise planning 
+  async insertEnterpriseOrder(req) {
+    const connection = await pool.getConnection(); // Get a connection from the pool
+    try {
+      await connection.beginTransaction();
+      const {
+        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
+        pickup_date,pickup_time,pickup_location_id,dropoff_location_id,distance,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,is_my_self,
+        first_name,last_name,company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,amount
+      } = req; 
+      const [result] = await connection.query(
+        `INSERT INTO rmt_enterprise_order (
+          order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
+          pickup_date, pickup_time, pickup_location_id, dropoff_location_id, distance, is_repeat_mode, repeat_mode, 
+          repeat_every, repeat_until, repeat_day,is_my_self, first_name, last_name, 
+          company_name, email, mobile, package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id
+        ) VALUES ((now()+1),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`,
+        [
+          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
+        pickup_location_id,dropoff_location_id,distance,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, is_my_self,first_name,last_name,
+        company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id,amount
+        ]
+      );
+      await connection.commit(); // Commit the transaction
+      return { id: result.insertId};
+    } catch (error) {
+      await connection.rollback(); // Rollback the transaction in case of error
+      throw error;
+    } finally {
+      connection.release(); // Release the connection back to the pool
+    }
   }
 }
