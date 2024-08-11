@@ -1,5 +1,5 @@
 const utils = require("../../middleware/utils");
-const { runQuery,fetch, insertQuery, updateQuery, insertEnterpriseOrder } = require("../../middleware/db");
+const { runQuery,fetch, insertQuery, updateQuery, insertEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
 const {FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID} = require("../../db/enterprise.order");
 const { updateItem } = require("../enterprise");
 /********************
@@ -175,6 +175,37 @@ exports.createItem = async (req, res) => {
 };
 
 
+/**
+ * Create shift order function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const createShiftItem = async (req) => {
+  console.info(req);
+  const registerRes = await insertEnterpriseShiftOrder(req);
+  return registerRes;
+};
+
+exports.createShiftItem = async (req, res) => {
+  try {
+    const item = await createShiftItem(req.body);
+
+    if (item.id > 0) {
+      const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
+      return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",currData));
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
+
 
 const deleteItem = async (id) => {
   const deleteRes = await updateQuery(DELETE_ORDER_QUERY,[id]);
@@ -188,7 +219,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id, "ORDER_NUMBER", "rmt_order");
+    const getId = await utils.isIDGood(id, "id", "rmt_order");
     if (getId) {
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {

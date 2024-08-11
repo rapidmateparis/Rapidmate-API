@@ -1,5 +1,5 @@
-const controller = require('../controllers/consumer')
-const validate = require('../controllers/consumer.validate')
+const controller = require('../controllers/consumer/profile/consumer')
+const validate = require('../controllers/consumer/profile/consumer.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
@@ -40,8 +40,8 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
-  '/:id',
+router.put(
+  '/',
   trimRequest.all,
   validate.updateItem,
   controller.updateItem

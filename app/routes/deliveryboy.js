@@ -61,8 +61,8 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
-  '/:id',
+router.put(
+  '/',
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
