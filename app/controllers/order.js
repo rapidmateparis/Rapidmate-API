@@ -2,7 +2,7 @@ const utils = require("../middleware/utils");
 const { runQuery,fetch, insertQuery, updateQuery } = require("../middleware/db");
 const auth = require("../middleware/auth");
 const AuthController=require("../controllers/authuser");
-const { UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY } = require("../db/database.query");
+const { FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY } = require("../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -65,23 +65,28 @@ exports.getItem = async (req, res) => {
  */
 exports.getItemByConsumerExtId = async (req, res) => {
   try {
-    //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
-    //console.log(isAuththorized)
-    //if(isAuththorized.status==200){
       const id = req.params.id;
-      const data = await fetch(FETCH_ORDER_BY_CONSUMER_ID,[id]);
+      const reqStatus = req.query.status;
+      console.log(reqStatus);
+      let statusParams = [];
+      if(reqStatus == 'current'){
+        statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
+      }else if(reqStatus == "past") {
+        statusParams.push(["'PAYMENT_FAILED'","'ORDER_REJECTED'","'COMPLETED'","'CANCELLED'"]);
+      }else{
+        statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
+      }
+      var query = "select * from rmt_order where is_del=0 and order_status in (" + statusParams + ") AND consumer_id =(select id from rmt_consumer where ext_id =?)";
+      const data = await fetch(query, [id]);
       const filterdata=await transformKeysToLowercase(data)
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
         message = "No items found";
-        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+        return res.status(400).json(utils.buildErrorObject(404, message, 1001));
       }
       return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
-    //}else{
-   //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
-   // }
-    
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
@@ -95,27 +100,32 @@ exports.getItemByConsumerExtId = async (req, res) => {
  */
 exports.getItemByDeliveryBoyExtId = async (req, res) => {
   try {
-    //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
-    //console.log(isAuththorized)
-    //if(isAuththorized.status==200){
-      const id = req.params.id;
-      const data = await transformKeysToLowercase(await fetch(FETCH_ORDER_DELIVERY_BOY_ID,[id]));
-      console.log(data);
-      let message = "Items retrieved successfully";
-      if (data.length <= 0) {
-        message = "No items found";
-        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
-      }
-      return res.status(200).json(utils.buildcreatemessage(200, message, data));
-    //}else{
-   //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
-   // }
-    
-  } catch (error) {
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
-  }
+    const id = req.params.id;
+    const reqStatus = req.query.status;
+    console.log(reqStatus);
+    let statusParams = [];
+    if(reqStatus == 'current'){
+      statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
+    }else if(reqStatus == "past") {
+      statusParams.push(["'PAYMENT_FAILED'","'ORDER_REJECTED'","'COMPLETED'","'CANCELLED'"]);
+    }else{
+      statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
+    }
+    var query = "select * from rmt_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?)";
+    const data = await fetch(query, [id]);
+    const filterdata=await transformKeysToLowercase(data)
+    let message = "Items retrieved successfully";
+    if (data.length <= 0) {
+      message = "No items found";
+      return res.status(400).json(utils.buildErrorObject(404, message, 1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
+} catch (error) {
+  console.log(error);
+  return res
+    .status(500)
+    .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+}
 };
 /**
  * Update item function called by route
