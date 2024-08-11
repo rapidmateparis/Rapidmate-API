@@ -280,7 +280,6 @@ exports.nameExists = async (fieldValue,tableName,fieldname) => {
 exports.isIDGood=async (id,fieldValue,tableName)=>{
   let query = `SELECT ${fieldValue} FROM ${tableName} WHERE ${fieldValue} ='${id}'`;
   let queryRes = await runQuery(query);
-  console.log(query);
   if (queryRes.length > 0) {
     return queryRes[0][fieldValue];
   }
