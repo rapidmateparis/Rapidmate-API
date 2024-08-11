@@ -39,33 +39,7 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('first_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('last_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('phone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('role_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('password').exists().withMessage('MISSING'),
-    check('email_verify').exists().withMessage('MISSING'),
-    check('autaar').exists().withMessage('MISSING'),
-    check('city_id').exists().withMessage('MISSING'),
-    check('state_id').exists().withMessage('MISSING'),
-    check('country_id').exists().withMessage('MISSING'),
-    check('address').exists().withMessage('MISSING'),
-    check('vehicle_id').exists().withMessage('MISSING'),
-    check('driver_licence_no').exists().withMessage('MISSING'),
-    check('insurance').exists().withMessage('MISSING'),
-    check('passport').exists().withMessage('MISSING'),
-    check('identity_card').exists().withMessage('MISSING'),
-    check('company_name').exists().withMessage('MISSING'),
-    check('industry').exists().withMessage('MISSING'),
-    check('description').exists().withMessage('MISSING'),
-    check('siret_no').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('account_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('active').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-    check('term_condone').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-    check('term_condtwo').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-    check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
         validationResult(req, res, next)
     }
