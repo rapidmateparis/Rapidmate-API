@@ -1,5 +1,5 @@
 const controller = require('../../controllers/enterprise/order')
-const validate = require('../../controllers/enterprise/order.validate')
+const validate = require('../../controllers/enterprise/shift.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
@@ -19,16 +19,6 @@ router.post(
   controller.createItem
 )
 
-
-/*
- * Create new item route
- */
-router.post(
-  '/shiftorder',
-  trimRequest.all,
-  validate.orderItem,
-  controller.createShiftItem
-)
 /*
  * Get item route
  */
