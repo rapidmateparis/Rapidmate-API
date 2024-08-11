@@ -140,6 +140,19 @@ exports.buildcreatemessage=(code,message,data)=>{
   }];
 }
 
+exports.buildResponse = (code, data)=>{
+  const timestamp = Date.now(); // current timestamp in milliseconds
+  const trackId = uuidv4(); // generate a new UUID
+  return [{
+      "_success": true,
+      "_httpsStatus": "OK",
+      "_httpsStatusCode": code,
+      "_responedOn": timestamp,
+      "_response": data,
+      "_trackId": trackId
+  }];
+}
+
 /**
  * Builds error for validation files
  * @param {Object} req - request object

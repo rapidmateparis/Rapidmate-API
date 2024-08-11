@@ -75,7 +75,7 @@ exports.getNearbydriver = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_delivery_boy where ID='"+id+"'"
+    const getUserQuerye = "select * from rmt_delivery_boy where ext_id ='"+id+"'"
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -92,53 +92,59 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,req,insurance,autaar,identity_card,passport) => {
-    
-    const registerQuery = `UPDATE rmt_delivery_boy SET FIRST_NAME='${req.first_name}',LAST_NAME='${req.last_name}',EMAIL='${req.email}',EMAIL_VERIFICATION='${req.email_verify}',PHONE='${req.phone}',PASSWORD='${req.password}',AUTAAR='${autaar}',ROLE_ID='${req.role_id}',CITY_ID='${req.city_id}',STATE_ID='${req.state_id}',COUNTRY_ID='${req.country_id}',ADDRESS='${req.address}' ,SIRET_NO='${req.siret_no}',VEHICLE_ID='${req.vehicle_id}',DRIVER_LICENCE_NO='${req.driver_licence_no}',INSURANCE='${insurance}',PASSPORT='${passport}',IDENTITY_CARD='${identity_card}',COMPANY_NAME='${req.company_name}',INDUSTRY='${req.industry}',DESCRIPTION='${req.description}',TERM_COND1='${req.term_condone}',TERM_COND2='${req.term_condtwo}',ACCOUNT_TYPE='${req.account_type}',ACTIVE='${req.active}',OTP='${req.opt}',IS_DEL='${req.is_del}'  WHERE ID='${id}'`;
-    const registerRes = await runQuery(registerQuery);
-    return registerRes;
+const updateItem = async (profielUpdateQuery, params) => {
+    console.log(profielUpdateQuery);
+    console.log(params);
+    const updateDeliveryBoyProfile = await updateQuery(profielUpdateQuery, params);
+    console.log(updateDeliveryBoyProfile);
+    return updateDeliveryBoyProfile;
 }
 
 exports.updateItem = async (req, res) => {
   try {
-    const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy')
-    if(getId){
-      let insurance='';
-      let passport='';
-      let identity_card='';
-      let autaar='';
-      let filename='';
-      // console.log(req.body)
-      if(req.body.insurance != '') {
-        filename ='insurance_'+Date.now()+'.jpg';
-        insurance = await utils.uploadFileToS3bucket(req,filename);
-        insurance =insurance.data.Location
-      }
-      if(req.body.passport != '') {
-        filename ='passport_'+Date.now()+'.jpg';
-        passport = await utils.uploadFileToS3bucket(req,filename);
-        passport =passport.data.Location
-      }
-      if(req.body.autaar != '') {
-        filename ='autaar_'+Date.now()+'.jpg';
-        autaar = await utils.uploadFileToS3bucket(req,filename);
-        autaar =autaar.data.Location
-      } 
-      if(req.body.identity_card != '') {
-        filename ='identity_card_'+Date.now()+'.jpg';
-        identity_card= await utils.uploadFileToS3bucket(req,filename);
-        identity_card =identity_card.data.Location
-      } 
-      const updatedItem = await updateItem(id, req.body,insurance,autaar,identity_card,passport);
-      if(updatedItem) {
+    const id = await utils.getValueById('id','rmt_delivery_boy','ext_id', req.body.ext_id);
+    if(id){
+      var queryCondition = "";
+      var queryConditionParam = [];
+      requestBody = req.body;
+      if(requestBody.first_name){
+        queryCondition += ", first_name = ?";
+        queryConditionParam.push(requestBody.first_name);
+      }
+      if(requestBody.last_name){
+        queryCondition += ", last_name = ?";
+        queryConditionParam.push(requestBody.last_name);
+      }
+      if(requestBody.phone){
+        queryCondition += ", phone = ?";
+        queryConditionParam.push(requestBody.phone);
+      }
+      if(requestBody.profile_pic){
+        queryCondition += ", profile_pic = ?";
+        queryConditionParam.push(requestBody.profile_pic);
+      }
+      if(requestBody.driver_licence_no){
+        queryCondition += ", driver_licence_no = ?";
+        queryConditionParam.push(requestBody.driver_licence_no);
+      }
+      if(requestBody.work_type_id){
+        queryCondition += ", work_type_id = ?";
+        queryConditionParam.push(requestBody.work_type_id);
+      }
+      queryConditionParam.push(req.body.ext_id);
+      var updateQuery = "update rmt_delivery_boy set is_del = 0 " + queryCondition + " where ext_id = ?";
+      
+      const executeResult = await updateItem(updateQuery, queryConditionParam);
+      if(executeResult) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to update the delivery boy profile',1001));
       }
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500,'Invalid Delivery boy',1001));
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   } catch (error) {
+    console.log(error);
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
     
