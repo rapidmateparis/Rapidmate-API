@@ -330,6 +330,8 @@ module.exports = {
         company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id,amount
         ]
       );
+      
+    
       await connections.commit(); // Commit the transaction
       return { id: result.insertId};
     } catch (error) {
@@ -461,6 +463,66 @@ module.exports = {
         company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id,amount,shift_id,slot_id,order_type
         ]
       );
+      // rmt_enterprise_order_line
+      if (delivery_type_id === 2) {
+        if (req.addAnothers && req.addAnothers.length > 0) {
+            const orderId = result.insertId;
+    
+            // Fetch the order number from the database
+            const [getOrderNumberResult] = await connections.query(
+                `SELECT order_number FROM rmt_enterprise_order WHERE id = ?`,
+                [orderId]
+            );
+    
+            if (getOrderNumberResult.length > 0) {
+                const { order_number } = getOrderNumberResult[0];
+    
+                // Loop through each delivery entry in addAnothers
+                for (const delivery of req.addAnothers) {
+                    const {
+                        to_latitude,
+                        to_longitude,
+                        dropoff_location,
+                        delivery_date,
+                        delivery_start_time,
+                        delivery_end_time,
+                        m_total_hours,
+                        m_distance
+                    } = delivery;
+    
+                    // Insert the data into rmt_enterprise_order_line
+                    await connections.query(
+                        `INSERT INTO rmt_enterprise_order_line (
+                            branch_id,
+                            order_id,
+                            order_number,
+                            to_latitude,
+                            to_longitude,
+                            dropoff_location,
+                            delivery_date,
+                            delivery_start_time,
+                            delivery_end_time,
+                            total_hours,
+                            distance
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            branch_id,
+                            orderId,
+                            order_number,
+                            to_latitude,
+                            to_longitude,
+                            dropoff_location,
+                            delivery_date,
+                            delivery_start_time,
+                            delivery_end_time,
+                            m_total_hours,
+                            m_distance
+                        ]
+                    );
+                }
+            }
+        }
+      }
       await connections.commit(); // Commit the transaction
       return { id: result.insertId};
     } catch (error) {
