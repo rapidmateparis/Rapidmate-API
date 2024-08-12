@@ -76,7 +76,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
       }else{
         statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
       }
-      var query = "select * from rmt_order where is_del=0 and order_status in (" + statusParams + ") AND consumer_id =(select id from rmt_consumer where ext_id =?)";
+      var query = "select * from rmt_order where is_del=0 and order_status in (" + statusParams + ") AND consumer_id =(select id from rmt_consumer where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
       const data = await fetch(query, [id]);
       const filterdata=await transformKeysToLowercase(data)
       let message = "Items retrieved successfully";
@@ -102,7 +102,6 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
   try {
     const id = req.params.id;
     const reqStatus = req.query.status;
-    console.log(reqStatus);
     let statusParams = [];
     if(reqStatus == 'current'){
       statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
@@ -111,7 +110,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     }else{
       statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
     }
-    var query = "select * from rmt_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?)";
+    var query = "select * from rmt_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
     const data = await fetch(query, [id]);
     const filterdata=await transformKeysToLowercase(data)
     let message = "Items retrieved successfully";
