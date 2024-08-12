@@ -379,3 +379,30 @@ exports.updateDeliveryboyLatlng=async (delivery_boy_id,latitude,longitude)=>{
     return false
   }
 }
+
+exports.getPage = (page) => {
+  try {
+    var pageCheck = parseInt(page)-1;
+    return pageCheck>0?pageCheck:0;
+  } catch (error) {
+    return 0;
+  }
+};
+
+exports.getSize = (size) => {
+  try {
+    return size?parseInt(size):10;
+  } catch (error) {
+    return 10;
+  }
+};
+
+exports.getPagination = (page, size) => {
+  try {
+    var sizeValue = this.getSize(size);
+    return " limit " + (this.getPage(page) * sizeValue) + "," + this.getSize(size);
+  } catch (error) {
+    return " limit 0 , 10 ";
+  }
+};
+
