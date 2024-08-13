@@ -165,7 +165,7 @@ module.exports = {
               day : slot.day,
               from_time : timeData.from_time,
               to_time : timeData.to_time,
-              is_selected : slot.selected?1:0
+              is_selected : ((slot.selected)? 1 : 0)
             });
           }
         );
