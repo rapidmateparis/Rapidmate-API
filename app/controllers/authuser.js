@@ -303,7 +303,7 @@ async function loginResponseData(resolve, result, username) {
 }
 
 function getUserProfile(username){
-    const dbUserProfile = fetch("select ext_id, first_name, last_name, email, phone, username, role, profile_pic from vw_rmt_user where username = ?", [username]);
+    const dbUserProfile = fetch("select * from vw_rmt_user where username = ?", [username]);
     return dbUserProfile;
 }
 
