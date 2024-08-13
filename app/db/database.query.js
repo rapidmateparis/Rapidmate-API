@@ -98,6 +98,10 @@ exports.UPDATE_ORDER_QUERY=`UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NA
 exports.UPDATE_ORDER_BY_STATUS=`UPDATE rmt_order SET DELIVERY_STATUS=? WHERE is_del=0 AND  ORDER_ID=?`;
 exports.DELETE_ORDER_QUERY=`UPDATE rmt_order SET is_del =1 WHERE ORDER_NUMBER=?`;
 
+//check order 
+exports.CHECK_ORDER_FOR_OTP=`SELECT order_number, otp FROM rmt_order WHERE order_number = ? AND is_otp_verified=0`;
+exports.UPDATE_ORDER_OTP_VERIFIED=`UPDATE rmt_order SET is_otp_verified=1 WHERE order_number=? AND is_otp_verified=0`
+
 //-----------------------rmt_transaction---------------------------------
 exports.FETCH_TRAN_QUERY=`SELECT * FROM rmt_transaction WHERE is_del=0`;
 exports.FETCH_TRAN_BY_ID=`SELECT * FROM rmt_transaction WHERE is_del=0 AND ID=?`;

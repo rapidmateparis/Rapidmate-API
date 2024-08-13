@@ -2,7 +2,7 @@ const utils = require("../middleware/utils");
 const { runQuery,fetch, insertQuery, updateQuery } = require("../middleware/db");
 const auth = require("../middleware/auth");
 const AuthController=require("../controllers/authuser");
-const { FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY } = require("../db/database.query");
+const { FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY, CHECK_ORDER_FOR_OTP, UPDATE_ORDER_OTP_VERIFIED } = require("../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -316,7 +316,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id, "ORDER_NUMBER", "rmt_order");
+    const getId = await utils.isIDGood(id, "order_number", "rmt_order");
     if (getId) {
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {
@@ -338,3 +338,33 @@ exports.deleteItem = async (req, res) => {
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
   }
 };
+
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+exports.otpVerification = async (req,res)=>{
+  try{
+    const {order_number,otp}=req.body
+    const getorder=await fetch(CHECK_ORDER_FOR_OTP,[order_number]);
+    if(getorder.length <=0){
+      message = "order not founded.";
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    }
+    const [result]=getorder
+    const storedOtp = result.otp;
+    if (storedOtp.toString().trim() === otp.toString().trim()) {
+      const verifiedOTP=await updateQuery(UPDATE_ORDER_OTP_VERIFIED,[order_number]);
+      if(verifiedOTP.affectedRows >0){
+        return res.status(200).json(utils.buildUpdatemessage(200, "Otp verified."));
+      }
+      return res.status(500).json(utils.buildErrorObject(500, "otp not verified try again.", 1001));
+    }
+    return res.status(400).json(utils.buildErrorObject(400, "Otp does not matched.", 1001));
+  }catch(error){
+    return res
+    .status(500)
+    .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+}
