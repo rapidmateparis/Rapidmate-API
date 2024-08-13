@@ -42,7 +42,12 @@ router.get(
   controller.allocateDeliveryBoyByOrderNumber
 )
 
-
+router.put(
+  '/otp/verify',
+  trimRequest.all,
+  validate.otpVerify,
+  controller.otpVerifiy
+)
 /*
  * Get item route
  */

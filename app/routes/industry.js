@@ -1,13 +1,11 @@
-const controller = require('../controllers/enterprise')
-const validate = require('../controllers/enterprise.validate')
+const controller = require('../controllers/admin/industrytype/industry')
+const validate = require('../controllers/admin/industrytype/industry.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-const branchRouter =require('./enterprisebranch')
-const orderRouter =require('../middleware/routes/order')
-const shiftRouter =require('../middleware/routes/shift')
+
 /*
- * Latlon routes
+ * Industry routes
  */
 
 /*
@@ -40,16 +38,6 @@ router.get(
 )
 
 /*
- * Get item route
- */
-router.get(
-  '/dashboard/:id',
-    trimRequest.all,
-    validate.getItem,
-    controller.dashboardItem
-)
-
-/*
  * Update item route
  */
 router.patch(
@@ -69,10 +57,4 @@ router.delete(
   controller.deleteItem
 )
 
-/*
- * Branch routes
- */
-router.use('/branch', branchRouter);
-router.use('/order', orderRouter);
-router.use('/shift', shiftRouter);
 module.exports = router

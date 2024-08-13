@@ -107,6 +107,7 @@ exports.updateItem = [
       }),
     check('repeat_dropoff_location_id').optional({ checkFalsy: true }).exists().withMessage('repeat dropoff location field declare mandatory.').not().isEmpty().withMessage('repeat dropoff location field is required'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    
     (req, res, next) => {
         validationResult(req, res, next)
     }
@@ -200,7 +201,22 @@ exports.orderItem = [
         return true;
       }),
     check('repeat_dropoff_location_id').optional({ checkFalsy: true }).exists().withMessage('repeat dropoff location field declare mandatory.').not().isEmpty().withMessage('repeat dropoff location field is required'),
-  (req, res, next) => {
+    check('addAnothers').optional().isArray().withMessage('SLOTS_MUST_BE_ARRAY'),
+    body('delivery_type_id').custom((value, { req }) => {
+      if (value === 2 && (!req.body.addAnothers || req.body.addAnothers.length === 0)) {
+        throw new Error('addAnothers  is_repeat_mode is 1');
+      }
+      return true;
+    }),
+
+    check('addAnothers.*.to_latitude').optional({ checkFalsy: true }).exists().withMessage('latitude field declare mandatory.').not().isEmpty().withMessage('to_latitude field is required'),
+    check('addAnothers.*.to_longitude').optional({ checkFalsy: true }).exists().withMessage('to_longitude field declare mandatory.').not().isEmpty().withMessage('to_longitude field is required'),
+    check('addAnothers.*.delivery_date').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_date field is required'),
+    check('addAnothers.*.delivery_start_time').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_start_time field is required'),
+    check('addAnothers.*.delivery_end_time').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_end_timne field is required'),
+    check('addAnothers.*.m_total_hours').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('m_total_hours field is required'),
+    check('addAnothers.*.m_distance').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('m_distance field is required'),
+    (req, res, next) => {
     validationResult(req, res, next)
   }
 ]

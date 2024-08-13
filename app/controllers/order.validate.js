@@ -57,6 +57,15 @@ exports.allocateDeliveryBoy = [
 }
 ]
 
+exports.otpVerify = [
+  check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('otp').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
 exports.getAllocateDeliveryBoy = [
   check('o').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
 (req, res, next) => {
