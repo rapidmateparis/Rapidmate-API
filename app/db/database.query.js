@@ -266,6 +266,14 @@ exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.
 exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET card_number=?,card_holder_name=?,expiration_date=?,cvv=?,biling_address=? WHERE id=?`
 exports.DELETE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET is_del=1 WHERE id=?`
 
+
+//=================================================rmt_rating=======================================================
+exports.FETCH_RATING_QUERY=`SELECT * FROM rmt_rating WHERE is_del = 0`;
+exports.FETCH_RATING_BY_ID=`SELECT * FROM rmt_rating WHERE id = ? AND is_del = 0`;
+exports.INSERT_RATING=`INSERT INTO rmt_rating (order_id, consumer_id, rating, comment) VALUES ((SELECT id FROM rmt_order WHERE order_number = ?),(SELECT id FROM rmt_consumer WHERE ext_id = ?),?,?)`;
+exports.UPDATE_RATING=`UPDATE rmt_rating SET rating = ?, comment = ?, updated_on = NOW() WHERE id = ?`;
+exports.DELETE_RATING=`UPDATE rmt_rating SET is_del = 1 WHERE id = ?`;
+exports.FETCH_RATING_BY_ORDER_NUMBER=`SELECT * FROM rmt_rating WHERE order_id= (select id from rmt_order where order_number=?) AND is_del = 0`
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {
