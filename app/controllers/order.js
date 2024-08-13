@@ -274,7 +274,7 @@ exports.allocateDeliveryBoy = async (req, res) => {
 };
 
 exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
-
+  var responseData = {};
   try {
     const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 limit 1';
     const dbData = await runQuery(getUserQuerye)
@@ -283,13 +283,16 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }else{
       allocatedDeliveryBoy = dbData[0];
+      responseData.deliveryBoy = allocatedDeliveryBoy;
       const order_number = req.query.o;
       const delivery_boy_ext_id = allocatedDeliveryBoy.ext_id;
       const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE, [order_number, delivery_boy_ext_id]);
       if (allocateDeliveryBoyResult.insertId) {
         const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER,[delivery_boy_ext_id, order_number]);
         const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_ext_id]);
-        return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully", allocatedDeliveryBoy));
+        responseData.order = await getOrderInfo(order_number);
+        responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
+        return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully", responseData));
       } else {
         return res
           .status(500)
@@ -301,6 +304,26 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
+
+const getOrderInfo = async (order_number) => {
+  try {
+    const data = await fetch("select * from rmt_order where order_number =?", [order_number]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
+const getVehicleInfo = async (delivery_boy_id) => {
+  try {
+    const data = await fetch("select * from rmt_vehicle where delivery_boy_id =?", [delivery_boy_id]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
   }
 };
 
@@ -336,5 +359,39 @@ exports.deleteItem = async (req, res) => {
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
+
+exports.otpVerifiy = async (req, res) => {
+  try {
+    var requestData = req.body;
+    const data = await fetch("select is_otp_verified from rmt_order where is_del=0 AND otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",[requestData.otp, requestData.order_number, requestData.delivery_boy_ext_id]);
+    if (data.length >0) {
+      var is_otp_verified = parseInt(data[0].is_otp_verified);
+      if(is_otp_verified == 0){
+        const updateData = await updateQuery("update rmt_order set is_otp_verified = 1 where order_number = ?", [requestData.order_number])
+        if(updateData){
+          return res.status(202).json(utils.buildErrorObject(202, "OTP has been verified successfully", 1001));
+        }else{
+          return res
+          .status(500)
+          .json(utils.buildErrorObject(500, "Unable to verify OTP. Please try again", 1001));
+        }
+      }else{
+        return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "OTP is already verified", 1001));
+      }
+    }else{
+      return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Invalid OTP", 1001));
+    }
+   
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to verify OTP", 1001));
   }
 };
