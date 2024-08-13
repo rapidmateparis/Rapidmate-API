@@ -78,4 +78,11 @@ router.patch(
 )
 
 
+router.patch(
+  '/orderlinestatus/:id',
+  trimRequest.all,
+  validate.updateStatus,
+  controller.updateOrderlineStatus
+)
+
 module.exports = router

@@ -1,6 +1,6 @@
 const utils = require("../../middleware/utils");
 const { runQuery,fetch, insertQuery, updateQuery, insertEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
-const {FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID} = require("../../db/enterprise.order");
+const {FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
 const { updateItem } = require("../enterprise");
 /********************
  * Public functions *
@@ -150,7 +150,7 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  console.info(req);
+  console.info(req.addAnothers);
   const registerRes = await insertEnterpriseOrder(req);
   return registerRes;
 };
@@ -200,6 +200,43 @@ exports.createShiftItem = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
+
+/**
+ * Update item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const updateOrderlineStatus = async (id, status) => {
+  const registerRes = await updateQuery(UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS,[status,id]);
+  return registerRes;
+};
+
+exports.updateOrderlineStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const getId = await utils.isIDGood(id, "id", "rmt_enterprise_order_line");
+    if (getId) {
+      const updatedItem = await updateOrderlineStatus(id, status);
+      if (updatedItem.affectedRows >0) {
+        return res
+          .status(200)
+          .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
+      } else {
+        return res
+          .status(500)
+          .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      }
+    }
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  } catch (error) {
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));

@@ -1,5 +1,6 @@
 //===============================rmt_enterpriser_order================================================================
 exports.UPDATE_ENTERPRISE_ORDER_BY_STATUS=`UPDATE rmt_enterprise_order SET order_status=? WHERE id=?`;
+exports.UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS=`UPDATE rmt_enterprise_order_line SET order_status=? WHERE id=?`;
 exports.FETCH_ORDER_QUERY=`select * from rmt_enterprise_order WHERE is_del=0`;
 exports.FETCH_ORDER_BY_ID=`select * from rmt_enterprise_order WHERE is_del=0 AND id=?`
 exports.FETCH_ORDER_BY_ORDER_NUMBER=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND order_number=?`
