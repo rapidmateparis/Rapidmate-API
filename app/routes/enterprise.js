@@ -6,6 +6,7 @@ const trimRequest = require('trim-request')
 const branchRouter =require('./enterprisebranch')
 const orderRouter =require('../middleware/routes/order')
 const shiftRouter =require('../middleware/routes/shift')
+const addressRouter =require('../middleware/routes/address')
 /*
  * Latlon routes
  */
@@ -75,4 +76,5 @@ router.delete(
 router.use('/branch', branchRouter);
 router.use('/order', orderRouter);
 router.use('/shift', shiftRouter);
+router.use('/address', addressRouter);
 module.exports = router

@@ -103,5 +103,15 @@ router.patch(
     controller.updateStatus
 )
 
+/**
+ * assign delivery boy
+*/
+
+router.patch(
+    '/deliveryboyassign',
+    trimRequest.all,
+    validate.assignDeliveryboyInshift,
+    controller.assignDeliveryboyInshift
+)
 
 module.exports = router
