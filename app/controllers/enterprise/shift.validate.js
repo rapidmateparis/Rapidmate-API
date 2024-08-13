@@ -149,3 +149,14 @@ exports.updateStatus = [
     }
   ];
 
+  /**
+ * Validates create item request
+ */
+exports.assignDeliveryboyInshift = [
+  check('shift_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('enterprise_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('delivery_boy_ext').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next);
+  }
+];

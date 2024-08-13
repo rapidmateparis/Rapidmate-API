@@ -1,7 +1,6 @@
-const utils = require('../middleware/utils')
-const db = require('../middleware/db')
-const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
-const {FETCH_DA_ALL,FETCH_DA_BY_ID,INSERT_DA_QUERY,UPDATE_DA_QUERY,DELECT_DA_QUERY,transformKeysToLowercase}=require('../db//database.query')
+const utils = require('../../../middleware/utils')
+const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db');
+const { FETCH_RATING_QUERY, FETCH_RATING_BY_ID, UPDATE_RATING, INSERT_RATING, DELETE_RATING, FETCH_RATING_BY_ORDER_NUMBER } = require('../../../db/database.query');
 
 
 /********************
@@ -14,14 +13,13 @@ const {FETCH_DA_ALL,FETCH_DA_BY_ID,INSERT_DA_QUERY,UPDATE_DA_QUERY,DELECT_DA_QUE
  */
 exports.getItems = async (req, res) => {
   try {
-    const data = await runQuery(FETCH_DA_ALL)
-    const filterdata=await transformKeysToLowercase(data)
+    const data = await runQuery(FETCH_RATING_QUERY)
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -34,15 +32,35 @@ exports.getItems = async (req, res) => {
  */
 exports.getItem = async (req, res) => {
   try {
-    const id = req.params.id;
-    const data = await fetch(FETCH_DA_BY_ID,[id])
-    const filterdata=await transformKeysToLowercase(data)
+    const {id} = req.params;
+    const data = await fetch(FETCH_RATING_BY_ID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+
+/**
+ * Get item BY ORDER NUMBER function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getRatingByorderNumber = async (req, res) => {
+  try {
+    const {id} = req.params;
+    const data = await fetch(FETCH_RATING_BY_ORDER_NUMBER,[id])
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="No items found"
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -54,16 +72,17 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_DA_QUERY,[req.delivery_boy_id,req.account_number,req.bank_name,req.ifsc,req.address,id]);
+    const registerRes = await updateQuery(UPDATE_RATING,[req.rating,req.comment,id]);
     return registerRes;
 }
+
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy_account')
+    const getId = await utils.isIDGood(id,'id','rmt_rating')
     if(getId){
       const updatedItem = await updateItem(id, req.body);
-      if (updatedItem.affectedRows >0) {
+      if (updatedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -81,31 +100,27 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_DA_QUERY,[req.delivery_boy_id,req.account_number,req.bank_name,req.ifsc,req.address]);
+    const registerRes = await insertQuery(INSERT_RATING,[req.order_number,req.customer_ext,req.rating,req.comment]);
     return registerRes;
 }
-
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.account_number,'rmt_delivery_boy_account','ACCOUNT_NUMBER')
-    if (!doesNameExists) {
-      const item = await createItem(req.body)
-      if(item.insertId){
-        const currentdata=await transformKeysToLowercase(await fetch(FETCH_DA_BY_ID,[item.insertId]));
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
-      }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-      }
+    const item = await createItem(req.body)
+    console.log(item)
+    if(item.insertId){
+      const currentdata=await fetch(FETCH_RATING_BY_ID,[item.insertId])
+      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Account number already exists',1001));
+      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
+   
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
 
 const deleteItem = async (id) => {
-  const deleteRes = await fetch(DELECT_DA_QUERY,[id]);
+  const deleteRes = await updateQuery(DELETE_RATING,[id]);
   return deleteRes;
 };
 /**
@@ -116,7 +131,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy_account')
+    const getId = await utils.isIDGood(id,'id','rmt_rating')
     if(getId){
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {

@@ -1,14 +1,12 @@
-const controller = require('../controllers/enterprise')
-const validate = require('../controllers/enterprise.validate')
+const controller = require('../controllers/common/orderrating/rating')
+const validate = require('../controllers/common/orderrating/rating.validate')
 const express = require('express')
 const router = express.Router()
+
 const trimRequest = require('trim-request')
-const branchRouter =require('./enterprisebranch')
-const orderRouter =require('../middleware/routes/order')
-const shiftRouter =require('../middleware/routes/shift')
-const addressRouter =require('../middleware/routes/address')
+
 /*
- * Latlon routes
+ * Users routes
  */
 
 /*
@@ -37,17 +35,14 @@ router.get(
   '/:id',
     trimRequest.all,
     validate.getItem,
-  controller.getItem
+    controller.getItem
 )
 
-/*
- * Get item route
- */
 router.get(
-  '/dashboard/:id',
+    '/number/:id',
     trimRequest.all,
     validate.getItem,
-    controller.dashboardItem
+    controller.getRatingByorderNumber
 )
 
 /*
@@ -70,11 +65,4 @@ router.delete(
   controller.deleteItem
 )
 
-/*
- * Branch routes
- */
-router.use('/branch', branchRouter);
-router.use('/order', orderRouter);
-router.use('/shift', shiftRouter);
-router.use('/address', addressRouter);
 module.exports = router

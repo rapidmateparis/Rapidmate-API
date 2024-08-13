@@ -1,20 +1,20 @@
-const controller = require('../controllers/addpayments')
-const validate = require('../controllers/addpayments.validate')
+const controller = require('../../controllers/enterprise/address')
+const validate = require('../../controllers/enterprise/address.validate')
 const express = require('express')
 const router = express.Router()
-
 const trimRequest = require('trim-request')
 
 /*
- * payment account routes
+ * job routes
  */
 
 /*
  * Get items route
  */
 router.get(
-  '/',
+  '/getbyext/:id',
   trimRequest.all,
+  validate.getItem,
   controller.getItems
 )
 
@@ -37,6 +37,8 @@ router.get(
     validate.getItem,
   controller.getItem
 )
+
+
 
 /*
  * Update item route
