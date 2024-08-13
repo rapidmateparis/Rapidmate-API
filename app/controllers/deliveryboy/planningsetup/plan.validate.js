@@ -10,7 +10,7 @@ exports.createItem = [
   check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('slots').optional().isArray().withMessage('SLOTS_MUST_BE_ARRAY'),
   body('is_24x7').custom((value, { req }) => {
-    if (value === 0 && (!req.body.slots || req.body.slots.length === 0)) {
+    if (value === 0 && (!req.body.setup || req.body.setup.length === 0)) {
       throw new Error('Slots data is mandatory when is_24x7 is 0');
     }
     return true;
