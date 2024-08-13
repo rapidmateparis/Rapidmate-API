@@ -1,6 +1,6 @@
 const utils = require('../../middleware/utils')
 const {runQuery,updateQuery,insertShiftAndSlot,fetch, updateShiftAndSlot} = require('../../middleware/db');
-const { FETCH_SHIFT_QUERY,FETCH_SLOTS_BY_SHIFT_ID,FETCH_SHIFT_BY_ID,DELETE_SHIFT_QUERY,RESTORE_SHIFT_QUERY,FETCH_SHIFT_BY_EXTID,UPDATE_SHIFT_BY_STATUS,FETCH_SHIFT_STATUS,FETCH_SHIFT_BY_STATUS,FETCH_ALL_DELETED_SHIFT} = require('../../db/enterprise.order');
+const { FETCH_SHIFT_QUERY,FETCH_SLOTS_BY_SHIFT_ID,FETCH_SHIFT_BY_ID,DELETE_SHIFT_QUERY,RESTORE_SHIFT_QUERY,FETCH_SHIFT_BY_EXTID,UPDATE_SHIFT_BY_STATUS,FETCH_SHIFT_STATUS,FETCH_SHIFT_BY_STATUS,FETCH_ALL_DELETED_SHIFT,DELIVERY_BOY_ASSIGN_IN_SHIFT} = require('../../db/enterprise.order');
 /********************
  * Public functions *
  ********************/
@@ -282,4 +282,22 @@ exports.restoreItem = async (req, res) => {
     }
 };
 
+
+exports.assignDeliveryboyInshift = async (req,res)=>{
+  try {
+    const {shift_id,enterprise_ext_id,delivery_boy_ext}=req.body
+    const getId = await utils.isIDGood(shift_id, "id", "rmt_enterprise_shift");
+    if (getId) {
+      const deletedItem = await updateQuery(DELIVERY_BOY_ASSIGN_IN_SHIFT,[delivery_boy_ext,enterprise_ext_id,shift_id]);
+      if (deletedItem.affectedRows > 0) {
+        return res.status(200).json(utils.buildUpdatemessage(200, "Record Restored Successfully"));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      }
+    }
+    return res.status(400).json(utils.buildErrorObject(400, "Data not found.", 1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+}
 

@@ -153,3 +153,15 @@ exports.deleteItem = [
     validationResult(req, res, next)
   }
 ]
+
+/**
+ * order otp verification
+ */
+
+exports.otpVerification=[
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('otp').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]

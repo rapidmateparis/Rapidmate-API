@@ -98,6 +98,10 @@ exports.UPDATE_ORDER_QUERY=`UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NA
 exports.UPDATE_ORDER_BY_STATUS=`UPDATE rmt_order SET DELIVERY_STATUS=? WHERE is_del=0 AND  ORDER_ID=?`;
 exports.DELETE_ORDER_QUERY=`UPDATE rmt_order SET is_del =1 WHERE ORDER_NUMBER=?`;
 
+//check order 
+exports.CHECK_ORDER_FOR_OTP=`SELECT order_number, otp FROM rmt_order WHERE order_number = ? AND is_otp_verified=0`;
+exports.UPDATE_ORDER_OTP_VERIFIED=`UPDATE rmt_order SET is_otp_verified=1 WHERE order_number=? AND is_otp_verified=0`
+
 //-----------------------rmt_transaction---------------------------------
 exports.FETCH_TRAN_QUERY=`SELECT * FROM rmt_transaction WHERE is_del=0`;
 exports.FETCH_TRAN_BY_ID=`SELECT * FROM rmt_transaction WHERE is_del=0 AND ID=?`;
@@ -175,7 +179,13 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
   exports.INSERT_INDUSTRY=`INSERT INTO rmt_industry_type(industry_type,industry_type_desc) VALUES(?,?)`;
   exports.UPDATE_INDUSTRY=`UPDATE rmt_industry_type SET industry_type=?, industry_type_desc=? WHERE is_del=0 AND id=?`;
   exports.DELETE_INDUSTRY=`UPDATE rmt_industry_type SET is_del=1 WHERE id=?`
-
+  //---------------------------------------- address------------------------------------------------------------------------
+  exports.FETCH_ENTERPRISE_ADDRESS=`SELECT * FROM rmt_enterprise_address WHERE is_del=0`;
+  exports.FETCH_ENTERPRISE_ADDRESS_BYID=`SELECT * FROM rmt_enterprise_address WHERE is_del=0 AND id=?`;
+  exports.FETCH_ENTERPRISE_ADDRESS_BYEXTID=`SELECT * FROM rmt_enterprise_address WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id = ?)`
+  exports.INSERT_ENTERPRISE_ADDRESS=`INSERT INTO rmt_enterprise_address(enterprise_id,address,first_name,last_name,email,mobile,company_name,comment) VALUES((select id from rmt_enterprise where ext_id = ?),?,?,?,?,?,?,?)`
+  exports.UPDATE_ENTERPRISE_ADDRESS=`UPDATE rmt_enterprise_address SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),address=?,first_name=?,last_name=?,email=?,mobile=?,company_name=?,comment=? WHERE id=?`;
+  exports.DELETE_ENTERPRISE_ADDRESS='UPDATE rmt_enterprise_address SET is_del=1 WHERE id=?'
   //-------------------------------------dashboard query-----------------------------------------------------------------------------
   exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN shift_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN shift_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_shift WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
   exports.FETCH_SLOT_CHART=`
@@ -256,6 +266,14 @@ exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.
 exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET card_number=?,card_holder_name=?,expiration_date=?,cvv=?,biling_address=? WHERE id=?`
 exports.DELETE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET is_del=1 WHERE id=?`
 
+
+//=================================================rmt_rating=======================================================
+exports.FETCH_RATING_QUERY=`SELECT * FROM rmt_rating WHERE is_del = 0`;
+exports.FETCH_RATING_BY_ID=`SELECT * FROM rmt_rating WHERE id = ? AND is_del = 0`;
+exports.INSERT_RATING=`INSERT INTO rmt_rating (order_id, consumer_id, rating, comment) VALUES ((SELECT id FROM rmt_order WHERE order_number = ?),(SELECT id FROM rmt_consumer WHERE ext_id = ?),?,?)`;
+exports.UPDATE_RATING=`UPDATE rmt_rating SET rating = ?, comment = ?, updated_on = NOW() WHERE id = ?`;
+exports.DELETE_RATING=`UPDATE rmt_rating SET is_del = 1 WHERE id = ?`;
+exports.FETCH_RATING_BY_ORDER_NUMBER=`SELECT * FROM rmt_rating WHERE order_id= (select id from rmt_order where order_number=?) AND is_del = 0`
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {
