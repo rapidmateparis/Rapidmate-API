@@ -34,7 +34,6 @@ exports.updateItem = [
     check('driving_license').exists().withMessage('MISSING'),
     check('insurance').exists().withMessage('MISSING'),
     check('passport').exists().withMessage('MISSING'),
-    check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   }

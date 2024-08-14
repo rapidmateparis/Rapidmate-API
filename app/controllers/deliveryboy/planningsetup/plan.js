@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { insertQuery, fetch, insertOrUpdatePlanningWithSlots, getAllPlanningWithSlots, getPlanningWithSlotsByDeliveryBoy, updateQuery, runQuery } = require('../../../middleware/db')
-const { FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, GET_PLANNING_SETUP_ID, DELETE_SETUP_QUERY, DELETE_SETUP_SLOTS_QUERY, INSERT_PLANNING_SETUP_QUERY, INSERT_PLANNING_QUERY, FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY, DELETE_SLOTS_LIST } = require('../../../db/planning.query')
+const { GET_PLANNING_SETUP_ID_YMW, FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, GET_PLANNING_SETUP_ID, DELETE_SETUP_QUERY, DELETE_SETUP_SLOTS_QUERY, INSERT_PLANNING_SETUP_QUERY, INSERT_PLANNING_QUERY, FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY, DELETE_SLOTS_LIST } = require('../../../db/planning.query')
 const { consumers } = require('form-data')
 
 /********************
@@ -68,6 +68,7 @@ exports.getItems = async (req, res) => {
         selected : isSelected
       }
       responseSetupData.slots.push(slotData);
+     
       responseSetupDataSet.push(responseSetupData);
     }
 
@@ -105,20 +106,68 @@ exports.getItemBydeliveryboyid = async (req, res) => {
   }
 }
 
+const planningSetupConfig = async (req, res) => {
+  const { is_24x7, is_apply_for_all_days, delivery_boy_ext_id, setup } = req.body
+  const [getPlanningId] = await fetch(GET_PLANNING_ID, [delivery_boy_ext_id]);
+  var planningID = 0;
+  let dbResult;
+  if (getPlanningId != undefined) {
+    planningID = getPlanningId.id;
+    dbResult = await updateItem(is_24x7, is_apply_for_all_days, planningID);
+  } else {
+    dbResult = await createItem(is_24x7, is_apply_for_all_days, delivery_boy_ext_id);
+    planningID = dbResult.insertId;
+  }
+  var dbPlanSetupId
+  if(parseInt(is_24x7) == 1){
+    const [dbDataSet] = await fetch(GET_PLANNING_SETUP_ID, [planningID]);
+    dbPlanSetupId = (dbDataSet) ? dbDataSet.id : undefined;
+  }else{
+    const [dbDataSet] = await fetch(GET_PLANNING_SETUP_ID_YMW, [planningID, setup.year, setup.month, setup.week]);
+    dbPlanSetupId = (dbDataSet) ? dbDataSet.id : undefined;
+  }
+  console.log(dbPlanSetupId);
+  if(dbPlanSetupId){
+    const deletedSetupSlotItem = await deleteSetupSlotItem(dbPlanSetupId);
+    const deletedSetupItem = await deleteSetupItem(dbPlanSetupId);
+  }
+  if(parseInt(is_24x7) == 0){
+    console.log("Enter");
+    var resStatus = false;
+    if (planningID) {
+      console.log("Block 0", setup);
+      if (setup) {
+          dbSetupData = await createSetup(planningID, setup);
+          planningSetupID = dbSetupData.insertId;
+          slotsData = [];
+          if(parseInt(is_apply_for_all_days) == 0){
+            slotsData = setup.slots;
+          }else{
+            slotsData.push(setup.slots[0]);
+          }
+          console.log(slotsData);
+          if (slotsData) {
+            slotResult = await insertOrUpdatePlanningWithSlots(planningSetupID, slotsData);
+            resStatus = true;
+          } else {
+            resStatus = true;
+          }
+      }
+    }
+  }
+  return resStatus;
+}
 
-/**
- * Create item function called by route
- * @param {Object} req - request object
- * @param {Object} res - response object
- */
 const createItem = async (is_24x7, is_apply_for_all_days, delivery_boy_id) => {
   console.log(delivery_boy_id);
   const registerRes = await insertQuery(INSERT_PLANNING_QUERY, [is_24x7, is_apply_for_all_days, delivery_boy_id]);
+  console.log(registerRes);
   return registerRes;
 }
 
 const createSetup = async (planningId, setupData) => {
   const resCreateSetup = await insertQuery(INSERT_PLANNING_SETUP_QUERY, [planningId, setupData.year, setupData.month, setupData.week]);
+  console.log(resCreateSetup);
   return resCreateSetup;
 }
 
@@ -132,44 +181,8 @@ exports.createItem = async (req, res) => {
     var resStatus = await planningSetupConfig(req, res);
     return res.status(200).json(utils.buildUpdatemessage(200, "Setup has been updated successfully."));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong1', 1001));
+    return res.status(500).json(utils.buildErrorObject(500, 'Unable to setup', 1001));
   }
-}
-
-const planningSetupConfig = async (req, res) => {
-  const { is_24x7, is_apply_for_all_days, delivery_boy_ext_id, setup } = req.body
-  const [getPlanningId] = await fetch(GET_PLANNING_ID, [delivery_boy_ext_id]);
-  var planningID = 0;
-  let dbResult;
-  if (getPlanningId != undefined) {
-    planningID = getPlanningId.id;
-    dbResult = await updateItem(is_24x7, is_apply_for_all_days, planningID);
-  } else {
-    dbResult = await createItem(is_24x7, is_apply_for_all_days, delivery_boy_ext_id);
-    planningID = dbResult.insertId;
-  }
-  var resStatus = false;
-  if (planningID) {
-    if (setup) {
-      pageData = setup[0];
-      const [getPlanningsSetupId] = await fetch(GET_PLANNING_SETUP_ID, [planningID, pageData.year, pageData.month, pageData.week]);
-      if(getPlanningsSetupId){
-        const deletedSetupSlotItem = await deleteSetupSlotItem(getPlanningsSetupId.id);
-        const deletedSetupItem = await deleteSetupItem(getPlanningsSetupId.id);
-      }
-      setup.forEach(async data => {
-        dbSetupData = await createSetup(planningID, data);
-        planningSetupID = dbSetupData.insertId;
-        if (data.slots) {
-          slotResult = await insertOrUpdatePlanningWithSlots(planningSetupID, data.slots);
-          resStatus = true;
-        } else {
-          resStatus = true;
-        }
-      });
-    }
-  }
-  return resStatus;
 }
 
 const deleteSetupItem = async (id) => {
