@@ -1,14 +1,12 @@
-const controller = require('../controllers/enterprise')
-const validate = require('../controllers/enterprise.validate')
+const controller = require('../controllers/common/orderrating/rating')
+const validate = require('../controllers/common/orderrating/rating.validate')
 const express = require('express')
 const router = express.Router()
+
 const trimRequest = require('trim-request')
-const branchRouter =require('./enterprisebranch')
-const orderRouter =require('../middleware/routes/order')
-const shiftRouter =require('../middleware/routes/shift')
-const addressRouter =require('../middleware/routes/address')
+
 /*
- * Latlon routes
+ * Users routes
  */
 
 /*
@@ -18,6 +16,16 @@ router.get(
   '/',
   trimRequest.all,
   controller.getItems
+)
+
+/**
+ * Get deleted rating
+*/
+
+router.get(
+  '/delete',
+  trimRequest.all,
+  controller.getDeletedRating
 )
 
 /*
@@ -37,17 +45,16 @@ router.get(
   '/:id',
     trimRequest.all,
     validate.getItem,
-  controller.getItem
+    controller.getItem
 )
-
-/*
- * Get item route
+/**
+ * get by consumer ext id 
  */
 router.get(
-  '/dashboard/:id',
+    '/consumer/:id',
     trimRequest.all,
     validate.getItem,
-    controller.dashboardItem
+    controller.getRatingBycustomer
 )
 
 /*
@@ -71,10 +78,12 @@ router.delete(
 )
 
 /*
- * Branch routes
+ * Delete item route
  */
-router.use('/branch', branchRouter);
-router.use('/order', orderRouter);
-router.use('/shift', shiftRouter);
-router.use('/address', addressRouter);
+router.patch(
+  '/restore/:id',
+  trimRequest.all,
+  validate.deleteItem,
+  controller.deleteRestore
+)
 module.exports = router

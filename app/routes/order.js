@@ -102,4 +102,18 @@ router.delete(
   controller.deleteItem
 )
 
+router.put(
+  '/request',
+  trimRequest.all,
+  validate.requestAction,
+  controller.requestAction
+)
+
+router.put(
+  '/update/status',
+  trimRequest.all,
+  validate.updateOrderStatus,
+  controller.updateOrderStatus
+)
+
 module.exports = router

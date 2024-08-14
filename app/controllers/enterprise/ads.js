@@ -1,30 +1,28 @@
-const utils = require('../middleware/utils')
-const db = require('../middleware/db')
-const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
-const {FETCH_DA_ALL,FETCH_DA_BY_ID,INSERT_DA_QUERY,UPDATE_DA_QUERY,DELECT_DA_QUERY,transformKeysToLowercase}=require('../db//database.query')
-
-
+const utils = require('../../middleware/utils')
+const {fetch,insertQuery,updateQuery} = require('../../middleware/db')
+const {FETCH_MANAGE_ADS_BY_EXT_ID, FETCH_MANAGE_ADS_BY_ID, UPDATE_MANAGE_ADS, INSERT_MANAGE_ADS, DELETE_MANAGE_ADS,FETCH_MANAGE_ADS_BY_ADSID} = require('../../db/database.query')
 /********************
  * Public functions *
  ********************/
+
 /**
  * Get items function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-exports.getItems = async (req, res) => {
-  try {
-    const data = await runQuery(FETCH_DA_ALL)
-    const filterdata=await transformKeysToLowercase(data)
-    let message="Items retrieved successfully";
-    if(data.length <=0){
-        message="No items found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+exports.getByEnterpriseId = async (req, res) => {
+    try {
+        const ext_id = req.params.ext_id;
+        const data = await fetch(FETCH_MANAGE_ADS_BY_EXT_ID,[ext_id])
+        let message="Items retrieved successfully";
+        if(data.length <=0){
+            message="Invalid ads.";
+            return res.status(400).json(utils.buildErrorObject(400,message,1001));
+        }
+        return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    } catch (error) {
+      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
-  } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
-  }
 }
 
 /**
@@ -35,14 +33,13 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const data = await fetch(FETCH_DA_BY_ID,[id])
-    const filterdata=await transformKeysToLowercase(data)
+    const data = await fetch(FETCH_MANAGE_ADS_BY_ADSID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="No items found"
+        message="Invalid ads."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -54,14 +51,14 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_DA_QUERY,[req.delivery_boy_id,req.account_number,req.bank_name,req.ifsc,req.address,id]);
+    const registerRes = await updateQuery(UPDATE_MANAGE_ADS,[req.title,req.description,req.url,req.icon,req.photo,req.is_active,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy_account')
-    if(getId){
+    const getId = await utils.isIDGood(id,'id','rmt_enterprise_ads')
+    if(getId){  
       const updatedItem = await updateItem(id, req.body);
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
@@ -80,24 +77,27 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_DA_QUERY,[req.delivery_boy_id,req.account_number,req.bank_name,req.ifsc,req.address]);
-    return registerRes;
+const createEnterpriseAds = async (req, enterprise_id,icon,photo) => {
+    const params = [req.title,req.description,req.url,enterprise_id,icon,photo];
+    const executeBranch = await insertQuery(INSERT_MANAGE_ADS,params);
+    return executeBranch;
 }
 
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.account_number,'rmt_delivery_boy_account','ACCOUNT_NUMBER')
-    if (!doesNameExists) {
-      const item = await createItem(req.body)
+    const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.body.enterprise_ext_id);
+    const icon='';
+    const photo='';
+    if (enterprise_id) {
+      const item = await createEnterpriseAds(req.body,enterprise_id,icon,photo);
       if(item.insertId){
-        const currentdata=await transformKeysToLowercase(await fetch(FETCH_DA_BY_ID,[item.insertId]));
+        const currentdata=await fetch(FETCH_MANAGE_ADS_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Account number already exists',1001));
+      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
@@ -105,7 +105,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteRes = await fetch(DELECT_DA_QUERY,[id]);
+  const deleteRes = await fetch(DELETE_MANAGE_ADS,[id]);
   return deleteRes;
 };
 /**
@@ -116,7 +116,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy_account')
+    const getId = await utils.isIDGood(id,'id','rmt_enterprise_ads')
     if(getId){
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {

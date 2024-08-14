@@ -22,6 +22,7 @@ exports.DELETE_VEHICLE_QUERY=`UPDATE rmt_vehicle SET is_del=1 WHERE id=?`;
 //GET delivery boy  id
 exports.FETCH_VEHICLE_BY_DLID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and dbs.ext_id=?`
 exports.FETCH_VEHICLE_BY_TYPE_ID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and vt.id=?`
+exports.FETCH_VEHICLE_BY_EXT_ID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and dbs.ext_id=?`
 
 //------------------------------------RMT_ACCOUNT_TYPE-----------------------------------------
 exports.FETCH_AC_ALL = "select * from rmt_account_type where is_del=0";
@@ -97,6 +98,10 @@ exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSU
 exports.UPDATE_ORDER_QUERY=`UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NAME=?,EMAIL=?,COMPANY_NAME=?,PHONE_NUMBER=?,PACKAGE_ID=?,PACKAGE_ATTACH=?,PACKAGE_NOTES=?,ORDER_DATE=?,ORDER_STATUS=?,AMOUNT=?,VEHICLE_TYPE_ID=?,PICKUP_LOCATION_ID=?,DROPOFF_LOCATION_ID=?,IS_ACTIVE=?,SERVICE_TYPE_ID=?,SHIFT_START_TIME=?,SHIFT_END_TIME=?,DELIVERY_DATE=?,DELIVERY_STATUS=?  WHERE ORDER_ID=?`;
 exports.UPDATE_ORDER_BY_STATUS=`UPDATE rmt_order SET DELIVERY_STATUS=? WHERE is_del=0 AND  ORDER_ID=?`;
 exports.DELETE_ORDER_QUERY=`UPDATE rmt_order SET is_del =1 WHERE ORDER_NUMBER=?`;
+
+//check order 
+exports.CHECK_ORDER_FOR_OTP=`SELECT order_number, otp FROM rmt_order WHERE order_number = ? AND is_otp_verified=0`;
+exports.UPDATE_ORDER_OTP_VERIFIED=`UPDATE rmt_order SET is_otp_verified=1 WHERE order_number=? AND is_otp_verified=0`
 
 //-----------------------rmt_transaction---------------------------------
 exports.FETCH_TRAN_QUERY=`SELECT * FROM rmt_transaction WHERE is_del=0`;
@@ -175,7 +180,13 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
   exports.INSERT_INDUSTRY=`INSERT INTO rmt_industry_type(industry_type,industry_type_desc) VALUES(?,?)`;
   exports.UPDATE_INDUSTRY=`UPDATE rmt_industry_type SET industry_type=?, industry_type_desc=? WHERE is_del=0 AND id=?`;
   exports.DELETE_INDUSTRY=`UPDATE rmt_industry_type SET is_del=1 WHERE id=?`
-
+  //---------------------------------------- address------------------------------------------------------------------------
+  exports.FETCH_ENTERPRISE_ADDRESS=`SELECT * FROM rmt_enterprise_address WHERE is_del=0`;
+  exports.FETCH_ENTERPRISE_ADDRESS_BYID=`SELECT * FROM rmt_enterprise_address WHERE is_del=0 AND id=?`;
+  exports.FETCH_ENTERPRISE_ADDRESS_BYEXTID=`SELECT * FROM rmt_enterprise_address WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id = ?)`
+  exports.INSERT_ENTERPRISE_ADDRESS=`INSERT INTO rmt_enterprise_address(enterprise_id,address,first_name,last_name,email,mobile,company_name,comment) VALUES((select id from rmt_enterprise where ext_id = ?),?,?,?,?,?,?,?)`
+  exports.UPDATE_ENTERPRISE_ADDRESS=`UPDATE rmt_enterprise_address SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),address=?,first_name=?,last_name=?,email=?,mobile=?,company_name=?,comment=? WHERE id=?`;
+  exports.DELETE_ENTERPRISE_ADDRESS='UPDATE rmt_enterprise_address SET is_del=1 WHERE id=?'
   //-------------------------------------dashboard query-----------------------------------------------------------------------------
   exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN shift_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN shift_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_shift WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
   exports.FETCH_SLOT_CHART=`
@@ -219,7 +230,7 @@ exports.DRIVER_DOC_TABLE=`INSERT INTO rmt_delivery_boy_document(file_name,path) 
 //============================= Driver allocate=================
 exports.INSERT_DELIVERY_BOY_ALLOCATE=`INSERT INTO rmt_order_allocation(order_id, delivery_boy_id) values((select id from rmt_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?))`;
 exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS=`UPDATE rmt_delivery_boy SET is_availability = 0 WHERE ext_id=?`;
-exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET order_status = 'ORDER_ACCEPTED', delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
+exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET order_status = 'ORDER_ALLOCATED', delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
 
 //======================================= DELIVERY BOY=========================================================
   exports.FETCH_DELIVERYBOY_QUERY=`SELECT * FROM rmt_delivery_boy WHERE is_del=0`
@@ -256,6 +267,15 @@ exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.
 exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET card_number=?,card_holder_name=?,expiration_date=?,cvv=?,biling_address=? WHERE id=?`
 exports.DELETE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET is_del=1 WHERE id=?`
 
+//============================================== rmt_enterprise_ads ===================================================
+exports.FETCH_MANAGE_ADS=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0`
+exports.FETCH_MANAGE_ADS_BY_ID=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0 AND id=?`
+exports.FETCH_MANAGE_ADS_BY_ADSID=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0 AND ads_id=?`
+exports.FETCH_MANAGE_ADS_BY_EXT_ID=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0 AND enterprise_id=(SELECT id FROM rmt_enterprise WHERE ext_id= ?)`
+exports.FETCH_MANAGE_ADS_STATUS=`SELECT * FROM rmt_enterprise_ads WHERE is_active=?`
+exports.INSERT_MANAGE_ADS=`INSERT INTO rmt_enterprise_ads(ads_id,title,description,url,enterprise_id,icon,photo) VALUES((now()+1),?,?,?,?,?,?)`
+exports.UPDATE_MANAGE_ADS=`UPDATE rmt_enterprise_ads SET title=?,description=?,url=?,icon=?,photo=?,is_active=? WHERE id=?`
+exports.DELETE_MANAGE_ADS=`UPDATE rmt_enterprise_ads SET is_del=1 WHERE id=?`
 //convert toLowerCase
 exports.transformKeysToLowercase=async (results)=>{
   return results.map(row => {

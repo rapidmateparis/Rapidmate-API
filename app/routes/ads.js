@@ -1,20 +1,20 @@
-const controller = require('../controllers/deliveryboy/vehicles/vehicle')
-const validate = require('../controllers/deliveryboy/vehicles/vehicle.validate')
+const controller = require('../controllers/enterprise/ads')
+const validate = require('../controllers/enterprise/ads.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-
 /*
- * vehicle types routes
+ * Branch routes
  */
+
 
 /*
  * Get items route
  */
 router.get(
-  '/',
+  '/get/:ext_id',
   trimRequest.all,
-  controller.getItems
+  controller.getByEnterpriseId
 )
 
 /*
@@ -36,21 +36,12 @@ router.get(
     validate.getItem,
   controller.getItem
 )
-/*
- * Get delivery boy item route
- */
-router.post(
-  '/getdboyvehicle',
-    trimRequest.all,
-    validate.getSingleItem,
-  controller.getSingleItem
-)
 
 /*
  * Update item route
  */
-router.put(
-  '/',
+router.patch(
+  '/:id',
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -64,20 +55,6 @@ router.delete(
   trimRequest.all,
   validate.deleteItem,
   controller.deleteItem
-)
-
-router.get(
-  '/type/:id',
-    trimRequest.all,
-    validate.getItem,
-  controller.getItemByVehicleTypeId
-)
-
-router.get(
-  '/extid/:id',
-    trimRequest.all,
-    validate.getItem,
-  controller.getItemByExtId
 )
 
 module.exports = router
