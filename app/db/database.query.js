@@ -22,6 +22,7 @@ exports.DELETE_VEHICLE_QUERY=`UPDATE rmt_vehicle SET is_del=1 WHERE id=?`;
 //GET delivery boy  id
 exports.FETCH_VEHICLE_BY_DLID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and dbs.ext_id=?`
 exports.FETCH_VEHICLE_BY_TYPE_ID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and vt.id=?`
+exports.FETCH_VEHICLE_BY_EXT_ID=`select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and dbs.ext_id=?`
 
 //------------------------------------RMT_ACCOUNT_TYPE-----------------------------------------
 exports.FETCH_AC_ALL = "select * from rmt_account_type where is_del=0";
@@ -229,7 +230,7 @@ exports.DRIVER_DOC_TABLE=`INSERT INTO rmt_delivery_boy_document(file_name,path) 
 //============================= Driver allocate=================
 exports.INSERT_DELIVERY_BOY_ALLOCATE=`INSERT INTO rmt_order_allocation(order_id, delivery_boy_id) values((select id from rmt_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?))`;
 exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS=`UPDATE rmt_delivery_boy SET is_availability = 0 WHERE ext_id=?`;
-exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET order_status = 'ORDER_ACCEPTED', delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
+exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET order_status = 'ORDER_ALLOCATED', delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
 
 //======================================= DELIVERY BOY=========================================================
   exports.FETCH_DELIVERYBOY_QUERY=`SELECT * FROM rmt_delivery_boy WHERE is_del=0`

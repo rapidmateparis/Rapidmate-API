@@ -102,15 +102,18 @@ router.delete(
   controller.deleteItem
 )
 
-/**
- * order otp verification 
- */
-
-router.post(
-  '/otpverification',
+router.put(
+  '/request',
   trimRequest.all,
-  validate.otpVerification,
-  controller.otpVerifiy
+  validate.requestAction,
+  controller.requestAction
+)
+
+router.put(
+  '/update/status',
+  trimRequest.all,
+  validate.updateOrderStatus,
+  controller.updateOrderStatus
 )
 
 module.exports = router

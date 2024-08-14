@@ -276,17 +276,18 @@ exports.allocateDeliveryBoy = async (req, res) => {
 exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   var responseData = {};
   try {
-    const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 limit 1';
-    const dbData = await runQuery(getUserQuerye)
+    const order_number = req.query.o;
+    const orderAllocationQuery = 'select * from rmt_delivery_boy where id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) and is_del=0 and is_availability=1 and is_active=1 and work_type_id in (2,3) limit 1';
+    const dbData = await fetch(orderAllocationQuery, [order_number])
     if(dbData.length <=0){
       message="Delivery boys are busy. Please try again!!!";
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }else{
       allocatedDeliveryBoy = dbData[0];
       responseData.deliveryBoy = allocatedDeliveryBoy;
-      const order_number = req.query.o;
       const delivery_boy_ext_id = allocatedDeliveryBoy.ext_id;
       const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE, [order_number, delivery_boy_ext_id]);
+      console.log(allocateDeliveryBoyResult);
       if (allocateDeliveryBoyResult.insertId) {
         const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER,[delivery_boy_ext_id, order_number]);
         const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_ext_id]);
@@ -369,9 +370,9 @@ exports.otpVerifiy = async (req, res) => {
     if (data.length >0) {
       var is_otp_verified = parseInt(data[0].is_otp_verified);
       if(is_otp_verified == 0){
-        const updateData = await updateQuery("update rmt_order set is_otp_verified = 1 where order_number = ?", [requestData.order_number])
+        const updateData = await updateQuery("update rmt_order set order_status = 'PICKUP_COMPLETED', is_otp_verified = 1 where order_number = ?", [requestData.order_number])
         if(updateData){
-          return res.status(202).json(utils.buildErrorObject(202, "OTP has been verified successfully", 1001));
+          return res.status(202).json(utils.buildUpdatemessage(202, "OTP has been verified successfully"));
         }else{
           return res
           .status(500)
@@ -395,4 +396,53 @@ exports.otpVerifiy = async (req, res) => {
       .json(utils.buildErrorObject(500, "Unable to verify OTP", 1001));
   }
 };
+
+
+exports.requestAction = async (req, res) => {
+  try {
+    var requestData = req.body;
+    const data = await fetch("select id from rmt_order where is_del=0 AND order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",[requestData.order_number, requestData.delivery_boy_ext_id]);
+    if (data.length >0) {
+        var status = (requestData.status == 'Accepted') ? 'ORDER_ACCEPTED' : 'ORDER_REJECTED';
+        const updateData = await updateQuery("update rmt_order set order_status = '" + status + "' where order_number = ?", [requestData.order_number])
+        if(updateData){
+          const updateData = await updateQuery("update rmt_order_allocation set status = '" + requestData.status + "' where order_id = ?", [data[0].id]);
+          return res.status(202).json(utils.buildUpdatemessage(202, "Request action has been updated successfully"));
+        }else{
+          return res
+          .status(500)
+          .json(utils.buildErrorObject(500, "Unable to request action. Please try again", 1001));
+        }
+    }else{
+        return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "invalid order", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to request action", 1001));
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    var requestData = req.body;
+    const updateData = await updateQuery("update rmt_order set order_status = '" + requestData.status + "' where order_number = ?", [requestData.order_number])
+    if(updateData){
+      return res.status(202).json(utils.buildUpdatemessage(202, "Order status has been updated successfully"));
+    }else{
+      return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to order status. Please try again", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to order status", 1001));
+  }
+};
+
 

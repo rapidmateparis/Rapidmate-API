@@ -49,8 +49,8 @@ router.post(
 /*
  * Update item route
  */
-router.patch(
-  '/:id',
+router.put(
+  '/',
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -71,6 +71,13 @@ router.get(
     trimRequest.all,
     validate.getItem,
   controller.getItemByVehicleTypeId
+)
+
+router.get(
+  '/extid/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getItemByExtId
 )
 
 module.exports = router

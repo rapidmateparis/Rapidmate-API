@@ -165,3 +165,20 @@ exports.otpVerification=[
   validationResult(req, res, next)
 }
 ]
+
+exports.requestAction=[
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
+exports.updateOrderStatus=[
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
