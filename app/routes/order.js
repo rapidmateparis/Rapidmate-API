@@ -110,7 +110,7 @@ router.post(
   '/otpverification',
   trimRequest.all,
   validate.otpVerification,
-  controller.otpVerification
+  controller.otpVerifiy
 )
 
 module.exports = router

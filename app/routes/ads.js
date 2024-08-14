@@ -1,31 +1,20 @@
-const controller = require('../controllers/common/orderrating/rating')
-const validate = require('../controllers/common/orderrating/rating.validate')
+const controller = require('../controllers/enterprise/ads')
+const validate = require('../controllers/enterprise/ads.validate')
 const express = require('express')
 const router = express.Router()
-
 const trimRequest = require('trim-request')
-
 /*
- * Users routes
+ * Branch routes
  */
+
 
 /*
  * Get items route
  */
 router.get(
-  '/',
+  '/get/:ext_id',
   trimRequest.all,
-  controller.getItems
-)
-
-/**
- * Get deleted rating
-*/
-
-router.get(
-  '/delete',
-  trimRequest.all,
-  controller.getDeletedRating
+  controller.getByEnterpriseId
 )
 
 /*
@@ -45,16 +34,7 @@ router.get(
   '/:id',
     trimRequest.all,
     validate.getItem,
-    controller.getItem
-)
-/**
- * get by consumer ext id 
- */
-router.get(
-    '/consumer/:id',
-    trimRequest.all,
-    validate.getItem,
-    controller.getRatingBycustomer
+  controller.getItem
 )
 
 /*
@@ -77,13 +57,4 @@ router.delete(
   controller.deleteItem
 )
 
-/*
- * Delete item route
- */
-router.patch(
-  '/restore/:id',
-  trimRequest.all,
-  validate.deleteItem,
-  controller.deleteRestore
-)
 module.exports = router
