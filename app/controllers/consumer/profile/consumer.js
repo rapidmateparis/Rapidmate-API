@@ -78,6 +78,10 @@ exports.updateItem = async (req, res) => {
         queryCondition += ", profile_pic = ?";
         queryConditionParam.push(requestBody.profile_pic);
       }
+      if(requestBody.token){
+        queryCondition += ", token = ?";
+        queryConditionParam.push(requestBody.token);
+      }
       queryConditionParam.push(req.body.ext_id);
       var updateQuery = "update rmt_consumer set is_del = 0 " + queryCondition + " where ext_id = ?";
       
