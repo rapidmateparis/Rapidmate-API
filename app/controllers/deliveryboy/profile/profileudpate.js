@@ -131,6 +131,10 @@ exports.updateItem = async (req, res) => {
         queryCondition += ", work_type_id = ?";
         queryConditionParam.push(requestBody.work_type_id);
       }
+      if(requestBody.token){
+        queryCondition += ", token = ?";
+        queryConditionParam.push(requestBody.token);
+      }
       queryConditionParam.push(req.body.ext_id);
       var updateQuery = "update rmt_delivery_boy set is_del = 0 " + queryCondition + " where ext_id = ?";
       
