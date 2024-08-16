@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
-const { runQuery , fetch} = require("../middleware/db");
+const { runQuery , fetch} = require("../../middleware/db");
 const { CognitoJwtVerifier } = require("aws-jwt-verify");
 var AmazonCognitoIdentity = require("amazon-cognito-identity-js");
-const utils=require("../middleware/utils");
+const utils=require("../../middleware/utils");
 var AWS = require("aws-sdk");
 const { table } = require('console');
 var cognito_poolId = process.env.COGNITO_POOLID;

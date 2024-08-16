@@ -1,5 +1,5 @@
-const controller = require('../controllers/authuser')
-const validate = require('../controllers/auth.validate')
+const controller = require('../controllers/useronboardmodule/authuser')
+const validate = require('../controllers/useronboardmodule/auth.validate')
 const express = require('express')
 const utils =require('../middleware/utils');
 const router = express.Router()

@@ -1,4 +1,4 @@
-const AuthController = require('../controllers/authuser');
+const AuthController = require('../controllers/useronboardmodule/authuser');
 const utils=require("../middleware/utils")
 const isAuthorized = async (req, res,next) => {
     console.log(req.headers)

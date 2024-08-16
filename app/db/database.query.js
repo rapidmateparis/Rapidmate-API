@@ -220,10 +220,10 @@ LIMIT 3`;
   exports.FETCH_CONNECTION_WITH_DELIVERYBOY_BYID=`SELECT cn.*, CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name, en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE cn.id = ? AND cn.is_del = 0`
   exports.FETCH_CONNECTION_WITH_DELIVERYBOY_BYENTERPRISEID = `SELECT cn.*, CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name, en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE en.id = (SELECT id FROM rmt_enterprise WHERE ext_id = ?) AND cn.is_del = 0`;
   exports.FETCH_CONNECTION_WITH_DELIVERYBOY_BYDELIVERYBOYID=`SELECT cn.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name,en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND cn.is_del = 0`
-  exports.INSERT_CONNECTION_WITH_DELIVERYBOY=`INSERT INTO rmt_delivery_boy_enterprise_connections(enterprise_id,delivery_boy_id,is_active) VALUES(?,?,?)`
-  exports.UPDATE_CONNECTION_WITH_DELIVERYBOY=`UPDATE rmt_delivery_boy_enterprise_connections SET enterprise_id=?,delivery_boy_id=?,is_active=? WHERE id=? AND is_del=0`
+  exports.INSERT_CONNECTION_WITH_DELIVERYBOY=`INSERT INTO rmt_delivery_boy_enterprise_connections(enterprise_id,delivery_boy_id,is_active) VALUES((select id from rmt_enterprise where ext_id = ?),(select id from rmt_delivery_boy where ext_id = ?),?)`
+  exports.UPDATE_CONNECTION_WITH_DELIVERYBOY=`UPDATE rmt_delivery_boy_enterprise_connections SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),delivery_boy_id=(select id from rmt_delivery_boy where ext_id = ?),is_active=? WHERE id=? AND is_del=0`
   exports.DELETE_CONNECTION_WITH_DELIVERYBOY=`UPDATE rmt_delivery_boy_enterprise_connections SET is_del=1 WHERE id=?`
-  exports.CONNECTION_EXIT_OR_NOT=`SELECT * FROM rmt_delivery_boy_enterprise_connections WHERE enterprise_id=? AND delivery_boy_id=? AND is_del = 0`
+  exports.CONNECTION_EXIT_OR_NOT=`SELECT * FROM rmt_delivery_boy_enterprise_connections WHERE enterprise_id=(select id from rmt_enterprise where ext_id = ?) AND delivery_boy_id=(select id from rmt_delivery_boy where ext_id = ?) AND is_del = 0`
 //============================= Driver doc=================
 exports.DRIVER_DOC_TABLE=`INSERT INTO rmt_delivery_boy_document(file_name,path) values(?,?)`
 

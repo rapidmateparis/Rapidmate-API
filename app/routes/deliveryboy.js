@@ -71,7 +71,7 @@ router.put(
 /**
  * update availability route
  */
-router.patch(
+router.put(
   '/updateavailability/:id',
   trimRequest.all,
   validate.updateAvailability,

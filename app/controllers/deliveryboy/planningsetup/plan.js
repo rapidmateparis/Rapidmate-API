@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { insertQuery, fetch, insertOrUpdatePlanningWithSlots, getAllPlanningWithSlots, getPlanningWithSlotsByDeliveryBoy, updateQuery, runQuery } = require('../../../middleware/db')
-const { GET_PLANNING_SETUP_ID_YMW, FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, GET_PLANNING_SETUP_ID, DELETE_SETUP_QUERY, DELETE_SETUP_SLOTS_QUERY, INSERT_PLANNING_SETUP_QUERY, INSERT_PLANNING_QUERY, FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY, DELETE_SLOTS_LIST } = require('../../../db/planning.query')
+const { buildFetchDeliveryBoyPlanningSetupSlotQueryFilter,GET_PLANNING_SETUP_ID_YMW, FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, GET_PLANNING_SETUP_ID, DELETE_SETUP_QUERY, DELETE_SETUP_SLOTS_QUERY, INSERT_PLANNING_SETUP_QUERY, INSERT_PLANNING_QUERY, FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY} = require('../../../db/planning.query')
 const { consumers } = require('form-data')
 
 /********************
@@ -21,6 +21,7 @@ exports.getItems = async (req, res) => {
     } else {
       id = plannings[0].id;
       delivery_boy_id = plannings[0].delivery_boy_id;
+      console.log(id)
       requestParam = [delivery_boy_id, req.query.year, req.query.month, req.query.week];
       console.log(requestParam);
       planninSetupgData = await fetch(FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, requestParam);
@@ -85,6 +86,92 @@ exports.getItems = async (req, res) => {
   }
 }
 
+/**
+ * Get items function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+exports.getItemsByfilter = async (req, res) => {
+ 
+  try {
+    const {from_date,to_date,from_time,to_time,ext_id,day}=req.body
+    const plannings = await fetch(FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, [ext_id])
+    let message = "Items retrieved successfully";
+    let planninSetupgData;
+    let from=""
+      let to=""
+    if (plannings.length <= 0) {
+      return res.status(200).json(utils.buildcreatemessage(200, message, {}))
+    } else {
+      id = plannings[0].id;
+      let delivery_boy_id = plannings[0].delivery_boy_id;
+      
+      if(from_date && to_date && from_date.trim() && to_date.trim()){
+        from=from_date+ ' ' +from_time;
+        to=to_date+' '+to_time;
+      }
+      console.log("deliveryboy id "+delivery_boy_id)
+      const fetchquery=await buildFetchDeliveryBoyPlanningSetupSlotQueryFilter(from,to,day)
+      planninSetupgData = await fetch(fetchquery,[delivery_boy_id]);
+    }
+    var responseSetupDataSet = [];
+    planningData = plannings[0];
+    if (planninSetupgData && planninSetupgData.length > 0) {
+      var currentDay = 0;
+      var isSelected = false;
+      var responseSetupData = {};
+      responseSetupData.slots = [];
+      var times = [];
+      var slotData = {};
+      var firstData = true;
+      planninSetupgData.forEach(data => {
+        presentDay = data.day;
+        if (firstData) {
+          responseSetupData.year = data.year;
+          responseSetupData.month = data.month;
+          responseSetupData.week = data.week;
+        }
+        if (currentDay != presentDay) {
+          slotData = {
+            day: currentDay,
+            times: times,
+            selected : isSelected
+          }
+          if (!firstData) {
+            responseSetupData.slots.push(slotData);
+          }
+          times = [];
+          currentDay = data.day;
+          isSelected = data.is_selected==1;
+          firstData = false;
+        }
+        times.push({
+          from_time: data.from_time,
+          to_time: data.to_time
+        })
+      })
+      slotData = {
+        day: currentDay,
+        times: times,
+        selected : isSelected
+      }
+      responseSetupData.slots.push(slotData);
+     
+      responseSetupDataSet.push(responseSetupData);
+    }
+
+    responseData = {
+      is_24x7: planningData.is_24x7,
+      is_apply_for_all_days: planningData.is_apply_for_all_days,
+      id: planningData.id,
+      setup: responseSetupDataSet
+    }
+    return res.status(200).json(utils.buildcreatemessage(200, message, responseData))
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+  }
+}
 /**
  * Get item function called by route
  * @param {Object} req - request object

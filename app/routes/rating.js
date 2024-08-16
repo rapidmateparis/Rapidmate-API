@@ -60,7 +60,7 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
+router.put(
   '/:id',
   trimRequest.all,
   validate.updateItem,
@@ -80,7 +80,7 @@ router.delete(
 /*
  * Delete item route
  */
-router.patch(
+router.put(
   '/restore/:id',
   trimRequest.all,
   validate.deleteItem,

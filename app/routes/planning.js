@@ -12,6 +12,16 @@ router.get(
       trimRequest.all,
       controller.getItems
   )
+
+/*
+ * Get item route
+ */
+router.post(
+  '/filter',
+    trimRequest.all,
+    validate.getItemsByfilter,
+    controller.getItemsByfilter
+)
 /*
  * Create new item route
  */
