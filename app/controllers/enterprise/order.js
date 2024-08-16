@@ -157,7 +157,22 @@ const createItem = async (req) => {
 
 exports.createItem = async (req, res) => {
   try {
-    const item = await createItem(req.body);
+    const requestData = req.body;
+    const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
+    console.log(vehicleType);
+
+    var total_amount = requestData.total_amount;
+    console.log(requestData);
+    
+    requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
+    console.log(requestData.commission_percentage);
+    requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
+    console.log(requestData.commission_amount.toFixed(2));
+
+    requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+    console.log(requestData.delivery_boy_amount);
+    
+    const item = await createItem(requestData);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
       return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",currData));
@@ -174,7 +189,15 @@ exports.createItem = async (req, res) => {
   }
 };
 
-
+const getVehicleTypeInfo = async (vehicle_type_id) => {
+  try {
+    const data = await fetch("select * from rmt_vehicle_type where id =?", [vehicle_type_id]);
+    return data[0];
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
 /**
  * Create shift order function called by route
  * @param {Object} req - request object

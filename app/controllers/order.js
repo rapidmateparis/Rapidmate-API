@@ -222,6 +222,11 @@ const createItem = async (req) => {
     requestBody.push(req.is_my_self);
     createOrderQuery = INSERT_ORDER_FOR_ANOTHER_QUERY;
   }
+  requestBody.push(req.distance);
+  requestBody.push(req.total_amount.toFixed(2));
+  requestBody.push(req.commission_percentage.toFixed(2));
+  requestBody.push(req.commission_amount.toFixed(2));
+  requestBody.push(req.delivery_boy_amount.toFixed(2));
   var requestBodyNew = requestBody.filter(function(item) {
     return item !== undefined;
   });
@@ -232,10 +237,24 @@ const createItem = async (req) => {
 
 exports.createItem = async (req, res) => {
   try {
-    const item = await createItem(req.body);
+    const requestData = req.body;
+    const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
+    console.log(vehicleType);
+
+    var total_amount = requestData.total_amount;
+    console.log(requestData);
+    
+    requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
+    console.log(requestData.commission_percentage);
+    requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
+    console.log(requestData.commission_amount.toFixed(2));
+
+    requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+    console.log(requestData.delivery_boy_amount);
+    const item = await createItem(requestData);
     if (item.insertId) {
-      const currData=await fetch(FETCH_ORDER_BY_ID,[item.insertId])
-      const filterdata=await transformKeysToLowercase(currData)
+      const currData=await fetch(FETCH_ORDER_BY_ID,[item.insertId]);
+      const filterdata=await transformKeysToLowercase(currData);
       return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",filterdata));
     } else {
       return res
@@ -276,17 +295,18 @@ exports.allocateDeliveryBoy = async (req, res) => {
 exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   var responseData = {};
   try {
-    const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 limit 1';
-    const dbData = await runQuery(getUserQuerye)
+    const order_number = req.query.o;
+    const orderAllocationQuery = 'select * from rmt_delivery_boy where id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) and is_del=0 and is_availability=1 and is_active=1 and work_type_id in (2,3) limit 1';
+    const dbData = await fetch(orderAllocationQuery, [order_number])
     if(dbData.length <=0){
       message="Delivery boys are busy. Please try again!!!";
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }else{
       allocatedDeliveryBoy = dbData[0];
       responseData.deliveryBoy = allocatedDeliveryBoy;
-      const order_number = req.query.o;
       const delivery_boy_ext_id = allocatedDeliveryBoy.ext_id;
       const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE, [order_number, delivery_boy_ext_id]);
+      console.log(allocateDeliveryBoyResult);
       if (allocateDeliveryBoyResult.insertId) {
         const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER,[delivery_boy_ext_id, order_number]);
         const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_ext_id]);
@@ -320,6 +340,26 @@ const getOrderInfo = async (order_number) => {
 const getVehicleInfo = async (delivery_boy_id) => {
   try {
     const data = await fetch("select * from rmt_vehicle where delivery_boy_id =?", [delivery_boy_id]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
+const getDeliveryInfo = async (delivery_boy_id) => {
+  try {
+    const data = await fetch("select * from rmt_delivery_boy where id =?", [delivery_boy_id]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
+const getVehicleTypeInfo = async (vehicle_type_id) => {
+  try {
+    const data = await fetch("select * from rmt_vehicle_type where id =?", [vehicle_type_id]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
@@ -369,9 +409,9 @@ exports.otpVerifiy = async (req, res) => {
     if (data.length >0) {
       var is_otp_verified = parseInt(data[0].is_otp_verified);
       if(is_otp_verified == 0){
-        const updateData = await updateQuery("update rmt_order set is_otp_verified = 1 where order_number = ?", [requestData.order_number])
+        const updateData = await updateQuery("update rmt_order set order_status = 'PICKUP_COMPLETED', is_otp_verified = 1 where order_number = ?", [requestData.order_number])
         if(updateData){
-          return res.status(202).json(utils.buildErrorObject(202, "OTP has been verified successfully", 1001));
+          return res.status(202).json(utils.buildUpdatemessage(202, "OTP has been verified successfully"));
         }else{
           return res
           .status(500)
@@ -393,6 +433,81 @@ exports.otpVerifiy = async (req, res) => {
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Unable to verify OTP", 1001));
+  }
+};
+
+
+exports.requestAction = async (req, res) => {
+  try {
+    var requestData = req.body;
+    const data = await fetch("select id from rmt_order where is_del=0 AND order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",[requestData.order_number, requestData.delivery_boy_ext_id]);
+    if (data.length >0) {
+        var status = (requestData.status == 'Accepted') ? 'ORDER_ACCEPTED' : 'ORDER_REJECTED';
+        const updateData = await updateQuery("update rmt_order set order_status = '" + status + "' where order_number = ?", [requestData.order_number])
+        if(updateData){
+          const updateData = await updateQuery("update rmt_order_allocation set status = '" + requestData.status + "' where order_id = ?", [data[0].id]);
+          return res.status(202).json(utils.buildUpdatemessage(202, "Request action has been updated successfully"));
+        }else{
+          return res
+          .status(500)
+          .json(utils.buildErrorObject(500, "Unable to request action. Please try again", 1001));
+        }
+    }else{
+        return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "invalid order", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to request action", 1001));
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    var requestData = req.body;
+    const updateData = await updateQuery("update rmt_order set order_status = '" + requestData.status + "' where order_number = ?", [requestData.order_number])
+    if(updateData){
+      return res.status(202).json(utils.buildUpdatemessage(202, "Order status has been updated successfully"));
+    }else{
+      return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to order status. Please try again", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to order status", 1001));
+  }
+};
+
+exports.viewOrderByOrderNumber = async (req, res) => {
+  var responseData = {};
+  try {
+    console.log(req.params.ordernumber);
+    const order_number = req.params.ordernumber;
+    const orderAllocationQuery = 'select * from rmt_order where is_del=0 and order_number = ?';
+    const dbData = await fetch(orderAllocationQuery, [order_number])
+    if(dbData.length <= 0){
+      message="Invalid Order number";
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }else{
+     
+        var orderData = dbData[0];
+        responseData.order = orderData;
+        console.log(orderData);
+        console.log(orderData.delivery_boy_id);
+        responseData.deliveryBoy = await getDeliveryInfo(orderData.delivery_boy_id);
+        responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
+        return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully", responseData));
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to fetch an Order number", 1001));
   }
 };
 
