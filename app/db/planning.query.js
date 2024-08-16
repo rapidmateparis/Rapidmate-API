@@ -57,3 +57,27 @@ exports.DELETE_SETUP_QUERY = `DELETE FROM rmt_planning_setup WHERE id = ?`;
 exports.DELETE_SETUP_SLOTS_QUERY=`DELETE FROM rmt_planning_setup_slot WHERE planning_setup_id = ?`
 exports.FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY = `select is_24x7,is_apply_for_all_days,delivery_boy_id,id from rmt_planning where delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?)`;
 exports.FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY = `select year,month,week,day,from_time,to_time,is_selected from rmt_planning planning left join rmt_planning_setup plansetup on planning.id=plansetup.planning_id left join rmt_planning_setup_slot setupslot on plansetup.id=setupslot.planning_setup_id where planning.delivery_boy_id=? and year=? and month=? and week=? order by year asc, month asc, week asc, day asc, from_time asc`;
+
+exports.buildFetchDeliveryBoyPlanningSetupSlotQueryFilter=async (createdOnStart, createdOnEnd,day)=>{
+  let query = `SELECT year, month, week, day, from_time, to_time, is_selected FROM rmt_planning planning LEFT JOIN rmt_planning_setup plansetup ON planning.id = plansetup.planning_id LEFT JOIN rmt_planning_setup_slot setupslot ON plansetup.id = setupslot.planning_setup_id
+      WHERE planning.delivery_boy_id = ?
+  `;
+  if (createdOnStart && createdOnEnd && createdOnStart.trim() && createdOnEnd.trim()) {
+      query += `
+          AND plansetup.created_on >= '${createdOnStart}'
+          AND plansetup.created_on <='${createdOnEnd}'
+      `;
+  }
+  if(Array.isArray(day) && day.length > 0){
+    const dayString =`(${day.map(d => `'${d}'`).join(',')})`;
+    query += `
+          AND setupslot.day IN${dayString}
+      `;
+  }
+
+  query += `
+      ORDER BY year ASC, month ASC, week ASC, day ASC, from_time ASC
+  `;
+
+  return query;
+}

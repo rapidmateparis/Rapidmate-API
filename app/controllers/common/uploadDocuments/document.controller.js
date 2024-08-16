@@ -1,8 +1,8 @@
-const uploadFile = require("../middleware/document.utils");
+const uploadFile = require("../../../middleware/document.utils");
 const fs = require("fs");
 const moment = require("moment");
-const utils = require('../middleware/utils')
-const { runQuery,fetch} = require('../middleware/db');
+const utils = require('../../../middleware/utils')
+const { runQuery,fetch} = require('../../../middleware/db');
 const { Console } = require("console");
 const BASE_DIR  = process.env.BASE_RESOURCE_DIR;
 const { v4: uuidv4 } = require('uuid');

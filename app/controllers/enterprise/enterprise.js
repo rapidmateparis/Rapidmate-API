@@ -1,7 +1,7 @@
-const utils = require("../middleware/utils");
-const { runQuery, fetch } = require("../middleware/db");
-const auth = require("../middleware/auth");
-const { FETCH_SCHEDULES, FETCH_SLOT_CHART, FETCH_BRANCH_FOR_DASH } = require("../db/database.query");
+const utils = require("../../middleware/utils");
+const { runQuery, fetch } = require("../../middleware/db");
+const auth = require("../../middleware/auth");
+const { FETCH_SCHEDULES, FETCH_SLOT_CHART, FETCH_BRANCH_FOR_DASH } = require("../../db/database.query");
 /********************
  * Public functions *
  ********************/

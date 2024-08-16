@@ -1,5 +1,5 @@
-const controller = require('../controllers/order')
-const validate = require('../controllers/order.validate')
+const controller = require('../controllers/deliveryboy/orders/order')
+const validate = require('../controllers/deliveryboy/orders/order.validate')
 const express = require('express')
 const router = express.Router()
 const isAuthorized = require("../middleware/authorization")
@@ -75,7 +75,7 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
+router.put(
   '/:id',
   trimRequest.all,
   validate.updateItem,
@@ -85,7 +85,7 @@ router.patch(
 /*
  * Update order status route
  */
-router.patch(
+router.put(
   '/status/:id',
   trimRequest.all,
   validate.updateStatus,

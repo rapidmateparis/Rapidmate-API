@@ -1,5 +1,5 @@
-const controller = require('../controllers/payment')
-const validate = require('../controllers/payment.validate')
+const controller = require('../controllers/consumer/payments/payment')
+const validate = require('../controllers/consumer/payments/payment.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
@@ -60,7 +60,7 @@ router.put(
 /**
  * Update item by status
  */
-router.patch('/statusupdate/:id',
+router.put('/statusupdate/:id',
     trimRequest.all,
     validate.updateItemBystatus,
     controller.updateItemBystatus
