@@ -116,4 +116,11 @@ router.put(
   controller.updateOrderStatus
 )
 
+router.get(
+   '/view/:ordernumber',
+    trimRequest.all,
+    validate.orderNumber,
+    controller.viewOrderByOrderNumber
+)
+
 module.exports = router

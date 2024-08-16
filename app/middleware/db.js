@@ -315,20 +315,22 @@ module.exports = {
       await connections.beginTransaction();
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
-        pickup_date,pickup_time,pickup_location_id,dropoff_location_id,distance,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,is_my_self,
-        first_name,last_name,company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,amount
+        pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
+        package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
+        delivery_boy_amount
+
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
-          order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
-          pickup_date, pickup_time, pickup_location_id, dropoff_location_id, distance, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day,is_my_self, first_name, last_name, 
-          company_name, email, mobile, package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id
-        ) VALUES ((now()+1),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`,
+          order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
+          pickup_date, pickup_time, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount
+        ) VALUES ((now()+1),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`,
         [
-          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
-        pickup_location_id,dropoff_location_id,distance,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, is_my_self,first_name,last_name,
-        company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id,amount
+          enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
+          pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
+          package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
+          delivery_boy_amount
         ]
       );
       
