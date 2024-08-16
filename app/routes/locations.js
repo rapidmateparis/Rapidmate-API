@@ -1,5 +1,5 @@
-const controller = require('../controllers/locations')
-const validate = require('../controllers/locations.validate')
+const controller = require('../controllers/consumer/locations/locations')
+const validate = require('../controllers/consumer/locations/locations.validate')
 const express = require('express')
 const router = express.Router()
 
@@ -47,7 +47,7 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
+router.put(
   '/:id',
   // requireAuth,
   // AuthController.roleAuthorization(['admin']),

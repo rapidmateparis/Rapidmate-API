@@ -1,7 +1,7 @@
 const utils = require("../../middleware/utils");
 const { runQuery,fetch, insertQuery, updateQuery, insertEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
 const {FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
-const { updateItem } = require("../enterprise");
+const { updateItem } = require("../enterprise/enterprise");
 /********************
  * Public functions *
  ********************/

@@ -46,7 +46,7 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
+router.put(
   '/:id',
 //   requireAuth,
 //   AuthController.roleAuthorization(['admin']),

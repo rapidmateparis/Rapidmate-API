@@ -1,7 +1,6 @@
-const utils = require('../middleware/utils')
-const db = require('../middleware/db')
-const { runQuery,insertQuery,fetch,updateQuery} = require('../middleware/db')
-const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID } = require('../db/database.query')
+const utils = require('../../../middleware/utils')
+const { runQuery,insertQuery,fetch,updateQuery} = require('../../../middleware/db')
+const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID } = require('../../../db/database.query')
 const { v4: uuidv4 } = require("uuid");
 
 /********************
