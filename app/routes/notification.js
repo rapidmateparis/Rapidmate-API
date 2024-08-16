@@ -1,5 +1,5 @@
-const controller = require('../controllers/notification')
-const validate = require('../controllers/notification.validate')
+const controller = require('../controllers/common/Notifications/notification')
+const validate = require('../controllers/common/Notifications/notification.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')

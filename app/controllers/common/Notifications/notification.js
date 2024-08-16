@@ -1,6 +1,5 @@
-const utils = require("../middleware/utils");
-const { runQuery } = require("../middleware/db");
-const Notification = require("../models/Notification");
+const utils = require("../../../middleware/utils");
+const Notification = require("../../../models/Notification");
 
 /********************
  * Public functions *

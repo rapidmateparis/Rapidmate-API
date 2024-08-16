@@ -51,7 +51,7 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
+router.put(
   '/:id',
   trimRequest.all,
   validate.updateItem,
@@ -61,7 +61,7 @@ router.patch(
 /*
  * Update order status route
  */
-router.patch(
+router.put(
   '/status/:id',
   trimRequest.all,
   validate.updateStatus,
