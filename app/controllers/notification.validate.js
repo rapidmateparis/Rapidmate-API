@@ -4,11 +4,21 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-    check('user_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('notification_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('title').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('bodydata').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('message').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('is_read').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+    check('topic').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('token').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('senderExtId').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('receiverExtId').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('statusDescription').exists().withMessage('MISSING'),
+    check('status').exists().withMessage('MISSING'),
+    check('notifyStatus').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('tokens').optional().isArray().withMessage('SLOTS_MUST_BE_ARRAY'),
+    check('tokenList').exists().withMessage('MISSING'),
+    check('path').exists().withMessage('MISSING'),
+    check('userType').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -18,11 +28,7 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('user_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('notification_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('message').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('is_read').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+    check('notifyStatus').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
         validationResult(req, res, next)

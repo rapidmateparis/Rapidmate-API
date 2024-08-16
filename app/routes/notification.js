@@ -5,7 +5,7 @@ const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * Latlon routes
+ * Notification routes
  */
 
 /*
@@ -36,17 +36,24 @@ router.get(
     validate.getItem,
   controller.getItem
 )
-
 /*
- * Update item route
+ * Get notification by receiver ext id  route
  */
-router.patch(
-  '/:id',
+router.get(
+  '/receiverexit/:id',
   trimRequest.all,
-  validate.updateItem,
-  controller.updateItem
+  validate.getItem,
+  controller.getNotificationByRecieverId
 )
-
+/*
+ * Get notification by sender ext id route
+ */
+router.get(
+  '/senderextid/:id',
+  trimRequest.all,
+  validate.getItem,
+  controller.getNotificationBySenderId
+)
 /*
  * Delete item route
  */
@@ -57,4 +64,13 @@ router.delete(
   controller.deleteItem
 )
 
+/**
+ * update notification status
+ */
+router.put(
+  '/:id',
+  trimRequest.all,
+  validate.updateItem,
+  controller.updateNotification
+)
 module.exports = router
