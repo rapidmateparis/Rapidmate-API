@@ -165,10 +165,10 @@ async function signup(userInfo) {
     }
   }
   
-function createItem(userinfo,tablename,extIds){
+async function createItem(userinfo,tablename,extIds){
     var registerQuery=""
-    //const password=await bcrypt.hash(userinfo['password'], 10);
-    password = userinfo['password'];
+    const password= await bcrypt.hash(userinfo['password'], 10);
+    // password = userinfo['password'];
     if(tablename=='rmt_consumer'){
       registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}')`;
     }
@@ -181,7 +181,7 @@ function createItem(userinfo,tablename,extIds){
     if(tablename=='rmt_admin_user'){
         registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}')`;
     }
-    console.log("queery "+registerQuery)
+    // console.log("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);
     return registerRes;
 }

@@ -14,7 +14,7 @@ exports.createItem = [
         }
         return true;
     }),
-    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
     check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('reason').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('status').exists().withMessage('MISSING'),
@@ -36,7 +36,7 @@ exports.updateItem = [
         }
         return true;
     }),
-    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
     check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('reason').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('status').exists().withMessage('MISSING'),
@@ -68,7 +68,7 @@ exports.deleteItem = [
  * Validates update order statis request
  */
 exports.updateStatus=[
-    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['requested','processing','approved','rejected']).withMessage('Enter valid status.'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
         validationResult(req, res, next)

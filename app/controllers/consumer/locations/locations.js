@@ -13,14 +13,14 @@ exports.getItems = async (req, res) => {
   try {
     const getUserQuerye = 'select * from rmt_location'
     const data = await runQuery(getUserQuerye)
-    let message="Items retrieved successfully";
+    let message="Locaitons retrieved successfully";
     if(data.length <=0){
-        message="No items found"
+        message="No locaitons found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch locations. Please try again later.',1001));
   }
 }
 
@@ -34,14 +34,14 @@ exports.getItem = async (req, res) => {
     const id = req.params.id;
     const getUserQuerye = "select * from rmt_location where ID='"+id+"'"
     const data = await runQuery(getUserQuerye)
-    let message="Items retrieved successfully";
+    let message="Location retrieved successfully";
     if(data.length <=0){
-        message="No items found"
+        message="No location found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch location. Please try again later.',1001));
   }
 }
 
@@ -60,7 +60,7 @@ exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
     const { location_name } = req.body;
-    const getId = await utils.isIDGood(id,'ID','rmt_location')
+    const getId = await utils.isIDGood(id,'id','rmt_location')
     if(getId){
       const doesNameExists = await utils.nameExists(location_name,'rmt_location','LOCATION_NAME')
       if (doesNameExists) {
@@ -70,12 +70,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to update location. Please try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Location not found. Please provide detail and try again.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to update location. Please try again later.',1001));
   }
     
 }
@@ -96,15 +96,15 @@ exports.createItem = async (req, res) => {
     if(item.insertId){
       return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',{location_id : item.insertId}))
     }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      return res.status(500).json(utils.buildErrorObject(500,'Unable to create lcoation. Please try again later.',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to create location. Please try again later.',1001));
   }
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_location WHERE ID ='${id}'`;
+  const deleteQuery = `DELETE FROM rmt_location WHERE id ='${id}'`;
   const deleteRes = await runQuery(deleteQuery);
   return deleteRes;
 };
@@ -116,17 +116,17 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_location')
+    const getId = await utils.isIDGood(id,'id','rmt_location')
     if(getId){
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to delete location. Please try again later.',1001));
       }
     }
-    return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
+    return res.status(400).json(utils.buildErrorObject(400,'Location not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to delete location. Please try again later.',1001));
   }
 }

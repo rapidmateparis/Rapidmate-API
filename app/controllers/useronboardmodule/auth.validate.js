@@ -5,42 +5,42 @@ const { check } = require('express-validator')
  * Validates register request
  */
 exports.register = [
-  check('info.email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('info.phoneNumber').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('info.userrole').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('info.email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email.'),
+  check('info.phoneNumber').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isMobilePhone().withMessage('Enter valid mobile number.'),
+  check('info.userrole').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ADMIN','CONSUMER', 'ENTERPRISE', 'DELIVERY_BOY']).withMessage('Invalid user role'),
   check('info.password').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   },
   (req, res, next) => {
-    if (req.body.info.userrole === 'consumer') {
+    if (req.body.info.userrole === 'CONSUMER') {
       check('info.userName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
       check('info.accountType').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
       check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY')
     validationResult(req, res, next)
 
-    }else if(req.body.info.userrole === 'delivery boy'){
+    }else if(req.body.info.userrole === 'DELIVERY_BOY'){
       check('info.firstName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
       check('info.lastName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.city').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.state').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.city').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Invalid city id'),
+      check('info.state').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Invalid state id'),
+      check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Invalid country id'),
       check('info.siretNo').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.termone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY')
+      check('info.termone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn([0, 1]).withMessage('Invalid value')
     validationResult(req, res, next)
 
-    }else if(req.body.info.userrole === 'enterprise'){
+    }else if(req.body.info.userrole === 'ENTERPRISE'){
       check('info.firstName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
       check('info.lastName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
       check('info.companyName').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
       check('info.industry').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.hourPerMonth').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.city').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.state').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.hourPerMonth').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter integer value only'),
+      check('info.city').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Invalid city id'),
+      check('info.state').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Invalid state id'),
+      check('info.country').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Invalid country id'),
       check('info.siretNo').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.termone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-      check('info.termtwo').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+      check('info.termone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn([0, 1]).withMessage('Invalid value'),
+      check('info.termtwo').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn([0, 1]).withMessage('Invalid value'),
       check('info.description').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY')
     validationResult(req, res, next)
 

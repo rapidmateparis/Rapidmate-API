@@ -22,7 +22,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
   }
 }
 

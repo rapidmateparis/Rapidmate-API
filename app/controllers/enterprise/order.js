@@ -29,9 +29,7 @@ exports.getItemByEnterpriseExt = async (req, res) => {
      // }
       
     } catch (error) {
-      return res
-        .status(500)
-        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
     }
 };
 /**
@@ -57,9 +55,7 @@ exports.getItemByOrderNumber = async (req, res) => {
      // }
       
     } catch (error) {
-      return res
-        .status(500)
-        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
     }
 };
 
@@ -79,9 +75,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         }
         return res.status(200).json(utils.buildcreatemessage(200, message, data));
     } catch (error) {
-      return res
-        .status(500)
-        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
     }
 };
 /**
@@ -106,9 +100,7 @@ exports.updateStatus = async (req, res) => {
           .status(200)
           .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
       } else {
-        return res
-          .status(500)
-          .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+        return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
       }
     }
     return res
@@ -117,7 +109,7 @@ exports.updateStatus = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -141,7 +133,7 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
         }
         return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
       } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to update an Order number', 1001));
       }
 }
 /**
@@ -179,13 +171,13 @@ exports.createItem = async (req, res) => {
     } else {
       return res
         .status(500)
-        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+        .json(utils.buildErrorObject(500, "Unable to create an order", 1001));
     }
   } catch (error) {
     console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,'Unable to create an order', 1001));
   }
 };
 
@@ -195,7 +187,7 @@ const getVehicleTypeInfo = async (vehicle_type_id) => {
     return data[0];
   } catch (error) {
     console.log(error);
-    return {};
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch vehicle info.',1001));
   }
 };
 /**
@@ -225,7 +217,7 @@ exports.createShiftItem = async (req, res) => {
     console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,'Unable to create shift', 1001));
   }
 };
 
@@ -262,7 +254,7 @@ exports.updateOrderlineStatus = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -298,6 +290,6 @@ exports.deleteItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500, 'Unable to delete order', 1001));
   }
 };
