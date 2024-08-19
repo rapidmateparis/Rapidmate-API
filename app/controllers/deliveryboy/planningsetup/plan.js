@@ -273,17 +273,13 @@ function getTotalDays(month) {
   var currentDate = startDate;
   var idx =0;
   while (currentDate <= stopDate) {
-    var dateCheck = new Date (currentDate).toLocaleDateString();
-    var dateCheck = dateCheck.replace("-", '/');
-    var statusWoZero = dateCheck.includes("/" + month + "/");
-    var statusWZero = dateCheck.includes("/0" + month + "/");
-    console.log("currentDate", currentDate);
-      dateArray.push(new Date (currentDate));
-      currentDate = currentDate.addDays(1);
-     
-      if(statusWoZero || statusWZero){
+    monthCheck = moment(currentDate).format("M");
+    console.log("monthCheck", monthCheck);
+    dateArray.push(new Date (currentDate));
+    currentDate = currentDate.addDays(1);
+    if(parseInt(month) == parseInt(monthCheck)){
         idx++;
-      }
+    }
   }
   return idx;
 }
