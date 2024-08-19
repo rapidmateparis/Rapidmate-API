@@ -7,7 +7,7 @@ const { check } = require('express-validator')
 exports.createItem = [
   check('vehicle_sub_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('vehicle_sub_type_desc').exists().withMessage('MISSING'),
-  check('vehicle_type_id ').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('vehicle_type_id ').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -18,7 +18,7 @@ exports.createItem = [
 exports.updateItem = [
   check('vehicle_sub_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('vehicle_sub_type_desc').exists().withMessage('MISSING'),
-  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
   check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)

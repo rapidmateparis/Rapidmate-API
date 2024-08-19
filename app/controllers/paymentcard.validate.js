@@ -17,7 +17,7 @@ exports.createItem = [
             }
             return true;
         }),
-    check('cvv').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('cvv').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt([{min:3 ,max:3}]).withMessage('Enter valid cvv.'),
     check('billing_address').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
   (req, res, next) => {
@@ -42,7 +42,7 @@ exports.updateItem = [
           }
           return true;
       }),
-    check('cvv').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('cvv').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt([{min:3 ,max:3}]).withMessage('Enter valid cvv.'),
     check('billing_address').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
     check('id')

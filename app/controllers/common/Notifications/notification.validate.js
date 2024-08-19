@@ -13,11 +13,11 @@ exports.createItem = [
     check('receiverExtId').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('statusDescription').exists().withMessage('MISSING'),
     check('status').exists().withMessage('MISSING'),
-    check('notifyStatus').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('notifyStatus').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['PENDING', 'SENT', 'DELIVERED','FAILED','READ']).withMessage('Enter valid status.'),
     check('tokens').optional().isArray().withMessage('SLOTS_MUST_BE_ARRAY'),
     check('tokenList').exists().withMessage('MISSING'),
     check('path').exists().withMessage('MISSING'),
-    check('userType').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('userType').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ADMIN', 'CONSUMER', 'ENTERPRISE','DELIVERY_BOY']).withMessage('Enter valid user role.'),
 
   (req, res, next) => {
     validationResult(req, res, next)
@@ -28,7 +28,7 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('notifyStatus').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('notifyStatus').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['PENDING', 'SENT', 'DELIVERED','FAILED','READ']).withMessage('Enter valid status.'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
         validationResult(req, res, next)
