@@ -17,7 +17,7 @@ exports.lookupService = async (req, res) => {
       const enterpriseServiceTypeData = await fetch("select id,service_type,service_type_desc from rmt_enterprise_service_type");
       responseData.vehicleType = vehicleTypeData;
       responseData.workType = workTypeData;
-      responseData.vehicleType = serviceData;
+      responseData.serviceType = serviceData;
       responseData.vehicleSubType = vehicleSubTypeData;
       responseData.industryType = industryTypeData;
       responseData.enterpriseDeliveryType = enterpriseDeliveryTypeData;

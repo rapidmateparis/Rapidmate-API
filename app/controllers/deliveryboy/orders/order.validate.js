@@ -14,14 +14,14 @@ exports.createItem = [
         }
         return true;
     }),
-    check('order_status').exists().withMessage('MISSING').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status').withMessage('Enter valid order status'),
-    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('dropoff_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('shift_start_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('shift_end_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('order_status').exists().withMessage('MISSING').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status'),
+    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
+    check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('dropoff_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('shift_start_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
+    check('shift_end_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
     check('delivery_date').exists().withMessage('MISSING')
     .isISO8601().withMessage('INVALID_DATE')
     .custom((value) => {
@@ -40,10 +40,10 @@ exports.createItem = [
 
 exports.createGeneralOrder = [
   check('consumer_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('dropoff_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+  check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+  check('dropoff_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+  check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
 (req, res, next) => {
   validationResult(req, res, next)
 }
@@ -88,14 +88,14 @@ exports.updateItem = [
         }
         return true;
     }),
-    check('order_status').exists().withMessage('MISSING').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status').withMessage('Enter valid order status'),
-    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('dropoff_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('shift_start_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('shift_end_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('order_status').exists().withMessage('MISSING').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status'),
+    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
+    check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('dropoff_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
+    check('shift_start_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
+    check('shift_end_time').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
     check('delivery_date').exists().withMessage('MISSING')
     .isISO8601().withMessage('INVALID_DATE')
     .custom((value) => {
@@ -105,7 +105,6 @@ exports.updateItem = [
         }
         return true;
     }),
-    check('delivery_status').exists().withMessage('MISSING'),
     check('is_active').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
@@ -113,16 +112,7 @@ exports.updateItem = [
     }
 ]
 
-/**
- * Validates update order statis request
- */
-exports.updateStatus=[
-  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  (req, res, next) => {
-      validationResult(req, res, next)
-  }
-]
+
 
 /**
  * Validates get item request
@@ -172,7 +162,7 @@ exports.deleteItem = [
 
 exports.otpVerification=[
   check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('otp').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('otp').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt({min:4}).withMessage('Enter valid code'),
 (req, res, next) => {
   validationResult(req, res, next)
 }
@@ -180,7 +170,7 @@ exports.otpVerification=[
 
 exports.requestAction=[
   check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['Accepted','Rejected']).withMessage('Enter valid status'),
 (req, res, next) => {
   validationResult(req, res, next)
 }
@@ -188,7 +178,7 @@ exports.requestAction=[
 
 exports.updateOrderStatus=[
   check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status'),
 (req, res, next) => {
   validationResult(req, res, next)
 }

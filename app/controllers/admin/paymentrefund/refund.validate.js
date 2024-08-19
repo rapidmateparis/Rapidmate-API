@@ -4,7 +4,7 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-    check('order_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('order_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
     check('refund_date').exists().withMessage('MISSING')
     .isISO8601().withMessage('INVALID_DATE')
     .custom((value) => {
@@ -26,7 +26,7 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('order_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('order_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
     check('refund_date').exists().withMessage('MISSING')
     .isISO8601().withMessage('INVALID_DATE')
     .custom((value) => {
