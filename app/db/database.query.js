@@ -111,15 +111,6 @@ exports.INSERT_TRAN_QUERY=`INSERT INTO rmt_transaction(WALLET_ID,USER_ID,TYPE,AM
 exports.UPDATE_TRAN_QUERY=`UPDATE rmt_transaction SET WALLET_ID=?USER_ID=?TYPE=?,AMOUNT=?,CURRENCY,DESCRIPTION=? WHERE ID=?`;
 exports.DELETE_TRAN_QUERY=`UPDATE rmt_transaction SET is_del=1 WHERE ID=?`;
 
-//------------------------RMT_WORK_ORDER----------------------------------------
-
-exports.FETCH_WORK_ORDER_QUERY=`SELECT * FROM rmt_work_order WHERE is_del=0`;
-exports.FETCH_WORK_ORDER_BY_ID=`SELECT * FROM rmt_work_order WHERE is_del=0 AND ID=?`;
-exports.INSERT_WORK_ORDER_QUERY=`INSERT INTO rmt_work_order(ORDER_ID,WORK_TYPE,STATUS,SCHEDULED_DATE,SCHEDULED_TIME,COMPLETION_DATE,COMPLETION_TIME,NOTES) VALUES(?,?,?,?,?,?,?,?)`;
-exports.UPDATE_WORK_ORDER_QUERY=`UPDATE rmt_work_order SET ORDER_ID=?,WORK_TYPE=?,STATUS=?,SCHEDULED_DATE=?,SCHEDULED_TIME=?,COMPLETION_DATE=?,COMPLETION_TIME=?,NOTES=? WHERE ID=?`;
-exports.DELETE_WORK_ORDER_QUERY=`UPDATE rmt_work_order SET is_del=1 WHERE ID=?`;
-exports.UPDATE_ORDER_REQUEST_STATUS=`UPDATE SET DELIVERY_STATUS=?,DELIVERY_BOY_ID=? WHERE ID=?`;
-
 //-------------------------------rmt_payment-----------------------------------------------------\
 exports.FETCH_PAYMENT_QUERY=`SELECT * FROM rmt_payment WHERE is_del=0`;
 exports.FETCH_PAYMENT_BY_ID=`SELECT * FROM rmt_payment WHERE is_del=0 AND id=?`;

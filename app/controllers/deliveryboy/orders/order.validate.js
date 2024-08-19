@@ -14,7 +14,7 @@ exports.createItem = [
         }
         return true;
     }),
-    check('order_status').exists().withMessage('MISSING'),
+    check('order_status').exists().withMessage('MISSING').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status').withMessage('Enter valid order status'),
     check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
@@ -88,7 +88,7 @@ exports.updateItem = [
         }
         return true;
     }),
-    check('order_status').exists().withMessage('MISSING'),
+    check('order_status').exists().withMessage('MISSING').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status').withMessage('Enter valid order status'),
     check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('pickup_location_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),

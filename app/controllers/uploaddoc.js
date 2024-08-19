@@ -41,7 +41,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_transaction')
+    const getId = await utils.isIDGood(id,'id','rmt_transaction')
     if(getId){
       const deletedItem = await deleteItem(getId);
       if(deletedItem.affectedRows > 0) {
