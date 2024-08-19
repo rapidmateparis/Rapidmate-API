@@ -274,6 +274,7 @@ function getTotalDays(month) {
   var idx =0;
   while (currentDate <= stopDate) {
     var dateCheck = new Date (currentDate).toLocaleDateString();
+    var dateCheck = paragraph.replace("-", '/');
     var statusWoZero = dateCheck.includes("/" + month + "/");
     var statusWZero = dateCheck.includes("/0" + month + "/");
     console.log("currentDate", currentDate);
