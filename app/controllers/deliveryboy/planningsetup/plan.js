@@ -2,7 +2,7 @@ const utils = require('../../../middleware/utils')
 const { insertQuery, fetch, insertOrUpdatePlanningWithSlots, getAllPlanningWithSlots, getPlanningWithSlotsByDeliveryBoy, updateQuery, runQuery } = require('../../../middleware/db')
 const { buildFetchDeliveryBoyPlanningSetupSlotQueryFilter,GET_PLANNING_SETUP_ID_YMW, FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, GET_PLANNING_SETUP_ID, DELETE_SETUP_QUERY, DELETE_SETUP_SLOTS_QUERY, INSERT_PLANNING_SETUP_QUERY, INSERT_PLANNING_QUERY, FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY} = require('../../../db/planning.query')
 const { consumers } = require('form-data')
-
+const moment = require('moment');
 /********************
  * Public functions *
  ********************/
@@ -218,6 +218,7 @@ const planningSetupConfig = async (req, res) => {
     const deletedSetupSlotItem = await deleteSetupSlotItem(dbPlanSetupId);
     const deletedSetupItem = await deleteSetupItem(dbPlanSetupId);
   }
+  
   if(parseInt(is_24x7) == 0){
     console.log("Enter");
     var resStatus = false;
@@ -225,14 +226,23 @@ const planningSetupConfig = async (req, res) => {
       console.log("Block 0", setup);
       if (setup) {
           dbSetupData = await createSetup(planningID, setup);
+          console.log(dbSetupData);
           planningSetupID = dbSetupData.insertId;
           slotsData = [];
+          console.log("Block 2", is_apply_for_all_days)
           if(parseInt(is_apply_for_all_days) == 0){
             slotsData = setup.slots;
           }else{
-            slotsData.push(setup.slots[0]);
+            var newDayData = setup.slots[0];
+            var totalDays = getTotalDays(setup.month);
+            console.log("Total Days", totalDays);
+            if(totalDays){
+              for (var day = 1; day <= totalDays; day++) {
+                slotsData.push({ day: day, times: newDayData.times, selected: true });
+              }
+            }
+           
           }
-          console.log(slotsData);
           if (slotsData) {
             slotResult = await insertOrUpdatePlanningWithSlots(planningSetupID, slotsData);
             resStatus = true;
@@ -243,6 +253,38 @@ const planningSetupConfig = async (req, res) => {
     }
   }
   return resStatus;
+}
+
+Date.prototype.addDays = function(days) {
+  var date = new Date(this.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
+}
+
+function getTotalDays(month) {
+  var dt = new Date(); // current date of week
+  var currentWeekDay = dt.getDay();
+  var lessDays = currentWeekDay == 0 ? 6 : currentWeekDay;
+  var startDate = new Date(new Date(dt).setDate(dt.getDate() - lessDays));
+  var stopDate = new Date(new Date(startDate).setDate(startDate.getDate() + 6));
+  console.log("startDate", startDate);
+  console.log("stopDate", stopDate);
+  var dateArray = new Array();
+  var currentDate = startDate;
+  var idx =0;
+  while (currentDate <= stopDate) {
+    var dateCheck = new Date (currentDate).toLocaleDateString();
+    var statusWoZero = dateCheck.includes("/" + month + "/");
+    var statusWZero = dateCheck.includes("/0" + month + "/");
+    console.log("currentDate", currentDate);
+      dateArray.push(new Date (currentDate));
+      currentDate = currentDate.addDays(1);
+     
+      if(statusWoZero || statusWZero){
+        idx++;
+      }
+  }
+  return idx;
 }
 
 const createItem = async (is_24x7, is_apply_for_all_days, delivery_boy_id) => {
