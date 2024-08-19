@@ -5,7 +5,7 @@ const { check } = require('express-validator')
  */
 exports.createItem = [
   check('city_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('state_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('state_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -16,7 +16,7 @@ exports.createItem = [
  */
 exports.updateItem = [
     check('city_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('state_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('state_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)

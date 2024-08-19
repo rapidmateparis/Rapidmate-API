@@ -27,10 +27,10 @@ exports.createItem = [
     .withMessage('MISSING'),
   check('latitude')
     .exists()
-    .withMessage('MISSING'),
+    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LATITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
   check('longitude')
     .exists()
-    .withMessage('MISSING'),
+    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LONGITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -69,11 +69,11 @@ exports.updateItem = [
     .trim(),
   check('latitude')
     .exists()
-    .withMessage('MISSING')
+    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LATITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES')
     .trim(),
   check('longitude')
     .exists()
-    .withMessage('MISSING')
+    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LONGITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES')
     .trim(),
     check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
 

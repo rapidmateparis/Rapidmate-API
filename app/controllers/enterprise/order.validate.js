@@ -93,8 +93,8 @@ exports.updateItem = [
     check('first_name').exists().withMessage('MISSING'),
     check('last_name').exists().withMessage('MISSING'),
     check('company_name').exists().withMessage('MISSING'),
-    check('email').exists().withMessage('MISSING'),
-    check('mobile').exists().withMessage('MISSING'),
+    check('email').exists().withMessage('MISSING').isEmail().withMessage('Enter valid email'),
+    check('mobile').exists().withMessage('MISSING').isMobilePhone().withMessage('Enter valid mobile number'),
     check('package_photo').exists().withMessage('MISSING'),
     check('package_id').exists().withMessage('MISSING'),
     check('package_note').exists().withMessage('MISSING'),
@@ -188,8 +188,8 @@ exports.orderItem = [
     check('first_name').exists().withMessage('MISSING'),
     check('last_name').exists().withMessage('MISSING'),
     check('company_name').exists().withMessage('MISSING'),
-    check('email').exists().withMessage('MISSING'),
-    check('mobile').exists().withMessage('MISSING'),
+    check('email').exists().withMessage('MISSING').isEmail().withMessage('Enter valid email'),
+    check('mobile').exists().withMessage('MISSING').isMobilePhone().withMessage('Enter valid mobile number'),
     check('package_photo').exists().withMessage('MISSING'),
     check('package_id').exists().withMessage('MISSING'),
     check('package_note').exists().withMessage('MISSING'),
@@ -211,11 +211,18 @@ exports.orderItem = [
 
     check('addAnothers.*.to_latitude').optional({ checkFalsy: true }).exists().withMessage('latitude field declare mandatory.').not().isEmpty().withMessage('to_latitude field is required'),
     check('addAnothers.*.to_longitude').optional({ checkFalsy: true }).exists().withMessage('to_longitude field declare mandatory.').not().isEmpty().withMessage('to_longitude field is required'),
-    check('addAnothers.*.delivery_date').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_date field is required'),
-    check('addAnothers.*.delivery_start_time').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_start_time field is required'),
-    check('addAnothers.*.delivery_end_time').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_end_timne field is required'),
-    check('addAnothers.*.m_total_hours').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('m_total_hours field is required'),
-    check('addAnothers.*.m_distance').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('m_distance field is required'),
+    check('addAnothers.*.delivery_date').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_date field is required').isISO8601().withMessage('INVALID_DATE')
+    .custom((value) => {
+        const date = new Date(value);
+        if (isNaN(date.getTime())) {
+            throw new Error('INVALID_DATE');
+        }
+        return true;
+    }),
+    check('addAnothers.*.delivery_start_time').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_start_time field is required').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
+    check('addAnothers.*.delivery_end_time').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('delivery_end_time field is required').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
+    check('addAnothers.*.m_total_hours').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('m_total_hours field is required').isInt().withMessage('Enter only digits value'),
+    check('addAnothers.*.m_distance').optional({ checkFalsy: true }).exists().withMessage('delivery date field declare mandatory.').not().isEmpty().withMessage('m_distance field is required').isInt().withMessage('Enter only digits value'),
     (req, res, next) => {
     validationResult(req, res, next)
   }

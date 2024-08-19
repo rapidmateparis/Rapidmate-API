@@ -77,7 +77,7 @@ exports.deleteItem = [
  * Validates calcaute new price request
  */
 exports.calculateAmount = [
-  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
   check('pickupLocation').exists().withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_PICKUP_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
   check('dropoffLocation').exists().withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_DROPOFF_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
   (req, res, next) => {

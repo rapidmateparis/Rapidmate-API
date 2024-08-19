@@ -5,7 +5,7 @@ const { check } = require('express-validator')
  */
 exports.createItem = [
     check('delivery_boy_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('balance').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('balance').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
     check('currency').exists().withMessage('MISSING'),
     check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
   (req, res, next) => {
@@ -18,7 +18,7 @@ exports.createItem = [
  */
 exports.updateItem = [
     check('delivery_boy_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('balance').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('balance').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
     check('currency').exists().withMessage('MISSING'),
     check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
     check('id')

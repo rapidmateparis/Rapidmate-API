@@ -4,7 +4,7 @@ const { check } = require('express-validator')
  * Validates create new item request
  */
 exports.createItem = [
-    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
     check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
     validationResult(req, res, next)
@@ -31,7 +31,7 @@ exports.updateItem = [
  * update item by status
  */
 exports.updateItemBystatus=[
-    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['INTIATED','SUCCESS','FAILED']).withMessage('Enter valid status'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
         validationResult(req, res, next)
