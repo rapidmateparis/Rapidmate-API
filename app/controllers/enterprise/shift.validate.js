@@ -7,10 +7,10 @@ const { check, body } = require('express-validator');
 exports.createItem = [
   check('is_same_slot_all_days').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
   check('enterprise_ext').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('branch_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('delivery_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('vehicle_type_id').exists().withMessage('MISSING'),
+  check('branch_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value'),
+  check('delivery_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value'),
+  check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value'),
+  check('vehicle_type_id').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
   check('from_date').exists().withMessage('MISSING')
     .isISO8601().withMessage('INVALID_DATE')
     .custom((value) => {
@@ -51,10 +51,10 @@ exports.createItem = [
 exports.updateItem = [
     check('is_same_slot_all_days').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
     check('enterprise_ext').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('branch_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('delivery_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('vehicle_type_id').exists().withMessage('MISSING'),
+    check('branch_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value'),
+    check('delivery_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value'),
+    check('service_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value'),
+    check('vehicle_type_id').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
     check('from_date').exists().withMessage('MISSING')
       .isISO8601().withMessage('INVALID_DATE')
       .custom((value) => {
@@ -125,7 +125,7 @@ exports.updateStatus = [
     check('status')
       .exists().withMessage('MISSING')
       .not().isEmpty().withMessage('IS_EMPTY')
-      .isIn(['ACCEPT','ONGOIN','COMPLETED','REJECTED']) // Enum values for status
+      .isIn(['ACCEPT','ONGOIN','COMPLETED','REJECTED']) 
       .withMessage('Invalid status value'),
     
     body('status').custom((value, { req }) => {
@@ -153,7 +153,7 @@ exports.updateStatus = [
  * Validates create item request
  */
 exports.assignDeliveryboyInshift = [
-  check('shift_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('shift_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value'),
   check('enterprise_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('delivery_boy_ext').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {

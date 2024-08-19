@@ -5,13 +5,13 @@ const { check } = require('express-validator')
  */
 exports.createItem = [
     check('enterprise_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('phone_number').exists().withMessage('MISSING'),
+    check('email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email.'),
+    check('phone_number').exists().withMessage('MISSING').isMobilePhone().withMessage('Enter valid mobile or number'),
     check('address').exists().withMessage('MISSING'),
-    check('city').exists().withMessage('MISSING'),
-    check('state').exists().withMessage('MISSING'),
-    check('country').exists().withMessage('MISSING'),
-    check('postal_code').exists().withMessage('MISSING'),
+    check('city').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+    check('state').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+    check('country').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+    check('postal_code').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
     check('website').exists().withMessage('MISSING'),
     check('industry').exists().withMessage('MISSING'),
     check('founded_date')
@@ -34,14 +34,14 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('enterprise_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('phone_number').exists().withMessage('MISSING'),
-    check('address').exists().withMessage('MISSING'),
-    check('city').exists().withMessage('MISSING'),
-    check('state').exists().withMessage('MISSING'),
-    check('country').exists().withMessage('MISSING'),
-    check('postal_code').exists().withMessage('MISSING'),
+  check('enterprise_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email.'),
+  check('phone_number').exists().withMessage('MISSING').isMobilePhone().withMessage('Enter valid mobile or number'),
+  check('address').exists().withMessage('MISSING'),
+  check('city').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+  check('state').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+  check('country').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+  check('postal_code').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
     check('website').exists().withMessage('MISSING'),
     check('industry').exists().withMessage('MISSING'),
     check('founded_date')

@@ -23,7 +23,7 @@ exports.getItems = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
 
@@ -53,7 +53,7 @@ exports.getItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
 
@@ -88,7 +88,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
     console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -122,7 +122,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
   console.log(error);
   return res
     .status(500)
-    .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    .json(utils.buildErrorObject(500,error.message, 1001));
 }
 };
 /**
@@ -164,7 +164,7 @@ exports.updateItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -182,7 +182,7 @@ exports.updateStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const getId = await utils.isIDGood(id, "ORDER_ID", "rmt_order");
+    const getId = await utils.isIDGood(id, "id", "rmt_order");
     if (getId) {
       const updatedItem = await updateStatus(id, status);
       if (updatedItem) {
@@ -201,7 +201,7 @@ exports.updateStatus = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 /**
@@ -264,7 +264,7 @@ exports.createItem = async (req, res) => {
     console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
 
@@ -287,7 +287,7 @@ exports.allocateDeliveryBoy = async (req, res) => {
     console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -322,7 +322,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
     console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -397,7 +397,7 @@ exports.deleteItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 

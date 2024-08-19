@@ -28,7 +28,7 @@ exports.getItems = async (req, res) => {
       );
       return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
     }
 }
 
@@ -51,7 +51,7 @@ exports.getDeletedlist= async (req,res)=>{
         );
         return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
       } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
       }
 }
 /**
@@ -79,7 +79,7 @@ exports.getItem = async (req, res) => {
       );
       return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
     }
 }
 /**
@@ -108,7 +108,7 @@ exports.getShiftByExtId=async(req,res)=>{
         );
         return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
       } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
       }
 }
 /**
@@ -137,7 +137,7 @@ exports.getShiftByStatus=async(req,res)=>{
         );
         return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
       } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
       }
 }
 /**
@@ -197,7 +197,7 @@ exports.updateStatus = async (req, res) => {
     } catch (error) {
       return res
         .status(500)
-        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+        .json(utils.buildErrorObject(500,error.message, 1001));
     }
 };
 /**
@@ -216,7 +216,7 @@ exports.createItem = async (req, res) => {
         return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong1', 1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong1', 1001));
+    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 }
 
@@ -249,7 +249,7 @@ exports.deleteItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -278,7 +278,7 @@ exports.restoreItem = async (req, res) => {
     } catch (error) {
       return res
         .status(500)
-        .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+        .json(utils.buildErrorObject(500,error.message, 1001));
     }
 };
 
@@ -297,7 +297,7 @@ exports.assignDeliveryboyInshift = async (req,res)=>{
     }
     return res.status(400).json(utils.buildErrorObject(400, "Data not found.", 1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 }
 
