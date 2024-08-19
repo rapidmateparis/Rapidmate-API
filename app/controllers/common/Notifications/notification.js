@@ -12,16 +12,16 @@ const Notification = require("../../../models/Notification");
 exports.getItems = async (req, res) => {
   try {
     const data = await Notification.find({ is_del: false });
-    let message = "Items retrieved successfully";
+    let message = "Notification loaded successfully";
     if (data.length <= 0) {
-      message = "No items found";
+      message = "No notifications available at the moment.";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500, "Unable to loading notifications. Please try again later.", 1001));
   }
 };
 
@@ -58,14 +58,14 @@ exports.getNotificationByRecieverId = async (req, res) => {
     const data = await Notification.find({ receiverExtId: id, is_del: false });
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
-      message = "No items found";
+      message = "No notification found.";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500, "Unable to fetch notification. Please try again later.", 1001));
   }
 };
 
@@ -80,14 +80,14 @@ exports.getNotificationBySenderId = async (req, res) => {
     const data = await Notification.find({ senderExtId: id, is_del: false });
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
-      message = "No items found";
+      message = "No notification found.";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
     return res.status(200).json(utils.buildcreatemessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500, "Unable to fetch notification. Please try againg later.", 1001));
   }
 };
 
@@ -99,7 +99,7 @@ exports.updateNotification = async (req,res)=>{
       }
       return res.status(200).json(utils.buildUpdatemessage(200,"Notification status updated successfully"))
   } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+      return res.status(500).json(utils.buildErrorObject(500,'Unable to update notification. Please try again later.',1001));
   }
 }
 /**
@@ -141,11 +141,11 @@ exports.createItem = async (req, res) => {
     if(item){
       return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',[item]))
     }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      return res.status(500).json(utils.buildErrorObject(500,'Unable to create notification. Please try again later.',1001));
     }
    
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to create notification. Please try again later.',1001));
   }
 };
 
@@ -172,6 +172,6 @@ exports.deleteItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, error.message, 1001));
+      .json(utils.buildErrorObject(500,'Unable to deleting notification. Please try again later.', 1001));
   }
 };

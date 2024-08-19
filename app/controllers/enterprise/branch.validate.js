@@ -12,8 +12,8 @@ exports.createItem = [
     check('state').exists().withMessage('MISSING'),
     check('country').exists().withMessage('MISSING'),
     check('postal_code').exists().withMessage('MISSING'),
-    check('latitude').exists().withMessage('MISSING').not().isEmpty().withMessage('this field is required.'),
-    check('longitude').exists().withMessage('MISSING').not().isEmpty().withMessage('this field is required.'),
+    check('latitude').exists().withMessage('MISSING').not().isEmpty().withMessage('this field is required.').isFloat({ min: -90, max: 90 }).withMessage('INVALID_LATITUDE'),
+    check('longitude').exists().withMessage('MISSING').not().isEmpty().withMessage('this field is required.').isFloat({ min: -180, max: 180 }).withMessage('INVALID_LONGITUDE'),
   (req, res, next) => {
     validationResult(req, res, next)
   }

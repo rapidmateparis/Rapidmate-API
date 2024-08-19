@@ -8,7 +8,7 @@ exports.createItem = [
     check('enterprise_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('title').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('description').exists().withMessage('MISSING'),
-    check('url').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('url').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isURL().withMessage('Enter valid url.'),
     check('icon').exists().withMessage('MISSING'),
     check('photo').exists().withMessage('MISSING'),
   (req, res, next) => {
@@ -20,7 +20,7 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('is_active').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('is_active').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn([0,1]).withMessage('Enter valid value.'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
         validationResult(req, res, next)

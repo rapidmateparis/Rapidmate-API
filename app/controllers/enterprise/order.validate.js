@@ -36,8 +36,8 @@ exports.createItem = [
     check('first_name').exists().withMessage('MISSING'),
     check('last_name').exists().withMessage('MISSING'),
     check('company_name').exists().withMessage('MISSING'),
-    check('email').exists().withMessage('MISSING'),
-    check('mobile').exists().withMessage('MISSING'),
+    check('email').exists().withMessage('MISSING').isEmail().withMessage('Enter valid email'),
+    check('mobile').exists().withMessage('MISSING').isMobilePhone().withMessage('Enter valid mobile number'),
     check('package_photo').exists().withMessage('MISSING'),
     check('package_id').exists().withMessage('MISSING'),
     check('package_note').exists().withMessage('MISSING'),
@@ -117,7 +117,7 @@ exports.updateItem = [
  * Validates update order statis request
  */
 exports.updateStatus=[
-  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid status'),
   check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
       validationResult(req, res, next)

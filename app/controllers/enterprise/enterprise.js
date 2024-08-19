@@ -23,7 +23,7 @@ exports.getItems = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -54,7 +54,7 @@ exports.dashboardItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 /**
@@ -77,7 +77,7 @@ exports.getItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      .json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 
@@ -108,13 +108,9 @@ exports.updateItem = async (req, res) => {
           .json(utils.buildErrorObject(500, "Something went wrong", 1001));
       }
     }
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
   } catch (error) {
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
 /**
@@ -156,9 +152,7 @@ exports.createItem = async (req, res) => {
         );
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
   }
 };
 
@@ -192,8 +186,6 @@ exports.deleteItem = async (req, res) => {
       .status(400)
       .json(utils.buildErrorObject(400, "Data not found.", 1001));
   } catch (error) {
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
