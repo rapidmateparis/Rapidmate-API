@@ -1,5 +1,6 @@
 const utils = require("../../../middleware/utils");
 const Notification = require("../../../models/Notification");
+const admin = require("../../../../config/admin");
 
 /********************
  * Public functions *
@@ -21,7 +22,13 @@ exports.getItems = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Unable to loading notifications. Please try again later.", 1001));
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to loading notifications. Please try again later.",
+          1001
+        )
+      );
   }
 };
 
@@ -70,7 +77,13 @@ exports.getNotificationByExtId = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Unable to fetch notification. Please try again later.", 1001));
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to fetch notification. Please try again later.",
+          1001
+        )
+      );
   }
 };
 
@@ -92,21 +105,48 @@ exports.getNotificationBySenderId = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Unable to fetch notification. Please try againg later.", 1001));
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to fetch notification. Please try againg later.",
+          1001
+        )
+      );
   }
 };
 
-exports.updateNotification = async (req,res)=>{
+exports.updateNotification = async (req, res) => {
   try {
-    const updateNotification = await Notification.findByIdAndUpdate(req.params.id,{notifyStatus:req.body.notifyStatus},{ new: true, runValidators: true } );
-      if (!updateNotification) {
-        return res.status(404).json(utils.buildErrorObject(404,'Notification not found',1001));
-      }
-      return res.status(200).json(utils.buildUpdatemessage(200,"Notification status updated successfully"))
+    const updateNotification = await Notification.findByIdAndUpdate(
+      req.params.id,
+      { notifyStatus: req.body.notifyStatus },
+      { new: true, runValidators: true }
+    );
+    if (!updateNotification) {
+      return res
+        .status(404)
+        .json(utils.buildErrorObject(404, "Notification not found", 1001));
+    }
+    return res
+      .status(200)
+      .json(
+        utils.buildUpdatemessage(
+          200,
+          "Notification status updated successfully"
+        )
+      );
   } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to update notification. Please try again later.',1001));
+    return res
+      .status(500)
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to update notification. Please try again later.",
+          1001
+        )
+      );
   }
-}
+};
 /**
  * Create item function called by route
  * @param {Object} req - request object
@@ -117,7 +157,7 @@ const createNotification = async (req) => {
   const insertData = {
     title,
     body: bodydata,
-    message, 
+    message,
     topic,
     token,
     senderExtId,
@@ -150,9 +190,16 @@ exports.createItem = async (req, res) => {
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Unable to create notification. Please try again later.',1001));
     }
-   
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create notification. Please try again later.',1001));
+    return res
+      .status(500)
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to create notification. Please try again later.",
+          1001
+        )
+      );
   }
 };
 
@@ -215,6 +262,48 @@ exports.deleteItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500,'Unable to deleting notification. Please try again later.', 1001));
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to deleting notification. Please try again later.",
+          1001
+        )
+      );
   }
+};
+
+/**
+ * send notification
+ */
+exports.sendNotifcation = async (req, res) => {
+  const { token, title, data, notifications } = req.body;
+
+  const message = {
+    notification: {
+      title: title,
+      body: data,
+    },
+    data: notifications, // optional
+    token: token,
+  };
+
+  admin
+    .messaging()
+    .send(message)
+    .then((response) => {
+      console.log("Successfully sent message:", response);
+      return res
+        .status(200)
+        .json(
+          utils.buildcreatemessage(200, "Successfully sent message:", response)
+        );
+    })
+    .catch((error) => {
+      console.log("Error sending message:", error);
+      return res
+        .status(500)
+        .json(
+          utils.buildcreatemessage(500, "Error sending message:", error.message)
+        );
+    });
 };
