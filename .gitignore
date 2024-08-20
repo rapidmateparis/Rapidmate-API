@@ -4,6 +4,8 @@ node_modules
 
 # Ignore package-lock.json
 package-lock.json
-
+rapidmate-private-key.json
 # Ignore yarn.lock
 yarn.lock
+
+

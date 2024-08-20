@@ -73,4 +73,11 @@ router.put(
   validate.updateItem,
   controller.updateNotification
 )
+
+router.post(
+  '/send-notification',
+  trimRequest.all,
+  validate.sendNotifcation,
+  controller.sendNotifcation
+)
 module.exports = router
