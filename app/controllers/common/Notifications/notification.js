@@ -52,10 +52,15 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-exports.getNotificationByRecieverId = async (req, res) => {
+exports.getNotificationByExtId = async (req, res) => {
   try {
-    const id = req.params.id;
-    const data = await Notification.find({ receiverExtId: id, is_del: false });
+    const perPage = utils.getSize(req.query.size);
+    console.log(perPage);
+    const page = utils.getPage(req.query.page);
+    console.log(page);
+    const ext_id = req.params.ext_id;
+    console.log(ext_id);
+    const data = await Notification.find({ receiverExtId: ext_id }).skip(perPage * page).limit(perPage);
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
       message = "No notification found.";
@@ -107,8 +112,8 @@ exports.updateNotification = async (req,res)=>{
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-  const {title, bodydata, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userType} = req;
+const createNotification = async (req) => {
+  const {title, bodydata, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,rediectTo} = req;
   const insertData = {
     title,
     body: bodydata,
@@ -124,7 +129,8 @@ const createItem = async (req) => {
     tokenList,
     actionName,
     path,
-    userType
+    userRole,
+    rediectTo
   };
 
   // console.log(insertData)
@@ -135,9 +141,10 @@ const createItem = async (req) => {
   }
   return savedNotification;
 };
+
 exports.createItem = async (req, res) => {
   try {
-    const item = await createItem(req.body)
+    const item = await createNotification(req.body)
     if(item){
       return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',[item]))
     }else{
@@ -146,6 +153,42 @@ exports.createItem = async (req, res) => {
    
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to create notification. Please try again later.',1001));
+  }
+};
+
+exports.createNotificationRequest = async (req) => {
+  try {
+    const {title, bodydata, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
+    const insertData = {
+      title,
+      body: bodydata,
+      message, 
+      topic,
+      token,
+      extId,
+      senderExtId,
+      receiverExtId,
+      statusDescription,
+      status,
+      notifyStatus,
+      tokens,
+      tokenList,
+      actionName,
+      path,
+      userRole,
+      redirect,
+      extId
+    };
+    const notification = new Notification(insertData);
+    const savedNotification = await notification.save();
+    if (!savedNotification) {
+      return false;
+    }
+    return savedNotification;
+   
+  } catch (error) {
+      console.log(error);
+      return null;
   }
 };
 
