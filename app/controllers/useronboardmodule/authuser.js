@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { runQuery , fetch} = require("../../middleware/db");
+const { runQuery , fetch, updateQuery} = require("../../middleware/db");
 const { CognitoJwtVerifier } = require("aws-jwt-verify");
 var AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 const utils=require("../../middleware/utils");
@@ -170,16 +170,16 @@ async function createItem(userinfo,tablename,extIds){
     const password= await bcrypt.hash(userinfo['password'], 10);
     // password = userinfo['password'];
     if(tablename=='rmt_consumer'){
-      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}')`;
+      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME,token) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['token']}')`;
     }
     if(tablename=='rmt_delivery_boy'){
-        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}')`;
+        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,token) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['token']}')`;
     }
     if(tablename=='rmt_enterprise'){
-        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}')`;
+        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id,token) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}','${userinfo['token']}')`;
     }
     if(tablename=='rmt_admin_user'){
-        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}')`;
+        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}')`;
     }
     // console.log("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);
@@ -280,7 +280,7 @@ function login(userInfo) {
                     logger.info(result);
                     username = userInfo["userName"];
                     console.log(username);
-                    loginResponseData(resolve, result, username);
+                    loginResponseData(resolve, result, userInfo);
                     // resolve(result);
                 },
                 onFailure: function(cognitoErr)
@@ -293,16 +293,39 @@ function login(userInfo) {
       });
 }
 
-async function loginResponseData(resolve, result, username) {
-    resolve({
-        token:result.accessToken.jwtToken,
-        refreshtoken:result.refreshToken.token,
-        user: result,
-        user_profile : await getUserProfile(username)
-    })
+async function loginResponseData(resolve, result, userInfo) {
+    var username = userInfo["userName"];
+    var token = userInfo["token"];
+    const profileData = await getUserProfile(username);
+    if(profileData && profileData.length > 0){
+        var role = profileData[0].role;
+        var tableName = "";
+        if(role=='DELIVERY_BOY'){
+            tableName = "rmt_delivery_boy";
+        }else  if(role=='CONSUMER'){
+            tableName = "rmt_consumer";
+        }else  if(role=='ENTERPRISE'){
+            tableName = "rmt_enterprise";
+        }else  if(role=='ADMIN'){
+            tableName = "rmt_admin_user";
+        }
+        const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
+        profileData[0].token = token;
+        resolve({
+            token:result.accessToken.jwtToken,
+            refreshtoken:result.refreshToken.token,
+            user: result,
+            user_profile : profileData
+        })
+    }else{
+        var body = {};
+        body["error"] = {"message" : "Invalid credentials"};
+        resolve(body);
+    }
+   
 }
 
-function getUserProfile(username){
+async function getUserProfile(username){
     const dbUserProfile = fetch("select * from vw_rmt_user where username = ?", [username]);
     return dbUserProfile;
 }

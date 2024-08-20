@@ -169,42 +169,6 @@ exports.updateItem = async (req, res) => {
 };
 
 /**
- * Update item function called by route
- * @param {Object} req - request object
- * @param {Object} res - response object
- */
-const updateStatus = async (id, status) => {
-  const registerRes = await updateQuery(UPDATE_ORDER_BY_STATUS,[status,id]);
-  return registerRes;
-};
-
-exports.updateStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    const getId = await utils.isIDGood(id, "id", "rmt_order");
-    if (getId) {
-      const updatedItem = await updateStatus(id, status);
-      if (updatedItem) {
-        return res
-          .status(200)
-          .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
-      } else {
-        return res
-          .status(500)
-          .json(utils.buildErrorObject(500, "Something went wrong", 1001));
-      }
-    }
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
-  } catch (error) {
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500,error.message, 1001));
-  }
-};
-/**
  * Create item function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object

@@ -82,15 +82,7 @@ router.put(
   controller.updateItem
 )
 
-/*
- * Update order status route
- */
-router.put(
-  '/status/:id',
-  trimRequest.all,
-  validate.updateStatus,
-  controller.updateStatus
-)
+
 
 /*
  * Delete item route

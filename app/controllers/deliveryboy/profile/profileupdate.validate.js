@@ -6,17 +6,17 @@ const { check } = require('express-validator')
 exports.createItem = [
     check('first_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     check('last_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('phone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('role_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email address.'),
+    check('phone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isMobilePhone().withMessage('Enter valid mobile number'),
+    check('role_id').exists().withMessage('MISSING'),
     check('password').exists().withMessage('MISSING'),
-    check('email_verify').exists().withMessage('MISSING'),
+    check('email_verify').exists().withMessage('MISSING').isInt([0,1]).withMessage('Invalid value'),
     check('autaar').exists().withMessage('MISSING'),
-    check('city_id').exists().withMessage('MISSING'),
-    check('state_id').exists().withMessage('MISSING'),
-    check('country_id').exists().withMessage('MISSING'),
+    check('city_id').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+    check('state_id').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
+    check('country_id').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
     check('address').exists().withMessage('MISSING'),
-    check('vehicle_id').exists().withMessage('MISSING'),
+    check('vehicle_id').exists().withMessage('MISSING').isInt().withMessage('Enter valid value'),
     check('driver_licence_no').exists().withMessage('MISSING'),
     check('insurance').exists().withMessage('MISSING'),
     check('passport').exists().withMessage('MISSING'),
@@ -106,7 +106,7 @@ exports.updatePreferance=[
 ]
 
 exports.updateAvailability=[
-    check('is_available').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('is_available').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt([0,1]).withMessage('Enter valid value'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
       validationResult(req, res, next)

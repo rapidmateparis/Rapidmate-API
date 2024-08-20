@@ -37,8 +37,8 @@ exports.createItem = [
     return true;
   }),
   check('slots.*.day').optional({ checkFalsy: true }).exists().withMessage('day field declare mandatory.').not().isEmpty().withMessage('Day field is required'),
-  check('slots.*.from_time').optional({ checkFalsy: true }).exists().withMessage('from_time field declare mandatory.').not().isEmpty().withMessage('From_time field is required'),
-  check('slots.*.to_time').optional({ checkFalsy: true }).exists().withMessage('to_time field declare mandatory.').not().isEmpty().withMessage('To_time field is required'),
+  check('slots.*.from_time').optional({ checkFalsy: true }).exists().withMessage('from_time field declare mandatory.').not().isEmpty().withMessage('From_time field is required').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
+  check('slots.*.to_time').optional({ checkFalsy: true }).exists().withMessage('to_time field declare mandatory.').not().isEmpty().withMessage('To_time field is required').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
   (req, res, next) => {
     validationResult(req, res, next);
   }
@@ -81,8 +81,8 @@ exports.updateItem = [
       return true;
     }),
     check('slots.*.day').optional({ checkFalsy: true }).exists().withMessage('day field declare mandatory.').not().isEmpty().withMessage('Day field is required'),
-    check('slots.*.from_time').optional({ checkFalsy: true }).exists().withMessage('from_time field declare mandatory.').not().isEmpty().withMessage('From_time field is required'),
-    check('slots.*.to_time').optional({ checkFalsy: true }).exists().withMessage('to_time field declare mandatory.').not().isEmpty().withMessage('To_time field is required'),
+    check('slots.*.from_time').optional({ checkFalsy: true }).exists().withMessage('from_time field declare mandatory.').not().isEmpty().withMessage('From_time field is required').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
+    check('slots.*.to_time').optional({ checkFalsy: true }).exists().withMessage('to_time field declare mandatory.').not().isEmpty().withMessage('To_time field is required').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid time format, expected HH:mm'),
     check('shift_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
       validationResult(req, res, next);
