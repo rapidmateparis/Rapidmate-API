@@ -43,16 +43,16 @@ router.get(
   '/receiverexit/:id',
   trimRequest.all,
   validate.getItem,
-  controller.getNotificationByRecieverId
+  controller.getNotificationByExtId
 )
 /*
  * Get notification by sender ext id route
  */
 router.get(
-  '/senderextid/:id',
+  '/list/:ext_id',
   trimRequest.all,
   validate.getItem,
-  controller.getNotificationBySenderId
+  controller.getNotificationByExtId
 )
 /*
  * Delete item route

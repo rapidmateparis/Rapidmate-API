@@ -39,7 +39,7 @@ exports.updateItem = [
  * Validates get item request
  */
 exports.getItem = [
-  check('id')
+  check('ext_id')
     .exists()
     .withMessage('MISSING')
     .not()
@@ -50,6 +50,11 @@ exports.getItem = [
   }
 ]
 
+exports.getItemByExtId = [
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]
 /**
  * Validates delete item request
  */

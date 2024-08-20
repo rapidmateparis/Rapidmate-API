@@ -1,4 +1,5 @@
 const utils = require("../../../middleware/utils");
+const notification = require("../../../controllers/common/Notifications/notification");
 const { runQuery,fetch, insertQuery, updateQuery } = require("../../../middleware/db");
 const AuthController=require("../../../controllers/useronboardmodule/authuser");
 const { FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY, CHECK_ORDER_FOR_OTP, UPDATE_ORDER_OTP_VERIFIED } = require("../../../db/database.query");
@@ -218,6 +219,26 @@ exports.createItem = async (req, res) => {
     if (item.insertId) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.insertId]);
       const filterdata=await transformKeysToLowercase(currData);
+      var notifiationRequest = {
+        title : "Pickup & Dropoff Order",
+        body: {},
+        extId: currData[0].order_number,
+        message : "Your booking has been confirmed successfully", 
+        topic : "",
+        token : "",
+        senderExtId : "",
+        receiverExtId : requestData.consumer_ext_id,
+        statusDescription : "",
+        status : "",
+        notifyStatus : "",
+        tokens : "",
+        tokenList : "",
+        actionName : "",
+        path : "",
+        userRole : "CONSUMER",
+        redirect : "ORDER"
+      }
+      notification.createNotificationRequest(notifiationRequest);
       return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",filterdata));
     } else {
       return res
@@ -241,6 +262,46 @@ exports.allocateDeliveryBoy = async (req, res) => {
     if (allocateDeliveryBoyResult.insertId) {
       const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER,[requestData.delivery_boy_ext_id, requestData.order_number]);
       const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[requestData.delivery_boy_ext_id]);
+      var notifiationRequest = {
+        title : "Order : " + requestData.order_number + " - Driver allocated!!!",
+        body: {},
+        extId: requestData.order_number,
+        message : "Driver has been allocated successfully for your order", 
+        topic : "",
+        token : "",
+        senderExtId : "",
+        receiverExtId : requestData.consumer_ext_id,
+        statusDescription : "",
+        status : "",
+        notifyStatus : "",
+        tokens : "",
+        tokenList : "",
+        actionName : "",
+        path : "",
+        userRole : "CONSUMER",
+        redirect : "ORDER"
+      }
+      notification.createNotificationRequest(notifiationRequest);
+      var notifiationRequest = {
+        title : "Order : " + requestData.order_number + " - New order received!!!",
+        body: {},
+        extId: requestData.order_number,
+        message : "You have been received new order successfully", 
+        topic : "",
+        token : "",
+        senderExtId : "",
+        receiverExtId : requestData.delivery_boy_ext_id,
+        statusDescription : "",
+        status : "",
+        notifyStatus : "",
+        tokens : "",
+        tokenList : "",
+        actionName : "",
+        path : "",
+        userRole : "DELIVERY",
+        redirect : "ORDER"
+      }
+      notification.createNotificationRequest(notifiationRequest);
       return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully"));
     } else {
       return res
@@ -275,11 +336,52 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
         const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_ext_id]);
         responseData.order = await getOrderInfo(order_number);
         responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
+        var consumer_ext_id = responseData.order.ext_id;
+        var notifiationConsumerRequest = {
+          title : "Order : " + order_number + " - Driver allocated!!!",
+          body: {},
+          extId: order_number,
+          message : "Driver has been allocated successfully for your order", 
+          topic : "",
+          token : "",
+          senderExtId : "",
+          receiverExtId : consumer_ext_id,
+          statusDescription : "",
+          status : "",
+          notifyStatus : "",
+          tokens : "",
+          tokenList : "",
+          actionName : "",
+          path : "",
+          userRole : "CONSUMER",
+          redirect : "ORDER"
+        }
+        notification.createNotificationRequest(notifiationConsumerRequest);
+        var notifiationDriverRequest = {
+          title : "Order : " + order_number + " - New order received!!!",
+          body: {},
+          extId: order_number,
+          message : "You have been received new order successfully", 
+          topic : "",
+          token : "",
+          senderExtId : "",
+          receiverExtId : delivery_boy_ext_id,
+          statusDescription : "",
+          status : "",
+          notifyStatus : "",
+          tokens : "",
+          tokenList : "",
+          actionName : "",
+          path : "",
+          userRole : "DELIVERY_BOY",
+          redirect : "ORDER"
+        }
+        notification.createNotificationRequest(notifiationDriverRequest);
         return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully", responseData));
       } else {
         return res
           .status(500)
-          .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+          .json(utils.buildErrorObject(500, "Unable to allocate driver your order.", 1001));
       }
     }
   } catch (error) {
@@ -292,7 +394,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
 
 const getOrderInfo = async (order_number) => {
   try {
-    const data = await fetch("select * from rmt_order where order_number =?", [order_number]);
+    const data = await fetch("select ord.*,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
