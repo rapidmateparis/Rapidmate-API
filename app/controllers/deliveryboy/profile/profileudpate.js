@@ -42,6 +42,22 @@ exports.getDriverAvailablity = async (req, res) => {
   }
 }
 
+exports.getDriverPlanningSetupAvailablity = async (req, res) => {
+  try {
+    const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 and is_active =1 limit 10';
+    const data = await runQuery(getUserQuerye)
+    let message="Items retrieved successfully";
+    console.log(data);
+    if(data.length <=0){
+      message="No items found"
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
 exports.search = async (req, res) => {
   try {
     const requestData = req.body;
