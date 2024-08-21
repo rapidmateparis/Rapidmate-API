@@ -325,7 +325,7 @@ module.exports = {
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
           pickup_date, pickup_time, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
           repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount
-        ) VALUES ((now()+1),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`,
+        ) VALUES (concat('E',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
