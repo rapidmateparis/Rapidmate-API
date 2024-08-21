@@ -1,4 +1,6 @@
 const controller = require('../controllers/deliveryboy/profile/profileudpate')
+const conn_controller = require('../controllers/deliveryboy/connections/connections')
+const conn_validate = require('../controllers/deliveryboy/connections/connections.validate')
 const validate = require('../controllers/deliveryboy/profile/profileupdate.validate')
 const express = require('express')
 const router = express.Router()
@@ -28,8 +30,17 @@ router.get(
 router.get(
   '/availability',
   trimRequest.all,
-  controller.getDriverAvailablity
+  controller.getDriverPlanningSetupAvailablity
 )
+
+router.get(
+  '/connections/:id',
+  trimRequest.all,
+  conn_validate.getItem,
+  conn_controller.getItems
+)
+
+
 /*
  * Create new item route
  */
