@@ -2,7 +2,7 @@ const utils = require("../../../middleware/utils");
 const notification = require("../../../controllers/common/Notifications/notification");
 const { runQuery,fetch, insertQuery, updateQuery } = require("../../../middleware/db");
 const AuthController=require("../../../controllers/useronboardmodule/authuser");
-const { FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY, CHECK_ORDER_FOR_OTP, UPDATE_ORDER_OTP_VERIFIED } = require("../../../db/database.query");
+const { INSERT_DELIVERY_BOY_ENTERPRISE_CONNECTIONS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS_ENTERPRISE, UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY, CHECK_ORDER_FOR_OTP, UPDATE_ORDER_OTP_VERIFIED } = require("../../../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -283,7 +283,7 @@ exports.allocateDeliveryBoy = async (req, res) => {
       }
       notification.createNotificationRequest(notifiationRequest);
       var notifiationRequest = {
-        title : "Order : " + requestData.order_number + " - New order received!!!",
+        title : "New order received!!!Order# : " + requestData.order_number ,
         body: {},
         extId: requestData.order_number,
         message : "You have been received new order successfully", 
@@ -316,6 +316,74 @@ exports.allocateDeliveryBoy = async (req, res) => {
   }
 };
 
+exports.allocateDeliveryBoyForEnterprise = async (req, res) => {
+  try {
+    var requestData = req.body;
+    console.log(requestData);
+    const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, [requestData.order_number, requestData.delivery_boy_ext_id]);
+    console.log(allocateDeliveryBoyResult);
+    if (allocateDeliveryBoyResult.insertId) {
+      const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE,[requestData.delivery_boy_ext_id, requestData.order_number]);
+      const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS_ENTERPRISE,[requestData.delivery_boy_ext_id]);
+      const econnections = await fetch("select * from rmt_delivery_boy_enterprise_connections where delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) and enterprise_id=(select id from rmt_enterprise where ext_id=?)") 
+      if(!(econnections && econnections.length>0)){
+        const connectionDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ENTERPRISE_CONNECTIONS, [ requestData.enterprise_ext_id, requestData.delivery_boy_ext_id]);
+        console.log(connectionDeliveryBoyResult);
+      }
+      var notifiationRequest = {
+        title : "Driver allocated!!!!Order# : " + requestData.order_number ,
+        body: {},
+        extId: requestData.order_number,
+        message : "Driver has been allocated successfully for your order", 
+        topic : "",
+        token : "",
+        senderExtId : "",
+        receiverExtId : requestData.consumer_ext_id,
+        statusDescription : "",
+        status : "",
+        notifyStatus : "",
+        tokens : "",
+        tokenList : "",
+        actionName : "",
+        path : "",
+        userRole : "CONSUMER",
+        redirect : "ORDER"
+      }
+      notification.createNotificationRequest(notifiationRequest);
+      var notifiationRequest = {
+        title : "New order received!!!Order# : " + requestData.order_number ,
+        body: {},
+        extId: requestData.order_number,
+        message : "You have been received new order successfully", 
+        topic : "",
+        token : "",
+        senderExtId : "",
+        receiverExtId : requestData.delivery_boy_ext_id,
+        statusDescription : "",
+        status : "",
+        notifyStatus : "",
+        tokens : "",
+        tokenList : "",
+        actionName : "",
+        path : "",
+        userRole : "DELIVERY",
+        redirect : "ORDER"
+      }
+      notification.createNotificationRequest(notifiationRequest);
+      return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully"));
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Unable to allocate", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500,error.message, 1001));
+  }
+};
+
 exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   var responseData = {};
   try {
@@ -338,7 +406,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
         responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
         var consumer_ext_id = responseData.order.ext_id;
         var notifiationConsumerRequest = {
-          title : "Order : " + order_number + " - Driver allocated!!!",
+          title : "Driver allocated!!!Order# : " + requestData.order_number ,
           body: {},
           extId: order_number,
           message : "Driver has been allocated successfully for your order", 
@@ -358,7 +426,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
         }
         notification.createNotificationRequest(notifiationConsumerRequest);
         var notifiationDriverRequest = {
-          title : "Order : " + order_number + " - New order received!!!",
+          title : "New order received!!!Order# : " + requestData.order_number ,
           body: {},
           extId: order_number,
           message : "You have been received new order successfully", 
