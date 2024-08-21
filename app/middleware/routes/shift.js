@@ -87,7 +87,7 @@ router.get(
 /*
  * Update item route
  */
-router.patch(
+router.put(
     '/update',
     trimRequest.all,
     validate.updateItem,
@@ -96,7 +96,7 @@ router.patch(
 /*
  * Update SHIFT status route
  */
-router.patch(
+router.put(
     '/status/:id',
     trimRequest.all,
     validate.updateStatus,
@@ -107,7 +107,7 @@ router.patch(
  * assign delivery boy
 */
 
-router.patch(
+router.put(
     '/deliveryboyassign',
     trimRequest.all,
     validate.assignDeliveryboyInshift,

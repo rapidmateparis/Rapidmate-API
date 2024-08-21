@@ -1,5 +1,5 @@
-const controller = require('../../controllers/deliveryboy/paymentinfo/account')
-const validate = require('../../controllers/deliveryboy/paymentinfo/account.validate')
+const controller = require('../../controllers/consumer/address')
+const validate = require('../../controllers/consumer/address.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
@@ -12,8 +12,9 @@ const trimRequest = require('trim-request')
  * Get items route
  */
 router.get(
-  '/getall',
+  '/getbyext/:id',
   trimRequest.all,
+  validate.getItem,
   controller.getItems
 )
 
@@ -37,16 +38,7 @@ router.get(
   controller.getItem
 )
 
-/**
- * Get by ext id route
- */
 
-router.get(
-    '/getaccount/:id',
-    trimRequest.all,
-    validate.getItem,
-    controller.getBydeliveryBoyExtid
-)
 
 /*
  * Update item route

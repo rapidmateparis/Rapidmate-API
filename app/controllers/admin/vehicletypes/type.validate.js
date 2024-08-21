@@ -78,8 +78,8 @@ exports.deleteItem = [
  */
 exports.calculateAmount = [
   check('vehicle_type_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isInt().withMessage('Enter valid value.'),
-  check('pickupLocation').exists().withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_PICKUP_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
-  check('dropoffLocation').exists().withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_DROPOFF_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
+  check('pickupLocation').exists().withMessage('MISSING').isFloat({ min: -90, max: 90 }).withMessage('INVALID_LATITUDE_LOCATION'),
+  check('dropoffLocation').isFloat({ min: -180, max: 180 }).withMessage('INVALID_LONGITUDE_LOCATION'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
