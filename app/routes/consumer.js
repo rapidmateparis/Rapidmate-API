@@ -3,6 +3,7 @@ const validate = require('../controllers/consumer/profile/consumer.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
+const addressRouter =require('../middleware/routes/consumer.address')
 
 /*
  * Consumer routes
@@ -56,5 +57,7 @@ router.delete(
   validate.deleteItem,
   controller.deleteItem
 )
+
+router.use('/address', addressRouter);
 
 module.exports = router

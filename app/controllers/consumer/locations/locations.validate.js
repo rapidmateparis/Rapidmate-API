@@ -27,10 +27,11 @@ exports.createItem = [
     .withMessage('MISSING'),
   check('latitude')
     .exists()
-    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LATITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
+    .withMessage('MISSING').isFloat({ min: -90, max: 90 })
+    .withMessage('INVALID_LATITUDE_LOCATION').trim(),
   check('longitude')
-    .exists()
-    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LONGITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES'),
+  .isFloat({ min: -180, max: 180 })
+  .withMessage('INVALID_LONGITUDE_LOCATION').trim(),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -69,11 +70,13 @@ exports.updateItem = [
     .trim(),
   check('latitude')
     .exists()
-    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LATITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES')
+    .withMessage('MISSING').isFloat({ min: -90, max: 90 })
+    .withMessage('INVALID_LATITUDE_LOCATION')
     .trim(),
   check('longitude')
     .exists()
-    .withMessage('MISSING').isArray({ min: 2, max: 2 }).withMessage('INVALID_LONGITUDE_LOCATION').custom((value) => value.every(coord => typeof coord === 'number')).withMessage('INVALID_COORDINATES')
+    .withMessage('MISSING').isFloat({ min: -180, max: 180 })
+    .withMessage('INVALID_LONGITUDE_LOCATION')
     .trim(),
     check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
 
