@@ -5,14 +5,7 @@ const { check } = require('express-validator')
  */
 exports.createItem = [
     check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('customer_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('total_amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal().withMessage('MUST_BE_DECIMAL'),
-    check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('shipping_address').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('order_date').exists().withMessage('MISSING'),
-    check('expected_delivery_date').exists().withMessage('MISSING'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ORDER_PLACED','CONIRMED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter value status'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -22,15 +15,7 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-    check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('customer_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('total_amount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal().withMessage('MUST_BE_DECIMAL'),
-    check('currency').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('shipping_address').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('order_date').exists().withMessage('MISSING'),
-    check('expected_delivery_date').exists().withMessage('MISSING'),
-    check('is_del').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
+    check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ORDER_PLACED','CONIRMED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter value status'),
     check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
 
     (req, res, next) => {
