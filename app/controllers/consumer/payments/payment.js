@@ -133,7 +133,8 @@ exports.updateItemBystatus = async (req, res) => {
  */
 const createItem = async (req) => {
     const paymentRefNumber = uuidv4();
-    const registerRes = await insertQuery(INSERT_PAYMENT_QUERY,[req.amount, req.order_number, paymentRefNumber]);
+    var order_type = req.order_type || 1;
+    const registerRes = await insertQuery(INSERT_PAYMENT_QUERY,[req.amount, req.order_number, paymentRefNumber, order_type]);
     console.log(registerRes);
     return registerRes;
 }
