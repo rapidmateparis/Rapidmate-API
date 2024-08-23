@@ -1,6 +1,7 @@
 const utils = require('../middleware/utils')
-const { runQuery } = require('../middleware/db')
+const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
 const auth = require('../middleware/auth')
+const { FETCH_TRACK_ORDER, FETCH_TRACK_ORDER_BYID, UPDATE_TRACK_ORDER, INSERT_TRACK_ORDER, FETCH_TRACK_ORDER_BYORDERNUMBER, DELETE_TRACK_ORDER } = require('../db/database.query')
 
 /********************
  * Public functions *
@@ -12,8 +13,7 @@ const auth = require('../middleware/auth')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_track_order'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_TRACK_ORDER)
     let message="Items retrieved successfully";
     if(data.length <=0){
       message="No items found"
@@ -21,7 +21,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch track order. Please try again later.',1001));
   }
 }
 
@@ -33,8 +33,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_track_order where ORDER_ID='"+id+"'"
-    const data = await runQuery(getUserQuerye)
+    const data = await fetch(FETCH_TRACK_ORDER_BYID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"
@@ -42,7 +41,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildcreatemessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch track order. Please try again later.',1001));
   }
 }
 
@@ -52,26 +51,25 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_track_order SET ORDER_NUMBER='${req.order_number}',CUSTOMER_ID='${req.customer_id}',STATUS='${req.status}',TOTAL_AMOUNT='${req.total_amount}',CURRENCY='${req.currency}',SHIPPING_ADDRESS='${req.shipping_address}',ORDER_DATE='${req.order_date}',EXPECTED_DELIVERY_DATE='${req.expected_delivery_date}',IS_DEL='${req.is_del}'  WHERE ORDER_ID='${id}'`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await updateQuery(UPDATE_TRACK_ORDER,[req.status,id]);
     return registerRes;
 }
 
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'ORDER_ID','rmt_track_order')
+    const getId = await utils.isIDGood(id,'id','rmt_track_order')
     if(getId){
       const updatedItem = await updateItem(id,req.body);
       if(updatedItem) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to update order status. Please try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'No data for update order status. provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to update order status. Please try again later.',1001));
   }
     
 }
@@ -81,31 +79,29 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_track_order(ORDER_NUMBER,CUSTOMER_ID,STATUS,TOTAL_AMOUNT,CURRENCY,SHIPPING_ADDRESS,ORDER_DATE,EXPECTED_DELIVERY_DATE,IS_DEL) VALUES('${req.order_number}','${req.customer_id}','${req.status}','${req.total_amount}','${req.currency}','${req.shipping_address}','${req.order_date}','${req.expected_delivery_date}','${req.is_del}')`;
-    const registerRes = await runQuery(registerQuery);
+    const registerRes = await insertQuery(INSERT_TRACK_ORDER,[req.order_number,req.status]);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.vehicle_type,'rmt_track_order','ORDER_NUMBER')
+    const doesNameExists =await fetch(FETCH_TRACK_ORDER_BYORDERNUMBER,[req.body.order_number])
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
         return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to create order status. Please try again later.',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Order number already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to create order status. Please try again later.',1001));
   }
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_track_order WHERE ORDER_ID='${id}'`;
-  const deleteRes = await runQuery(deleteQuery);
+  const deleteRes = await updateQuery(DELETE_TRACK_ORDER,[id]);
   return deleteRes;
 };
 /**
@@ -116,17 +112,17 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ORDER_ID','rmt_track_order')
+    const getId = await utils.isIDGood(id,'id','rmt_track_order')
     if(getId){
       const deletedItem = await deleteItem(getId);
       if(deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to delete track order. Please try again later.',1001));
       }
     }
-    return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
+    return res.status(400).json(utils.buildErrorObject(400,'Data not found. Please try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to delete track order. Please try again later.',1001));
   }
 }

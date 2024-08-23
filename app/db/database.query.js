@@ -121,7 +121,7 @@ exports.DELETE_TRAN_QUERY=`UPDATE rmt_transaction SET is_del=1 WHERE ID=?`;
 exports.FETCH_PAYMENT_QUERY=`SELECT * FROM rmt_payment WHERE is_del=0`;
 exports.FETCH_PAYMENT_BY_ID=`SELECT * FROM rmt_payment WHERE is_del=0 AND id=?`;
 exports.FETCH_PAYMENT_BY_USERID=`SELECT * FROM rmt_payment WHERE is_del=0 AND order_id=?`;
-exports.INSERT_PAYMENT_QUERY=`INSERT INTO rmt_payment(amount, order_id, ref_id) VALUES(?,(select id from rmt_order where order_number = ?), ?)`;
+exports.INSERT_PAYMENT_QUERY=`INSERT INTO rmt_payment(amount, order_id, ref_id,order_type) VALUES(?,?,?,?)`;
 exports.UPDATE_PAYMENT_QUERY=`UPDATE rmt_payment SET payment_status=? WHERE ref_id=?`;
 exports.DELETE_PAYMENT_QUERY=`UPDATE rmt_payment SET is_del=1 WHERE PAYMENT_ID=?`;
 exports.UPDATE_PAYMENT_BY_STATUS=`UPDATE rmt_payment SET PAYMENT_STATUS=? WHERE PAYMENT_ID=?`;
@@ -300,6 +300,40 @@ exports.DELETE_CONSUMER_ADDRESS_BOOK_QUERY=`Delete from  rmt_consumer_address_bo
 exports.FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`SELECT * FROM rmt_delivery_boy_address_book WHERE is_del=0 and delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)`;
 exports.INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_delivery_boy_address_book(delivery_boy_id, first_name, last_name, address, email, phone, company_name, comments) VALUES((select id from rmt_delivery_boy where ext_id = ?), ?, ?, ?, ?, ?, ?, ?)`;
 exports.DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`Delete from  rmt_delivery_boy_address_book where id = ?`;
+
+//======================================= rmt_service =============================================================
+exports.FETCH_ALL_SERVICE=`select * from rmt_service where is_del=1`
+exports.FETCH_SERVICE_BYID=`select * from rmt_service where is_del=0 AND id=?`
+exports.UPDATE_SERVICE=`UPDATE rmt_service SET service_name=?,id_del=? WHERE id =?`
+exports.INSERT_SERVICE=`INSERT INTO rmt_service (service_name,is_del) VALUES (?,?)`
+exports.DELETE_SERVICE=`UPDATE rmt_service SET is_del=1 WHERE id =?`
+
+//=========================================== rmt_track_order===========================
+exports.FETCH_TRACK_ORDER=`select * from rmt_track_order where is_del=0`
+exports.FETCH_TRACK_ORDER_BYID=`select * from rmt_track_order where is_del=0 and id=?`
+exports.FETCH_TRACK_ORDER_BYORDERNUMBER=`select * from rmt_track_order where is_del=0 and order_id=(select id from rmt_order where order_number = ?)`
+exports.INSERT_TRACK_ORDER=`INSERT INTO rmt_track_order(order_id,order_status) VALUES((select id from rmt_order where order_number = ?),?)`
+exports.UPDATE_TRACK_ORDER=`UPDATE rmt_track_order SET order_status=? WHERE id=?`
+exports.DELETE_TRACK_ORDER=`UPDATE rmt_track_order SET is_del=? WHERE id=?`
+
+
+//======================================== rmt_language=============================================================
+
+exports.FETCH_ALL_LANG=`SELECT * FROM rmt_languages WHERE is_del=0`
+exports.FETCH_LANG_BYID=`SELECT * FROM rmt_languages WHERE is_del=0 AND id=?`
+exports.INSERT_LANG=`INSERT INTO rmt_languages(name,code) VALUES(?,?)`
+exports.UPDATE_LANG=`UPDATE rmt_languages SET name=?,code=? WHERE id=?`
+exports.DELETE_LANG=`UPDATE rmt_languages SET is_del=? WHERE id=?`
+
+//user get langauge
+exports.FETCH_LANG_BYCONSUMEREXT=`SELECT ul.*,ln.name,ln.code FROM rmt_user_languages as ul JOIN rmt_languages as ln ON ul.language_id=ln.id WHERE ul.consumer_id=(select id from rmt_consumer where ext_id=?) AND ul.is_del=0`
+exports.FETCH_LANG_BYDELIVERBOYEXT=`SELECT ul.*,ln.name,ln.code FROM rmt_user_languages as ul JOIN rmt_languages as ln ON ul.language_id=ln.id WHERE ul.delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) AND ul.is_del=0`
+exports.FETCH_LANG_BYENTERPRISEEXT=`SELECT ul.*,ln.name,ln.code FROM rmt_user_languages as ul JOIN rmt_languages as ln ON ul.language_id=ln.id WHERE ul.enterprise_id=(select id from rmt_enterprise where ext_id=?) AND ul.is_del=0`
+exports.INSERT_USER_LANG=`INSERT INTO rmt_user_languages(consumer_id,delivery_boy_id,enterprise_id,language_id) VALUES((select id from rmt_consumer where ext_id=?),(select id from rmt_delivery_boy where ext_id=?),(select id from rmt_enterprise where ext_id=?),?)`
+exports.UPDATE_USER_LANG=`UPDATE rmt_user_languages SET consumer_id=(select id from rmt_consumer where ext_id=?),delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?),enterprise_id=(select id from rmt_enterprise where ext_id=?),language_id=? WHERE id=?`
+exports.DELETE_USER_LANG=`UPDATE rmt_user_languages SET is_del=1 WHERE id=? AND is_del=0`
+exports.FETCH_USER_LANGBYID=`SELECT * FROM rmt_user_languages  WHERE id=?`
+exports.FETCH_USER_ALLLANG=`SELECT * FROM rmt_user_languages  WHERE is_del=0`
 
 //---------------------------------------------------------------------------------------------------------------\
 exports.transformKeysToLowercase=async (results)=>{

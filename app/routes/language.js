@@ -1,11 +1,11 @@
-const controller = require('../controllers/paymentmethod')
-const validate = require('../controllers/paymentmethod.validate')
+const controller = require('../controllers/common/languages/lang')
+const validate = require('../controllers/common/languages/lang.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-
+const userlangRouter= require('../middleware/routes/language')
 /*
- * vehicle types routes
+ * languages routes
  */
 
 /*
@@ -13,8 +13,6 @@ const trimRequest = require('trim-request')
  */
 router.get(
   '/',
-  //   requireAuth,
-  //   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   controller.getItems
 )
@@ -24,8 +22,6 @@ router.get(
  */
 router.post(
   '/',
-  //   requireAuth,
-  //   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.createItem,
   controller.createItem
@@ -36,8 +32,6 @@ router.post(
  */
 router.get(
   '/:id',
-  //   requireAuth,
-  //   AuthController.roleAuthorization(['admin']),
     trimRequest.all,
     validate.getItem,
   controller.getItem
@@ -48,8 +42,6 @@ router.get(
  */
 router.put(
   '/:id',
-//   requireAuth,
-//   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -60,11 +52,10 @@ router.put(
  */
 router.delete(
   '/:id',
-//   requireAuth,
-//   AuthController.roleAuthorization(['admin']),
   trimRequest.all,
   validate.deleteItem,
   controller.deleteItem
 )
+router.use('/userlang', userlangRouter);
 
 module.exports = router
