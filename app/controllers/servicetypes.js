@@ -1,6 +1,7 @@
 const utils = require('../middleware/utils')
 const db = require('../middleware/db')
 const { runQuery,updateQuery,fetch,insertQuery} = require('../middleware/db')
+const { FETCH_ALL_SERVICE, FETCH_SERVICE_BYID, UPDATE_SERVICE, INSERT_SERVICE, DELETE_SERVICE } = require('../db/database.query')
 
 
 /********************
@@ -13,8 +14,7 @@ const { runQuery,updateQuery,fetch,insertQuery} = require('../middleware/db')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_service where is_del=1'
-    const data = await runQuery(getUserQuerye)
+    const data = await runQuery(FETCH_ALL_SERVICE)
     let message="Service retrieved successfully";
     if(data.length <=0){
         message="No service found"
@@ -34,8 +34,7 @@ exports.getItems = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye =`select * from rmt_service where is_del=0 AND id=?`
-    const data = await fetch(getUserQuerye,[id])
+    const data = await fetch(FETCH_SERVICE_BYID,[id])
     let message="Service retrieved successfully";
     if(data.length <=0){
         message="No service found"
@@ -53,8 +52,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerQuery = `UPDATE rmt_service SET service_name=?,id_del=? WHERE id =?`;
-    const registerRes = await updateQuery(registerQuery,[req.service_name,req.is_del,id]);
+    const registerRes = await updateQuery(UPDATE_SERVICE,[req.service_name,req.is_del,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
@@ -81,8 +79,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_service (service_name,is_del) VALUES (?,?)`;
-    const registerRes = await runQuery(registerQuery,[req.service_name,req.is_del]);
+    const registerRes = await runQuery(INSERT_SERVICE,[req.service_name,req.is_del]);
     return registerRes;
 }
 
@@ -105,8 +102,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `UPDATE rmt_service SET is_del=1 WHERE id ='${id}'`;
-  const deleteRes = await updateQuery(deleteQuery);
+  const deleteRes = await updateQuery(DELETE_SERVICE,[id]);
   return deleteRes;
 };
 /**
