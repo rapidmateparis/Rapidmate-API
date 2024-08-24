@@ -171,6 +171,8 @@ const calcAmount=async (req,distance)=>{
 const fetchVehicltype=async(vehicle_type_id)=>{
   return await fetch(FETCH_VT_BY_ID,[vehicle_type_id])
 }
+
+
 exports.calculateAmount= async (req,res)=>{
   const {vehicle_type_id,pickupLocation,dropoffLocation}=req.body
   // distance calculate
@@ -191,6 +193,19 @@ exports.calculateAmount= async (req,res)=>{
 
   return res.status(200).json(utils.buildcreatemessage(200,"Calculate distance :",{distance:km,amount:amount}))
 }
+
+
+exports.getPriceListByDistance = async (req,res)=>{
+  console.log(req.query.d);
+  console.log(req.query);
+  const distance = req.query.d;
+  const vehicledata = await fetch("select vtype.id as vehicle_type_id, ROUND(((kmprice.price * ?) + vtype.base_price),2) as total_price from rmt_km_price kmprice join rmt_vehicle_type vtype on kmprice.vehicle_type_id = vtype.id where ? between range_from and range_to", [distance, distance])
+  if(vehicledata.length <=0){
+    return res.status(400).json(utils.buildErrorObject(400,'Vehicles not available.',1001));
+  }
+   return res.status(200).json(utils.buildResponse(200, vehicledata))
+}
+
 
 
 
