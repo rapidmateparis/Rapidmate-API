@@ -76,7 +76,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             }
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
+              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
           });
         }
     }
