@@ -67,7 +67,7 @@ exports.requestOrder = async (req, res) => {
             return res.status(400).json(utils.buildErrorObject(400,"No drivers available",1001));
         }
         notifyDriver(io,orderId, driversInfo, 0,requests);
-      return res.status(200).json(utils.buildcreatemessage(200, 'Drivers found successfully', driversInfo));
+      return res.status(200).json(utils.buildCreateMessage(200, 'Drivers found successfully', driversInfo));
     } catch (error) {
         return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
     }
@@ -94,7 +94,7 @@ exports.requestAccept = async (req, res) => {
             const order=await fetch(FETCH_ORDER_BY_ID,[orderId]);
             const currData=await transformKeysToLowercase(order)
             io.emit('requestAccepted', currData);
-            return res.status(200).json(utils.buildcreatemessage(200, 'Drivers found successfully', currData));
+            return res.status(200).json(utils.buildCreateMessage(200, 'Drivers found successfully', currData));
         }else{
             return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
         }

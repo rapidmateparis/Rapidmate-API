@@ -18,7 +18,7 @@ exports.getItems = async (req, res) => {
       message = "No notifications available at the moment.";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -46,7 +46,7 @@ exports.getItem = async (req, res) => {
       message = "No items found";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -73,7 +73,7 @@ exports.getNotificationByExtId = async (req, res) => {
       message = "No notification found.";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -101,7 +101,7 @@ exports.getNotificationBySenderId = async (req, res) => {
       message = "No notification found.";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -186,7 +186,7 @@ exports.createItem = async (req, res) => {
   try {
     const item = await createNotification(req.body)
     if(item){
-      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',[item]))
+      return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',[item]))
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Unable to create notification. Please try again later.',1001));
     }
@@ -295,7 +295,7 @@ exports.sendNotifcation = async (req, res) => {
       return res
         .status(200)
         .json(
-          utils.buildcreatemessage(200, "Successfully sent message:", response)
+          utils.buildCreateMessage(200, "Successfully sent message:", response)
         );
     })
     .catch((error) => {
@@ -303,7 +303,7 @@ exports.sendNotifcation = async (req, res) => {
       return res
         .status(500)
         .json(
-          utils.buildcreatemessage(500, "Error sending message:", error.message)
+          utils.buildCreateMessage(500, "Error sending message:", error.message)
         );
     });
 };

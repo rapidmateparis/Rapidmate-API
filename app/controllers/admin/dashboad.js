@@ -23,7 +23,7 @@ exports.getdashboardData = async (req,res) =>{
         // requestuserleft: requestuserDetails.totalRequestsleft
     };
 
-    return res.status(200).json(utils.buildcreatemessage(200,'dashboard',[dashboardData]))
+    return res.status(200).json(utils.buildCreateMessage(200,'dashboard',[dashboardData]))
  }catch(error){
     return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
  }

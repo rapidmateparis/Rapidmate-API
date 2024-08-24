@@ -20,7 +20,7 @@ exports.getItems = async (req, res) => {
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -36,7 +36,7 @@ exports.getDriverAvailablity = async (req, res) => {
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -52,7 +52,7 @@ exports.getDriverPlanningSetupAvailablity = async (req, res) => {
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -86,7 +86,7 @@ exports.search = async (req, res) => {
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -108,7 +108,7 @@ exports.getNearbydriver = async (req, res) => {
     // Find nearby drivers based on current location
     const [data]= await fetch(FETCH_DRIVER_AVAILABLE, [currentLat, currentLng, currentLat, radius, requiredServiceType, requiredSlot]);
     if(data){
-      return res.status(200).json(utils.buildcreatemessage(200,message,{ availableDrivers: data })) 
+      return res.status(200).json(utils.buildCreateMessage(200,message,{ availableDrivers: data })) 
     }else{
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
@@ -132,7 +132,7 @@ exports.getItem = async (req, res) => {
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -246,7 +246,7 @@ exports.createItem = async (req, res) => {
       } 
       const item = await createItem(req.body,insurance,autaar,identity_card,passport)
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',item))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
@@ -303,11 +303,11 @@ exports.updateLocation = async (req, res) => {
         location: { type: 'Point', coordinates }
       });
       await newDeliveryBoy.save();
-      return res.status(200).json(utils.buildcreatemessage(200, 'Record Created Successfully', newDeliveryBoy));
+      return res.status(200).json(utils.buildCreateMessage(200, 'Record Created Successfully', newDeliveryBoy));
     } else {
       deliveryboy.location = { type: 'Point', coordinates };
       await deliveryboy.save();
-      return res.status(200).json(utils.buildcreatemessage(200, 'Record Updated Successfully', deliveryboy));
+      return res.status(200).json(utils.buildCreateMessage(200, 'Record Updated Successfully', deliveryboy));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
