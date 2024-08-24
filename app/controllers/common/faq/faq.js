@@ -19,7 +19,7 @@ exports.getItems = async (req, res) => {
         message="No faqs found."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch faqs. Please try again later.',1001));
   }
@@ -39,7 +39,7 @@ exports.getItem = async (req, res) => {
         message="No faq found."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch faq. Please try again later.',1001));
   }
@@ -89,7 +89,7 @@ exports.createItem = async (req, res) => {
       const item = await createItem(req.body)
       if(item.insertId){
         const currData=await fetch(FETCH_FAQ_BY_ID,[id])
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currData))
+        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currData))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to create faq. Please try again later.',1001));
       }
