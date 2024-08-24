@@ -175,7 +175,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  var requestBody = [req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id];
+  var requestBody = [req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id,req.service_type_id];
   var createOrderQuery = INSERT_ORDER_QUERY;
   console.log(req.is_my_self);
   if(req.is_my_self == '0'){
