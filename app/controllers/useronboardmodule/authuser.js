@@ -387,36 +387,39 @@ async function loginResponseDataWithoutAWS(resolve , reject, userInfo) {
     var password  = userInfo["password"];
     var token = userInfo["token"];
     const userData = await getUserDataWithPassword(username);
-    return await bcrypt.compare(password, userData[0].password, async function(err, res) {
-        if (err){
-            reject(null);
-        }
-        if (res) {
-                const profileData = await getUserProfile(username);
-                var role = profileData[0].role;
-                var tableName = "";
-                if(role=='DELIVERY_BOY'){
-                    tableName = "rmt_delivery_boy";
-                }else  if(role=='CONSUMER'){
-                    tableName = "rmt_consumer";
-                }else  if(role=='ENTERPRISE'){
-                    tableName = "rmt_enterprise";
-                }else  if(role=='ADMIN'){
-                    tableName = "rmt_admin_user";
-                }
-                const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
-                profileData[0].token = token;
-                resolve({
-                    token: {},
-                    refreshtoken: {},
-                    user: {},
-                    user_profile : profileData
-                });
-        } else {
-            reject(null);
-        }
-    });
-   
+    if(userData && userData.length > 0){
+        return await bcrypt.compare(password, userData[0].password, async function(err, res) {
+            if (err){
+                reject(null);
+            }
+            if (res) {
+                    const profileData = await getUserProfile(username);
+                    var role = profileData[0].role;
+                    var tableName = "";
+                    if(role=='DELIVERY_BOY'){
+                        tableName = "rmt_delivery_boy";
+                    }else  if(role=='CONSUMER'){
+                        tableName = "rmt_consumer";
+                    }else  if(role=='ENTERPRISE'){
+                        tableName = "rmt_enterprise";
+                    }else  if(role=='ADMIN'){
+                        tableName = "rmt_admin_user";
+                    }
+                    const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
+                    profileData[0].token = token;
+                    resolve({
+                        token: {},
+                        refreshtoken: {},
+                        user: {},
+                        user_profile : profileData
+                    });
+            } else {
+                reject(null);
+            }
+        });
+    }else{
+        reject(null);
+    }
 }
 
 async function getUserProfile(username){
