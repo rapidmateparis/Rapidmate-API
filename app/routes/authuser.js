@@ -39,7 +39,7 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
     }
     // Log and respond with the result
     logger.info('/signup response', user);
-    return res.status(200).json(utils.buildcreatemessage(200, 'Register is successful', user));
+    return res.status(200).json(utils.buildCreateMessage(200, 'Register is successful', user));
   } catch (error) {
     logger.error('Error in /signup', error);  // Log the error
     return res.status(400).json(utils.buildErrorObject(400, error.message, 1001));
@@ -61,7 +61,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
         if(process.env.PROD_FLAG == true){
           controller.login(req.body.info).then(user => {
               logger.info('/login response',user)
-              return res.status(200).json(utils.buildcreatemessage(200,"Login is successfully",user))
+              return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
               return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
@@ -72,11 +72,11 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             if(user == null){
               return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
             }else{
-              return res.status(200).json(utils.buildcreatemessage(200,"Login is successfully",user))
+              return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
             }
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
+              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
           });
         }
     }
@@ -96,7 +96,7 @@ router.post('/signupverify',trimRequest.all,validate.verify,function (req, res, 
           return res.status(400).json(utils.buildErrorObject(400,'Invalid verification code',1001));
         }
         logger.info('/signupVerify response',user)
-        return res.status(200).json(utils.buildcreatemessage(200,"user verified successfully",user))
+        return res.status(200).json(utils.buildCreateMessage(200,"user verified successfully",user))
     }).catch(error => {
         logger.error('Error in /signupverify', error);  // Log the error
         return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
@@ -119,7 +119,7 @@ router.post('/forgotpassword',trimRequest.all,validate.forgotPassword,function (
         return res.status(401).json(utils.buildErrorObject(400,'Invalid user or password',1001));
       }
       logger.info('/forgotpassword response',user)
-      return res.status(200).json(utils.buildcreatemessage(200,"forgot respose",user))
+      return res.status(200).json(utils.buildCreateMessage(200,"forgot respose",user))
     }).catch(error => {
         logger.error('Error in /login', error);  // Log the error
         return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
@@ -143,7 +143,7 @@ router.post('/resetpassword',trimRequest.all,validate.resetPassword,function (re
       return res.status(401).json(utils.buildErrorObject(400,'Invalid user or password',1001));
     }
     logger.info('/resetpassword response',user)
-    return res.status(200).json(utils.buildcreatemessage(200,"resetPassword response",user))
+    return res.status(200).json(utils.buildCreateMessage(200,"resetPassword response",user))
   }).catch(error => {
       logger.error('Error in /resetpassword', error);  // Log the error
       return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
@@ -163,7 +163,7 @@ router.post('/getaccesstoken',trimRequest.all,validate.getAccessToken,function (
 
     controller.getAccessToken(req.body.info).then(user => {
         logger.info('/getaccesstoken response',user)
-        return res.status(200).json(utils.buildcreatemessage(200,"resetPassword response",user))
+        return res.status(200).json(utils.buildCreateMessage(200,"resetPassword response",user))
     }).catch(error => {
       logger.error('Error in /resetpassword', error);  // Log the error
       return res.status(400).json(utils.buildErrorObject(400,error.message,1001));

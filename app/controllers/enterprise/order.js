@@ -23,7 +23,7 @@ exports.getItemByEnterpriseExt = async (req, res) => {
           message = "No items found";
           return res.status(400).json(utils.buildErrorObject(400, message, 1001));
         }
-        return res.status(200).json(utils.buildcreatemessage(200, message, data));
+        return res.status(200).json(utils.buildCreateMessage(200, message, data));
       //}else{
      //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
      // }
@@ -49,7 +49,7 @@ exports.getItemByOrderNumber = async (req, res) => {
           message = "No items found";
           return res.status(400).json(utils.buildErrorObject(400, message, 1001));
         }
-        return res.status(200).json(utils.buildcreatemessage(200, message, data));
+        return res.status(200).json(utils.buildCreateMessage(200, message, data));
       //}else{
      //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
      // }
@@ -73,7 +73,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
           message = "No items found";
           return res.status(400).json(utils.buildErrorObject(400, message, 1001));
         }
-        return res.status(200).json(utils.buildcreatemessage(200, message, data));
+        return res.status(200).json(utils.buildCreateMessage(200, message, data));
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
     }
@@ -167,7 +167,7 @@ exports.createItem = async (req, res) => {
     const item = await createItem(requestData);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
-      return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",currData));
+      return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",currData));
     } else {
       return res
         .status(500)
@@ -207,7 +207,7 @@ exports.createShiftItem = async (req, res) => {
 
     if (item.id > 0) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
-      return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",currData));
+      return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",currData));
     } else {
       return res
         .status(500)

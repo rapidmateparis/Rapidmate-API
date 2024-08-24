@@ -199,16 +199,16 @@ async function createItem(userinfo,tablename,extIds){
     const password= await bcrypt.hash(userinfo['password'], 10);
     // password = userinfo['password'];
     if(tablename=='rmt_consumer'){
-      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['token']}',(LPAD(FLOOR(RAND() * 999999.99),6,  '0')))`;
+      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['token']}',123456)`;
     }
     if(tablename=='rmt_delivery_boy'){
-        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['token']}',(LPAD(FLOOR(RAND() * 999999.99),6,  '0')))`;
+        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['token']}',123456)`;
     }
     if(tablename=='rmt_enterprise'){
-        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}','${userinfo['token']}',(LPAD(FLOOR(RAND() * 999999.99),6,  '0')))`;
+        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}','${userinfo['token']}',123456)`;
     }
     if(tablename=='rmt_admin_user'){
-        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',(LPAD(FLOOR(RAND() * 999999.99),6,  '0')))`;
+        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',123456)`; //(LPAD(FLOOR(RAND() * 999999.99),6,  '0')
     }
     // console.log("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);
@@ -387,36 +387,39 @@ async function loginResponseDataWithoutAWS(resolve , reject, userInfo) {
     var password  = userInfo["password"];
     var token = userInfo["token"];
     const userData = await getUserDataWithPassword(username);
-    return await bcrypt.compare(password, userData[0].password, async function(err, res) {
-        if (err){
-            reject(null);
-        }
-        if (res) {
-                const profileData = await getUserProfile(username);
-                var role = profileData[0].role;
-                var tableName = "";
-                if(role=='DELIVERY_BOY'){
-                    tableName = "rmt_delivery_boy";
-                }else  if(role=='CONSUMER'){
-                    tableName = "rmt_consumer";
-                }else  if(role=='ENTERPRISE'){
-                    tableName = "rmt_enterprise";
-                }else  if(role=='ADMIN'){
-                    tableName = "rmt_admin_user";
-                }
-                const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
-                profileData[0].token = token;
-                resolve({
-                    token: {},
-                    refreshtoken: {},
-                    user: {},
-                    user_profile : profileData
-                });
-        } else {
-            reject(null);
-        }
-    });
-   
+    if(userData && userData.length > 0){
+        return await bcrypt.compare(password, userData[0].password, async function(err, res) {
+            if (err){
+                reject(null);
+            }
+            if (res) {
+                    const profileData = await getUserProfile(username);
+                    var role = profileData[0].role;
+                    var tableName = "";
+                    if(role=='DELIVERY_BOY'){
+                        tableName = "rmt_delivery_boy";
+                    }else  if(role=='CONSUMER'){
+                        tableName = "rmt_consumer";
+                    }else  if(role=='ENTERPRISE'){
+                        tableName = "rmt_enterprise";
+                    }else  if(role=='ADMIN'){
+                        tableName = "rmt_admin_user";
+                    }
+                    const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
+                    profileData[0].token = token;
+                    resolve({
+                        token: {},
+                        refreshtoken: {},
+                        user: {},
+                        user_profile : profileData
+                    });
+            } else {
+                reject(null);
+            }
+        });
+    }else{
+        reject(null);
+    }
 }
 
 async function getUserProfile(username){
