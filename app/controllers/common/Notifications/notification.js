@@ -1,6 +1,7 @@
 const utils = require("../../../middleware/utils");
 const Notification = require("../../../models/Notification");
 const admin = require("../../../../config/admin");
+const { fetch } = require("../../../middleware/db");
 
 /********************
  * Public functions *
@@ -185,6 +186,7 @@ const createNotification = async (req) => {
 exports.createItem = async (req, res) => {
   try {
     const item = await createNotification(req.body)
+    
     if(item){
       return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',[item]))
     }else{
@@ -202,6 +204,37 @@ exports.createItem = async (req, res) => {
       );
   }
 };
+
+const sendNotfn= async(title,message,receiverExtId,objId,userRole)=>{
+  let table=''
+  if(userRole=='CONSUMER'){
+    table='rmt_consumer'
+  }else if(userRole=='ENTERPRISE'){
+    table='rmt_enterprise'
+  }else if(userRole=='DELIVERY_BOY'){
+    table='rmt_delivery_boy'
+  }else{
+    table='rmt_admin_user'
+  }
+  const query=`SELECT token from ${table} WHERE ext_id=?`;
+  const [result]=await fetch(query,[receiverExtId]);
+  const token = result.token
+  if(!token){
+    return false
+  }
+  const messages = {
+    notification: {
+      title: title,
+      body: message,
+    },
+    data: {
+      id:objId
+    }, // optional
+    token: token,
+  };
+
+  admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
+}
 
 exports.createNotificationRequest = async (req) => {
   try {
@@ -231,6 +264,8 @@ exports.createNotificationRequest = async (req) => {
     if (!savedNotification) {
       return false;
     }
+    const objId=savedNotification._id
+    const sendNotification=await sendNotfn(title,message,receiverExtId,objId,userRole)
     return savedNotification;
    
   } catch (error) {
@@ -272,12 +307,13 @@ exports.deleteItem = async (req, res) => {
   }
 };
 
+
 /**
  * send notification
  */
-exports.sendNotifcation = async (req, res) => {
+exports.sendNotification = async (req, res) => {
   const { token, title, data, notifications } = req.body;
-
+ 
   const message = {
     notification: {
       title: title,
@@ -307,3 +343,5 @@ exports.sendNotifcation = async (req, res) => {
         );
     });
 };
+
+
