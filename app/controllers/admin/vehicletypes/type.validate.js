@@ -84,3 +84,9 @@ exports.calculateAmount = [
     validationResult(req, res, next)
   }
 ]
+
+exports.priceList = [
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]

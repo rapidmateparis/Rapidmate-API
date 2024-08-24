@@ -73,4 +73,12 @@ router.post(
   validate.calculateAmount,
   controller.calculateAmount
 )
+
+router.get(
+  '/price/list',
+  trimRequest.all,
+  validate.priceList,
+  controller.getPriceListByDistance
+)
+
 module.exports = router
