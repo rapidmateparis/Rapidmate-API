@@ -34,7 +34,9 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
 
     // Call the signup function
     const user = await controller.signup(req.body.info);
-
+    if(user == null){
+      return res.status(400).json(utils.buildErrorObject(400, "User already exists!!!", 1001));
+    }
     // Log and respond with the result
     logger.info('/signup response', user);
     return res.status(200).json(utils.buildcreatemessage(200, 'Register is successful', user));
@@ -47,7 +49,7 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
  * Login route
  */
 router.post('/login',trimRequest.all,validate.login, trimRequest.all,
-    function (req, res, next) {
+    async function (req, res, next) {
 
         if(req.body.info) {
             logger.info('/login request', req.body.info)
@@ -56,14 +58,27 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             logger.error(' /login Status 400 Invalid request format')
             return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
         }
-    
-        controller.login(req.body.info).then(user => {
-            logger.info('/login response',user)
-            return res.status(200).json(utils.buildcreatemessage(200,"Login is successfully",user))
-        }).catch(error => {
-            logger.error('Error in /login', error);  // Log the error
-            return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
-        });
+        if(process.env.PROD_FLAG == true){
+          controller.login(req.body.info).then(user => {
+              logger.info('/login response',user)
+              return res.status(200).json(utils.buildcreatemessage(200,"Login is successfully",user))
+          }).catch(error => {
+              logger.error('Error in /login', error);  // Log the error
+              return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
+          });
+        }else{
+          controller.login(req.body.info).then(user => {
+            console.log("data 000000", user);
+            if(user == null){
+              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
+            }else{
+              return res.status(200).json(utils.buildcreatemessage(200,"Login is successfully",user))
+            }
+          }).catch(error => {
+              logger.error('Error in /login', error);  // Log the error
+              return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
+          });
+        }
     }
 )
 
@@ -77,6 +92,9 @@ router.post('/signupverify',trimRequest.all,validate.verify,function (req, res, 
     }
 
     controller.signupVerify(req.body.info).then(user => {
+        if(user == null){
+          return res.status(400).json(utils.buildErrorObject(400,'Invalid verification code',1001));
+        }
         logger.info('/signupVerify response',user)
         return res.status(200).json(utils.buildcreatemessage(200,"user verified successfully",user))
     }).catch(error => {
