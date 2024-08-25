@@ -102,7 +102,7 @@ function createUser(userInfo) {
 
 async function signup(userInfo) {
     console.log(process.env.PROD_FLAG);
-    if(process.env.PROD_FLAG == true){
+    if(process.env.PROD_FLAG == "true"){
         try {
             logger.info("selfSignUp called");
         
@@ -215,7 +215,7 @@ async function createItem(userinfo,tablename,extIds){
     return registerRes;
 }
 async function signupVerify(userInfo) {
-    if(process.env.PROD_FLAG == true){
+    if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve, reject) => {
             logger.info("selfSignUp called");
             const params = {
@@ -269,7 +269,7 @@ async function signupVerify(userInfo) {
 
 
 async function login(userInfo) {
-    if(process.env.PROD_FLAG == true){
+    if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve , reject) => {
                 var authenticationData =
                 {
