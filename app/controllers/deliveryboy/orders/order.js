@@ -175,7 +175,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  var requestBody = [req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id,req.service_type_id];
+  var requestBody = [req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id];
   var createOrderQuery = INSERT_ORDER_QUERY;
   console.log(req.is_my_self);
   if(req.is_my_self == '0'){
@@ -216,6 +216,7 @@ exports.createItem = async (req, res) => {
     requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
     console.log(requestData.delivery_boy_amount);
     const item = await createItem(requestData);
+    console.log(item);
     if (item.insertId) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.insertId]);
       const filterdata=await transformKeysToLowercase(currData);
@@ -238,8 +239,7 @@ exports.createItem = async (req, res) => {
         userRole : "CONSUMER",
         redirect : "ORDER"
       }
-      notification.createNotification
-      Request(notifiationRequest);
+      notification.createNotificationRequest(notifiationRequest);
       return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",filterdata));
     } else {
       return res
