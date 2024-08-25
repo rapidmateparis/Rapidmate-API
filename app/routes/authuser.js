@@ -58,7 +58,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             logger.error(' /login Status 400 Invalid request format')
             return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
         }
-        if(process.env.PROD_FLAG == true){
+        if(process.env.PROD_FLAG == "true"){
           controller.login(req.body.info).then(user => {
               logger.info('/login response',user)
               return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
