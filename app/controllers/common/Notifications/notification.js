@@ -265,7 +265,7 @@ exports.createNotificationRequest = async (req) => {
       return false;
     }
     const objId=savedNotification._id
-    const sendNotification=await sendNotfn(title,message,receiverExtId,objId,userRole)
+    const sendNotification = await sendNotfn(title,message,receiverExtId,objId,userRole)
     return savedNotification;
    
   } catch (error) {

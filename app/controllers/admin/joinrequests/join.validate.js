@@ -6,7 +6,7 @@ const { check } = require('express-validator')
  */
 exports.getJoinRequest = [
   check('role').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['CONSUMER','ENTERPRISE','DELIVERY_BOY']).withMessage('Enter valid role').trim(),
-  check('status').exists().withMessage('MISSING').isIn(['ACCEPTED','REJECTED']).withMessage('Enter valid status'),
+  check('status').exists().withMessage('MISSING').isIn(['ACCEPTED','REJECTED','PENDING']).withMessage('Enter valid status'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
