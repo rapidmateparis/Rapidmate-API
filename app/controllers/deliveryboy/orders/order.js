@@ -407,7 +407,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
         responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
         var consumer_ext_id = responseData.order.ext_id;
         var notifiationConsumerRequest = {
-          title : "Driver allocated!!!Order# : " + requestData.order_number ,
+          title : "Driver allocated!!!Order# : " + order_number ,
           body: {},
           extId: order_number,
           message : "Driver has been allocated successfully for your order", 
@@ -427,7 +427,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
         }
         notification.createNotificationRequest(notifiationConsumerRequest);
         var notifiationDriverRequest = {
-          title : "New order received!!!Order# : " + requestData.order_number ,
+          title : "New order received!!!Order# : " + order_number ,
           body: {},
           extId: order_number,
           message : "You have been received new order successfully", 
