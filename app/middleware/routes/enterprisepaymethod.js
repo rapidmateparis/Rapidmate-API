@@ -1,20 +1,18 @@
-const controller = require('../controllers/consumer/profile/consumer')
-const validate = require('../controllers/consumer/profile/consumer.validate')
+const controller = require('../../controllers/enterprise/paymentinfo/payment.method')
+const validate = require('../../controllers/enterprise/paymentinfo/payment.method.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-const addressRouter =require('../middleware/routes/consumer.address')
-const paymentRouter =require('../middleware/routes/consumerpaymethod')
 
 /*
- * Consumer routes
+ * job routes
  */
 
 /*
  * Get items route
  */
 router.get(
-  '/',
+  '/getall',
   trimRequest.all,
   controller.getItems
 )
@@ -39,11 +37,22 @@ router.get(
   controller.getItem
 )
 
+/**
+ * Get by ext id route
+ */
+
+router.get(
+  '/getpaymentcard/:id',
+  trimRequest.all,
+  validate.getItem,
+  controller.getByenterpriseExtid
+)
+
 /*
  * Update item route
  */
 router.put(
-  '/',
+  '/:id',
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -59,6 +68,4 @@ router.delete(
   controller.deleteItem
 )
 
-router.use('/address', addressRouter);
-router.use('/paymentmethod', paymentRouter);
 module.exports = router
