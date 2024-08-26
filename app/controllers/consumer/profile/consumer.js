@@ -20,7 +20,7 @@ exports.getItems = async (req, res) => {
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildCreateMessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -41,7 +41,7 @@ exports.getItem = async (req, res) => {
         message="No items found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,filterdata))
+    return res.status(200).json(utils.buildCreateMessage(200,message,filterdata))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -62,6 +62,7 @@ exports.updateItem = async (req, res) => {
       var queryCondition = "";
       var queryConditionParam = [];
       requestBody = req.body;
+      console.log(requestBody);
       if(requestBody.first_name){
         queryCondition += ", first_name = ?";
         queryConditionParam.push(requestBody.first_name);
@@ -81,6 +82,18 @@ exports.updateItem = async (req, res) => {
       if(requestBody.token){
         queryCondition += ", token = ?";
         queryConditionParam.push(requestBody.token);
+      }
+      if(requestBody.language_id){
+        queryCondition += ", language_id = ?";
+        queryConditionParam.push(requestBody.language_id);
+      }
+      if(requestBody.enable_push_notification == 0 || requestBody.enable_push_notification == 1){
+        queryCondition += ", enable_push_notification = ?";
+        queryConditionParam.push(requestBody.enable_push_notification);
+      }
+      if(requestBody.enable_email_notification  == 0 || requestBody.enable_email_notification == 1){
+        queryCondition += ", enable_email_notification = ?";
+        queryConditionParam.push(requestBody.enable_email_notification);
       }
       queryConditionParam.push(req.body.ext_id);
       var updateQuery = "update rmt_consumer set is_del = 0 " + queryCondition + " where ext_id = ?";
@@ -144,7 +157,7 @@ exports.createItem = async (req, res) => {
       if(item.insertId){
         const currData=await fetch(FETCH_CN_BY_ID,[item.insertId])
         const filterdata=await transformKeysToLowercase(currData)
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',filterdata))
+        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',filterdata))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }

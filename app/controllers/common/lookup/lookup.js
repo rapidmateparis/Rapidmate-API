@@ -15,6 +15,8 @@ exports.lookupService = async (req, res) => {
       const industryTypeData = await fetch("select id,industry_type,industry_type_desc from rmt_industry_type");
       const enterpriseDeliveryTypeData = await fetch("select id,delivery_type,delivery_type_desc from rmt_enterprise_delivery_type");
       const enterpriseServiceTypeData = await fetch("select id,service_type,service_type_desc from rmt_enterprise_service_type");
+      const languageServiceData = await fetch("select id,name,code,country_id from rmt_language");
+      const paymentMethodTypeServiceData = await fetch("select id,title,icon from rmt_payment_method_type");
       responseData.vehicleType = vehicleTypeData;
       responseData.workType = workTypeData;
       responseData.serviceType = serviceData;
@@ -22,6 +24,8 @@ exports.lookupService = async (req, res) => {
       responseData.industryType = industryTypeData;
       responseData.enterpriseDeliveryType = enterpriseDeliveryTypeData;
       responseData.enterpriseServiceType = enterpriseServiceTypeData;
+      responseData.languageService = languageServiceData;
+      responseData.paymentMethodTypeService = paymentMethodTypeServiceData;
       lookupCache.set( "lookupData", responseData );
     }else{
       console.log("CACHE");
@@ -32,3 +36,4 @@ exports.lookupService = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch data. Please try again later.',1001));
   }
 }
+

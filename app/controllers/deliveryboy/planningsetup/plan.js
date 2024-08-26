@@ -17,7 +17,7 @@ exports.getItems = async (req, res) => {
     let message = "Items retrieved successfully";
     let planninSetupgData;
     if (plannings.length <= 0) {
-      return res.status(200).json(utils.buildcreatemessage(200, message, {}))
+      return res.status(200).json(utils.buildCreateMessage(200, message, {}))
     } else {
       id = plannings[0].id;
       delivery_boy_id = plannings[0].delivery_boy_id;
@@ -79,7 +79,7 @@ exports.getItems = async (req, res) => {
       id: planningData.id,
       setup: responseSetupDataSet
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, responseData))
+    return res.status(200).json(utils.buildCreateMessage(200, message, responseData))
   } catch (error) {
     console.log(error);
     return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
@@ -101,7 +101,7 @@ exports.getItemsByfilter = async (req, res) => {
     let from=""
       let to=""
     if (plannings.length <= 0) {
-      return res.status(200).json(utils.buildcreatemessage(200, message, {}))
+      return res.status(200).json(utils.buildCreateMessage(200, message, {}))
     } else {
       id = plannings[0].id;
       let delivery_boy_id = plannings[0].delivery_boy_id;
@@ -166,7 +166,7 @@ exports.getItemsByfilter = async (req, res) => {
       id: planningData.id,
       setup: responseSetupDataSet
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, responseData))
+    return res.status(200).json(utils.buildCreateMessage(200, message, responseData))
   } catch (error) {
     console.log(error);
     return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
@@ -187,7 +187,7 @@ exports.getItemBydeliveryboyid = async (req, res) => {
       message = "No items found"
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data))
+    return res.status(200).json(utils.buildCreateMessage(200, message, data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
   }

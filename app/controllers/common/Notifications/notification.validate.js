@@ -74,7 +74,7 @@ exports.sendNotifcation=[
   check('token').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('title').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('bodydata').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('notifications').exists().withMessage('MISSING').isArray().withMessage('NOTIFICATIONS_MUST_BE_ARRAY'),
+  check('notifications').exists().withMessage('MISSING'),
   (req, res, next) => {
     validationResult(req, res, next)
   }

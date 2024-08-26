@@ -78,6 +78,6 @@ router.post(
   '/send-notification',
   trimRequest.all,
   validate.sendNotifcation,
-  controller.sendNotifcation
+  controller.sendNotification
 )
 module.exports = router

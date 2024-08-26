@@ -20,7 +20,7 @@ exports.getItems = async (req, res) => {
       message = "No items found";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
+    return res.status(200).json(utils.buildCreateMessage(200, message, filterdata));
   } catch (error) {
     return res
       .status(500)
@@ -46,7 +46,7 @@ exports.getItem = async (req, res) => {
         message = "No items found";
         return res.status(400).json(utils.buildErrorObject(400, message, 1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
+      return res.status(200).json(utils.buildCreateMessage(200, message, filterdata));
     //}else{
    //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
    // }
@@ -84,7 +84,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
         message = "No items found";
         return res.status(400).json(utils.buildErrorObject(404, message, 1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
+      return res.status(200).json(utils.buildCreateMessage(200, message, filterdata));
   } catch (error) {
     console.log(error);
     return res
@@ -118,7 +118,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
       message = "No items found";
       return res.status(400).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, filterdata));
+    return res.status(200).json(utils.buildCreateMessage(200, message, filterdata));
 } catch (error) {
   console.log(error);
   return res
@@ -175,7 +175,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  var requestBody = [req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id,req.service_type_id];
+  var requestBody = [req.consumer_ext_id,req.service_type_id,req.vehicle_type_id,req.pickup_location_id,req.dropoff_location_id];
   var createOrderQuery = INSERT_ORDER_QUERY;
   console.log(req.is_my_self);
   if(req.is_my_self == '0'){
@@ -216,6 +216,7 @@ exports.createItem = async (req, res) => {
     requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
     console.log(requestData.delivery_boy_amount);
     const item = await createItem(requestData);
+    console.log(item);
     if (item.insertId) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.insertId]);
       const filterdata=await transformKeysToLowercase(currData);
@@ -239,7 +240,7 @@ exports.createItem = async (req, res) => {
         redirect : "ORDER"
       }
       notification.createNotificationRequest(notifiationRequest);
-      return res.status(201).json(utils.buildcreatemessage(201, "Record Inserted Successfully",filterdata));
+      return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",filterdata));
     } else {
       return res
         .status(500)
@@ -302,7 +303,7 @@ exports.allocateDeliveryBoy = async (req, res) => {
         redirect : "ORDER"
       }
       notification.createNotificationRequest(notifiationRequest);
-      return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully"));
+      return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully"));
     } else {
       return res
         .status(500)
@@ -370,7 +371,7 @@ exports.allocateDeliveryBoyForEnterprise = async (req, res) => {
         redirect : "ORDER"
       }
       notification.createNotificationRequest(notifiationRequest);
-      return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully"));
+      return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully"));
     } else {
       return res
         .status(500)
@@ -445,7 +446,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
           redirect : "ORDER"
         }
         notification.createNotificationRequest(notifiationDriverRequest);
-        return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully", responseData));
+        return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
       } else {
         return res
           .status(500)
@@ -635,7 +636,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
         console.log(orderData.delivery_boy_id);
         responseData.deliveryBoy = await getDeliveryInfo(orderData.delivery_boy_id);
         responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
-        return res.status(201).json(utils.buildcreatemessage(201, "Delivery boy has been allocated successfully", responseData));
+        return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
     }
   } catch (error) {
     return res
