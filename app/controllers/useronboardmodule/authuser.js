@@ -338,7 +338,7 @@ async function login(userInfo) {
                         logger.info(result);
                         username = userInfo["userName"];
                         console.log(username);
-                        loginResponseData(resolve, result, userInfo);
+                        loginResponseData(resolve, reject, result, userInfo);
                         // resolve(result);
                     },
                     onFailure: function(cognitoErr)
@@ -356,7 +356,7 @@ async function login(userInfo) {
      }
 }
 
-async function loginResponseData(resolve, result, userInfo) {
+async function loginResponseData(resolve, reject, result, userInfo) {
     var username = userInfo["userName"];
     var token = userInfo["token"];
     const profileData = await getUserProfile(username);
@@ -383,7 +383,7 @@ async function loginResponseData(resolve, result, userInfo) {
     }else{
         var body = {};
         body["error"] = {"message" : "Invalid credentials"};
-        resolve(body);
+        reject(body);
     }
    
 }
