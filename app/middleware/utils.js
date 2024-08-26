@@ -127,7 +127,7 @@ exports.buildUpdatemessage=(code,message)=>{
  * @param {string} message - error text
  * @param {number} trcode - translate code
  */
-exports.buildcreatemessage=(code,message,data)=>{
+exports.buildCreateMessage=(code,message,data)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
   return [{
@@ -139,6 +139,20 @@ exports.buildcreatemessage=(code,message,data)=>{
       "_trackId": trackId
   }];
 }
+
+exports.buildCreateMessage=(code,message,data)=>{
+  const timestamp = Date.now(); // current timestamp in milliseconds
+  const trackId = uuidv4(); // generate a new UUID
+  return [{
+      "_success": true,
+      "_httpsStatus": "OK",
+      "_httpsStatusCode": code,
+      "_responedOn": timestamp,
+      "_response": data,
+      "_trackId": trackId
+  }];
+}
+
 
 exports.buildResponse = (code, data)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds

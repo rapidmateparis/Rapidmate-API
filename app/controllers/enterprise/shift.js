@@ -26,7 +26,7 @@ exports.getItems = async (req, res) => {
           };
         })
       );
-      return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
+      return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
     }
@@ -49,7 +49,7 @@ exports.getDeletedlist= async (req,res)=>{
             };
           })
         );
-        return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
+        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
       } catch (error) {
         return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
       }
@@ -77,7 +77,7 @@ exports.getItem = async (req, res) => {
           };
         })
       );
-      return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
+      return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
     }
@@ -106,7 +106,7 @@ exports.getShiftByExtId=async(req,res)=>{
             };
           })
         );
-        return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
+        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
       } catch (error) {
         return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
       }
@@ -135,7 +135,7 @@ exports.getShiftByStatus=async(req,res)=>{
             };
           })
         );
-        return res.status(200).json(utils.buildcreatemessage(200,message,shiftWithSlots))
+        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
       } catch (error) {
         return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
       }

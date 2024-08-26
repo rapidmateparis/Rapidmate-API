@@ -1,6 +1,7 @@
 const utils = require("../../../middleware/utils");
 const Notification = require("../../../models/Notification");
 const admin = require("../../../../config/admin");
+const { fetch } = require("../../../middleware/db");
 
 /********************
  * Public functions *
@@ -18,7 +19,7 @@ exports.getItems = async (req, res) => {
       message = "No notifications available at the moment.";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -46,7 +47,7 @@ exports.getItem = async (req, res) => {
       message = "No items found";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -73,7 +74,7 @@ exports.getNotificationByExtId = async (req, res) => {
       message = "No notification found.";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -101,7 +102,7 @@ exports.getNotificationBySenderId = async (req, res) => {
       message = "No notification found.";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
     return res
       .status(500)
@@ -185,8 +186,9 @@ const createNotification = async (req) => {
 exports.createItem = async (req, res) => {
   try {
     const item = await createNotification(req.body)
+    
     if(item){
-      return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',[item]))
+      return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',[item]))
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Unable to create notification. Please try again later.',1001));
     }
@@ -202,6 +204,37 @@ exports.createItem = async (req, res) => {
       );
   }
 };
+
+const sendNotfn= async(title,message,receiverExtId,objId,userRole)=>{
+  let table=''
+  if(userRole=='CONSUMER'){
+    table='rmt_consumer'
+  }else if(userRole=='ENTERPRISE'){
+    table='rmt_enterprise'
+  }else if(userRole=='DELIVERY_BOY'){
+    table='rmt_delivery_boy'
+  }else{
+    table='rmt_admin_user'
+  }
+  const query=`SELECT token from ${table} WHERE ext_id=?`;
+  const [result]=await fetch(query,[receiverExtId]);
+  const token = result.token
+  if(!token){
+    return false
+  }
+  const messages = {
+    notification: {
+      title: title,
+      body: message,
+    },
+    data: {
+      id:objId
+    }, // optional
+    token: token,
+  };
+
+  admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
+}
 
 exports.createNotificationRequest = async (req) => {
   try {
@@ -231,6 +264,8 @@ exports.createNotificationRequest = async (req) => {
     if (!savedNotification) {
       return false;
     }
+    const objId=savedNotification._id
+    const sendNotification = await sendNotfn(title,message,receiverExtId,objId,userRole)
     return savedNotification;
    
   } catch (error) {
@@ -272,12 +307,13 @@ exports.deleteItem = async (req, res) => {
   }
 };
 
+
 /**
  * send notification
  */
-exports.sendNotifcation = async (req, res) => {
+exports.sendNotification = async (req, res) => {
   const { token, title, data, notifications } = req.body;
-
+ 
   const message = {
     notification: {
       title: title,
@@ -295,7 +331,7 @@ exports.sendNotifcation = async (req, res) => {
       return res
         .status(200)
         .json(
-          utils.buildcreatemessage(200, "Successfully sent message:", response)
+          utils.buildCreateMessage(200, "Successfully sent message:", response)
         );
     })
     .catch((error) => {
@@ -303,7 +339,9 @@ exports.sendNotifcation = async (req, res) => {
       return res
         .status(500)
         .json(
-          utils.buildcreatemessage(500, "Error sending message:", error.message)
+          utils.buildCreateMessage(500, "Error sending message:", error.message)
         );
     });
 };
+
+

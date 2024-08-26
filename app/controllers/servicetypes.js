@@ -20,7 +20,7 @@ exports.getItems = async (req, res) => {
         message="No service found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch service. Please try again later.',1001));
   }
@@ -40,7 +40,7 @@ exports.getItem = async (req, res) => {
         message="No service found"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildcreatemessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch service. Please try again later.',1001));
   }
@@ -89,7 +89,7 @@ exports.createItem = async (req, res) => {
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',item))
+        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',item))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to create service. Please try again later.',1001));
       }

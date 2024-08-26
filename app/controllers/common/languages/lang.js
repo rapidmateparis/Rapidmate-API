@@ -22,7 +22,7 @@ exports.createItem = async (req, res) => {
       const item = await createItem(req.body)
       if(item.insertId){
         const currentdata=await fetch(FETCH_LANG_BYID,[item.insertId])
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
+        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to create language. Please try again later.',1001));
       }
@@ -75,7 +75,7 @@ exports.getItems = async (req, res) => {
           message="No languages found"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200,message,data))
+      return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
     }
@@ -95,7 +95,7 @@ exports.getItem = async (req, res) => {
           message="No language found"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200,message,data))
+      return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch language. please try again later.',1001));
     }
@@ -157,7 +157,7 @@ exports.createUserLang = async (req, res) => {
     const item = await createUserLang(req.body)
     if(item.insertId){
         const currentdata=await fetch(FETCH_USER_LANGBYID,[item.insertId])
-        return res.status(200).json(utils.buildcreatemessage(200,'Record Inserted Successfully',currentdata))
+        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
     }else{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to create language. Please try again later.',1001));
     }
@@ -218,7 +218,7 @@ exports.getByconsumerExt = async (req, res) => {
           message="No languages found"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200,message,data))
+      return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
     }
@@ -238,7 +238,7 @@ exports.getBydeliveryboyExt = async (req, res) => {
           message="No languages found"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200,message,data))
+      return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
     }
@@ -259,7 +259,7 @@ exports.getByenterpriseExt = async (req, res) => {
           message="No languages found"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
-      return res.status(200).json(utils.buildcreatemessage(200,message,data))
+      return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
     }
