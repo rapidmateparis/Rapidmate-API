@@ -102,7 +102,7 @@ function createUser(userInfo) {
 
 async function signup(userInfo) {
     console.log(process.env.PROD_FLAG);
-    if(process.env.PROD_FLAG == true){
+    if(process.env.PROD_FLAG == "true"){
         try {
             logger.info("selfSignUp called");
         
@@ -167,9 +167,7 @@ async function signup(userInfo) {
             throw err;
           }
     }else{
-        let data = {};
         const userData = await getUserProfile(userInfo["userName"]);
-        console.log("0000000000000000000", userData);
         if(userData && userData.length>0){
            return null;
         }else{
@@ -187,7 +185,15 @@ async function signup(userInfo) {
               makeRoleExtId = "A" + externalId;
               const item = await createItem(userInfo, "rmt_admin_user",makeRoleExtId);
             } 
-            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], ...data };
+            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], 
+                UserConfirmed: false,
+                CodeDeliveryDetails: {
+                    Destination: "y***@a***",
+                    DeliveryMedium: "EMAIL",
+                    AttributeName: "email"
+                },
+                UserSub: "504c293c-6071-7038-79ab-1a533d329eff"
+            };
         }
             
     }
@@ -215,7 +221,7 @@ async function createItem(userinfo,tablename,extIds){
     return registerRes;
 }
 async function signupVerify(userInfo) {
-    if(process.env.PROD_FLAG == true){
+    if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve, reject) => {
             logger.info("selfSignUp called");
             const params = {
@@ -269,7 +275,7 @@ async function signupVerify(userInfo) {
 
 
 async function login(userInfo) {
-    if(process.env.PROD_FLAG == true){
+    if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve , reject) => {
                 var authenticationData =
                 {
@@ -408,9 +414,52 @@ async function loginResponseDataWithoutAWS(resolve , reject, userInfo) {
                     const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
                     profileData[0].token = token;
                     resolve({
-                        token: {},
-                        refreshtoken: {},
-                        user: {},
+                        token: "eyJraWQiOiJ3SWFxU0lUWlpcL3k3cEZcLzJcL3hNdDhxXC9He",
+                        refreshtoken:"eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWw",
+                        user: {
+                            idToken: {
+                                jwtToken: "eyJraWQiOiJaeDNPbFR1TTZUKytSd",
+                                payload: {
+                                    sub: "504c293c-6071-7038-79ab-1a533d329eff",
+                                    email_verified: true,
+                                    iss: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_gBX9Ut8P1",
+                                    phone_number_verified: false,
+                                    "cognito:username": "yimib57145@amxyy.com",
+                                    origin_jti: "e4121e78-a3d5-4a3d-a4ee-9b02b888f787",
+                                    aud: "3r6ca5csqeiaci805pkt9eu809",
+                                    event_id: "a97b28c1-7697-415e-ad88-cb614b3bec4e",
+                                    token_use: "id",
+                                    auth_time: 1724560375,
+                                    name: "yimib57145@amxyy.com",
+                                    phone_number: "+916374746320",
+                                    exp: 1724563975,
+                                    iat: 1724560375,
+                                    jti: "cb0de80c-719f-444a-8257-b3fe167ec6e5",
+                                    email: "yimib57145@amxyy.com"
+                                }
+                            },
+                            refreshToken: {
+                                token: "eyJjdHkiOiJKV1QiLCJlbmMiOi"
+                            },
+                            accessToken: {
+                                jwtToken: "eyJraWQiOiJ3SWFxU0lUWlpcL3k3",
+                                payload: {
+                                    sub: "504c293c-6071-7038-79ab-1a533d329eff",
+                                    iss: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_gBX9Ut8P1",
+                                    client_id: "3r6ca5csqeiaci805pkt9eu809",
+                                    origin_jti: "e4121e78-a3d5-4a3d-a4ee-9b02b888f787",
+                                    event_id: "a97b28c1-7697-415e-ad88-cb614b3bec4e",
+                                    token_use: "access",
+                                    scope: "aws.cognito.signin.user.admin",
+                                    auth_time: 1724560375,
+                                    exp: 1724563975,
+                                    iat: 1724560375,
+                                    jti: "914cd42e-c15a-4b35-8df5-ce46c0d249a8",
+                                    username: "yimib57145@amxyy.com"
+                                }
+                            },
+                            clockDrift: 0
+                        },
                         user_profile : profileData
                     });
             } else {
