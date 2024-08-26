@@ -1,5 +1,5 @@
-const controller = require('../../controllers/deliveryboy/paymentinfo/payment.card')
-const validate = require('../../controllers/deliveryboy/paymentinfo/payment.card.validate')
+const controller = require('../../controllers/deliveryboy/paymentinfo/payment.method')
+const validate = require('../../controllers/deliveryboy/paymentinfo/payment.method.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
