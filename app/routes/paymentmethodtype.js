@@ -1,13 +1,11 @@
-const controller = require('../controllers/consumer/profile/consumer')
-const validate = require('../controllers/consumer/profile/consumer.validate')
+const controller = require('../controllers/admin/paymentmethod/paymentmethodtype')
+const validate = require('../controllers/admin/paymentmethod/paymentmethodtype.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-const addressRouter =require('../middleware/routes/consumer.address')
-const paymentRouter =require('../middleware/routes/consumerpaymethod')
 
 /*
- * Consumer routes
+ * payment routes
  */
 
 /*
@@ -39,11 +37,13 @@ router.get(
   controller.getItem
 )
 
+
+
 /*
  * Update item route
  */
 router.put(
-  '/',
+  '/:id',
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
@@ -59,6 +59,4 @@ router.delete(
   controller.deleteItem
 )
 
-router.use('/address', addressRouter);
-router.use('/paymentmethod', paymentRouter);
 module.exports = router

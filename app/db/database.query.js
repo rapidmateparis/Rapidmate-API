@@ -262,15 +262,30 @@ exports.FETCH_WALLET_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_
 
 
 //===================================================Payment card=============================================================
-//admin side
-exports.FETCH_PAYMENTCARD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`
-exports.FETCH_PAYMENTCARD_BY_ID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
-exports.INSERT_PAYMENTCARD=`INSERT INTO rmt_delivery_boy_payment_card(delivery_boy_id,card_number,card_holder_name,expiration_date,cvv,billing_address,is_del) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?,?)`
+//deliveryboy
+exports.FETCH_PAYMENTCARD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_method AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_PAYMENTCARD_BY_ID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_method AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
+exports.INSERT_PAYMENTCARD=`INSERT INTO rmt_delivery_boy_payment_method(delivery_boy_id,card_number,card_holder_name,expiration_date,cvv,is_del) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?)`
 // deliveryboy side
-exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND wt.is_del = 0`
-exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET card_number=?,card_holder_name=?,expiration_date=?,cvv=?,biling_address=? WHERE id=?`
-exports.DELETE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET is_del=1 WHERE id=?`
-
+exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_method AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND wt.is_del = 0`
+exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_method SET card_number=?,card_holder_name=?,expiration_date=?,cvv=? WHERE id=?`
+exports.DELETE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_method SET is_del=1 WHERE id=?`
+//enterprise
+exports.FETCH_PAYMENTEMETHOD_ALL=`SELECT wt.*,dbs.company_name FROM rmt_enterprise_payment_method AS wt JOIN rmt_enterprise AS dbs ON wt.enterprise_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_PAYMENTEMETHOD_BY_ID=`SELECT wt.*,dbs.company_name FROM rmt_enterprise_payment_method AS wt JOIN rmt_enterprise AS dbs ON wt.enterprise_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
+exports.INSERT_PAYMENTEMETHOD=`INSERT INTO rmt_enterprise_payment_method(enterprise_id,card_number,card_holder_name,expiration_date,cvv,is_del) VALUES((SELECT id FROM rmt_enterprise WHERE ext_id = ?),?,?,?,?,?)`
+// enterrprise side
+exports.FETCH_PAYMENTEMETHOD_BY_EXTID=`SELECT wt.*,dbs.company_name FROM rmt_enterprise_payment_method AS wt JOIN rmt_enterprise AS dbs ON wt.enterprise_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_enterprise WHERE ext_id = ?) AND wt.is_del = 0`
+exports.UPDATE_PAYMENTEMETHOD=`UPDATE rmt_enterprise_payment_method SET card_number=?,card_holder_name=?,expiration_date=?,cvv=? WHERE id=?`
+exports.DELETE_PAYMENTEMETHOD=`UPDATE rmt_enterprise_payment_method SET is_del=1 WHERE id=?`
+//consumer
+exports.FETCH_PAYMENTCMETHOD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS consumer_name FROM rmt_consumer_payment_method AS wt JOIN rmt_consumer AS dbs ON wt.consumer_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_PAYMENTCMETHOD_BY_ID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS consumer_name FROM rmt_consumer_payment_method AS wt JOIN rmt_consumer AS dbs ON wt.consumer_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
+exports.INSERT_PAYMENTCMETHOD=`INSERT INTO rmt_consumer_payment_method(consumer_id,card_number,card_holder_name,expiration_date,cvv,is_del) VALUES((SELECT id FROM rmt_consumer WHERE ext_id = ?),?,?,?,?,?)`
+// consumer side
+exports.FETCH_PAYMENTCMETHOD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS consumer_name FROM rmt_consumer_payment_method AS wt JOIN rmt_consumer AS dbs ON wt.consumer_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_consumer WHERE ext_id = ?) AND wt.is_del = 0`
+exports.UPDATE_PAYMENTCMETHOD=`UPDATE rmt_consumer_payment_method SET card_number=?,card_holder_name=?,expiration_date=?,cvv=? WHERE id=?`
+exports.DELETE_PAYMENTCMETHOD=`UPDATE rmt_consumer_payment_method SET is_del=1 WHERE id=?`
 //============================================== rmt_enterprise_ads ===================================================
 exports.FETCH_MANAGE_ADS=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0`
 exports.FETCH_MANAGE_ADS_BY_ID=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0 AND id=?`
@@ -334,6 +349,14 @@ exports.UPDATE_USER_LANG=`UPDATE rmt_user_languages SET consumer_id=(select id f
 exports.DELETE_USER_LANG=`UPDATE rmt_user_languages SET is_del=1 WHERE id=? AND is_del=0`
 exports.FETCH_USER_LANGBYID=`SELECT * FROM rmt_user_languages  WHERE id=?`
 exports.FETCH_USER_ALLLANG=`SELECT * FROM rmt_user_languages  WHERE is_del=0`
+
+
+//==========================================Payment===================================================================
+exports.FETCH_PAYMENTTYPE_ALL=`SELECT * FROM rmt_payment_method_type WHERE is_del = 0`
+exports.FETCH_PAYMENTTYPE_BY_ID=`SELECT * FROM rmt_payment_method_type WHERE is_del = 0 AND id=?`
+exports.INSERT_PAYMENTTYPE=`INSERT INTO rmt_payment_method_type(title,icon,description) VALUES(?,?,?)`
+exports.UPDATE_PAYMENTTYPE=`UPDATE rmt_payment_method_type SET title=?,icon=?,description=? WHERE id=?`
+exports.DELETE_PAYMENTTYPE=`UPDATE rmt_payment_method_type SET is_del=1 WHERE id=?`
 
 //---------------------------------------------------------------------------------------------------------------\
 exports.transformKeysToLowercase=async (results)=>{
