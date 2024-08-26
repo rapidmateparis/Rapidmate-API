@@ -1,5 +1,5 @@
 const utils = require('../../../middleware/utils')
-const { insertQuery,fetch} = require('../../../middleware/db')
+const { insertQuery,fetch, executeQuery, updateQuery} = require('../../../middleware/db')
 const { FETCH_CONSUMER_ADDRESS_BOOK_QUERY, transformKeysToLowercase, INSERT_CONSUMER_ADDRESS_BOOK_QUERY, DELETE_CONSUMER_ADDRESS_BOOK_QUERY} = require('../../../db/database.query')
 
 
@@ -37,5 +37,66 @@ const createNewAddress = async (req) => {
   const executeCreateNewAddress = await insertQuery(INSERT_CONSUMER_ADDRESS_BOOK_QUERY,[req.consumer_ext_id, req.first_name, req.last_name, req.address, req.email, req.phone, req.company_name, req.comments]);
   console.log(executeCreateNewAddress);
   return executeCreateNewAddress;
+}
+
+exports.updateAddressBook = async (req, res) => {
+  try {
+    const requestData = req.body;
+    var queryCondition = "";
+    var queryConditionParam = [];
+    if(requestData.first_name){
+      queryCondition += ", first_name = ?";
+      queryConditionParam.push(requestData.first_name);
+    }
+    if(requestData.last_name){
+      queryCondition += ", last_name = ?";
+      queryConditionParam.push(requestData.last_name);
+    }
+    if(requestData.email){
+      queryCondition += ", email = ?";
+      queryConditionParam.push(requestData.email);
+    }
+    if(requestData.phone){
+      queryCondition += ", phone = ?";
+      queryConditionParam.push(requestData.phone);
+    }
+    if(requestData.company_name){
+      queryCondition += ", company_name = ?";
+      queryConditionParam.push(requestData.company_name);
+    }
+    if(requestData.comments){
+      queryCondition += ", comments = ?";
+      queryConditionParam.push(requestData.comments);
+    }
+    queryConditionParam.push(requestData.id);
+    var updateQueryStr = "update rmt_consumer_address_book set is_del = 0 " + queryCondition + " where id = ?";
+    const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
+    if(executeResult) {
+      return res.status(200).json(utils.buildCreateMessage(200,'Record Updated Successfully'))
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later.',1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later.',1001));
+  }
+}
+
+const udpateAddressStatement = async (updateQueryStr, params) => {
+  const executeResult = await updateQuery(updateQueryStr, params);
+  return executeResult;
+}
+
+exports.deleteAddressBook = async (req, res) => {
+  try {
+    const executedResult = await executeQuery(DELETE_CONSUMER_ADDRESS_BOOK_QUERY, [req.params.id])
+    if(executedResult){
+      return res.status(200).json(utils.buildUpdatemessage(200,'Record deleted Successfully'))
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500,'Unable to delete address. Please try again later.',1001));
+    }
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to delete address. Please try again later.',1001));
+  }
 }
 

@@ -118,6 +118,24 @@ module.exports = {
     }
   },
 
+  async executeQuery(query, param = []) {
+    try {
+      console.log(query, param);
+      return await pool
+        .execute(query, param)
+        .then(([rows, fields]) => {
+          return rows
+        })
+        .catch((err) => {
+          console.log(err);
+          return err
+        })
+    } catch (error) {
+      console.log(error);
+      return error
+    }
+  },
+
   async insertQuery(query,param=[]) {
     try {
       // console.log(query,param)
