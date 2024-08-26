@@ -302,7 +302,7 @@ exports.INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_delivery_boy_add
 exports.DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`Delete from  rmt_delivery_boy_address_book where id = ?`;
 
 //======================================= rmt_service =============================================================
-exports.FETCH_ALL_SERVICE=`select * from rmt_service where is_del=1`
+exports.FETCH_ALL_SERVICE=`select * from rmt_service where is_del=0`
 exports.FETCH_SERVICE_BYID=`select * from rmt_service where is_del=0 AND id=?`
 exports.UPDATE_SERVICE=`UPDATE rmt_service SET service_name=?,id_del=? WHERE id =?`
 exports.INSERT_SERVICE=`INSERT INTO rmt_service (service_name,is_del) VALUES (?,?)`
