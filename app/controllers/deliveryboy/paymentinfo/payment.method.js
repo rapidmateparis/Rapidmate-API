@@ -69,7 +69,7 @@ exports.getBydeliveryBoyExtid = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_PAYMENTCARD,[req.delivery_boy_ext,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.is_del,id]);
+    const registerRes = await updateQuery(UPDATE_PAYMENTCARD,[req.card_number,req.card_holder_name,req.expiration_date,req.cvv,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
@@ -96,7 +96,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_PAYMENTCARD,[req.delivery_boy_ext,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.is_del]);
+    const registerRes = await insertQuery(INSERT_PAYMENTCARD,[req.delivery_boy_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
     return registerRes;
 }
 
