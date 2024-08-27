@@ -34,7 +34,7 @@ router.get(
   '/:id',
     trimRequest.all,
     validate.getItem,
-  controller.getItem
+  controller.getBydeliveryBoyExtid
 )
 
 /**
