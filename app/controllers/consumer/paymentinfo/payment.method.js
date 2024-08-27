@@ -34,7 +34,7 @@ exports.getItem = async (req, res) => {
     const data = await fetch(FETCH_PAYMENTCMETHOD_BY_ID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="Invalid payment card."
+        message="No found payment method details"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
@@ -69,7 +69,7 @@ exports.getConsumerExtid = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_PAYMENTCMETHOD,[req.consumer_ext,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.is_del,id]);
+    const registerRes = await updateQuery(UPDATE_PAYMENTCMETHOD,[req.card_number,req.card_holder_name,req.expiration_date,req.cvv,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
@@ -96,13 +96,15 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_PAYMENTCMETHOD,[req.consumer_ext,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.is_del]);
-    return registerRes;
+    const payMethodResult = await insertQuery(INSERT_PAYMENTCMETHOD,[req.consumer_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
+    console.log(payMethodResult);
+    return payMethodResult;
 }
 
 exports.createItem = async (req, res) => {
   try {
     const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_consumer_payment_method','card_number')
+    console.log(doesNameExists);
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
