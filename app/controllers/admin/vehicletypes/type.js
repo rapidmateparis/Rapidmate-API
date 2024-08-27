@@ -195,70 +195,18 @@ exports.calculateAmount= async (req,res)=>{
 }
 
 
-// exports.getPriceListByDistance = async (req,res)=>{
-//   const distance = req.query.d;
-//   var vehicledata = await fetch("select vtype.id as vehicle_type_id, ROUND(kmprice.price,2) as total_price from rmt_km_price kmprice join rmt_vehicle_type vtype on kmprice.vehicle_type_id = vtype.id where cast(? as decimal(10, 2)) between range_from and range_to", [distance])
-//   if(!vehicledata || vehicledata.length <=1){
-//     vehicledata = await fetch("select id as vehicle_type_id, (case when id = 7 then fn_get_km_price_value(id, ?) else ROUND((base_price + (km_price * ?)) + ((base_price + (km_price * ?))* (percent/100)),2) end)as total_price from rmt_vehicle_type", [distance, distance, distance])
-//   }
-//   if(!vehicledata || vehicledata.length <=0){
-//     return res.status(400).json(utils.buildErrorObject(400,'Vehicles not available.',1001));
-//   }
-//   console.log("vehicledata 2", vehicledata);
-//    return res.status(200).json(utils.buildResponse(200, vehicledata))
-// }
-
-exports.getPriceListByDistance = async (req, res) => {
-  try {
-    const distance = req.query.d;
-    const vehicledata = await runQuery("SELECT id as vehicle_type_id,base_price as total_price,vt_type_id,percent,km_price,is_price FROM rmt_vehicle_type");
-    const priceCache = {};
-    const updatedVehicleData = await Promise.all(vehicledata.map(async (item) => {
-      if (priceCache[item.vehicle_type_id]) {
-        item.total_price = priceCache[item.vehicle_type_id];
-      } else {
-        let kmPrice = await fetch("SELECT price FROM rmt_km_price WHERE vehicle_type_id = ? AND CAST(? AS DECIMAL(10, 2)) BETWEEN range_from AND range_to", [item.vehicle_type_id, distance]);
-        
-        if (kmPrice && kmPrice.length > 0) {
-          item.total_price = parseFloat(kmPrice[0].price.toFixed(2));
-        } else {
-          if (item.is_price > 0) {
-            let vehicleDetails = await fetch("SELECT base_price, percent, km_price, is_price, vt_type_id FROM rmt_vehicle_type WHERE id = ?", [item.vt_type_id]);
-            if (vehicleDetails && vehicleDetails.length > 0) {
-              let subitem = vehicleDetails[0];
-              
-              if (!priceCache[item.vt_type_id]) {
-                let basePrice = (subitem.km_price * distance) + subitem.base_price;
-                priceCache[item.vt_type_id] = subitem.is_price > 0 
-                  ? parseFloat((basePrice * (1 + parseFloat(subitem.percent) / 100)).toFixed(2)) 
-                  : parseFloat(basePrice.toFixed(2));
-              }
-              let basePrice = (item.km_price * distance) + priceCache[item.vt_type_id];
-              item.total_price = parseFloat((basePrice * (1 + parseFloat(item.percent) / 100)).toFixed(2));
-            }
-          } else {
-            item.total_price = parseFloat(((item.km_price * distance) + item.total_price).toFixed(2));
-          }
-        }
-        
-        priceCache[item.vehicle_type_id] = item.total_price;
-      }
-    
-      return item;
-    }));
-
-    if (!updatedVehicleData || updatedVehicleData.length <= 0) {
-      return res.status(400).json(utils.buildErrorObject(400, 'Vehicles not available.', 1001));
-    }
-    return res.status(200).json(utils.buildResponse(200, updatedVehicleData));
-
-  } catch (error) {
-    console.error("Error fetching vehicle prices:", error);
-    return res.status(500).json(utils.buildErrorObject(500, 'Internal server error', 1002));
+exports.getPriceListByDistance = async (req,res)=>{
+  const distance = req.query.d;
+  var vehicledata = await fetch("select vtype.id as vehicle_type_id, ROUND(kmprice.price,2) as total_price from rmt_km_price kmprice join rmt_vehicle_type vtype on kmprice.vehicle_type_id = vtype.id where cast(? as decimal(10, 2)) between range_from and range_to", [distance])
+  if(!vehicledata || vehicledata.length <=1){
+    vehicledata = await fetch("select id as vehicle_type_id, (case when id = 7 and ?<15 then fn_get_km_price_value(id, ?) else ROUND((base_price + (km_price * ?)) + ((base_price + (km_price * ?))* (percent/100)),2) end)as total_price from rmt_vehicle_type", [distance, distance , distance, distance])
   }
-};
-
-
+  if(!vehicledata || vehicledata.length <=0){
+    return res.status(400).json(utils.buildErrorObject(400,'Vehicles not available.',1001));
+  }
+  console.log("vehicledata 2", vehicledata);
+   return res.status(200).json(utils.buildResponse(200, vehicledata))
+}
 
 
 
