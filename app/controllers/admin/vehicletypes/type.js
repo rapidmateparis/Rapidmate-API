@@ -216,7 +216,7 @@ function priceCalculation(vehicleTypedata, distance) {
       var basePricecalc = 0.0;
       var basePricecalcWithPercentage = 0.0;
       vehicleTypedata.forEach(vehicleType => {
-      if ((vehicleType.vehicle_type_id !== 7) || (vehicleType.vehicle_type_id == 7 && distance >= 15)) {
+      if ((vehicleType.vehicle_type_id !== 7) || (vehicleType.vehicle_type_id == 7 && distance > 15)) {
         basePricecalc = ((vehicleType.isBasPrice) ? vehicleType.base_price + parseFloat(vehicleType.km_price * distance) : basePricecalcWithPercentage);
         basePricecalcWithPercentage = basePricecalc + (basePricecalc * (vehicleType.percent / 100));
         vehicleType.total_price = basePricecalcWithPercentage.toFixed(2);
