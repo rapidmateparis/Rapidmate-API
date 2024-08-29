@@ -185,7 +185,7 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
   exports.UPDATE_ENTERPRISE_ADDRESS=`UPDATE rmt_enterprise_address SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),address=?,first_name=?,last_name=?,email=?,mobile=?,company_name=?,comment=? WHERE id=?`;
   exports.DELETE_ENTERPRISE_ADDRESS='UPDATE rmt_enterprise_address SET is_del=1 WHERE id=?'
   //-------------------------------------dashboard query-----------------------------------------------------------------------------
-  exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN shift_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN shift_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_shift WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
+  exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN shift_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN shift_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_order_slot WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
   exports.FETCH_SLOT_CHART=`
         SELECT 
             day, 
