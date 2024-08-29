@@ -172,7 +172,6 @@ const fetchVehicltype=async(vehicle_type_id)=>{
   return await fetch(FETCH_VT_BY_ID,[vehicle_type_id])
 }
 
-
 exports.calculateAmount= async (req,res)=>{
   const {vehicle_type_id,pickupLocation,dropoffLocation}=req.body
   // distance calculate
@@ -196,20 +195,41 @@ exports.calculateAmount= async (req,res)=>{
 
 
 exports.getPriceListByDistance = async (req,res)=>{
-  const distance = req.query.d;
-  var vehicledata = await fetch("select vtype.id as vehicle_type_id, ROUND(kmprice.price,2) as total_price from rmt_km_price kmprice join rmt_vehicle_type vtype on kmprice.vehicle_type_id = vtype.id where cast(? as decimal(10, 2)) between range_from and range_to", [distance])
-  if(!vehicledata || vehicledata.length <=1){
-    vehicledata = await fetch("select id as vehicle_type_id, (case when id = 7 and ?<15 then fn_get_km_price_value(id, ?) else ROUND((base_price + (km_price * ?)) + ((base_price + (km_price * ?))* (percent/100)),2) end)as total_price from rmt_vehicle_type", [distance, distance , distance, distance])
+  const distance = parseFloat(req.query.d);
+  var responseData = [];
+  var vehicleTypedata = await fetch("select vtype.id as vehicle_type_id, vtype.vehicle_type as vehicle_type , ROUND(kmprice.price,2) as total_price from rmt_km_price kmprice join rmt_vehicle_type vtype on kmprice.vehicle_type_id = vtype.id where cast(? as decimal(10, 2)) between range_from and range_to and vtype.id <> 8", [distance])
+  if(!vehicleTypedata || vehicleTypedata.length <=1){
+    const vehicleTypedata = await fetch("select id as vehicle_type_id,vehicle_type as vehicle_type, (case when id = 7 and ?<=15 then fn_get_km_price_value(id, ?) else 0 end) as truck_price, base_price, km_price, is_base_price as isBasPrice, percent from rmt_vehicle_type where id <> 8 order by id asc", [distance, distance])
+    responseData = priceCalculation(vehicleTypedata, distance);
+  }else{
+    responseData = vehicleTypedata;
   }
-  if(!vehicledata || vehicledata.length <=0){
-    return res.status(400).json(utils.buildErrorObject(400,'Vehicles not available.',1001));
+  if(!responseData || responseData.length <=0){
+    return res.status(400).json(utils.buildErrorObject(400,'Vehicle types are not available now please try again.',1001));
   }
-  console.log("vehicledata 2", vehicledata);
-   return res.status(200).json(utils.buildResponse(200, vehicledata))
+   return res.status(200).json(utils.buildResponse(200, responseData))
 }
 
-
-
-
-
+function priceCalculation(vehicleTypedata, distance) {
+  var responseData = [];
+  if (vehicleTypedata) {
+      var basePricecalc = 0.0;
+      var basePricecalcWithPercentage = 0.0;
+      vehicleTypedata.forEach(vehicleType => {
+      if ((vehicleType.vehicle_type_id !== 7) || (vehicleType.vehicle_type_id == 7 && distance > 15)) {
+        basePricecalc = ((vehicleType.isBasPrice) ? vehicleType.base_price + parseFloat(vehicleType.km_price * distance) : basePricecalcWithPercentage);
+        basePricecalcWithPercentage = basePricecalc + (basePricecalc * (vehicleType.percent / 100));
+        vehicleType.total_price = basePricecalcWithPercentage.toFixed(2);
+      } else {
+        vehicleType.total_price = vehicleType.truck_price;
+      }
+      responseData.push({
+        vehicle_type_id: vehicleType.vehicle_type_id,
+        vehicle_type: vehicleType.vehicle_type,
+        total_price: vehicleType.total_price
+      });
+    });
+  }
+  return responseData;
+}
 

@@ -148,7 +148,7 @@ exports.getShiftByStatus=async(req,res)=>{
  */
 exports.updateItem= async(req,res)=>{
     const {shift_id}=req.body
-    const getId = await utils.isIDGood(shift_id,'id','rmt_enterprise_shift')
+    const getId = await utils.isIDGood(shift_id,'id','rmt_enterprise_order_slot')
     if(getId){
         const [checkforudpate]=await fetch(FETCH_SHIFT_STATUS,[getId])
         if(checkforudpate.shift_status==='REQUEST'){
@@ -178,7 +178,7 @@ exports.updateStatus = async (req, res) => {
     try {
       const { id } = req.params;
       const { status,reject_note} = req.body;
-      const getId = await utils.isIDGood(id, "id", "rmt_enterprise_shift");
+      const getId = await utils.isIDGood(id, "id", "rmt_enterprise_order_slot");
       if (getId) {
         const updatedItem = await updateStatus(id, status,reject_note);
         if (updatedItem) {
@@ -209,7 +209,6 @@ exports.updateStatus = async (req, res) => {
 exports.createItem = async (req, res) => {
   try {
     const shiftId = await insertShiftAndSlot(req,res);
-    
     if(shiftId > 0){
         return res.status(200).json(utils.buildUpdatemessage(200, "Shift and slots inserted successfully"));
     }else{
@@ -232,7 +231,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id, "id", "rmt_enterprise_shift");
+    const getId = await utils.isIDGood(id, "id", "rmt_enterprise_order_slot");
     if (getId) {
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {
@@ -261,7 +260,7 @@ exports.deleteItem = async (req, res) => {
 exports.restoreItem = async (req, res) => {
     try {
       const { id } = req.params;
-      const getId = await utils.isIDGood(id, "id", "rmt_enterprise_shift");
+      const getId = await utils.isIDGood(id, "id", "rmt_enterprise_order_slot");
       if (getId) {
         const deletedItem = await updateQuery(RESTORE_SHIFT_QUERY,[id]);
         if (deletedItem.affectedRows > 0) {
@@ -286,7 +285,7 @@ exports.restoreItem = async (req, res) => {
 exports.assignDeliveryboyInshift = async (req,res)=>{
   try {
     const {shift_id,enterprise_ext_id,delivery_boy_ext}=req.body
-    const getId = await utils.isIDGood(shift_id, "id", "rmt_enterprise_shift");
+    const getId = await utils.isIDGood(shift_id, "id", "rmt_enterprise_order_slot");
     if (getId) {
       const deletedItem = await updateQuery(DELIVERY_BOY_ASSIGN_IN_SHIFT,[delivery_boy_ext,enterprise_ext_id,shift_id]);
       if (deletedItem.affectedRows > 0) {

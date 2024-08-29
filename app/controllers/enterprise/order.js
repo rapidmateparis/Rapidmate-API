@@ -1,5 +1,5 @@
 const utils = require("../../middleware/utils");
-const { runQuery,fetch, insertQuery, updateQuery, insertEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
+const { persistShiftOrder, fetch, persistMultipleDeliveries, updateQuery, persistEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
 const {FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
 const { updateItem } = require("../enterprise/enterprise");
 /********************
@@ -142,9 +142,21 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-  console.info(req.addAnothers);
-  const registerRes = await insertEnterpriseOrder(req);
-  return registerRes;
+  console.info(req.delivery_type_id);
+  var  executeResult = {};
+  switch(req.delivery_type_id){
+    case 1 :  console.info(req.delivery_type_id);
+            executeResult = await persistEnterpriseOrder(req);  
+            break;
+    case 2 : console.info(req.delivery_type_id);
+            executeResult = await persistMultipleDeliveries(req);  
+            break;
+    case 3 : console.info(req.delivery_type_id);
+             executeResult = await persistShiftOrder(req);  
+             break;
+  }
+  console.log(executeResult);
+  return executeResult;
 };
 
 exports.createItem = async (req, res) => {
@@ -153,17 +165,19 @@ exports.createItem = async (req, res) => {
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
     console.log(vehicleType);
 
-    var total_amount = requestData.total_amount;
-    console.log(requestData);
-    
-    requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
-    console.log(requestData.commission_percentage);
-    requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
-    console.log(requestData.commission_amount.toFixed(2));
-
-    requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
-    console.log(requestData.delivery_boy_amount);
-    
+    if(requestData.delivery_type_id !== 3){
+      var total_amount = requestData.total_amount;
+      console.log(requestData);
+      
+      requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
+      requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
+      console.log(requestData.commission_amount.toFixed(2));
+  
+      requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+      console.log(requestData.delivery_boy_amount);
+      console.log(requestData);
+    }
+   
     const item = await createItem(requestData);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
