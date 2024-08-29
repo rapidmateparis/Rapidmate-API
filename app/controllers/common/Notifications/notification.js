@@ -228,7 +228,7 @@ const sendNotfn= async(title,message,receiverExtId,objId,userRole)=>{
       body: message,
     },
     data: {
-      id:objId
+      
     }, // optional
     token: token,
   };
