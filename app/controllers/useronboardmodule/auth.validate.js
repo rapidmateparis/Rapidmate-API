@@ -77,6 +77,17 @@ exports.login = [
     validationResult(req, res, next)
   }
 ]
+exports.logout = [
+  check('info.userName')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]
 
 /**
  * Validates verify request

@@ -82,6 +82,40 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
     }
 )
 
+router.post('/logout',trimRequest.all,validate.logout, trimRequest.all,
+  async function (req, res, next) {
+
+      if(req.body.info) {
+          logger.info('/login request', req.body.info)
+      }
+      else {
+          logger.error(' /login Status 400 Invalid request format')
+          return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
+      }
+      if(process.env.PROD_FLAG == "true"){
+        controller.logout(req.body.info).then(user => {
+            logger.info('/login response',user)
+            return res.status(200).json(utils.buildCreateMessage(200,"User logged out successfully.",user))
+        }).catch(error => {
+            logger.error('Error in /logout', error);  // Log the error
+            return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" ,1001));
+        });
+      }else{
+        controller.logout(req.body.info).then(user => {
+          console.log("data 000000", user);
+          if(user == null){
+            return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
+          }else{
+            return res.status(200).json(utils.buildCreateMessage(200,"User logged out successfully.",user))
+          }
+        }).catch(error => {
+            logger.error('Error in /login', error);  // Log the error
+            return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" , 1001));
+        });
+      }
+  }
+)
+
 router.post('/signupverify',trimRequest.all,validate.verify,function (req, res, next) {
     if(req.body.info) {
         logger.info('/signupVerifysignupVerify request', req.body.info)

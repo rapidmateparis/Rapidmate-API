@@ -355,6 +355,32 @@ async function login(userInfo) {
         });
      }
 }
+async function logout(userInfo) {
+    if (process.env.PROD_FLAG == "true") {
+        return new Promise((resolve, reject) => {
+            var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+            var userData = {
+                Username: userInfo["userName"],
+                Pool: userPool
+            };
+            var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+            if (cognitoUser != null) {
+                cognitoUser.signOut();
+                logger.info("User logged out successfully");
+                resolve({ message: "User logged out successfully" });
+            } else {
+                logger.error("No user to log out");
+                resolve({ error: "No user to log out" });
+            }
+        });
+    } else {
+        return new Promise((resolve, reject) => {
+            logger.info("Logout without AWS");
+            resolve({ message: "Logged out without AWS" });
+        });
+    }
+}
 
 async function loginResponseData(resolve, reject, result, userInfo) {
     var username = userInfo["userName"];
@@ -987,5 +1013,6 @@ module.exports = {
     enableCognitoUser,
     getAccessToken,
     resendTemporaryPassword,
-    isAuthorized
+    isAuthorized,
+    logout
 };
