@@ -90,7 +90,18 @@ exports.FETCH_FAQ_BY_ID=`select * from rmt_faq where is_del=0 and faq_id=?`;
 exports.INSERT_FAQ_QUERY=`INSERT INTO rmt_faq (question,answer) VALUES (?,?)`;
 exports.UPDATE_FAQ_QUERY=`UPDATE rmt_faq SET question=?,answer=? WHERE faq_id=?`;
 exports.DELETE_FAQ_QUERY=`UPDATE rmt_faq SET is_del=1 WHERE faq_id=?`;
-
+//=====================================rmt_support===================================================
+exports.FETCH_SUPPORT_QUERY=`select * from rmt_support where is_del=0`;
+exports.FETCH_SUPPORT_BY_ID=`select * from rmt_support where is_del=0 and id=?`;
+exports.INSERT_SUPPORT_QUERY=`INSERT INTO rmt_support (email,phone,address) VALUES (?,?,?)`;
+exports.UPDATE_SUPPORT_QUERY=`UPDATE rmt_support SET email=?,phone=?,address=? WHERE id=?`;
+exports.DELETE_SUPPORT_QUERY=`UPDATE rmt_support SET is_del=1 WHERE id=?`;
+//=====================================rmt_aboutus===================================================
+exports.FETCH_ABOUT_QUERY=`select * from rmt_aboutus where is_del=0`;
+exports.FETCH_ABOUT_BY_ID=`select * from rmt_aboutus where is_del=0 and id=?`;
+exports.INSERT_ABOUT_QUERY=`INSERT INTO rmt_aboutus (title,subtitle,content) VALUES (?,?,?)`;
+exports.UPDATE_ABOUT_QUERY=`UPDATE rmt_aboutus SET title=?,subtitle=?,content=? WHERE id=?`;
+exports.DELETE_ABOUT_QUERY=`UPDATE rmt_aboutus SET is_del=1 WHERE id=?`;
 //---------------------------------RMT_ORDER-----------------------------------------------------
 exports.FETCH_ORDER_QUERY=`select * from rmt_order WHERE is_del=0`;
 exports.FETCH_ORDER_BY_ID=`select * from rmt_order where is_del=0 AND ID=?`;
