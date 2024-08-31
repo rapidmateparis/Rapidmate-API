@@ -186,11 +186,18 @@ const createItem = async (req) => {
     requestBody.push(req.is_my_self);
     createOrderQuery = INSERT_ORDER_FOR_ANOTHER_QUERY;
   }
+ 
   requestBody.push(req.distance);
   requestBody.push(req.total_amount.toFixed(2));
   requestBody.push(req.commission_percentage.toFixed(2));
   requestBody.push(req.commission_amount.toFixed(2));
   requestBody.push(req.delivery_boy_amount.toFixed(2));
+  console.info(req.schedule_date_time);
+  if(req.schedule_date_time){
+    requestBody.push(req.schedule_date_time);
+  }else{
+    requestBody.push(null);
+  }
   var requestBodyNew = requestBody.filter(function(item) {
     return item !== undefined;
   });
