@@ -88,7 +88,7 @@ exports.createItem = async (req, res) => {
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
-        const currData=await fetch(FETCH_ABOUT_BY_ID,[id])
+        const currData=await fetch(FETCH_ABOUT_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currData))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to create about us. Please try again later.',1001));
