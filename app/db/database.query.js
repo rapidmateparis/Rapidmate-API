@@ -78,11 +78,13 @@ exports.INSERT_CONSUMER_ADDRESS=`INSERT INTO rmt_consumer_address(consumer_id,lo
 exports.UPDATE_CONSUMER_ADDRESS=`UPDATE rmt_consumer_address SET consumer_id=(select id from rmt_consumer where ext_id =?),location_name=?,first_name=?,last_name=?,email=?,phone=?,company_name=?,comment=? WHERE id=?`;
 exports.DELETE_CONSUMER_ADDRESS='UPDATE rmt_consumer_address SET is_del=1 WHERE id=?'
 //---------------------------------RMT_COUPON------------------------------------------------
-exports.FETCH_CODE_QUERY=`select * from rmt_coupon_code`;
-exports.FETCH_CODE_BY_ID=`select * from rmt_coupon_code where id=?`;
-exports.INSERT_CODE_QUERY=`INSERT INTO rmt_coupon_code (CODE,DISCOUNT,EXPIRY_DATE,MAX_USAGE,CURRENT_USAGE) VALUES (?,?,?,?)`;
-exports.UPDATE_CODE_QUERY=`UPDATE rmt_coupon_code SET CODE=?,DISCOUNT=?,EXPIRY_dATE=?,MAX_USAGE=?,CURRENT_USAGE=? WHERE ID =?`;
-exports.DELETE_CODE_QUERY=`DELETE FROM rmt_coupon_code WHERE ID=?`;
+exports.FETCH_CODE_QUERY=`select * from rmt_promo_code`;
+exports.FETCH_CODE_BY_ID=`select * from rmt_promo_code where id=?`;
+exports.FETCH_CODE_BY_PROMO_CODE=`select * from rmt_promo_code where promo_code=?`;
+exports.INSERT_CODE_QUERY=`INSERT INTO rmt_promo_code (promo_code,valid_from,valid_to,is_percent,percentage,amount) VALUES (?,?,?,?,?,?)`;
+exports.UPDATE_CODE_QUERY=`UPDATE rmt_promo_code SET promo_code=?,valid_from=?,valid_to=?,is_percent=?,percentage=?,amount=? WHERE id =?`;
+exports.UPDATE_FOR_REDEME_QUERY=`UPDATE rmt_promo_code SET is_used=1,order_number=? WHERE promo_code=?`;
+exports.DELETE_CODE_QUERY=`DELETE FROM rmt_promo_code WHERE id=?`;
 
 //---------------------------------RMT_FAQ------------------------------------------------------
 exports.FETCH_FAQ_QUERY=`select * from rmt_faq where is_del=0`;
