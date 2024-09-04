@@ -24,6 +24,8 @@ require('log4js').configure({
 const app = express();
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 
+TZ = "Asia/Calcutta";
+console.log("Timezone", new Date().toString());
 const server = http.createServer(app);
 const io = socketIo(server);
 
