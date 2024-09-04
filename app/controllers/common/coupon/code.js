@@ -87,11 +87,11 @@ exports.GetPromoDetails = async (req, res) => {
       /*if(is_used){
         message="Coupon already used."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
-      }*/
+      }
       if (currentDate >= new Date(valid_from) && currentDate <= new Date(valid_to)) {
         const message = "Coupon is not valid at this time.";
         return res.status(400).json(utils.buildErrorObject(400, message, 1002));
-      }
+      }*/
       let discount= 0;
       let promoCodeAmount=0
       if(parseInt(is_percent) == 1){
