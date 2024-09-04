@@ -184,3 +184,27 @@ exports.getAccessToken = [
     validationResult(req, res, next)
   }
 ]
+
+exports.changepassword=[
+  check('info.userName')
+  .exists()
+  .withMessage('MISSING')
+  .not()
+  .isEmpty()
+  .withMessage('IS_EMPTY'),
+check('info.oldPassword')
+  .exists()
+  .withMessage('MISSING')
+  .not()
+  .isEmpty()
+  .withMessage('IS_EMPTY'),
+check('info.newPassword')
+  .exists()
+  .withMessage('MISSING')
+  .not()
+  .isEmpty()
+  .withMessage('info.newPassword'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
