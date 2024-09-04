@@ -32,7 +32,7 @@ router.post(
 */
 
 router.post(
-    '/getpromodetail',
+    '/check',
     trimRequest.all,
     validate.GetPromoDetails,
     controller.GetPromoDetails
