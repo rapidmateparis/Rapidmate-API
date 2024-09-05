@@ -185,6 +185,19 @@ exports.updateItem = async (req, res) => {
         queryCondition += ", token = ?";
         queryConditionParam.push(requestBody.token);
       }
+      if(requestBody.language_id){
+        queryCondition += ", language_id = ?";
+        queryConditionParam.push(requestBody.language_id);
+      }
+      if(requestBody.enable_push_notification == 0 || requestBody.enable_push_notification == 1){
+        queryCondition += ", enable_push_notification = ?";
+        queryConditionParam.push(requestBody.enable_push_notification);
+      }
+      if(requestBody.enable_email_notification  == 0 || requestBody.enable_email_notification == 1){
+        queryCondition += ", enable_email_notification = ?";
+        queryConditionParam.push(requestBody.enable_email_notification);
+      }
+
       queryConditionParam.push(req.body.ext_id);
       var updateQuery = "update rmt_delivery_boy set is_del = 0 " + queryCondition + " where ext_id = ?";
       
