@@ -244,7 +244,8 @@ exports.createItem = async (req, res) => {
         actionName : "",
         path : "",
         userRole : "CONSUMER",
-        redirect : "ORDER"
+        redirect : "ORDER",
+        is
       }
       notification.createNotificationRequest(notifiationRequest);
       return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",filterdata));
@@ -289,7 +290,7 @@ exports.allocateDeliveryBoy = async (req, res) => {
         userRole : "CONSUMER",
         redirect : "ORDER"
       }
-      notification.createNotificationRequest(notifiationRequest);
+      notification.createNotificationRequest(notifiationRequest, true);
       var notifiationRequest = {
         title : "New order received!!!Order# : " + requestData.order_number ,
         body: {},
