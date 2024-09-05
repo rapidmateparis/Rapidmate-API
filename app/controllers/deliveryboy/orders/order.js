@@ -244,8 +244,7 @@ exports.createItem = async (req, res) => {
         actionName : "",
         path : "",
         userRole : "CONSUMER",
-        redirect : "ORDER",
-        is
+        redirect : "ORDER"
       }
       notification.createNotificationRequest(notifiationRequest);
       return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",filterdata));
