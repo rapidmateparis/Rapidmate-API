@@ -382,6 +382,45 @@ async function logout(userInfo) {
     }
 }
 
+async function changePassword(userInfo) {
+    return new Promise((resolve, reject) => {
+        var authenticationData = {
+            Username: userInfo["userName"],
+            Password: userInfo["oldPassword"],
+        };
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+        var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
+        var userData = {
+            Username: userInfo["userName"],
+            Pool: userPool,
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                cognitoUser.changePassword(userInfo["oldPassword"], userInfo["newPassword"], function (err, result) {
+                    if (err) {
+                        logger.error("changePassword onFailure");
+                        logger.error(err);
+                        resolve(err);
+                    } else {
+                        logger.info("Password change successful");
+                        logger.info(result);
+                        resolve(result);
+                    }
+                });
+            },
+            onFailure: function (cognitoErr) {
+                logger.error("onFailure");
+                logger.error(cognitoErr);
+                resolve(cognitoErr);
+            },
+        });
+    });
+}
+
+
 async function loginResponseData(resolve, reject, result, userInfo) {
     var username = userInfo["userName"];
     var token = userInfo["token"];
@@ -1014,5 +1053,6 @@ module.exports = {
     getAccessToken,
     resendTemporaryPassword,
     isAuthorized,
+    changePassword,
     logout
 };
