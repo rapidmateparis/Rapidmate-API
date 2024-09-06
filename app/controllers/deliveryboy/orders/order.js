@@ -672,7 +672,9 @@ exports.downloadInvoice = async (req, res) => {
 }
 
 const prepareInvoiceDocument = async (fileName, order) =>{
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    executablePath: '/usr/bin/chromium-browser'
+  })
   const page = await browser.newPage();
   var html = await fs.readFileSync('default/invoice/invoice.html', 'utf-8');
   var htmlContent = html.replace("<name>", order.first_name   + " " + order.last_name);
