@@ -673,7 +673,8 @@ exports.downloadInvoice = async (req, res) => {
 
 const prepareInvoiceDocument = async (fileName, order) =>{
   const browser = await puppeteer.launch({
-    executablePath: '/usr/bin/chromium-browser'
+    headless:false,
+    args: ["--no-sandbox", "--disabled-setupid-sandbox"]
   })
   const page = await browser.newPage();
   var html = await fs.readFileSync('default/invoice/invoice.html', 'utf-8');
