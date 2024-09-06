@@ -3,14 +3,9 @@ const notification = require("../../../controllers/common/Notifications/notifica
 const { runQuery,fetch, insertQuery, updateQuery } = require("../../../middleware/db");
 const AuthController=require("../../../controllers/useronboardmodule/authuser");
 const { INSERT_DELIVERY_BOY_ENTERPRISE_CONNECTIONS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS_ENTERPRISE, UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY, CHECK_ORDER_FOR_OTP, UPDATE_ORDER_OTP_VERIFIED } = require("../../../db/database.query");
-/********************
- * Public functions *
- ********************/
-/**
- * Get items function called by route
- * @param {Object} req - request object
- * @param {Object} res - response object
- */
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+
 exports.getItems = async (req, res) => {
   try {
     const data = await runQuery(FETCH_ORDER_QUERY);
@@ -652,3 +647,55 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   }
 };
 
+exports.downloadInvoice = async (req, res) => {
+  try {
+    var orderNumber = req.params.o;
+    var orderDetail = await getOrderByOrderNumber(orderNumber);
+    console.log(orderDetail);
+    if(orderDetail){
+      const fileName = process.env.BASE_RESOURCE_DIR + "invoice" + new Date().getTime() + ".pdf";
+      await prepareInvoiceDocument(fileName, orderDetail);
+      await res.download(fileName, (err) => {
+        if (err) {
+          res.status(500).send({
+            message: "Could not download the file. " + err,
+          });
+        }
+      });
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500,'Invalid Order number',1001));
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to download invoice',1001));
+  }
+}
+
+const prepareInvoiceDocument = async (fileName, order) =>{
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  var html = await fs.readFileSync('default/invoice/invoice.html', 'utf-8');
+  var htmlContent = html.replace("<name>", order.first_name   + " " + order.last_name);
+  htmlContent = htmlContent.replace("<ordernumber>", order.order_number);
+  htmlContent = htmlContent.replace("<orderdate>", new Date(order.order_date).toISOString());
+  htmlContent = htmlContent.replace("<logo>", process.env.LOGO || "http://localhost:3000/api/documents/view/file/logo.png");
+  await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+  await page.emulateMediaType('screen');
+  const pdf = await page.pdf({
+    path:  fileName,
+    margin: { top: '5px', right: '5px', bottom: '5px', left: '5px' },
+    printBackground: true,
+    format: 'A4',
+  });
+  await browser.close();
+}
+
+const getOrderByOrderNumber = async (order_number) => {
+  try {
+    const data = await fetch("select ord.*,con.* from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
