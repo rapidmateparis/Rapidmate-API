@@ -95,7 +95,7 @@ router.put(
  * Delete item route
  */
 router.delete(
-  '/:id',
+  '/cancel/:id',
   trimRequest.all,
   validate.deleteItem,
   controller.deleteItem
@@ -120,6 +120,12 @@ router.get(
     trimRequest.all,
     validate.orderNumber,
     controller.viewOrderByOrderNumber
+)
+
+router.get(
+  '/invoice/:o',
+  trimRequest.all,
+  controller.downloadInvoice
 )
 
 module.exports = router

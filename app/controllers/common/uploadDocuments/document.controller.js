@@ -43,6 +43,7 @@ const upload = async (req, res) => {
   }
 };
 
+
 const getListFiles = (req, res) => {
   const directoryPath = BASE_DIR + "/resources/uploads/";
 
@@ -88,6 +89,24 @@ const download = async (req, res) => {
  
 };
 
+const downloadByContent = async (req, res) => {
+  var filename = req.params.name;
+  try {
+    let message="Items retrieved successfully";
+    res.download("default/logo/" +  filename, (err) => {
+        if (err) {
+          res.status(500).send({
+            message: "Could not download the file. " + err,
+          });
+        }
+    });
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+ 
+};
+
+
 const remove = (req, res) => {
   const fileName = req.params.name;
   const directoryPath = BASE_DIR + "/resources/uploads/";
@@ -128,4 +147,5 @@ module.exports = {
   download,
   remove,
   removeSync,
+  downloadByContent
 };
