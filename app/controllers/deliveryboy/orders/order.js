@@ -654,15 +654,7 @@ exports.downloadInvoice = async (req, res) => {
     var orderNumber = req.params.o;
     var orderDetail = await getOrderByOrderNumber(orderNumber);
     if(orderDetail){
-      const fileName = process.env.BASE_RESOURCE_DIR + "invoice" + new Date().getTime() + ".pdf";
-      await prepareInvoiceDocument(fileName, orderDetail);
-      await res.download(fileName, (err) => {
-        if (err) {
-          res.status(500).send({
-            message: "Could not download the file. " + err,
-          });
-        }
-      });
+      return await prepareInvoiceDocument(res, orderDetail);
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Invalid Order number',1001));
     }
@@ -672,7 +664,10 @@ exports.downloadInvoice = async (req, res) => {
   }
 }
 
-const prepareInvoiceDocument = async (fileName, order) =>{
+const prepareInvoiceDocument = async (res, order) =>{
+  const doc = await new jsPDF({
+    format: 'a4',
+  })
   doc.text("Name : " + order.first_name   + " " + order.last_name, 10, 10);
   doc.text("Order# : " + order.order_number, 10, 20);
   doc.text("Order Date :  " + new Date(order.order_date).toISOString(), 10, 30);
@@ -683,7 +678,10 @@ const prepareInvoiceDocument = async (fileName, order) =>{
   doc.text("promo_percentage : " + order.promo_percentage, 10, 80);
   doc.text("promo_amount : " + order.promo_amount , 10, 90);
   doc.text("amount : " + order.amount, 10, 100);
-  doc.save(fileName);
+  const documentContent = doc.output();
+  return res.status(200)
+    .set({ 'content-type': 'application/pdf; charset=utf-8' })
+    .send(documentContent)
 }
 
 const getOrderByOrderNumber = async (order_number) => {
