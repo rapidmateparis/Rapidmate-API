@@ -128,4 +128,11 @@ router.get(
   controller.downloadInvoice
 )
 
+router.get(
+  '/invoice/fs/:o',
+  trimRequest.all,
+  controller.downloadInvoiceFs
+)
+
+
 module.exports = router

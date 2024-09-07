@@ -654,7 +654,15 @@ exports.downloadInvoice = async (req, res) => {
     var orderNumber = req.params.o;
     var orderDetail = await getOrderByOrderNumber(orderNumber);
     if(orderDetail){
-      return await prepareInvoiceDocument(res, orderDetail);
+      const fileName = process.env.BASE_RESOURCE_DIR + "invoice_" + orderNumber + "_" + new Date().toDateString() + ".pdf";
+      await prepareInvoiceDocument(fileName, orderDetail);
+      await res.download(fileName, (err) => {
+        if (err) {
+          res.status(500).send({
+            message: "Could not download the file. " + err,
+          });
+        }
+      });
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Invalid Order number',1001));
     }
@@ -664,20 +672,104 @@ exports.downloadInvoice = async (req, res) => {
   }
 }
 
-const prepareInvoiceDocument = async (res, order) =>{
+const prepareInvoiceDocument = async (fileName, order) =>{
   const doc = await new jsPDF({
     format: 'a4',
   })
-  doc.text("Name : " + order.first_name   + " " + order.last_name, 10, 10);
-  doc.text("Order# : " + order.order_number, 10, 20);
-  doc.text("Order Date :  " + new Date(order.order_date).toISOString(), 10, 30);
-  doc.text("distance : " + order.amount   + " " + order.distance, 10, 40);
-  doc.text("commission_percentage# : " + order.commission_percentage, 10, 50);
-  doc.text("commission_amount :  " + order.commission_amount, 10, 60);
-  doc.text("promo_code : " + order.promo_code , 10, 70);
-  doc.text("promo_percentage : " + order.promo_percentage, 10, 80);
-  doc.text("promo_amount : " + order.promo_amount , 10, 90);
-  doc.text("amount : " + order.amount, 10, 100);
+  var xAxis = 10;
+  var xAxisR = 203;
+
+  var yAxis = 20;
+  var yAxisInc = 10;
+  var yAxisR = 20;
+  var yAxisIncR = 10;
+  var path_url = 'default/logo/logo.png', format = 'PNG';    
+//format 'JPEG', 'PNG', 'WEBP'   
+  doc.setFontSize(20);
+  doc.text("Invoice",xAxis + 170, yAxis);
+  var imgData = fs.readFileSync(path_url).toString('base64');    
+  doc.addImage(imgData, format, 10, 10, 10, 10)
+  doc.setFontSize(13);
+ // doc.line(xAxis, yAxis + 10, 200, 30); // horizontal line
+  yAxis = 30;
+  doc.text("Name : " + order.first_name   + " " + order.last_name, xAxis, yAxis = yAxis + yAxisInc);
+  doc.text("Order# : " + order.order_number, xAxisR,  yAxisR = yAxisR + yAxisIncR, {align: 'right'});
+  doc.text("Order Date :  " + new Date(order.order_date).toISOString(), xAxisR,  yAxisR = yAxisR + yAxisIncR,  {align: 'right'});
+  yAxis = yAxis + yAxisInc + 10;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
+  doc.text("Order Details",xAxis + 75,  yAxis = yAxis + yAxisInc);
+  yAxis = yAxis + yAxisInc - 5;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
+  var calcInc = 170;
+  var calcxAxis = xAxis + 5;
+  doc.text("Distance", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text(order.distance.toFixed(2) + "", xAxis + calcInc,  yAxis);
+  doc.text("Promo", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text((order.promo_percentage ||  order.promo_amount || 0).toFixed(2) + "", xAxis + calcInc,  yAxis);
+  yAxis = yAxis + yAxisInc - 5;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
+  doc.text("Total Amount : ", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text(order.amount + " €", xAxis + calcInc,  yAxis);
+  yAxis = yAxis + yAxisInc - 5;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
+  doc.save(fileName);
+}
+
+exports.downloadInvoiceFs = async (req, res) => {
+  try {
+    var orderNumber = req.params.o;
+    var orderDetail = await getOrderByOrderNumber(orderNumber);
+    if(orderDetail){
+      return await prepareInvoiceDocumentFs(res, orderDetail);
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500,'Invalid Order number',1001));
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to download invoice',1001));
+  }
+}
+
+const prepareInvoiceDocumentFs = async (res, order) =>{
+  const doc = await new jsPDF({
+    format: 'a4',
+  })
+  var xAxis = 10;
+  var xAxisR = 203;
+
+  var yAxis = 20;
+  var yAxisInc = 10;
+  var yAxisR = 20;
+  var yAxisIncR = 10;
+  var path_url = 'default/logo/logo.png', format = 'PNG';    
+//format 'JPEG', 'PNG', 'WEBP'   
+  doc.setFontSize(20);
+  doc.text("Invoice",xAxis + 170, yAxis);
+  var imgData = fs.readFileSync(path_url).toString('base64');    
+  doc.addImage(imgData, format, 10, 10, 10, 10)
+  doc.setFontSize(13);
+ // doc.line(xAxis, yAxis + 10, 200, 30); // horizontal line
+  yAxis = 30;
+  doc.text("Name : " + order.first_name   + " " + order.last_name, xAxis, yAxis = yAxis + yAxisInc);
+  doc.text("Order# : " + order.order_number, xAxisR,  yAxisR = yAxisR + yAxisIncR, {align: 'right'});
+  doc.text("Order Date :  " + new Date(order.order_date).toISOString(), xAxisR,  yAxisR = yAxisR + yAxisIncR,  {align: 'right'});
+  yAxis = yAxis + yAxisInc + 10;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
+  doc.text("Order Details",xAxis + 75,  yAxis = yAxis + yAxisInc);
+  yAxis = yAxis + yAxisInc - 5;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
+  var calcInc = 170;
+  var calcxAxis = xAxis + 5;
+  doc.text("Distance", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text(order.distance.toFixed(2) + "", xAxis + calcInc,  yAxis);
+  doc.text("Promo", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text((order.promo_percentage ||  order.promo_amount || 0).toFixed(2) + "", xAxis + calcInc,  yAxis);
+  yAxis = yAxis + yAxisInc - 5;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
+  doc.text("Total Amount : ", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text(order.amount + " €", xAxis + calcInc,  yAxis);
+  yAxis = yAxis + yAxisInc - 5;
+  doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
   const documentContent = doc.output();
   return res.status(200)
     .set({ 'content-type': 'application/pdf; charset=utf-8' })
