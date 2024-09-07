@@ -449,7 +449,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
           userRole : "DELIVERY_BOY",
           redirect : "ORDER"
         }
-        notification.createNotificationRequest(notifiationDriverRequest);
+        notification.createNotificationRequest(notifiationDriverRequest, true);
         return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
       } else {
         return res
