@@ -183,7 +183,6 @@ const createItem = async (req) => {
     requestBody.push(req.is_my_self);
     createOrderQuery = INSERT_ORDER_FOR_ANOTHER_QUERY;
   }
- 
   requestBody.push(req.distance);
   requestBody.push(req.total_amount.toFixed(2));
   requestBody.push(req.commission_percentage.toFixed(2));
@@ -195,6 +194,10 @@ const createItem = async (req) => {
   }else{
     requestBody.push(null);
   }
+  requestBody.push(req.package_photo || null);
+  requestBody.push(req.package_id || null);
+  requestBody.push(req.pickup_notes || null);
+  requestBody.push(req.company_name || null);
   var requestBodyNew = requestBody.filter(function(item) {
     return item !== undefined;
   });
@@ -467,7 +470,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
 
 const getOrderInfo = async (order_number) => {
   try {
-    const data = await fetch("select ord.*,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
+    const data = await fetch("select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_locatio_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code,promo_percentage,promo_amount,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
@@ -477,7 +480,7 @@ const getOrderInfo = async (order_number) => {
 
 const getVehicleInfo = async (delivery_boy_id) => {
   try {
-    const data = await fetch("select * from rmt_vehicle where delivery_boy_id =?", [delivery_boy_id]);
+    const data = await fetch("select id,delivery_boy_id,vehicle_type_id,plat_no,modal,make,variant,reg_doc,driving_license,insurance from rmt_vehicle where delivery_boy_id =?", [delivery_boy_id]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
@@ -487,7 +490,7 @@ const getVehicleInfo = async (delivery_boy_id) => {
 
 const getDeliveryInfo = async (delivery_boy_id) => {
   try {
-    const data = await fetch("select * from rmt_delivery_boy where id =?", [delivery_boy_id]);
+    const data = await fetch("select id,ext_id,username,first_name,last_name,email,phone,role_id,city_id,state_id,country_id,address,vehicle_id,company_name, work_type_id,profile_pic,is_active,is_availability,latitude,longitude,is_work_type,language_id from rmt_delivery_boy where id =?", [delivery_boy_id]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
@@ -497,7 +500,7 @@ const getDeliveryInfo = async (delivery_boy_id) => {
 
 const getVehicleTypeInfo = async (vehicle_type_id) => {
   try {
-    const data = await fetch("select * from rmt_vehicle_type where id =?", [vehicle_type_id]);
+    const data = await fetch("select id,delivery_boy_id,vehicle_type_id,plat_no,modal,make,variant,reg_doc,driving_license,insurance from rmt_vehicle_type where id =?", [vehicle_type_id]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
