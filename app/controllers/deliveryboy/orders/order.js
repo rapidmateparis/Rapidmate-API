@@ -5,6 +5,8 @@ const AuthController=require("../../../controllers/useronboardmodule/authuser");
 const { INSERT_DELIVERY_BOY_ENTERPRISE_CONNECTIONS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS_ENTERPRISE, UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, FETCH_ORDER_BY_CONSUMER_ID_STATUS, UPDATE_SET_DELIVERY_BOY_FOR_ORDER, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE, INSERT_ORDER_QUERY,  DELETE_ORDER_QUERY, FETCH_ORDER_BY_ID, transformKeysToLowercase, UPDATE_ORDER_BY_STATUS, UPDATE_ORDER_QUERY, FETCH_ORDER_QUERY, FETCH_ORDER_BY_CONSUMER_ID, FETCH_ORDER_DELIVERY_BOY_ID, INSERT_ORDER_FOR_ANOTHER_QUERY, CHECK_ORDER_FOR_OTP, UPDATE_ORDER_OTP_VERIFIED } = require("../../../db/database.query");
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const { jsPDF } = require("jspdf"); // will automatically load the node version
+const doc = new jsPDF();
 
 exports.getItems = async (req, res) => {
   try {
@@ -651,7 +653,6 @@ exports.downloadInvoice = async (req, res) => {
   try {
     var orderNumber = req.params.o;
     var orderDetail = await getOrderByOrderNumber(orderNumber);
-    console.log(orderDetail);
     if(orderDetail){
       const fileName = process.env.BASE_RESOURCE_DIR + "invoice" + new Date().getTime() + ".pdf";
       await prepareInvoiceDocument(fileName, orderDetail);
@@ -672,9 +673,33 @@ exports.downloadInvoice = async (req, res) => {
 }
 
 const prepareInvoiceDocument = async (fileName, order) =>{
+  doc.text("Name : " + order.first_name   + " " + order.last_name, 10, 10);
+  doc.text("Order# : " + order.order_number, 10, 20);
+  doc.text("Order Date :  " + new Date(order.order_date).toISOString(), 10, 30);
+  doc.text("distance : " + order.amount   + " " + order.distance, 10, 40);
+  doc.text("commission_percentage# : " + order.commission_percentage, 10, 50);
+  doc.text("commission_amount :  " + order.commission_amount, 10, 60);
+  doc.text("promo_code : " + order.promo_code , 10, 70);
+  doc.text("promo_percentage : " + order.promo_percentage, 10, 80);
+  doc.text("promo_amount : " + order.promo_amount , 10, 90);
+  doc.text("amount : " + order.amount, 10, 100);
+  doc.save(fileName);
+}
+
+const getOrderByOrderNumber = async (order_number) => {
+  try {
+    const data = await fetch("select ord.*,con.* from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
+/*const prepareInvoiceDocument = async (fileName, order) =>{
   const browser = await puppeteer.launch({
-    headless:false,
-    args: ["--no-sandbox", "--disabled-setupid-sandbox"]
+    headless: 'shell',
+    args: ['--enable-gpu'],
   })
   const page = await browser.newPage();
   var html = await fs.readFileSync('default/invoice/invoice.html', 'utf-8');
@@ -701,4 +726,4 @@ const getOrderByOrderNumber = async (order_number) => {
   } catch (error) {
     return {};
   }
-};
+};*/
