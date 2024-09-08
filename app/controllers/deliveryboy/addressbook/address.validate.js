@@ -24,3 +24,10 @@ exports.validateExtId = [
     validationResult(req, res, next)
   }
 ]
+
+exports.validateUpdateAddressRequest = [
+  check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  (req, res, next) => {
+  validationResult(req, res, next)
+}
+]

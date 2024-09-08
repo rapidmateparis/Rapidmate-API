@@ -4,6 +4,7 @@ const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 const addressRouter =require('../middleware/routes/consumer.address')
+const paymentRouter =require('../middleware/routes/consumerpaymethod')
 
 /*
  * Consumer routes
@@ -59,5 +60,5 @@ router.delete(
 )
 
 router.use('/address', addressRouter);
-
+router.use('/paymentmethod', paymentRouter);
 module.exports = router

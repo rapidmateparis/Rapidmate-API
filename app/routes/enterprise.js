@@ -7,6 +7,7 @@ const branchRouter =require('./enterprisebranch')
 const orderRouter =require('../middleware/routes/order')
 const shiftRouter =require('../middleware/routes/shift')
 const addressRouter =require('../middleware/routes/address')
+const paymentRouter =require('../middleware/routes/enterprisepaymethod')
 /*
  * Latlon routes
  */
@@ -77,4 +78,5 @@ router.use('/branch', branchRouter);
 router.use('/order', orderRouter);
 router.use('/shift', shiftRouter);
 router.use('/address', addressRouter);
+router.use('/paymentmethod', paymentRouter);
 module.exports = router

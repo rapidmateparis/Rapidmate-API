@@ -78,11 +78,13 @@ exports.INSERT_CONSUMER_ADDRESS=`INSERT INTO rmt_consumer_address(consumer_id,lo
 exports.UPDATE_CONSUMER_ADDRESS=`UPDATE rmt_consumer_address SET consumer_id=(select id from rmt_consumer where ext_id =?),location_name=?,first_name=?,last_name=?,email=?,phone=?,company_name=?,comment=? WHERE id=?`;
 exports.DELETE_CONSUMER_ADDRESS='UPDATE rmt_consumer_address SET is_del=1 WHERE id=?'
 //---------------------------------RMT_COUPON------------------------------------------------
-exports.FETCH_CODE_QUERY=`select * from rmt_coupon_code`;
-exports.FETCH_CODE_BY_ID=`select * from rmt_coupon_code where id=?`;
-exports.INSERT_CODE_QUERY=`INSERT INTO rmt_coupon_code (CODE,DISCOUNT,EXPIRY_DATE,MAX_USAGE,CURRENT_USAGE) VALUES (?,?,?,?)`;
-exports.UPDATE_CODE_QUERY=`UPDATE rmt_coupon_code SET CODE=?,DISCOUNT=?,EXPIRY_dATE=?,MAX_USAGE=?,CURRENT_USAGE=? WHERE ID =?`;
-exports.DELETE_CODE_QUERY=`DELETE FROM rmt_coupon_code WHERE ID=?`;
+exports.FETCH_CODE_QUERY=`select * from rmt_promo_code`;
+exports.FETCH_CODE_BY_ID=`select * from rmt_promo_code where id=?`;
+exports.FETCH_CODE_BY_PROMO_CODE=`select * from rmt_promo_code where promo_code=?`;
+exports.INSERT_CODE_QUERY=`INSERT INTO rmt_promo_code (promo_code,valid_from,valid_to,is_percent,percentage,amount) VALUES (?,?,?,?,?,?)`;
+exports.UPDATE_CODE_QUERY=`UPDATE rmt_promo_code SET promo_code=?,valid_from=?,valid_to=?,is_percent=?,percentage=?,amount=? WHERE id =?`;
+exports.UPDATE_FOR_REDEME_QUERY=`UPDATE rmt_promo_code SET is_used=1,order_number=? WHERE promo_code=?`;
+exports.DELETE_CODE_QUERY=`DELETE FROM rmt_promo_code WHERE id=?`;
 
 //---------------------------------RMT_FAQ------------------------------------------------------
 exports.FETCH_FAQ_QUERY=`select * from rmt_faq where is_del=0`;
@@ -90,20 +92,31 @@ exports.FETCH_FAQ_BY_ID=`select * from rmt_faq where is_del=0 and faq_id=?`;
 exports.INSERT_FAQ_QUERY=`INSERT INTO rmt_faq (question,answer) VALUES (?,?)`;
 exports.UPDATE_FAQ_QUERY=`UPDATE rmt_faq SET question=?,answer=? WHERE faq_id=?`;
 exports.DELETE_FAQ_QUERY=`UPDATE rmt_faq SET is_del=1 WHERE faq_id=?`;
-
+//=====================================rmt_support===================================================
+exports.FETCH_SUPPORT_QUERY=`select * from rmt_support where is_del=0`;
+exports.FETCH_SUPPORT_BY_ID=`select * from rmt_support where is_del=0 and id=?`;
+exports.INSERT_SUPPORT_QUERY=`INSERT INTO rmt_support (email,phone,address) VALUES (?,?,?)`;
+exports.UPDATE_SUPPORT_QUERY=`UPDATE rmt_support SET email=?,phone=?,address=? WHERE id=?`;
+exports.DELETE_SUPPORT_QUERY=`UPDATE rmt_support SET is_del=1 WHERE id=?`;
+//=====================================rmt_aboutus===================================================
+exports.FETCH_ABOUT_QUERY=`select * from rmt_aboutus where is_del=0`;
+exports.FETCH_ABOUT_BY_ID=`select * from rmt_aboutus where is_del=0 and id=?`;
+exports.INSERT_ABOUT_QUERY=`INSERT INTO rmt_aboutus (title,subtitle,content) VALUES (?,?,?)`;
+exports.UPDATE_ABOUT_QUERY=`UPDATE rmt_aboutus SET title=?,subtitle=?,content=? WHERE id=?`;
+exports.DELETE_ABOUT_QUERY=`UPDATE rmt_aboutus SET is_del=1 WHERE id=?`;
 //---------------------------------RMT_ORDER-----------------------------------------------------
 exports.FETCH_ORDER_QUERY=`select * from rmt_order WHERE is_del=0`;
-exports.FETCH_ORDER_BY_ID=`select * from rmt_order where is_del=0 AND ID=?`;
+exports.FETCH_ORDER_BY_ID=`select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code,promo_percentage,promo_amount from rmt_order where is_del=0 AND ID=?`;
 exports.FETCH_ORDER_BY_CONSUMER_ID=`select * from rmt_order where is_del=0 AND CONSUMER_ID =(select ID from rmt_consumer where ext_id =?)`
 exports.FETCH_ORDER_DELIVERY_BOY_ID=`select * from rmt_order where is_del=0 AND DELIVERY_BOY_ID=(select ID from rmt_delivery_boy where ext_id=?)`
 exports.FETCH_ORDER_BY_CONSUMER_ID_STATUS="select * from rmt_order where is_del=0 and order_status in (?) AND consumer_id =(select id from rmt_consumer where ext_id =?)"
 exports.FETCH_ORDER_DELIVERY_BOY_ID_STATUS=`select * from rmt_order where is_del=0 and order_status in (?) AND DELIVERY_BOY_ID=(select ID from rmt_delivery_boy where ext_id=?)`
-exports.INSERT_ORDER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`;
-exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,EMAIL,MOBILE,'/IS_MY_SELF,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`;
+exports.INSERT_ORDER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,order_date,package_photo,package_id,pickup_notes,company_name) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?)`;
+exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,EMAIL,MOBILE,'/IS_MY_SELF,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,order_date,package_photo,package_id,pickup_notes,company_name) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?)`;
 //exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,COMPANY_NAME,EMAIL,MOBILE,PACKAGE_PHOTO,PACKAGE_ID,PICKUP_NOTES,IS_MY_SELF) VALUES ((now()+1),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?,?,?,?,0)`;
 exports.UPDATE_ORDER_QUERY=`UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NAME=?,EMAIL=?,COMPANY_NAME=?,PHONE_NUMBER=?,PACKAGE_ID=?,PACKAGE_ATTACH=?,PACKAGE_NOTES=?,ORDER_DATE=?,ORDER_STATUS=?,AMOUNT=?,VEHICLE_TYPE_ID=?,PICKUP_LOCATION_ID=?,DROPOFF_LOCATION_ID=?,IS_ACTIVE=?,SERVICE_TYPE_ID=?,SHIFT_START_TIME=?,SHIFT_END_TIME=?,DELIVERY_DATE=?,DELIVERY_STATUS=?  WHERE ORDER_ID=?`;
 exports.UPDATE_ORDER_BY_STATUS=`UPDATE rmt_order SET DELIVERY_STATUS=? WHERE is_del=0 AND  ORDER_ID=?`;
-exports.DELETE_ORDER_QUERY=`UPDATE rmt_order SET is_del =1 WHERE ORDER_NUMBER=?`;
+exports.DELETE_ORDER_QUERY=`UPDATE rmt_order SET is_del =1, cancel_reason_id =?, cancel_reason = ? WHERE id=?`;
 
 //check order 
 exports.CHECK_ORDER_FOR_OTP=`SELECT order_number, otp FROM rmt_order WHERE order_number = ? AND is_otp_verified=0`;
@@ -185,7 +198,7 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
   exports.UPDATE_ENTERPRISE_ADDRESS=`UPDATE rmt_enterprise_address SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),address=?,first_name=?,last_name=?,email=?,mobile=?,company_name=?,comment=? WHERE id=?`;
   exports.DELETE_ENTERPRISE_ADDRESS='UPDATE rmt_enterprise_address SET is_del=1 WHERE id=?'
   //-------------------------------------dashboard query-----------------------------------------------------------------------------
-  exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN shift_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN shift_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_shift WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
+  exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN shift_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN shift_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_order_slot WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
   exports.FETCH_SLOT_CHART=`
         SELECT 
             day, 
@@ -225,9 +238,9 @@ LIMIT 3`;
 exports.DRIVER_DOC_TABLE=`INSERT INTO rmt_delivery_boy_document(file_name,path) values(?,?)`
 
 //============================= Driver allocate=================
-exports.INSERT_DELIVERY_BOY_ALLOCATE=`INSERT INTO rmt_order_allocation(order_id, delivery_boy_id) values((select id from rmt_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?))`;
-exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS=`UPDATE rmt_delivery_boy SET is_availability = 0 WHERE ext_id=?`;
-exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET order_status = 'ORDER_ALLOCATED', delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and ext_id = ?) WHERE order_number=?`;
+exports.INSERT_DELIVERY_BOY_ALLOCATE=`INSERT INTO rmt_order_allocation(order_id, delivery_boy_id) values((select id from rmt_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and id = ?))`;
+exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS=`UPDATE rmt_delivery_boy SET is_availability = 0 WHERE id=?`;
+exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER=`UPDATE rmt_order SET order_status = 'ORDER_ALLOCATED', delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and id = ?) WHERE order_number=?`;
 
 
 //============================= Driver allocate enterprise=================
@@ -262,15 +275,30 @@ exports.FETCH_WALLET_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_
 
 
 //===================================================Payment card=============================================================
-//admin side
-exports.FETCH_PAYMENTCARD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`
-exports.FETCH_PAYMENTCARD_BY_ID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
-exports.INSERT_PAYMENTCARD=`INSERT INTO rmt_delivery_boy_payment_card(delivery_boy_id,card_number,card_holder_name,expiration_date,cvv,billing_address,is_del) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?,?)`
+//deliveryboy
+exports.FETCH_PAYMENTCARD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_method AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_PAYMENTCARD_BY_ID=`SELECT * FROM rmt_delivery_boy_payment_method WHERE id =?`;
+exports.INSERT_PAYMENTCARD=`INSERT INTO rmt_delivery_boy_payment_method(delivery_boy_id,card_number,card_holder_name,expiration_date,cvv,payment_method_type_id) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?,?,?,?)`
 // deliveryboy side
-exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_payment_card AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND wt.is_del = 0`
-exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET card_number=?,card_holder_name=?,expiration_date=?,cvv=?,biling_address=? WHERE id=?`
-exports.DELETE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_card SET is_del=1 WHERE id=?`
-
+exports.FETCH_PAYMENTCARD_BY_EXTID=`SELECT * FROM rmt_delivery_boy_payment_method WHERE delivery_boy_id= (select id from rmt_delivery_boy where ext_id = ?)`
+exports.UPDATE_PAYMENTCARD=`UPDATE rmt_delivery_boy_payment_method SET card_number=?,card_holder_name=?,expiration_date=?,cvv=? WHERE id=?`
+exports.DELETE_PAYMENTCARD=`delete from rmt_delivery_boy_payment_method WHERE id=?`
+//enterprise
+exports.FETCH_PAYMENTEMETHOD_ALL=`SELECT wt.*,dbs.company_name FROM rmt_enterprise_payment_method AS wt JOIN rmt_enterprise AS dbs ON wt.enterprise_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_PAYMENTEMETHOD_BY_ID=`SELECT wt.*,dbs.company_name FROM rmt_enterprise_payment_method AS wt JOIN rmt_enterprise AS dbs ON wt.enterprise_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`
+exports.INSERT_PAYMENTEMETHOD=`INSERT INTO rmt_enterprise_payment_method(enterprise_id,card_number,card_holder_name,expiration_date,cvv,is_del) VALUES((SELECT id FROM rmt_enterprise WHERE ext_id = ?),?,?,?,?,?)`
+// enterrprise side
+exports.FETCH_PAYMENTEMETHOD_BY_EXTID=`SELECT wt.*,dbs.company_name FROM rmt_enterprise_payment_method AS wt JOIN rmt_enterprise AS dbs ON wt.enterprise_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_enterprise WHERE ext_id = ?) AND wt.is_del = 0`
+exports.UPDATE_PAYMENTEMETHOD=`UPDATE rmt_enterprise_payment_method SET card_number=?,card_holder_name=?,expiration_date=?,cvv=? WHERE id=?`
+exports.DELETE_PAYMENTEMETHOD=`UPDATE rmt_enterprise_payment_method SET is_del=1 WHERE id=?`
+//consumer
+exports.FETCH_PAYMENTCMETHOD_ALL=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS consumer_name FROM rmt_consumer_payment_method AS wt JOIN rmt_consumer AS dbs ON wt.consumer_id = dbs.id  WHERE wt.is_del = 0`
+exports.FETCH_PAYMENTCMETHOD_BY_ID=`SELECT * FROM rmt_consumer_payment_method where consumer_id = (select id from rmt_consumer where ext_id = ?)`;
+exports.INSERT_PAYMENTCMETHOD=`INSERT INTO rmt_consumer_payment_method(consumer_id,card_number,card_holder_name,expiration_date,cvv,payment_method_type_id) VALUES((SELECT id FROM rmt_consumer WHERE ext_id = ?),?,?,?,?,?)`
+// consumer side
+exports.FETCH_PAYMENTCMETHOD_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS consumer_name FROM rmt_consumer_payment_method AS wt JOIN rmt_consumer AS dbs ON wt.consumer_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_consumer WHERE ext_id = ?) AND wt.is_del = 0`
+exports.UPDATE_PAYMENTCMETHOD=`UPDATE rmt_consumer_payment_method SET card_number=?,card_holder_name=?,expiration_date=?,cvv=? WHERE id=?`
+exports.DELETE_PAYMENTCMETHOD=`delete from rmt_consumer_payment_method WHERE id=?`
 //============================================== rmt_enterprise_ads ===================================================
 exports.FETCH_MANAGE_ADS=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0`
 exports.FETCH_MANAGE_ADS_BY_ID=`SELECT * FROM rmt_enterprise_ads WHERE is_del=0 AND id=?`
@@ -302,7 +330,7 @@ exports.INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_delivery_boy_add
 exports.DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`Delete from  rmt_delivery_boy_address_book where id = ?`;
 
 //======================================= rmt_service =============================================================
-exports.FETCH_ALL_SERVICE=`select * from rmt_service where is_del=1`
+exports.FETCH_ALL_SERVICE=`select * from rmt_service where is_del=0`
 exports.FETCH_SERVICE_BYID=`select * from rmt_service where is_del=0 AND id=?`
 exports.UPDATE_SERVICE=`UPDATE rmt_service SET service_name=?,id_del=? WHERE id =?`
 exports.INSERT_SERVICE=`INSERT INTO rmt_service (service_name,is_del) VALUES (?,?)`
@@ -334,6 +362,14 @@ exports.UPDATE_USER_LANG=`UPDATE rmt_user_languages SET consumer_id=(select id f
 exports.DELETE_USER_LANG=`UPDATE rmt_user_languages SET is_del=1 WHERE id=? AND is_del=0`
 exports.FETCH_USER_LANGBYID=`SELECT * FROM rmt_user_languages  WHERE id=?`
 exports.FETCH_USER_ALLLANG=`SELECT * FROM rmt_user_languages  WHERE is_del=0`
+
+
+//==========================================Payment===================================================================
+exports.FETCH_PAYMENTTYPE_ALL=`SELECT * FROM rmt_payment_method_type WHERE is_del = 0`
+exports.FETCH_PAYMENTTYPE_BY_ID=`SELECT * FROM rmt_payment_method_type WHERE is_del = 0 AND id=?`
+exports.INSERT_PAYMENTTYPE=`INSERT INTO rmt_payment_method_type(title,icon,description) VALUES(?,?,?)`
+exports.UPDATE_PAYMENTTYPE=`UPDATE rmt_payment_method_type SET title=?,icon=?,description=? WHERE id=?`
+exports.DELETE_PAYMENTTYPE=`UPDATE rmt_payment_method_type SET is_del=1 WHERE id=?`
 
 //---------------------------------------------------------------------------------------------------------------\
 exports.transformKeysToLowercase=async (results)=>{
