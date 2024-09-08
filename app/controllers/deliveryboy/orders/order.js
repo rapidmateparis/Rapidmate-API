@@ -185,9 +185,9 @@ const createItem = async (req) => {
   }
   requestBody.push(req.distance);
   requestBody.push(req.total_amount.toFixed(2));
-  requestBody.push(req.commission_percentage.toFixed(2));
-  requestBody.push(req.commission_amount.toFixed(2));
-  requestBody.push(req.delivery_boy_amount.toFixed(2));
+  requestBody.push((req.commission_percentage || 0.00).toFixed(2));
+  requestBody.push((req.commission_amount || 0.00).toFixed(2));
+  requestBody.push((req.delivery_boy_amount || 0.00) .toFixed(2));
   console.info(req.schedule_date_time);
   if(req.schedule_date_time){
     requestBody.push(req.schedule_date_time);
@@ -470,7 +470,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
 
 const getOrderInfo = async (order_number) => {
   try {
-    const data = await fetch("select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_locatio_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code,promo_percentage,promo_amount,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
+    const data = await fetch("select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code,promo_percentage,promo_amount,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
