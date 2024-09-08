@@ -118,6 +118,24 @@ module.exports = {
     }
   },
 
+  async executeQuery(query, param = []) {
+    try {
+      console.log(query, param);
+      return await pool
+        .execute(query, param)
+        .then(([rows, fields]) => {
+          return rows
+        })
+        .catch((err) => {
+          console.log(err);
+          return err
+        })
+    } catch (error) {
+      console.log(error);
+      return error
+    }
+  },
+
   async insertQuery(query,param=[]) {
     try {
       // console.log(query,param)
@@ -308,7 +326,8 @@ module.exports = {
   },
 
   //Enterprise planning 
-  async insertEnterpriseOrder(req) {
+  async persistEnterpriseOrder(req) {
+    console.info(req);
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
@@ -333,8 +352,6 @@ module.exports = {
           delivery_boy_amount
         ]
       );
-      
-    
       await connections.commit(); // Commit the transaction
       return { id: result.insertId};
     } catch (error) {
@@ -345,130 +362,36 @@ module.exports = {
     }
   },
   
-  //create enterprise shift and slots
-  async insertShiftAndSlot(req, res) {
-    let connection;
-    try {
-    connection = await pool.getConnection(); // Get a connection from the pool
-
-      await connection.beginTransaction();
-      
-      // Destructure values from request body
-      const { enterprise_ext, branch_id, delivery_type_id, service_type_id, vehicle_type_id, from_date, to_date, total_hours, is_same_slot_all_days, slots } = req.body;
-  
-      // Insert into shift table
-      const [shiftRes] = await connection.query(INSERT_SHIFT_QUERY, [enterprise_ext, branch_id, delivery_type_id, service_type_id, vehicle_type_id, from_date, to_date, total_hours, is_same_slot_all_days]);
-  
-      let shiftId = 0;
-      let slotPromises = [];
-      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
-      if (shiftRes.insertId) {
-        shiftId = shiftRes.insertId;
-  
-        if (is_same_slot_all_days === 1 && slots && slots.length > 0) {
-          // Insert slots for all days
-          slotPromises = days.map(day =>
-            connection.query(INSERT_SHIFT_SLOTS_QUERY, [enterprise_ext, shiftId, day, slots[0].from_time, slots[0].to_time])
-          );
-        } else if (slots && slots.length > 0) {
-          // Insert provided slots
-          slotPromises = slots.map(slot =>
-            connection.query(INSERT_SHIFT_SLOTS_QUERY, [enterprise_ext, shiftId, slot.day, slot.from_time, slot.to_time])
-          );
-        } else {
-          throw new Error('No slots provided');
-        }
-      }
-  
-      await Promise.all(slotPromises);
-      await connection.commit();
-  
-      console.log("Shift and slots inserted successfully");
-      return shiftId;
-    } catch (error) {
-      console.log(error);
-      await connection.rollback();
-      return 0;
-    } finally {
-      connection.release();
-    }
-  },
-  // update enterprise shift and slots
-  async updateShiftAndSlot(req, res) {
-    let connection;
-    try {
-    const connection = await pool.getConnection();
-
-      await connection.beginTransaction();
-  
-      // Destructure values from request body
-      const {shift_id,enterprise_ext, branch_id, delivery_type_id, service_type_id, vehicle_type_id, from_date, to_date, total_hours, is_same_slot_all_days, slots } = req.body;
-      const {id}=req.params
-      // Update shift table
-      const [updateResult]=await connection.query(UPDATE_SHIFT_QUERY, [enterprise_ext, branch_id, delivery_type_id, service_type_id, vehicle_type_id, from_date, to_date, total_hours, is_same_slot_all_days, shift_id]);
-  
-      // Delete existing slots
-      await connection.query('DELETE FROM rmt_enterprise_order_slot WHERE shift_id = ?', [shift_id]);
-  
-      // Insert new slots
-      let slotPromises = [];
-      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
-      if (is_same_slot_all_days === 1 && slots && slots.length > 0) {
-        // Insert slots for all days
-        slotPromises = days.map(day =>
-          connection.query(INSERT_SHIFT_SLOTS_QUERY, [enterprise_ext, shift_id, day, slots[0].from_time, slots[0].to_time])
-        );
-      } else if (slots && slots.length > 0) {
-        // Insert provided slots
-        slotPromises = slots.map(slot =>
-          connection.query(INSERT_SHIFT_SLOTS_QUERY, [enterprise_ext, shift_id, slot.day, slot.from_time, slot.to_time])
-        );
-      } else {
-        throw new Error('No slots provided');
-      }
-  
-      const data=await Promise.all(slotPromises);
-      await connection.commit();
-      return {
-        success: true,
-        message: `${updateResult.affectedRows} row(s) updated successfully`,
-        affectedRows: updateResult.affectedRows
-      };
-    } catch (error) {
-      console.log(error);
-      await connection.rollback();
-      res.status(500).send('Error updating shift and slots');
-    } finally {
-      connection.release();
-    }
-  },
-  async insertEnterpriseShiftOrder(req) {
+  async persistMultipleDeliveries(req) {
+    console.log("result ---->", req);
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
       await connections.beginTransaction();
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
-        pickup_date,pickup_time,pickup_location_id,dropoff_location_id,distance,is_my_self,
-        first_name,last_name,company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,amount,shift_id,slot_id,order_type
+        pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
+        package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
+        delivery_boy_amount
+
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
-          order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
-          pickup_date, pickup_time, pickup_location_id, dropoff_location_id, distance,is_my_self, first_name, last_name, 
-          company_name, email, mobile, package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id,amount,shift_id,slot_id,order_type
-        ) VALUES ((now()+1),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`,
+          order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
+          pickup_date, pickup_time, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount
+        ) VALUES ((now()+1),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`,
         [
-          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
-        pickup_location_id,dropoff_location_id,distance,is_my_self,first_name,last_name,
-        company_name,email,mobile,package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id,amount,shift_id,slot_id,order_type
+          enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
+          pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
+          package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
+          delivery_boy_amount
         ]
       );
+      console.log("result ---->", result);
       // rmt_enterprise_order_line
       if (delivery_type_id === 2) {
-        if (req.addAnothers && req.addAnothers.length > 0) {
+        if (req.branches && req.branches.length > 0) {
             const orderId = result.insertId;
     
             // Fetch the order number from the database
@@ -481,7 +404,7 @@ module.exports = {
                 const { order_number } = getOrderNumberResult[0];
     
                 // Loop through each delivery entry in addAnothers
-                for (const delivery of req.addAnothers) {
+                for (const delivery of req.branches) {
                     const {
                         to_latitude,
                         to_longitude,
@@ -489,8 +412,8 @@ module.exports = {
                         delivery_date,
                         delivery_start_time,
                         delivery_end_time,
-                        m_total_hours,
-                        m_distance
+                        total_hours,
+                        distance
                     } = delivery;
     
                     // Insert the data into rmt_enterprise_order_line
@@ -518,8 +441,8 @@ module.exports = {
                             delivery_date,
                             delivery_start_time,
                             delivery_end_time,
-                            m_total_hours,
-                            m_distance
+                            total_hours,
+                            distance
                         ]
                     );
                 }
@@ -535,5 +458,60 @@ module.exports = {
       connections.release(); // Release the connection back to the pool
     }
   },
-  
+
+  async persistShiftOrder(req) {
+    let connections;
+    try {
+      connections = await pool.getConnection(); // Get a connection from the pool
+      await connections.beginTransaction();
+      const {
+        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days
+      } = req; 
+      const [result] = await connections.query(
+        `INSERT INTO rmt_enterprise_order (order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
+          shift_from_date, shift_tp_date, is_same_slot_all_days) VALUES ((now()+1),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days
+        ]
+      );
+      // rmt_enterprise_order_line
+      if (delivery_type_id === 3 ) { // && req.is_eligible
+        if (req.slots && req.slots.length > 0) {
+          console.log(result.insertId);
+          if (result) {
+              const enterpriseOrderId = result.insertId;
+              console.log(enterpriseOrderId);
+              await connections.query('DELETE FROM rmt_enterprise_order_slot WHERE branch_id = ?', [req.branch_id]);
+        
+              // Insert new slots
+              let slotPromises = [];
+              const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+              const slots =  req.slots;
+              if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
+                // Insert slots for all days
+                slotPromises = days.map(day =>
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time])
+                );
+              } else if (slots && slots.length > 0) {
+                // Insert provided slots
+                slotPromises = slots.map(slot =>
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time])
+                );
+              } else {
+                throw new Error('No slots provided');
+              }
+          
+              const data=await Promise.all(slotPromises);
+          }
+        }
+      }
+      await connections.commit(); // Commit the transaction
+      return { id: result.insertId};
+    } catch (error) {
+      await connections.rollback(); // Rollback the transaction in case of error
+      throw error;
+    } finally {
+      connections.release(); // Release the connection back to the pool
+    }
+  }
 }

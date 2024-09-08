@@ -1,18 +1,18 @@
-const controller = require('../../controllers/deliveryboy/paymentinfo/payment.card')
-const validate = require('../../controllers/deliveryboy/paymentinfo/payment.card.validate')
+const controller = require('../controllers/common/aboutus/about')
+const validate = require('../controllers/common/aboutus/about.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
 /*
- * job routes
+ * Support routes
  */
 
 /*
  * Get items route
  */
 router.get(
-  '/getall',
+  '/',
   trimRequest.all,
   controller.getItems
 )
@@ -35,17 +35,6 @@ router.get(
     trimRequest.all,
     validate.getItem,
   controller.getItem
-)
-
-/**
- * Get by ext id route
- */
-
-router.get(
-  '/getpaymentcard/:id',
-  trimRequest.all,
-  validate.getItem,
-  controller.getBydeliveryBoyExtid
 )
 
 /*

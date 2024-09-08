@@ -12,14 +12,25 @@ router.post(
   controller.createAddressBook
 );
 
-/*
- * Get item route
- */
 router.get(
   '/list/:id',
     trimRequest.all,
     validate.validateExtId,
     controller.getById
+)
+
+router.put(
+  '/update',
+    trimRequest.all,
+    validate.validateUpdateAddressRequest,
+    controller.updateAddressBook
+)
+
+router.delete(
+  '/delete/:id',
+    trimRequest.all,
+    validate.validateUpdateAddressRequest,
+    controller.deleteAddressBook
 )
 
 module.exports = router

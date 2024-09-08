@@ -5,8 +5,8 @@ const { check } = require('express-validator')
  * Validates register request
  */
 exports.register = [
-  check('info.email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email.'),
-  check('info.phoneNumber').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isMobilePhone().withMessage('Enter valid mobile number.'),
+  //check('info.email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email.'),
+  //check('info.phoneNumber').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isMobilePhone().withMessage('Enter valid mobile number.'),
   check('info.userrole').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ADMIN','CONSUMER', 'ENTERPRISE', 'DELIVERY_BOY']).withMessage('Invalid user role'),
   check('info.password').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
@@ -73,6 +73,17 @@ exports.login = [
       min: 6
     })
     .withMessage('PASSWORD_TOO_SHORT_MIN_6'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]
+exports.logout = [
+  check('info.userName')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
@@ -172,4 +183,28 @@ exports.getAccessToken = [
   (req, res, next) => {
     validationResult(req, res, next)
   }
+]
+
+exports.changepassword=[
+  check('info.userName')
+  .exists()
+  .withMessage('MISSING')
+  .not()
+  .isEmpty()
+  .withMessage('IS_EMPTY'),
+check('info.oldPassword')
+  .exists()
+  .withMessage('MISSING')
+  .not()
+  .isEmpty()
+  .withMessage('IS_EMPTY'),
+check('info.newPassword')
+  .exists()
+  .withMessage('MISSING')
+  .not()
+  .isEmpty()
+  .withMessage('info.newPassword'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
 ]

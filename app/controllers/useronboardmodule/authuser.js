@@ -338,7 +338,7 @@ async function login(userInfo) {
                         logger.info(result);
                         username = userInfo["userName"];
                         console.log(username);
-                        loginResponseData(resolve, result, userInfo);
+                        loginResponseData(resolve, reject, result, userInfo);
                         // resolve(result);
                     },
                     onFailure: function(cognitoErr)
@@ -355,8 +355,73 @@ async function login(userInfo) {
         });
      }
 }
+async function logout(userInfo) {
+    if (process.env.PROD_FLAG == "true") {
+        return new Promise((resolve, reject) => {
+            var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+            var userData = {
+                Username: userInfo["userName"],
+                Pool: userPool
+            };
+            var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
 
-async function loginResponseData(resolve, result, userInfo) {
+            if (cognitoUser != null) {
+                cognitoUser.signOut();
+                logger.info("User logged out successfully");
+                resolve({ message: "User logged out successfully" });
+            } else {
+                logger.error("No user to log out");
+                resolve({ error: "No user to log out" });
+            }
+        });
+    } else {
+        return new Promise((resolve, reject) => {
+            logger.info("Logout without AWS");
+            resolve({ message: "Logged out without AWS" });
+        });
+    }
+}
+
+async function changePassword(userInfo) {
+    return new Promise((resolve, reject) => {
+        var authenticationData = {
+            Username: userInfo["userName"],
+            Password: userInfo["oldPassword"],
+        };
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+        var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
+        var userData = {
+            Username: userInfo["userName"],
+            Pool: userPool,
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                cognitoUser.changePassword(userInfo["oldPassword"], userInfo["newPassword"], function (err, result) {
+                    if (err) {
+                        logger.error("changePassword onFailure");
+                        logger.error(err);
+                        resolve(err);
+                    } else {
+                        logger.info("Password change successful");
+                        logger.info(result);
+                        resolve(result);
+                    }
+                });
+            },
+            onFailure: function (cognitoErr) {
+                logger.error("onFailure");
+                logger.error(cognitoErr);
+                resolve(cognitoErr);
+            },
+        });
+    });
+}
+
+
+async function loginResponseData(resolve, reject, result, userInfo) {
     var username = userInfo["userName"];
     var token = userInfo["token"];
     const profileData = await getUserProfile(username);
@@ -383,7 +448,7 @@ async function loginResponseData(resolve, result, userInfo) {
     }else{
         var body = {};
         body["error"] = {"message" : "Invalid credentials"};
-        resolve(body);
+        reject(body);
     }
    
 }
@@ -987,5 +1052,7 @@ module.exports = {
     enableCognitoUser,
     getAccessToken,
     resendTemporaryPassword,
-    isAuthorized
+    isAuthorized,
+    changePassword,
+    logout
 };

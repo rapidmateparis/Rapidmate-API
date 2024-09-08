@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const requestIp = require('request-ip')
 const { validationResult } = require('express-validator')
 const moment = require('moment');
-const { runQuery,updateQuery} = require('./db');
+const { runQuery,updateQuery, fetch} = require('./db');
 const AWS = require('aws-sdk');
 
 const { v4: uuidv4 } = require('uuid');
@@ -294,7 +294,7 @@ exports.uploadFileToS3bucket = async (req, filename, file = null) => {
 };
 
 exports.nameExists = async (fieldValue,tableName,fieldname) => {
-  let query = `SELECT ${fieldname} FROM ${tableName} WHERE ${fieldname} ='${fieldValue}'`;
+  let query = `SELECT ${fieldname} FROM ${tableName} WHERE is_del=0 and ${fieldname} ='${fieldValue}'`;
   let queryRes = await runQuery(query);
   if (queryRes.length > 0) {
     return true;
@@ -305,7 +305,7 @@ exports.nameExists = async (fieldValue,tableName,fieldname) => {
 
 }
 exports.isIDGood=async (id,fieldValue,tableName)=>{
-  let query = `SELECT ${fieldValue} FROM ${tableName} WHERE ${fieldValue} ='${id}'`;
+  let query = `SELECT ${fieldValue} FROM ${tableName} WHERE is_del=0 and ${fieldValue} ='${id}'`;
   let queryRes = await runQuery(query);
   if (queryRes.length > 0) {
     return queryRes[0][fieldValue];
@@ -316,10 +316,21 @@ exports.isIDGood=async (id,fieldValue,tableName)=>{
 }
 
 exports.getValueById=async (value, tableName, conditionParam, conditionValue)=>{
-  let query = `SELECT ${value} FROM ${tableName} WHERE ${conditionParam} ='${conditionValue}'`;
-  let queryRes = await runQuery(query);
+  let query = `SELECT ${value} FROM ${tableName} WHERE is_del=0 and ${conditionParam} = ?`;
+  let queryRes = await fetch(query, [conditionValue]);
   if (queryRes.length > 0) {
     return queryRes[0][value];
+  }
+  else {
+    return false;
+  }
+}
+
+exports.getValuesById=async (value, tableName, conditionParam, conditionValue)=>{
+  let query = `SELECT ${value} FROM ${tableName} WHERE ${conditionParam} = ?`;
+  let queryRes = await fetch(query, [conditionValue]);
+  if (queryRes.length > 0) {
+    return queryRes[0];
   }
   else {
     return false;

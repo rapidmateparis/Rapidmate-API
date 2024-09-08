@@ -69,13 +69,13 @@ exports.getBydeliveryBoyExtid = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_PAYMENTCARD,[req.delivery_boy_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.billing_address,req.is_del,id]);
+    const registerRes = await updateQuery(UPDATE_PAYMENTCARD,[req.card_number,req.card_holder_name,req.expiration_date,req.cvv,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'id','rmt_delivery_boy_payment_card')
+    const getId = await utils.isIDGood(id,'id','rmt_delivery_boy_payment_method')
     if(getId){
       const updatedItem = await updateItem(id, req.body);
       if (updatedItem.affectedRows >0) {
@@ -96,13 +96,13 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_PAYMENTCARD,[req.delivery_boy_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.billing_address,req.is_del]);
+    const registerRes = await insertQuery(INSERT_PAYMENTCARD,[req.delivery_boy_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
     return registerRes;
 }
 
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_delivery_boy_payment_card','card_number')
+    const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_delivery_boy_payment_method','card_number')
     if (!doesNameExists) {
       const item = await createItem(req.body)
       if(item.insertId){
@@ -131,7 +131,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'id','rmt_delivery_boy_payment_card')
+    const getId = await utils.isIDGood(id,'id','rmt_delivery_boy_payment_method')
     if(getId){
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {
