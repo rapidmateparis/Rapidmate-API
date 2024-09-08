@@ -66,6 +66,15 @@ exports.otpVerify = [
 }
 ]
 
+exports.cancelOrder = [
+  check('cancel_reason_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('cancel_reason').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
 exports.getAllocateDeliveryBoy = [
   check('o').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
 (req, res, next) => {
@@ -179,6 +188,14 @@ exports.requestAction=[
 exports.updateOrderStatus=[
   check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ORDER_PLACED','CONFIRMED','PAYMENT_COMPLETED','PAYMENT_FAILED','ORDER_ACCEPTED','ORDER_REJECTED','ON_THE_WAY_PICKUP','PICKUP_COMPLETED','ON_THE_WAY_DROP_OFF','COMPLETED','CANCELLED']).withMessage('Enter valid order status'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
+exports.planningSetup=[
+  check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('planning_date').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
 (req, res, next) => {
   validationResult(req, res, next)
 }
