@@ -215,6 +215,9 @@ const createItem = async (req) => {
   requestBody.push(req.package_id || null);
   requestBody.push(req.pickup_notes || null);
   requestBody.push(req.company_name || null);
+  requestBody.push(req.promo_code || null);
+  requestBody.push(req.promo_value || null);
+  requestBody.push(req.order_amount || 0.00);
   var requestBodyNew = requestBody.filter(function(item) {
     return item !== undefined;
   });
@@ -494,7 +497,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
 
 const getOrderInfo = async (order_number) => {
   try {
-    const data = await fetch("select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code,promo_percentage,promo_amount,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and is_del=0", [order_number]);
+    const data = await fetch("select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_value,cancel_reason_id, cancel_reason, order_amount,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and is_del=0", [order_number]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
@@ -660,7 +663,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     console.log(req.params.ordernumber);
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = 'select * from rmt_order where is_del=0 and order_number = ?';
+    const orderAllocationQuery = 'select promo_code,promo_value,cancel_reason_id, cancel_reason, order_amount, order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code from rmt_order where is_del=0 and order_number = ?';
     const dbData = await fetch(orderAllocationQuery, [order_number])
     if(dbData.length <= 0){
       message="Invalid Order number";
@@ -669,8 +672,6 @@ exports.viewOrderByOrderNumber = async (req, res) => {
      
         var orderData = dbData[0];
         responseData.order = orderData;
-        console.log(orderData);
-        console.log(orderData.delivery_boy_id);
         responseData.deliveryBoy = await getDeliveryInfo(orderData.delivery_boy_id);
         responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
         return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
