@@ -236,7 +236,7 @@ const sendNotfn= async(title,message,receiverExtId,objId,userRole)=>{
   admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
 }
 
-exports.createNotificationRequest = async (req) => {
+exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
   try {
     const {title, bodydata, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
     const insertData = {
@@ -264,8 +264,10 @@ exports.createNotificationRequest = async (req) => {
     if (!savedNotification) {
       return false;
     }
-    const objId=savedNotification._id
-    const sendNotification = await sendNotfn(title,message,receiverExtId,objId,userRole)
+    if(isSendFCMNotify){
+      const objId=savedNotification._id
+      const sendNotification = await sendNotfn(title,message,receiverExtId,objId,userRole)
+    }
     return savedNotification;
    
   } catch (error) {

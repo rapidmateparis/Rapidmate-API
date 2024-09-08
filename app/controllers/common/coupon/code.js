@@ -78,36 +78,35 @@ exports.GetPromoDetails = async (req, res) => {
       
       let message="Promo code retrieved successfully";
       if(data.length <=0){
-          message="No promo code found."
+          message="Invalid Promo Code"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
       const {promo_code,is_percent,percentage,amount,is_used,valid_from,valid_to}=data
       const currentDate = new Date();
       console.log(currentDate)
-      if(is_used){
+      /*if(is_used){
         message="Coupon already used."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
-      if (currentDate < new Date(valid_from) || currentDate > new Date(valid_to)) {
+      if (currentDate >= new Date(valid_from) && currentDate <= new Date(valid_to)) {
         const message = "Coupon is not valid at this time.";
         return res.status(400).json(utils.buildErrorObject(400, message, 1002));
-      }
-      let discount=0;
-      let orderAmount=totalAmount
-      let amountAfterdiscount=0
-      if(is_percent){
-        discount="-"+percentage+"%"
-        amountAfterdiscount=orderAmount*(1-percentage/100)
+      }*/
+      let discount= 0;
+      let promoCodeAmount=0
+      if(parseInt(is_percent) == 1){
+        discount="-"+percentage+" %"
+        promoCodeAmount= totalAmount * (percentage/100)
 
       }else{
-        discount="-"+amount+"€"
-        amountAfterdiscount=orderAmount-amount
+        discount="-"+amount+" €"
+        promoCodeAmount = amount;
       }
-   
+      totalOrderAmount = totalAmount - promoCodeAmount;
       const response={
         promoCode:promo_code,
-        discount,
-        totalAmount:amountAfterdiscount
+        discount : discount,
+        totalAmount:totalOrderAmount
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,[response]))
     } catch (error) {

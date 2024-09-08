@@ -79,6 +79,13 @@ router.get(
   controller.getItemByDeliveryBoyExtId
 )
 
+router.post(
+  '/deliveryboy/plan/list',
+  trimRequest.all,
+  validate.planningSetup,
+  controller.getItemByDeliveryBoyExtIdWithPlan
+)
+
 /*
  * Update item route
  */
@@ -94,11 +101,17 @@ router.put(
 /*
  * Delete item route
  */
-router.delete(
-  '/:id',
+router.post(
+  '/cancel',
   trimRequest.all,
-  validate.deleteItem,
-  controller.deleteItem
+  validate.cancelOrder,
+  controller.cancelOrder
+)
+
+router.delete(
+  '/:orderNumber',
+  trimRequest.all,
+  controller.cancelOrder
 )
 
 router.put(
@@ -121,5 +134,18 @@ router.get(
     validate.orderNumber,
     controller.viewOrderByOrderNumber
 )
+
+router.get(
+  '/invoice/:o',
+  trimRequest.all,
+  controller.downloadInvoice
+)
+
+router.get(
+  '/invoice/fs/:o',
+  trimRequest.all,
+  controller.downloadInvoiceFs
+)
+
 
 module.exports = router

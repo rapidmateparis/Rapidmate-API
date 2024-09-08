@@ -5,8 +5,8 @@ const { check } = require('express-validator')
  * Validates register request
  */
 exports.register = [
-  check('info.email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email.'),
-  check('info.phoneNumber').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isMobilePhone().withMessage('Enter valid mobile number.'),
+  //check('info.email').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isEmail().withMessage('Enter valid email.'),
+  //check('info.phoneNumber').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isMobilePhone().withMessage('Enter valid mobile number.'),
   check('info.userrole').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['ADMIN','CONSUMER', 'ENTERPRISE', 'DELIVERY_BOY']).withMessage('Invalid user role'),
   check('info.password').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
