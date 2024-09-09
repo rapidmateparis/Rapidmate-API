@@ -184,7 +184,8 @@ module.exports = {
               day : slot.day,
               from_time : timeData.from_time,
               to_time : timeData.to_time,
-              is_selected : ((slot.selected)? 1 : 0)
+              is_selected : ((slot.selected)? 1 : 0),
+              planning_date : slot.planning_date
             });
           }
         );
@@ -195,13 +196,13 @@ module.exports = {
         slot.day,
         slot.from_time,
         slot.to_time,
-        slot.is_selected
+        slot.is_selected,
+        slot.planning_date
       ]
       );
       console.log("mapSlots", mapSlots);
       await connection.query(INSERT_SLOTS_QUERY, [mapSlots]);
       await connection.commit();
-      console.log("------------");
       return planningSetupId;
     } catch (error) {
       console.log(error);
