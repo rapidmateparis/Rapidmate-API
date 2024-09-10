@@ -738,12 +738,14 @@ const prepareInvoiceDocument = async (fileName, order) =>{
   var calcxAxis = xAxis + 5;
   doc.text("Distance", calcxAxis,  yAxis = yAxis + yAxisInc);
   doc.text(order.distance.toFixed(2) + "", xAxis + calcInc,  yAxis);
+  doc.text("Order Amount", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text(order.order_amount.toFixed(2) + "", xAxis + calcInc,  yAxis);
   doc.text("Promo", calcxAxis,  yAxis = yAxis + yAxisInc);
   doc.text((order.promo_percentage ||  order.promo_amount || 0).toFixed(2) + "", xAxis + calcInc,  yAxis);
   yAxis = yAxis + yAxisInc - 5;
   doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
   doc.text("Total Amount : ", calcxAxis,  yAxis = yAxis + yAxisInc);
-  doc.text(order.amount + " €", xAxis + calcInc,  yAxis);
+  doc.text(order.amount.toFixed(2) + " €", xAxis + calcInc,  yAxis);
   yAxis = yAxis + yAxisInc - 5;
   doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
   doc.save(fileName);
@@ -796,12 +798,14 @@ const prepareInvoiceDocumentFs = async (res, order) =>{
   var calcxAxis = xAxis + 5;
   doc.text("Distance", calcxAxis,  yAxis = yAxis + yAxisInc);
   doc.text(order.distance.toFixed(2) + "", xAxis + calcInc,  yAxis);
+  doc.text("Order Amount", calcxAxis,  yAxis = yAxis + yAxisInc);
+  doc.text(order.order_amount.toFixed(2) + "", xAxis + calcInc,  yAxis);
   doc.text("Promo", calcxAxis,  yAxis = yAxis + yAxisInc);
   doc.text((order.promo_percentage ||  order.promo_amount || 0).toFixed(2) + "", xAxis + calcInc,  yAxis);
   yAxis = yAxis + yAxisInc - 5;
   doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
   doc.text("Total Amount : ", calcxAxis,  yAxis = yAxis + yAxisInc);
-  doc.text(order.amount + " €", xAxis + calcInc,  yAxis);
+  doc.text(order.amount.toFixed(2) + " €", xAxis + calcInc,  yAxis);
   yAxis = yAxis + yAxisInc - 5;
   doc.line(xAxis, yAxis, 200, yAxis); // horizontal line
   const documentContent = doc.output();
