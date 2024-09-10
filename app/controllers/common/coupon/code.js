@@ -73,7 +73,7 @@ exports.getBypromoCode = async (req, res) => {
  */
 exports.GetPromoDetails = async (req, res) => {
     try {
-     const {promoCode,totalAmount} = req.body
+     const {promoCode,orderAmount} = req.body
       const [data] = await fetch(FETCH_CODE_BY_PROMO_CODE,[promoCode])
       
       let message="Promo code retrieved successfully";
@@ -96,20 +96,21 @@ exports.GetPromoDetails = async (req, res) => {
       let promoCodeAmount=0
       if(parseInt(is_percent) == 1){
         discount="-"+percentage+" %"
-        promoCodeAmount= totalAmount * (percentage/100)
+        promoCodeAmount= orderAmount * (percentage/100)
 
       }else{
         discount="-"+amount+" €"
         promoCodeAmount = amount;
       }
-      totalOrderAmount = totalAmount - promoCodeAmount;
+      totalOrderAmount = orderAmount - promoCodeAmount;
       const response={
         promoCode:promo_code,
         discount : discount,
-        totalAmount:totalOrderAmount
+        totalAmount:parseFloat(totalOrderAmount).toFixed(2)
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,[response]))
     } catch (error) {
+      console.log(error);
       return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch promo code. Please try again later.',1001));
     }
 }
