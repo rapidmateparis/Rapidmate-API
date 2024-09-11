@@ -73,7 +73,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
       }else{
         statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
       }
-      var query = "select * from rmt_order where order_status in (" + statusParams + ") AND consumer_id =(select id from rmt_consumer where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+      var query = "select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_order where order_status in (" + statusParams + ") AND consumer_id =(select id from rmt_consumer where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
       const data = await fetch(query, [id]);
       const filterdata=await transformKeysToLowercase(data)
       let message = "Items retrieved successfully";
@@ -107,7 +107,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     }else{
       statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
     }
-    var query = "select * from rmt_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+    var query = "select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
     const data = await fetch(query, [id]);
     const filterdata=await transformKeysToLowercase(data)
     let message = "Items retrieved successfully";
@@ -128,7 +128,7 @@ exports.getItemByDeliveryBoyExtIdWithPlan = async (req, res) => {
   try {
     const {delivery_boy_ext_id, planning_date, page, size} = req.body;
 
-    var query = "select * from rmt_order where is_del=0 and date(order_date) = date(?) and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(page, size);
+    var query = "select select order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_order from rmt_order where is_del=0 and date(order_date) = date(?) and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(page, size);
     const data = await fetch(query, [planning_date, delivery_boy_ext_id, ]);
     const filterdata=await transformKeysToLowercase(data)
     let message = "Items retrieved successfully";
@@ -439,7 +439,10 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
           var consumer_ext_id = responseData.order.ext_id;
           var notifiationConsumerRequest = {
             title : "Driver allocated!!!Order# : " + order_number ,
-            body: {},
+            body: {
+              message :  "Driver has been allocated successfully for your order",
+              orderNumber : order_number
+           },
             extId: order_number,
             message : "Driver has been allocated successfully for your order", 
             topic : "",
@@ -459,7 +462,10 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
           notification.createNotificationRequest(notifiationConsumerRequest);
           var notifiationDriverRequest = {
             title : "New order received!!!Order# : " + order_number ,
-            body: {},
+            body: {
+               message :  "You have been received new order successfully",
+               orderNumber : order_number
+            },
             extId: order_number,
             message : "You have been received new order successfully", 
             topic : "",
