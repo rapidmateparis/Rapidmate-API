@@ -442,7 +442,11 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
             body: {
               message :  "Driver has been allocated successfully for your order",
               orderNumber : order_number
-           },
+            },
+            payload: {
+              message :  "You have been received new order successfully",
+              orderNumber : order_number
+            },
             extId: order_number,
             message : "Driver has been allocated successfully for your order", 
             topic : "",
@@ -465,6 +469,10 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
             body: {
                message :  "You have been received new order successfully",
                orderNumber : order_number
+            },
+            payload: {
+              message :  "You have been received new order successfully",
+              orderNumber : order_number
             },
             extId: order_number,
             message : "You have been received new order successfully", 
