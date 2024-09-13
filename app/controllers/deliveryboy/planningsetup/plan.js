@@ -31,6 +31,7 @@ exports.getItems = async (req, res) => {
     planningData = plannings[0];
     if (planninSetupgData && planninSetupgData.length > 0) {
       var currentDay = 0;
+      var planningDate;
       var isSelected = false;
       var responseSetupData = {};
       responseSetupData.slots = [];
@@ -53,8 +54,10 @@ exports.getItems = async (req, res) => {
           if (!firstData) {
             responseSetupData.slots.push(slotData);
           }
+          console.log(data);
           times = [];
           currentDay = data.day;
+          planningDate = data.planning_date;
           isSelected = data.is_selected==1;
           firstData = false;
         }
@@ -66,7 +69,8 @@ exports.getItems = async (req, res) => {
       slotData = {
         day: currentDay,
         times: times,
-        selected : isSelected
+        selected : isSelected,
+        planning_date : planningDate
       }
       responseSetupData.slots.push(slotData);
      
@@ -238,7 +242,7 @@ const planningSetupConfig = async (req, res) => {
             console.log("Total Days", totalDays);
             if(totalDays){
               for (var day = 1; day <= totalDays; day++) {
-                slotsData.push({ day: day, times: newDayData.times, selected: true });
+                slotsData.push({ day: day, times: newDayData.times, selected: true , planning_date : newDayData.planning_date});
               }
             }
            

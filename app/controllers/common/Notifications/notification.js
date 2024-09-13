@@ -205,7 +205,7 @@ exports.createItem = async (req, res) => {
   }
 };
 
-const sendNotfn= async(title,message,receiverExtId,objId,userRole)=>{
+const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
   let table=''
   if(userRole=='CONSUMER'){
     table='rmt_consumer'
@@ -227,9 +227,7 @@ const sendNotfn= async(title,message,receiverExtId,objId,userRole)=>{
       title: title,
       body: message,
     },
-    data: {
-      
-    }, // optional
+    data: payload,
     token: token,
   };
 
@@ -238,7 +236,7 @@ const sendNotfn= async(title,message,receiverExtId,objId,userRole)=>{
 
 exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
   try {
-    const {title, bodydata, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
+    const {title, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
     const insertData = {
       title,
       body: bodydata,
@@ -266,7 +264,7 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
     }
     if(isSendFCMNotify){
       const objId=savedNotification._id
-      const sendNotification = await sendNotfn(title,message,receiverExtId,objId,userRole)
+      const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
     }
     return savedNotification;
    
