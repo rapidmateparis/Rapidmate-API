@@ -367,6 +367,7 @@ async function logout(userInfo) {
 
             if (cognitoUser != null) {
                 cognitoUser.signOut();
+                clearToken(userinfo);
                 logger.info("User logged out successfully");
                 resolve({ message: "User logged out successfully" });
             } else {
@@ -382,6 +383,28 @@ async function logout(userInfo) {
     }
 }
 
+async function clearToken(userInfo){
+    logger.info("Logout - Clear Token");
+    var userName = userInfo["userName"];
+    const userData = await fetch("select * from vw_rmt_user where username = ?", [userName]);
+    if(userData && userData.length > 0 ){
+        var role = userData[0].role;
+        var tableName = "";
+        if(role=='DELIVERY_BOY'){
+            tableName = "rmt_delivery_boy";
+        }else  if(role=='CONSUMER'){
+            tableName = "rmt_consumer";
+        }else  if(role=='ENTERPRISE'){
+            tableName = "rmt_enterprise";
+        }else  if(role=='ADMIN'){
+            tableName = "rmt_admin_user";
+        }
+        const updateTokenToProfile = await updateQuery("update " + tableName + " set token = '', logout_on=now() where username = ?", [userName]);
+        return {};
+    }else{
+        return null;
+    }
+}
 async function changePassword(userInfo) {
     return new Promise((resolve, reject) => {
         var authenticationData = {
