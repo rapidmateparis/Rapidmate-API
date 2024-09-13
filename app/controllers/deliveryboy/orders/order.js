@@ -677,7 +677,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     console.log(req.params.ordernumber);
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = 'select promo_code,promo_value,cancel_reason_id, cancel_reason, order_amount, order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code from rmt_order where is_del=0 and order_number = ?';
+    const orderAllocationQuery = 'select waiting_fare,paid_with,total_duration,promo_code,promo_value,cancel_reason_id, cancel_reason, order_amount, order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code from rmt_order where is_del=0 and order_number = ?';
     const dbData = await fetch(orderAllocationQuery, [order_number])
     if(dbData.length <= 0){
       message="Invalid Order number";
