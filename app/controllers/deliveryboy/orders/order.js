@@ -99,6 +99,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
   try {
     const id = req.params.id;
     const reqStatus = req.query.status;
+    const orderType = req.query.orderType || "N";
     let statusParams = [];
     if(reqStatus == 'current'){
       statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'ORDER_ACCEPTED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
@@ -108,6 +109,9 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
       statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
     }
     var query = "select waiting_fare,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+    if(orderType == "E"){
+      query = "select waiting_fare,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_enterprise_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+    }
     const data = await fetch(query, [id]);
     const filterdata=await transformKeysToLowercase(data)
     let message = "Items retrieved successfully";
@@ -128,7 +132,7 @@ exports.getItemByDeliveryBoyExtIdWithPlan = async (req, res) => {
   try {
     const {delivery_boy_ext_id, planning_date, page, size} = req.body;
 
-    var query = "select waiting_fare,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_order from rmt_order where is_del=0 and date(order_date) = date(?) and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(page, size);
+    var query = "select * from vw_delivery_boy_plan_list where is_del=0 and date(order_date) = date(?) and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(page, size);
     const data = await fetch(query, [planning_date, delivery_boy_ext_id, ]);
     const filterdata=await transformKeysToLowercase(data)
     let message = "Items retrieved successfully";
@@ -335,74 +339,6 @@ exports.allocateDeliveryBoy = async (req, res) => {
       return res
         .status(500)
         .json(utils.buildErrorObject(500, "Something went wrong", 1001));
-    }
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500,error.message, 1001));
-  }
-};
-
-exports.allocateDeliveryBoyForEnterprise = async (req, res) => {
-  try {
-    var requestData = req.body;
-    console.log(requestData);
-    const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, [requestData.order_number, requestData.delivery_boy_ext_id]);
-    console.log(allocateDeliveryBoyResult);
-    if (allocateDeliveryBoyResult.insertId) {
-      const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE,[requestData.delivery_boy_ext_id, requestData.order_number]);
-      const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS_ENTERPRISE,[requestData.delivery_boy_ext_id]);
-      const econnections = await fetch("select * from rmt_delivery_boy_enterprise_connections where delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) and enterprise_id=(select id from rmt_enterprise where ext_id=?)") 
-      if(!(econnections && econnections.length>0)){
-        const connectionDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ENTERPRISE_CONNECTIONS, [ requestData.enterprise_ext_id, requestData.delivery_boy_ext_id]);
-        console.log(connectionDeliveryBoyResult);
-      }
-      var notifiationRequest = {
-        title : "Driver allocated!!!!Order# : " + requestData.order_number ,
-        body: {},
-        extId: requestData.order_number,
-        message : "Driver has been allocated successfully for your order", 
-        topic : "",
-        token : "",
-        senderExtId : "",
-        receiverExtId : requestData.consumer_ext_id,
-        statusDescription : "",
-        status : "",
-        notifyStatus : "",
-        tokens : "",
-        tokenList : "",
-        actionName : "",
-        path : "",
-        userRole : "CONSUMER",
-        redirect : "ORDER"
-      }
-      notification.createNotificationRequest(notifiationRequest);
-      var notifiationRequest = {
-        title : "New order received!!!Order# : " + requestData.order_number ,
-        body: {},
-        extId: requestData.order_number,
-        message : "You have been received new order successfully", 
-        topic : "",
-        token : "",
-        senderExtId : "",
-        receiverExtId : requestData.delivery_boy_ext_id,
-        statusDescription : "",
-        status : "",
-        notifyStatus : "",
-        tokens : "",
-        tokenList : "",
-        actionName : "",
-        path : "",
-        userRole : "DELIVERY",
-        redirect : "ORDER"
-      }
-      notification.createNotificationRequest(notifiationRequest);
-      return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully"));
-    } else {
-      return res
-        .status(500)
-        .json(utils.buildErrorObject(500, "Unable to allocate", 1001));
     }
   } catch (error) {
     console.log(error);

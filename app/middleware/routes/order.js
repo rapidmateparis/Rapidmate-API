@@ -92,5 +92,10 @@ router.get(
    controller.viewOrderByOrderNumber
 )
 
+router.get(
+  '/allocated/details',
+  trimRequest.all,
+  controller.allocateEnterpriseDeliveryBoyByOrderNumber
+)
 
 module.exports = router
