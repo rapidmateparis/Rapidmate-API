@@ -1,6 +1,6 @@
 const utils = require("../../middleware/utils");
 const { persistShiftOrder, fetch, persistMultipleDeliveries, updateQuery, persistEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
-const {FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
+const { transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
 const { updateItem } = require("../enterprise/enterprise");
 /********************
  * Public functions *
@@ -305,5 +305,64 @@ exports.deleteItem = async (req, res) => {
     return res
       .status(500)
       .json(utils.buildErrorObject(500, 'Unable to delete order', 1001));
+  }
+};
+
+
+exports.viewOrderByOrderNumber = async (req, res) => {
+  var responseData = {};
+  try {
+    console.log(req.params.ordernumber);
+    const order_number = req.params.ordernumber;
+    const orderAllocationQuery = 'select * from rmt_enterprise_order where is_del=0 and order_number = ?';
+    const dbData = await fetch(orderAllocationQuery, [order_number])
+    if(dbData.length <= 0){
+      message="Invalid Order number";
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }else{
+        var orderData = dbData[0];
+        responseData.order = orderData;
+        responseData.deliveryBoy = await getDeliveryBoyInfo(orderData.delivery_boy_id);
+        responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
+        responseData.orderLines = await getOrderLineInfo(order_number);
+        return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to fetch an Order number", 1001));
+  }
+};
+
+const getOrderLineInfo = async (orderNumber) => {
+  try {
+    const data = await fetch("select * from rmt_enterprise_order_line where order_number =? and is_del=0", [orderNumber]);
+    console.log(data)
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata;
+  } catch (error) {
+    console.log(error)
+    return {};
+  }
+};
+
+const getVehicleInfo = async (delivery_boy_id) => {
+  try {
+    const data = await fetch("select id,delivery_boy_id,vehicle_type_id,plat_no,modal,make,variant,reg_doc,driving_license,insurance from rmt_vehicle where delivery_boy_id =? and is_del=0", [delivery_boy_id]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
+
+const getDeliveryBoyInfo = async (delivery_boy_id) => {
+  try {
+    const data = await fetch("select id,ext_id,username,first_name,last_name,email,phone,role_id,city_id,state_id,country_id,address,vehicle_id,company_name, work_type_id,profile_pic,is_active,is_availability,latitude,longitude,is_work_type,language_id from rmt_delivery_boy where id =? and is_del=0", [delivery_boy_id]);
+    const filterdata=await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
   }
 };
