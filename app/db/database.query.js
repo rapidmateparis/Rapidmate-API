@@ -270,7 +270,8 @@ exports.INSERT_WALLET=`INSERT INTO rmt_delivery_boy_wallet(delivery_boy_id,balan
 exports.UPDATE_WALLET=`UPDATE rmt_delivery_boy_wallet SET balance=? WHERE id=?`
 exports.DELETE_WALLET=`UPDATE rmt_delivery_boy_wallet SET is_del=1 WHERE id=?`
 // deliveryboy side
-exports.FETCH_WALLET_BY_EXTID=`SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_wallet AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE dbs.id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) AND wt.is_del = 0`
+exports.FETCH_WALLET_BY_EXTID= "SELECT wt.balance as balance FROM rmt_delivery_boy_wallet wt where wt.delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)";
+exports.FETCH_TRANSACTIONS_BY_EXTID= "select trans.amount, ord.order_number, ord.order_date from rmt_delivery_boy_transaction trans join rmt_order ord on trans.order_id = ord.id where trans.delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)";
 
 
 //===================================================Payment card=============================================================
