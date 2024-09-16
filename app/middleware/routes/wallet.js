@@ -41,11 +41,19 @@ router.get(
  */
 
 router.get(
-  '/getwallet/:id',
+  '/balance/:id',
   trimRequest.all,
   validate.getItem,
   controller.getBydeliveryBoyExtid
 )
+
+router.get(
+  '/transaction/:id',
+  trimRequest.all,
+  validate.getItem,
+  controller.getTransactionByDeliveryBoyExtid
+)
+
 /*
  * Update item route
  */
