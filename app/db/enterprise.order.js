@@ -8,6 +8,7 @@ exports.DELETE_ORDER_QUERY=`UPDATE rmt_enterprise_order SET is_del=1 WHERE id=?`
 exports.FETCH_ORDER_BY_ORDER_EXT=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?)`
 exports.FETCH_ORDER_DELIVERY_BOY_ID=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?)`
 exports.UPDATE_DELIVERY_UPDATE_ID=`UPDATE rmt_enterprise_order SET delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) WHERE id=?`;
+exports.FETCH_ORDER_BY_ORDER_EXT_SEARCH=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) and date(order_date) = date(?)`
 
 //=================================rmt_shift_and_slots=====================================================================================================
 exports.INSERT_SHIFT_SLOTS_QUERY = `INSERT INTO rmt_enterprise_order_slot (branch_id, enterprise_order_id, day, from_time, to_time) VALUES (?, ?, ?, ?, ?)`;
