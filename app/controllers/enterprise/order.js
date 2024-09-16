@@ -1,6 +1,6 @@
 const utils = require("../../middleware/utils");
 const { persistShiftOrder, fetch, persistMultipleDeliveries, updateQuery, persistEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
-const { transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
+const { FETCH_ORDER_BY_ORDER_EXT_SEARCH, transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
 const { updateItem } = require("../enterprise/enterprise");
 const notification = require("../../controllers/common/Notifications/notification");
 const { insertQuery } = require("../../middleware/db");
@@ -477,5 +477,20 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
     return res
       .status(500)
       .json(utils.buildErrorObject(500,"Unable to allocate driver your order.", 1001));
+  }
+};
+
+exports.search = async (req, res) => {
+  try {
+      const {enterprise_ext_id, plan_date} = req.body
+      const data = await fetch(FETCH_ORDER_BY_ORDER_EXT_SEARCH,[enterprise_ext_id, plan_date]);
+      let message = "Items retrieved successfully";
+      if (data.length <= 0) {
+        message = "No plannings available";
+        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+      }
+      return res.status(200).json(utils.buildCreateMessage(200, message, data));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
