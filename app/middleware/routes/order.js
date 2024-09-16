@@ -98,4 +98,10 @@ router.get(
   controller.allocateEnterpriseDeliveryBoyByOrderNumber
 )
 
+router.post(
+  '/plan/search',
+  trimRequest.all,
+  controller.search
+)
+
 module.exports = router
