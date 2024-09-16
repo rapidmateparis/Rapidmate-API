@@ -25,3 +25,18 @@ exports.UPDATE_SHIFT_QUERY = `UPDATE rmt_enterprise_order_slot SET enterprise_id
 exports.RESTORE_SHIFT_QUERY=`UPDATE rmt_enterprise_order_slot SET is_del=0 WHERE id=? AND is_del=1`
 exports.UPDATE_SHIFT_BY_STATUS=`UPDATE rmt_enterprise_order_slot SET shift_status=?,reject_note=? WHERE id=? AND is_del=0`
 exports.DELIVERY_BOY_ASSIGN_IN_SHIFT=`UPDATE rmt_enterprise_order_slot SET delivery_boy_id=(select id from rmt_delivery_boy where ext_id = ?) WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id = ?) AND id=?`
+
+
+exports.transformKeysToLowercase=async (results)=>{
+    return results.map(row => {
+      const newRow = {};
+      for (const key in row) {
+        if (row.hasOwnProperty(key)) {
+          newRow[key.toLowerCase()] = row[key];
+        }
+      }
+      return newRow;
+    });
+  }
+    
+  

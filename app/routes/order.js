@@ -35,13 +35,6 @@ router.post(
   controller.allocateDeliveryBoy
 )
 
-router.post(
-  '/deliveryboy/allocate/enterprise',
-  trimRequest.all,
-  validate.allocateDeliveryBoy,
-  controller.allocateDeliveryBoyForEnterprise
-)
-
 router.get(
   '/allocated/details',
   trimRequest.all,
