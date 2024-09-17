@@ -195,3 +195,18 @@ exports.deleteItem = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
+
+exports.getWalletBalanceByExtId = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await fetch("select balance from rmt_consumer_wallet where consumer_id = (select id from rmt_consumer where ext_id = ?)",[id])
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+        message="You don't have wallet account Please contact administrator."
+        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch wallent balance',1001));
+  }
+}
