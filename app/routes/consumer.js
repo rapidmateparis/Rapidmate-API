@@ -66,6 +66,20 @@ router.get(
   controller.getWalletBalanceByExtId
 )
 
+router.post(
+  '/billing/address/update',
+  trimRequest.all,
+  validate.ValidateBillingAddressRequest,
+  controller.createOrUpdateBillingAddress
+)
+
+router.get(
+  '/billing/address/get/:extId',
+  trimRequest.all,
+  validate.validateExtId,
+  controller.getBillingAddressDetailsByExtId
+)
+
 
 router.use('/address', addressRouter);
 router.use('/paymentmethod', paymentRouter);

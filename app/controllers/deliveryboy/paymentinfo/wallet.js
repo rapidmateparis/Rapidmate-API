@@ -79,8 +79,19 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
   var responseData = {};
   try {
     const id = req.params.id;
+    const durationType = req.query.durationType;
+    var additionalQueryConditions ="";
+    if(durationType == 'today'){
+      additionalQueryConditions = " and date(trans.created_on) = date(now()) ";
+    }else if(durationType == 'month'){
+      additionalQueryConditions = " and month(trans.created_on) = month(now()) ";
+    }else if(durationType == 'year'){
+      additionalQueryConditions = " and year(trans.created_on) = year(now()) ";
+    }else if(durationType){
+      additionalQueryConditions = " and year(trans.created_on) ='" + durationType + "' ";
+    }
     const balance = await getWallentBalance(id);
-    const data = await fetch(FETCH_TRANSACTIONS_BY_EXTID,[id])
+    const data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No transactions details."
