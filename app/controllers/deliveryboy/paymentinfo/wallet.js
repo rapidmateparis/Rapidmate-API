@@ -91,9 +91,9 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
       additionalQueryConditions = " and year(trans.created_on) ='" + durationType + "' ";
     }
     const balance = await getWallentBalance(id);
-    const data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
+    var data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
     let message="Items retrieved successfully";
-    if(data.length <=0){
+    if(!data || data.length <= 0){
       data = [];
     }
     responseData.balance = balance;
