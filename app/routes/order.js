@@ -131,7 +131,7 @@ router.get(
 router.get(
   '/invoice/:o',
   trimRequest.all,
-  controller.downloadInvoice
+  controller.downloadInvoiceFs
 )
 
 router.get(

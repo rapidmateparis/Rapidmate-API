@@ -636,9 +636,14 @@ exports.viewOrderByOrderNumber = async (req, res) => {
 exports.downloadInvoice = async (req, res) => {
   try {
     var orderNumber = req.params.o;
+    var uploadDirectory = moment(new Date()).format("YYYY/MM/DD/HH/");
+    var fullDirectoryPath = process.env.BASE_RESOURCE_DIR + uploadDirectory;
+    if (!fs.existsSync(fullDirectoryPath)){
+        fs.mkdirSync(fullDirectoryPath, { recursive: true });
+    }
     var orderDetail = await getOrderByOrderNumber(orderNumber);
     if(orderDetail){
-      const fileName = process.env.BASE_RESOURCE_DIR + "invoice_" + orderNumber + "_" + new Date().toDateString() + ".pdf";
+      const fileName = fullDirectoryPath + "invoice_" + orderNumber + "_" + new Date().toDateString() + ".pdf";
       await prepareInvoiceDocument(fileName, orderDetail);
       await res.download(fileName, (err) => {
         if (err) {
