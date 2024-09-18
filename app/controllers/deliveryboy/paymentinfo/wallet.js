@@ -94,8 +94,7 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
     const data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="No transactions details."
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+      data = [];
     }
     responseData.balance = balance;
     responseData.transactions = data;
