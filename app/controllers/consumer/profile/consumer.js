@@ -246,7 +246,7 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
 
 exports.getBillingAddressDetailsByExtId = async (req, res) => {
   try {
-    const id = req.params.extId;
+    const extId = req.params.extId;
     const data = await fetch("select * from rmt_consumer_billing_address where consumer_id = (select id from rmt_consumer where ext_id = ?)",[extId])
     let message="Items retrieved successfully";
     if(data.length <=0){
