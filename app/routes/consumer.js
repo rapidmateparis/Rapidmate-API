@@ -59,6 +59,28 @@ router.delete(
   controller.deleteItem
 )
 
+router.get(
+  '/wallet/balance/:id',
+  trimRequest.all,
+  validate.getItem,
+  controller.getWalletBalanceByExtId
+)
+
+router.post(
+  '/billing/address/update',
+  trimRequest.all,
+  validate.ValidateBillingAddressRequest,
+  controller.createOrUpdateBillingAddress
+)
+
+router.get(
+  '/billing/address/get/:extId',
+  trimRequest.all,
+  validate.validateExtId,
+  controller.getBillingAddressDetailsByExtId
+)
+
+
 router.use('/address', addressRouter);
 router.use('/paymentmethod', paymentRouter);
 module.exports = router

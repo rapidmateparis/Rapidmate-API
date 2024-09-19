@@ -63,16 +63,42 @@ exports.getBydeliveryBoyExtid = async (req, res) => {
   }
 }
 
+const getWallentBalance = async (id) => {
+  try {
+    const data = await fetch(FETCH_WALLET_BY_EXTID,[id])
+    if(data.length >0){
+      return data[0].balance;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return 0.0;
+}
+
 exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
+  var responseData = {};
   try {
     const id = req.params.id;
-    const data = await fetch(FETCH_TRANSACTIONS_BY_EXTID,[id])
-    let message="Items retrieved successfully";
-    if(data.length <=0){
-        message="No transactions details."
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    const durationType = req.query.durationType;
+    var additionalQueryConditions ="";
+    if(durationType == 'today'){
+      additionalQueryConditions = " and date(trans.created_on) = date(now()) ";
+    }else if(durationType == 'month'){
+      additionalQueryConditions = " and month(trans.created_on) = month(now()) ";
+    }else if(durationType == 'year'){
+      additionalQueryConditions = " and year(trans.created_on) = year(now()) ";
+    }else if(durationType){
+      additionalQueryConditions = " and year(trans.created_on) ='" + durationType + "' ";
     }
-    return res.status(200).json(utils.buildCreateMessage(200,message,data))
+    const balance = await getWallentBalance(id);
+    var data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
+    let message="Items retrieved successfully";
+    if(!data || data.length <= 0){
+      data = [];
+    }
+    responseData.balance = balance;
+    responseData.transactions = data;
+    return res.status(200).json(utils.buildCreateMessage(200,message,responseData))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch transactions',1001));
   }
