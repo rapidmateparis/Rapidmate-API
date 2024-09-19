@@ -85,4 +85,23 @@ router.put(
   controller.updateOrderlineStatus
 )
 
+router.get(
+  '/view/:ordernumber',
+    trimRequest.all,
+    validate.validateOrderNumber,
+   controller.viewOrderByOrderNumber
+)
+
+router.get(
+  '/allocated/details',
+  trimRequest.all,
+  controller.allocateEnterpriseDeliveryBoyByOrderNumber
+)
+
+router.post(
+  '/plan/search',
+  trimRequest.all,
+  controller.search
+)
+
 module.exports = router

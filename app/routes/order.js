@@ -35,13 +35,6 @@ router.post(
   controller.allocateDeliveryBoy
 )
 
-router.post(
-  '/deliveryboy/allocate/enterprise',
-  trimRequest.all,
-  validate.allocateDeliveryBoy,
-  controller.allocateDeliveryBoyForEnterprise
-)
-
 router.get(
   '/allocated/details',
   trimRequest.all,
@@ -138,7 +131,7 @@ router.get(
 router.get(
   '/invoice/:o',
   trimRequest.all,
-  controller.downloadInvoice
+  controller.downloadInvoiceFs
 )
 
 router.get(
