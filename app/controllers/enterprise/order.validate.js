@@ -187,3 +187,15 @@ exports.orderItem = [
     validationResult(req, res, next)
   }
 ]
+
+exports.validateOrderNumber = [
+  check('ordernumber')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]

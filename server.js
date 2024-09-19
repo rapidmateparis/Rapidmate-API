@@ -9,8 +9,10 @@ const passport = require('passport');
 const i18n = require('i18n');
 const path = require('path');
 const http = require('http');
+const cron = require('node-cron');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
+const Notification =require('./app/models/Notification')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 require('log4js').configure({
   appenders: {
@@ -23,7 +25,6 @@ require('log4js').configure({
 });
 const app = express();
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
-
 TZ = "Asia/Calcutta";
 console.log("Timezone", new Date().toString());
 const server = http.createServer(app);
@@ -105,7 +106,25 @@ io.on('connection', (socket) => {
     console.log('User disconnected', socket.id);
   });
 });
+// set cron for automatic delete notification at 23:59 pm
 
+const softDeleteOldNotifications = async () => {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 14); // Calculate the date 2 week ago
+  try {
+    const result = await Notification.updateMany(
+      { createdAt: { $lt: oneWeekAgo }, is_del: false },
+      { $set: { is_del: true } }
+    );
+
+    console.log(`${result.modifiedCount} notifications soft-deleted.`);
+  } catch (err) {
+    console.error('Error soft-deleting old notifications:', err);
+  }
+};
+cron.schedule('59 23 * * *', () => {
+  softDeleteOldNotifications();
+});
 server.listen(app.get('port'), () => {
   console.log('Server is running on port', app.get('port'));
 });

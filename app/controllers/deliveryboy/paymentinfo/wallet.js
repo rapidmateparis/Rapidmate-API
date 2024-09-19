@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const { FETCH_WALLET_ALL, FETCH_WALLET_BY_ID, FETCH_WALLET_BY_EXTID, UPDATE_WALLET, INSERT_WALLET, DELETE_WALLET } =require('../../../db/database.query')
+const { FETCH_WALLET_ALL, FETCH_WALLET_BY_ID, FETCH_WALLET_BY_EXTID, UPDATE_WALLET, INSERT_WALLET, DELETE_WALLET, FETCH_TRANSACTIONS_BY_EXTID } =require('../../../db/database.query')
 /********************
  * Public functions *
  ********************/
@@ -11,7 +11,6 @@ const { FETCH_WALLET_ALL, FETCH_WALLET_BY_ID, FETCH_WALLET_BY_EXTID, UPDATE_WALL
  */
 exports.getItems = async (req, res) => {
   try {
-    console.log('sdfsad')
     const data = await runQuery(FETCH_WALLET_ALL)
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -55,14 +54,56 @@ exports.getBydeliveryBoyExtid = async (req, res) => {
     const data = await fetch(FETCH_WALLET_BY_EXTID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="Invalid wallet type."
+        message="You don't have wallet account Please contact administrator."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    return res.status(200).json(utils.buildCreateMessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch wallent balance',1001));
   }
 }
+
+const getWallentBalance = async (id) => {
+  try {
+    const data = await fetch(FETCH_WALLET_BY_EXTID,[id])
+    if(data.length >0){
+      return data[0].balance;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return 0.0;
+}
+
+exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
+  var responseData = {};
+  try {
+    const id = req.params.id;
+    const durationType = req.query.durationType;
+    var additionalQueryConditions ="";
+    if(durationType == 'today'){
+      additionalQueryConditions = " and date(trans.created_on) = date(now()) ";
+    }else if(durationType == 'month'){
+      additionalQueryConditions = " and month(trans.created_on) = month(now()) ";
+    }else if(durationType == 'year'){
+      additionalQueryConditions = " and year(trans.created_on) = year(now()) ";
+    }else if(durationType){
+      additionalQueryConditions = " and year(trans.created_on) ='" + durationType + "' ";
+    }
+    const balance = await getWallentBalance(id);
+    var data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
+    let message="Items retrieved successfully";
+    if(!data || data.length <= 0){
+      data = [];
+    }
+    responseData.balance = balance;
+    responseData.transactions = data;
+    return res.status(200).json(utils.buildCreateMessage(200,message,responseData))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch transactions',1001));
+  }
+}
+
 
 /**
  * Update item function called by route

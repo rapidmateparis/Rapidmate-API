@@ -112,7 +112,7 @@ exports.updateAssignOrder = [
  */
 exports.GetPromoDetails = [
     check('promoCode').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('totalAmount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('orderAmount').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
         validationResult(req, res, next)
     }
