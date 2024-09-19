@@ -232,8 +232,8 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
         stmtResult = await updateBillingAddressRequest(requestData);
     }else{
         stmtResult = await createBillingAddressRequest(requestData);
-        requestData.id = stmtResult.insertId;
     }
+    requestData.id = 0;
     if(stmtResult.affectedRows >=1){
       return res.status(200).json(utils.buildResponse(200,requestData));
     }
