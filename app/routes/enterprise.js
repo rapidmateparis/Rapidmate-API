@@ -5,7 +5,7 @@ const router = express.Router()
 const trimRequest = require('trim-request')
 const branchRouter =require('./enterprisebranch')
 const orderRouter =require('../middleware/routes/order')
-const shiftRouter =require('../middleware/routes/shift')
+const shiftRouter =require('../middleware/routes/slot')
 const addressRouter =require('../middleware/routes/address')
 const paymentRouter =require('../middleware/routes/enterprisepaymethod')
 /*
@@ -76,7 +76,7 @@ router.delete(
  */
 router.use('/branch', branchRouter);
 router.use('/order', orderRouter);
-router.use('/shift', shiftRouter);
+router.use('/slot', shiftRouter);
 router.use('/address', addressRouter);
 router.use('/paymentmethod', paymentRouter);
 module.exports = router
