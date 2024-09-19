@@ -1,6 +1,6 @@
 const utils = require("../../middleware/utils");
 const { persistShiftOrder, fetch, persistMultipleDeliveries, updateQuery, persistEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../middleware/db");
-const { FETCH_ORDER_BY_ORDER_EXT_SEARCH, transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
+const { FETCH_SLOTS_BY_SHIFT_ID,FETCH_ORDER_BY_ORDER_EXT_SEARCH, transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../db/enterprise.order");
 const { updateItem } = require("../enterprise/enterprise");
 const notification = require("../../controllers/common/Notifications/notification");
 const { insertQuery } = require("../../middleware/db");
@@ -23,7 +23,16 @@ exports.getItemByEnterpriseExt = async (req, res) => {
           message = "No items found";
           return res.status(400).json(utils.buildErrorObject(400, message, 1001));
         }
-        return res.status(200).json(utils.buildCreateMessage(200, message, data));
+        const shiftWithSlots = await Promise.all(
+          data.map(async (shift) => {
+            const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+            return {
+              ...shift,
+              slots,
+            };
+          })
+        );
+        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
       //}else{
      //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
      // }
@@ -49,7 +58,16 @@ exports.getItemByOrderNumber = async (req, res) => {
           message = "No items found";
           return res.status(400).json(utils.buildErrorObject(400, message, 1001));
         }
-        return res.status(200).json(utils.buildCreateMessage(200, message, data));
+        const shiftWithSlots = await Promise.all(
+          data.map(async (shift) => {
+            const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+            return {
+              ...shift,
+              slots,
+            };
+          })
+        );
+        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
       //}else{
      //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
      // }
@@ -73,7 +91,16 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
           message = "No items found";
           return res.status(400).json(utils.buildErrorObject(400, message, 1001));
         }
-        return res.status(200).json(utils.buildCreateMessage(200, message, data));
+        const shiftWithSlots = await Promise.all(
+          data.map(async (shift) => {
+            const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+            return {
+              ...shift,
+              slots,
+            };
+          })
+        );
+        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
     }
