@@ -68,7 +68,7 @@ exports.getNotificationByExtId = async (req, res) => {
     console.log(page);
     const ext_id = req.params.ext_id;
     console.log(ext_id);
-    const data = await Notification.find({ receiverExtId: ext_id }).skip(perPage * page).limit(perPage);
+    const data = await Notification.find({ receiverExtId: ext_id,is_del: false }).skip(perPage * page).limit(perPage);
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
       message = "No notification found.";
