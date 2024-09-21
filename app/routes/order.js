@@ -25,7 +25,7 @@ router.post(
   '/',
   trimRequest.all,
   validate.createGeneralOrder,
-  controller.createItem
+  controller.createOrder
 )
 
 router.post(
@@ -108,7 +108,7 @@ router.delete(
 )
 
 router.put(
-  '/request',
+  '/deliveryboy/request/action',
   trimRequest.all,
   validate.requestAction,
   controller.requestAction
