@@ -24,6 +24,12 @@ router.get(
   controller.getItems
 )
 
+router.get(
+  '/reset/:status',
+  trimRequest.all,
+  controller.reset
+)
+
 /*
  * Get items route
  */
