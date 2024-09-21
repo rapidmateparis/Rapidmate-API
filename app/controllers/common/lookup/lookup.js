@@ -10,7 +10,7 @@ exports.lookupService = async (req, res) => {
       console.log("NO_CACHE");
       const vehicleTypeData = await fetch("select id,vehicle_type,vehicle_type_desc from rmt_vehicle_type");
       const workTypeData = await fetch("select id,work_type,work_type_desc from rmt_work_type");
-      const serviceData = await fetch("select id,service_name from rmt_service");
+      const serviceData = await fetch("select id,service_name, discount from rmt_service");
       const vehicleSubTypeData = await fetch("select id,vehicle_sub_type,vehicle_sub_type_desc,vehicle_type_id from rmt_vehicle_sub_type");
       const industryTypeData = await fetch("select id,industry_type,industry_type_desc from rmt_industry_type");
       const enterpriseDeliveryTypeData = await fetch("select id,delivery_type,delivery_type_desc from rmt_enterprise_delivery_type");
