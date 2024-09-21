@@ -26,6 +26,28 @@ exports.getItems = async (req, res) => {
   }
 }
 
+exports.reset = async (req, res) => {
+  try {
+    var status = req.params.status;
+    var resetQuery = 'update rmt_delivery_boy set is_availability = 1 where id <> 1000';
+    if(status != 'all'){
+      resetQuery = 'update rmt_delivery_boy set is_availability = 0 where id <> 1000';
+      const dataReset = await updateQuery(resetQuery, []);
+      resetQuery = 'update rmt_delivery_boy set is_availability = 1 where (email = ? or ext_id = ?)';
+    }
+    const data = await updateQuery(resetQuery, [status, status]);
+    let message="Items retrieved successfully";
+    if(data.length <=0){
+      message="No items found"
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    }
+    return res.status(200).json(utils.buildCreateMessage(200,"Reset successfully",[]))
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
 exports.getDriverAvailablity = async (req, res) => {
   try {
     const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 limit 1';
