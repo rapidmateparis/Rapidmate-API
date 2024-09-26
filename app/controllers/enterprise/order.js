@@ -516,7 +516,16 @@ exports.search = async (req, res) => {
         message = "No plannings available";
         return res.status(400).json(utils.buildErrorObject(400, message, 1001));
       }
-      return res.status(200).json(utils.buildCreateMessage(200, message, data));
+      const shiftWithSlots = await Promise.all(
+        data.map(async (shift) => {
+          const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+          return {
+            ...shift,
+            slots,
+          };
+        })
+      );
+      return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
