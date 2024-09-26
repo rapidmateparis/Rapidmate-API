@@ -198,33 +198,39 @@ exports.FETCH_DRIVER_AVAILABLE=`SELECT id, name, latitude, longitude, active, al
   exports.UPDATE_ENTERPRISE_ADDRESS=`UPDATE rmt_enterprise_address SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),address=?,first_name=?,last_name=?,email=?,mobile=?,company_name=?,comment=? WHERE id=?`;
   exports.DELETE_ENTERPRISE_ADDRESS='UPDATE rmt_enterprise_address SET is_del=1 WHERE id=?'
   //-------------------------------------dashboard query-----------------------------------------------------------------------------
-  exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN shift_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN shift_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_order_slot WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
-  exports.FETCH_SLOT_CHART=`
-        SELECT 
-            day, 
-            SUM(TIMESTAMPDIFF(HOUR, from_time, to_time)) AS booked_hours 
-        FROM 
-            rmt_enterprise_order_slot 
-        WHERE 
-            enterprise_id = (
+  exports.FETCH_SCHEDULES=`SELECT SUM(CASE WHEN order_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN order_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_order WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`
+  exports.FETCH_SLOT_CHART = `
+    SELECT 
+        day, 
+        SUM(TIMESTAMPDIFF(HOUR, from_time, to_time)) AS booked_hours 
+    FROM 
+        rmt_enterprise_order_slot
+    WHERE 
+        enterprise_order_id IN (
+            SELECT id 
+            FROM rmt_enterprise_order 
+            WHERE enterprise_id = (
                 SELECT id 
                 FROM rmt_enterprise 
                 WHERE ext_id = ?
             )
-        GROUP BY 
-            day 
-        ORDER BY 
-            FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
-    `
+        )
+    GROUP BY 
+        day 
+    ORDER BY 
+        FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+`;
+
+
   exports.FETCH_BRANCH_FOR_DASH=`SELECT * 
-FROM rmt_enterprise_branch 
-WHERE enterprise_id = (
-    SELECT id 
-    FROM rmt_enterprise 
-    WHERE ext_id = ?
-) 
-ORDER BY id ASC 
-LIMIT 3`;
+    FROM rmt_enterprise_branch 
+    WHERE enterprise_id = (
+        SELECT id 
+        FROM rmt_enterprise 
+        WHERE ext_id = ?
+    ) 
+    ORDER BY id ASC 
+    LIMIT 3`;
   //-----------------------delivery boy connection-------------------------------------------------------------------------------------
   exports.FETCH_CONNECTION_WITH_DELIVERYBOY=`SELECT cn.*, CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name, en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE cn.is_del = 0`
   exports.FETCH_CONNECTION_WITH_DELIVERYBOY_BYID=`SELECT cn.*, CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name, en.company_name AS enterprise_name FROM rmt_delivery_boy_enterprise_connections AS cn JOIN rmt_delivery_boy AS dbs ON cn.delivery_boy_id = dbs.id JOIN rmt_enterprise AS en ON cn.enterprise_id = en.id WHERE cn.id = ? AND cn.is_del = 0`
