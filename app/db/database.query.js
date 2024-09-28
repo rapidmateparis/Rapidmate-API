@@ -335,6 +335,11 @@ exports.FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`SELECT * FROM rmt_delivery_boy_ad
 exports.INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_delivery_boy_address_book(delivery_boy_id, first_name, last_name, address, email, phone, company_name, comments) VALUES((select id from rmt_delivery_boy where ext_id = ?), ?, ?, ?, ?, ?, ?, ?)`;
 exports.DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY=`Delete from  rmt_delivery_boy_address_book where id = ?`;
 
+//-------------------------------rmt_consumer_address_book-----------------------------------------------------\
+exports.FETCH_ENTERPRISE_ADDRESS_BOOK_QUERY=`SELECT * FROM rmt_enterprise_address_book WHERE is_del=0 and enterprise_id = (select id from rmt_enterprise where ext_id = ?)`;
+exports.INSERT_ENTERPRISE_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_enterprise_address_book(enterprise_id, first_name, last_name, address, email, phone, company_name, comments) VALUES((select id from rmt_enterprise where ext_id = ?), ?, ?, ?, ?, ?, ?, ?)`;
+exports.DELETE_ENTERPRISE_ADDRESS_BOOK_QUERY=`Delete from  rmt_enterprise_address_book where id = ?`;
+
 //======================================= rmt_service =============================================================
 exports.FETCH_ALL_SERVICE=`select * from rmt_service where is_del=0`
 exports.FETCH_SERVICE_BYID=`select * from rmt_service where is_del=0 AND id=?`
