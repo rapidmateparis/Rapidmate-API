@@ -73,6 +73,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
       }else{
         statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
       }
+      var conditions = "";
       if(orderNumber && orderNumber != '' ){
         conditions = " and order_number = '" + orderNumber + "' ";
       }
