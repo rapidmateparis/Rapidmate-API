@@ -236,10 +236,10 @@ const createItem = async (req) => {
   requestBody.push(req.promo_value || null);
   requestBody.push(req.order_amount || 0.00);
   requestBody.push(req.discount || 0.00);
-  requestBody.push(req.drop_first_name);
-  requestBody.push(req.drop_last_name);
-  requestBody.push(req.drop_company_name);
-  requestBody.push(req.drop_mobile);
+  requestBody.push(req.drop_first_name || null);
+  requestBody.push(req.drop_last_name || null);
+  requestBody.push(req.drop_company_name || null);
+  requestBody.push(req.drop_mobile || null);
   var requestBodyNew = requestBody.filter(function(item) {
     return item !== undefined;
   });
