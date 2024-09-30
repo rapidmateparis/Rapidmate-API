@@ -53,12 +53,14 @@ exports.getItem = async (req, res) => {
  */
 const updateItem = async (id,req) => {
     const registerRes = await updateQuery(UPDATE_ENTERPRISE_ADDRESS,[req.enterprise_ext,req.address,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment,id]);
+    console.log(registerRes)
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'id','rmt_enterprise_address')
+    const getId = await utils.isIDGood(id,'id','rmt_enterprise_address_book')
+    console.log(getId)
     if(getId){
       const updatedItem = await updateItem(id, req.body);
       if (updatedItem.affectedRows >0) {

@@ -197,13 +197,12 @@ exports.INSERT_INDUSTRY = `INSERT INTO rmt_industry_type(industry_type,industry_
 exports.UPDATE_INDUSTRY = `UPDATE rmt_industry_type SET industry_type=?, industry_type_desc=? WHERE is_del=0 AND id=?`;
 exports.DELETE_INDUSTRY = `UPDATE rmt_industry_type SET is_del=1 WHERE id=?`;
 //---------------------------------------- address------------------------------------------------------------------------
-exports.FETCH_ENTERPRISE_ADDRESS = `SELECT * FROM rmt_enterprise_address WHERE is_del=0`;
-exports.FETCH_ENTERPRISE_ADDRESS_BYID = `SELECT * FROM rmt_enterprise_address WHERE is_del=0 AND id=?`;
-exports.FETCH_ENTERPRISE_ADDRESS_BYEXTID = `SELECT * FROM rmt_enterprise_address WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id = ?)`;
-exports.INSERT_ENTERPRISE_ADDRESS = `INSERT INTO rmt_enterprise_address(enterprise_id,address,first_name,last_name,email,mobile,company_name,comment) VALUES((select id from rmt_enterprise where ext_id = ?),?,?,?,?,?,?,?)`;
-exports.UPDATE_ENTERPRISE_ADDRESS = `UPDATE rmt_enterprise_address SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),address=?,first_name=?,last_name=?,email=?,mobile=?,company_name=?,comment=? WHERE id=?`;
-exports.DELETE_ENTERPRISE_ADDRESS =
-  "UPDATE rmt_enterprise_address SET is_del=1 WHERE id=?";
+exports.FETCH_ENTERPRISE_ADDRESS = `SELECT * FROM rmt_enterprise_address_book WHERE is_del=0`;
+exports.FETCH_ENTERPRISE_ADDRESS_BYID = `SELECT * FROM rmt_enterprise_address_book WHERE is_del=0 AND id=?`;
+exports.FETCH_ENTERPRISE_ADDRESS_BYEXTID = `SELECT * FROM rmt_enterprise_address_book WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id = ?)`;
+exports.INSERT_ENTERPRISE_ADDRESS = `INSERT INTO rmt_enterprise_address_book(enterprise_id,address,first_name,last_name,email,phone,company_name,comments) VALUES((select id from rmt_enterprise where ext_id = ?),?,?,?,?,?,?,?)`;
+exports.UPDATE_ENTERPRISE_ADDRESS = `UPDATE rmt_enterprise_address_book SET enterprise_id=(select id from rmt_enterprise where ext_id = ?),address=?,first_name=?,last_name=?,email=?,phone=?,company_name=?,comments=? WHERE id=?`;
+exports.DELETE_ENTERPRISE_ADDRESS ="UPDATE rmt_enterprise_address_book SET is_del=1 WHERE id=?";
 //-------------------------------------dashboard query-----------------------------------------------------------------------------
 exports.FETCH_SCHEDULES = `SELECT branch_id, SUM(CASE WHEN order_status = 'ONGOING' THEN 1 ELSE 0 END) AS active,SUM(CASE WHEN order_status = 'ACCEPT' THEN 1 ELSE 0 END) AS scheduled,COUNT(*) AS all_bookings FROM rmt_enterprise_order WHERE enterprise_id=(select id from rmt_enterprise where ext_id=?)`;
 exports.FETCH_BRANCH_BOOKHR = `SELECT COUNT(*) AS all_bookings FROM rmt_enterprise_order WHERE branch_id=? GROUP BY branch_id`;
