@@ -1,5 +1,5 @@
 const utils = require('../../../middleware/utils')
-const { insertQuery,fetch} = require('../../../middleware/db')
+const { insertQuery,fetch,updateQuery} = require('../../../middleware/db')
 const { FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY, INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY, DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY, transformKeysToLowercase,} = require('../../../db/database.query')
 
 
@@ -45,6 +45,10 @@ exports.updateAddressBook = async (req, res) => {
     const requestData = req.body;
     var queryCondition = "";
     var queryConditionParam = [];
+    if(requestData.address){
+      queryCondition += ", address = ?";
+      queryConditionParam.push(requestData.address);
+    }
     if(requestData.first_name){
       queryCondition += ", first_name = ?";
       queryConditionParam.push(requestData.first_name);
