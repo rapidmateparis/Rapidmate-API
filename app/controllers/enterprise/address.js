@@ -18,6 +18,7 @@ exports.getById = async (req, res) => {
   }
 }
 
+<<<<<<< HEAD
 exports.createAddressBook = async (req, res) => {
   try {
     const executedResult = await createNewAddress(req.body)
@@ -25,6 +26,59 @@ exports.createAddressBook = async (req, res) => {
       const response = req.body;
       response.id = executedResult.insertId;
       return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully', response))
+=======
+
+/**
+ * Update item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const updateItem = async (id,req) => {
+    const registerRes = await updateQuery(UPDATE_ENTERPRISE_ADDRESS,[req.enterprise_ext,req.address,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment,id]);
+    console.log(registerRes)
+    return registerRes;
+}
+exports.updateItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getId = await utils.isIDGood(id,'id','rmt_enterprise_address_book')
+    console.log(getId)
+    if(getId){
+      const updatedItem = await updateItem(id, req.body);
+      if (updatedItem.affectedRows >0) {
+          return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      } else {
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+    }
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+  }
+    
+}
+/**
+ * Create item function called by route
+ * @param {Object} req - request object
+ * @param {Object} res - response object
+ */
+const createItem = async (req) => {
+    const registerRes = await insertQuery(INSERT_ENTERPRISE_ADDRESS,[req.enterprise_ext,req.address,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment]);
+    return registerRes;
+}
+
+exports.createItem = async (req, res) => {
+  try {
+    const doesNameExists =await utils.nameExists(req.body.company_name,'rmt_enterprise_address','company_name')
+    if (!doesNameExists) {
+      const item = await createItem(req.body)
+      if(item.insertId){
+        const currentdata=await fetch(FETCH_ENTERPRISE_ADDRESS_BYID,[item.insertId])
+        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      }
+>>>>>>> develop_kalim_sept2024
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Unable to create address. Please try again later.',1001));
     }

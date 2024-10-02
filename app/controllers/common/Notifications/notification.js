@@ -216,22 +216,27 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
   }else{
     table='rmt_admin_user'
   }
-  const query=`SELECT token from ${table} WHERE ext_id=?`;
+  const query=`SELECT token,enable_push_notification,enable_email_notification from ${table} WHERE ext_id=?`;
   const [result]=await fetch(query,[receiverExtId]);
-  const token = result.token
-  if(!token){
-    return false
+  const token = (result?.token === undefined)? false : result?.token;
+  const isSendFCMNotify = result?.enable_push_notification
+  const isSendEmail = result?.enable_email_notification
+  if (!token) {
+    return false;
   }
-  const messages = {
-    notification: {
-      title: title,
-      body: message,
-    },
-    data: payload,
-    token: token,
-  };
+  if(isSendFCMNotify){
+    const messages = {
+      notification: {
+        title: title,
+        body: message,
+      },
+      data: payload,
+      token: token,
+    };
+    admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
+  }
 
-  admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
+  
 }
 
 exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
@@ -262,10 +267,14 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
     if (!savedNotification) {
       return false;
     }
-    if(isSendFCMNotify){
-      const objId=savedNotification._id
-      const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-    }
+    // if(isSendFCMNotify){
+    //   const objId=savedNotification._id
+    //   const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
+    // }
+
+    const objId=savedNotification._id
+    const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
+   
     return savedNotification;
    
   } catch (error) {
