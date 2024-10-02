@@ -18,7 +18,7 @@ exports.getById = async (req, res) => {
   }
 }
 
-<<<<<<< HEAD
+
 exports.createAddressBook = async (req, res) => {
   try {
     const executedResult = await createNewAddress(req.body)
@@ -26,7 +26,11 @@ exports.createAddressBook = async (req, res) => {
       const response = req.body;
       response.id = executedResult.insertId;
       return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully', response))
-=======
+    }
+  }catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Unable to create address. Please try again later.',1001));
+  }
+}
 
 /**
  * Update item function called by route
@@ -78,7 +82,6 @@ exports.createItem = async (req, res) => {
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
->>>>>>> develop_kalim_sept2024
     }else{
       return res.status(500).json(utils.buildErrorObject(500,'Unable to create address. Please try again later.',1001));
     }

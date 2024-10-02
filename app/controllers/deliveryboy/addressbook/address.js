@@ -1,9 +1,5 @@
 const utils = require('../../../middleware/utils')
-<<<<<<< HEAD
 const { insertQuery,fetch, updateQuery, executeQuery} = require('../../../middleware/db')
-=======
-const { insertQuery,fetch,updateQuery} = require('../../../middleware/db')
->>>>>>> develop_kalim_sept2024
 const { FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY, INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY, DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY, transformKeysToLowercase,} = require('../../../db/database.query')
 
 
