@@ -221,7 +221,7 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
   const token = (result?.token === undefined)? false : result?.token;
   const isSendFCMNotify = result?.enable_push_notification
   const isSendEmail = result?.enable_email_notification
-  if (!token || !isSendFCMNotify || !isSendEmail) {
+  if (!token) {
     return false;
   }
   if(isSendFCMNotify){
@@ -235,6 +235,7 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
     };
     admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
   }
+
   
 }
 

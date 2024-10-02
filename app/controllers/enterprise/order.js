@@ -17,6 +17,18 @@ exports.getItemByEnterpriseExt = async (req, res) => {
       //console.log(isAuththorized)
       //if(isAuththorized.status==200){
         const id = req.params.id;
+      // const reqStatus = req.query.status;
+      // console.log(reqStatus);
+      // let statusParams = [];
+      // if(reqStatus == 'current'){
+      //   statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
+      // }else if(reqStatus == "past") {
+      //   statusParams.push(["'PAYMENT_FAILED'","'ORDER_REJECTED'","'COMPLETED'","'CANCELLED'"]);
+      // }else{
+      //   statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
+      // }
+      // var query = "select waiting_fare,discount,next_action_status ,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location,dropoff_location,shift_from_date,shift_tp_date,order_status,delivery_date,is_same_slot_all_days,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_enterprise_order where order_status in (" + statusParams + ") AND enterprise_id =(select id from rmt_enterprise where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+      // const data = await fetch(query, [id]);
         const data = await fetch(FETCH_ORDER_BY_ORDER_EXT,[id]);
         let message = "Items retrieved successfully";
         if (data.length <= 0) {
@@ -421,7 +433,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
         message="Delivery boys are busy. Please try again!!!";
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }else{
-        allocatedDeliveryBoy = dbData[0];
+        const allocatedDeliveryBoy = dbData[0];
         responseData.deliveryBoy = allocatedDeliveryBoy;
         const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
         const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
