@@ -19,16 +19,6 @@ router.post(
   controller.createItem
 )
 
-
-/*
- * Create new item route
- */
-router.post(
-  '/shiftorder',
-  trimRequest.all,
-  validate.orderItem,
-  controller.createShiftItem
-)
 /*
  * Get item route
  */

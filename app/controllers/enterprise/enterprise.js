@@ -1,7 +1,7 @@
 const utils = require("../../middleware/utils");
 const { runQuery, fetch } = require("../../middleware/db");
 const auth = require("../../middleware/auth");
-const { FETCH_SCHEDULES, FETCH_SLOT_CHART, FETCH_BRANCH_FOR_DASH } = require("../../db/database.query");
+const { FETCH_SCHEDULES, FETCH_SLOT_CHART, FETCH_BRANCH_FOR_DASH, FETCH_BRANCH_BOOKHR } = require("../../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -31,17 +31,22 @@ exports.dashboardItem = async (req, res) => {
   try {
     const { id } = req.params;
     const [bookings] = await fetch(FETCH_SCHEDULES, [id]);
-    const chartData=await fetch(FETCH_SLOT_CHART,[id]);
-    const branchData=await fetch(FETCH_BRANCH_FOR_DASH,[id]);
-    const resporse=[{
+    const branchData=await fetch(FETCH_BRANCH_FOR_DASH,[id])
+    const branchBookingStatus = await Promise.all(
+      branchData.map(async (item) => {
+          const [branchhr] = await fetch(FETCH_BRANCH_BOOKHR, [item.branch_id]);
+          const chartData=await fetch(FETCH_SLOT_CHART,[item.branch_id]);
+          return { ...item, bookings: branchhr?.all_bookings || 0, chartData:chartData || [] }; // Return a new object with bookings
+      })
+  );
+  const resporse=[{
         dashboard: {
           bookings: {
               active: bookings.active,
               scheduled: bookings.scheduled,
               all: bookings.all_bookings
           },
-          chartdata: chartData,
-          branch: branchData 
+          branch: branchBookingStatus
       }
     }];
     // console.log(branchData)
