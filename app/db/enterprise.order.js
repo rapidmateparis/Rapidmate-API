@@ -1,12 +1,12 @@
 //===============================rmt_enterpriser_order================================================================
-exports.UPDATE_ENTERPRISE_ORDER_BY_STATUS=`UPDATE rmt_enterprise_order SET order_status=? WHERE id=?`;
+exports.UPDATE_ENTERPRISE_ORDER_BY_STATUS=`UPDATE rmt_enterprise_order SET order_status=? WHERE id=? ORDER BY created_on DESC`;
 exports.UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS=`UPDATE rmt_enterprise_order_line SET order_status=? WHERE id=?`;
-exports.FETCH_ORDER_QUERY=`select * from rmt_enterprise_order WHERE is_del=0`;
+exports.FETCH_ORDER_QUERY=`select * from rmt_enterprise_order WHERE is_del=0 ORDER BY created_on DESC`;
 exports.FETCH_ORDER_BY_ID=`select * from rmt_enterprise_order WHERE is_del=0 AND id=?`
 exports.FETCH_ORDER_BY_ORDER_NUMBER=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND order_number=?`
 exports.DELETE_ORDER_QUERY=`UPDATE rmt_enterprise_order SET is_del=1 WHERE id=?`;
-exports.FETCH_ORDER_BY_ORDER_EXT=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?)`
-exports.FETCH_ORDER_DELIVERY_BOY_ID=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?)`
+exports.FETCH_ORDER_BY_ORDER_EXT=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) ORDER BY created_on DESC`
+exports.FETCH_ORDER_DELIVERY_BOY_ID=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) ORDER BY created_on DESC`
 exports.UPDATE_DELIVERY_UPDATE_ID=`UPDATE rmt_enterprise_order SET delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) WHERE id=?`;
 exports.FETCH_ORDER_BY_ORDER_EXT_SEARCH=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) and date(order_date) = date(?)`
 
