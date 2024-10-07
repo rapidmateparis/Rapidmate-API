@@ -4,60 +4,32 @@ const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 
-/*
- * job routes
- */
-
-/*
- * Get items route
- */
-router.get(
-  '/getbyext/:id',
-  trimRequest.all,
-  validate.getItem,
-  controller.getItems
-)
-
-/*
- * Create new item route
- */
 router.post(
-  '/',
+  '/create',
   trimRequest.all,
-  validate.createItem,
-  controller.createItem
-)
+  validate.validateAddressRequest,
+  controller.createAddressBook
+);
 
-/*
- * Get item route
- */
 router.get(
-  '/:id',
+  '/list/:id',
     trimRequest.all,
-    validate.getItem,
-  controller.getItem
+    validate.validateExtId,
+    controller.getById
 )
 
-
-
-/*
- * Update item route
- */
 router.put(
-  '/:id',
-  trimRequest.all,
-  validate.updateItem,
-  controller.updateItem
+  '/update',
+    trimRequest.all,
+    validate.validateUpdateAddressRequest,
+    controller.updateAddressBook
 )
 
-/*
- * Delete item route
- */
 router.delete(
-  '/:id',
-  trimRequest.all,
-  validate.deleteItem,
-  controller.deleteItem
+  '/delete/:id',
+    trimRequest.all,
+    validate.validateUpdateAddressRequest,
+    controller.deleteAddressBook
 )
 
 module.exports = router

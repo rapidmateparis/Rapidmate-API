@@ -48,6 +48,13 @@ router.put(
   validate.otpVerify,
   controller.otpVerifiy
 )
+
+router.put(
+  '/delivered/otp/verify',
+  trimRequest.all,
+  validate.otpVerify,
+  controller.deliveredOtpVerifiy
+)
 /*
  * Get item route
  */

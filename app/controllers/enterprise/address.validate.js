@@ -1,45 +1,19 @@
 const { validationResult } = require('../../middleware/utils')
 const { check } = require('express-validator')
-
 /**
  * Validates create new item request
  */
-exports.createItem = [
-    check('enterprise_ext').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('address').exists().withMessage('MISSING').not().isEmpty().withMessage('adress field is required.'),
-    check('first_name').exists().withMessage('MISSING').not().isEmpty().withMessage('first name field is required.'),
-    check('last_name').exists().withMessage('MISSING').not().isEmpty().withMessage('last name field is required.'),
-    check('email').exists().withMessage('MISSING').isEmail().withMessage('Enter valid email.'),
-    check('mobile').exists().withMessage('MISSING').not().isEmpty().withMessage('mobile field is required.').isMobilePhone().withMessage('Enter valid mobile'),
-    check('company_name').exists().withMessage('MISSING').not().isEmpty().withMessage('company field is required.'),
-    check('comment').exists().withMessage('MISSING'),
-  (req, res, next) => {
-    validationResult(req, res, next)
-  }
-]
-
-/**
- * Validates update item request
- */
-exports.updateItem = [
-    check('enterprise_ext').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-    check('address').exists().withMessage('MISSING').not().isEmpty().withMessage('adress field is required.'),
-    check('first_name').exists().withMessage('MISSING').not().isEmpty().withMessage('first name field is required.'),
-    check('last_name').exists().withMessage('MISSING').not().isEmpty().withMessage('last name field is required.'),
-    check('email').exists().withMessage('MISSING').isEmail().withMessage('Enter valid email.'),
-    check('mobile').exists().withMessage('MISSING').not().isEmpty().withMessage('mobile field is required.').isMobilePhone().withMessage('Enter valid mobile'),
-    check('company_name').exists().withMessage('MISSING').not().isEmpty().withMessage('company field is required.'),
-    check('comment').exists().withMessage('MISSING'),
-    check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+exports.validateAddressRequest = [
+    check('enterprise_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('first_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+    check('phone').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
     (req, res, next) => {
-        validationResult(req, res, next)
-    }
+    validationResult(req, res, next)
+  }
 ]
 
-/**
- * Validates get item request
- */
-exports.getItem = [
+
+exports.validateExtId = [
   check('id')
     .exists()
     .withMessage('MISSING')
@@ -51,17 +25,9 @@ exports.getItem = [
   }
 ]
 
-/**
- * Validates delete item request
- */
-exports.deleteItem = [
-  check('id')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY'),
+exports.validateUpdateAddressRequest = [
+  check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
-    validationResult(req, res, next)
-  }
+  validationResult(req, res, next)
+}
 ]
