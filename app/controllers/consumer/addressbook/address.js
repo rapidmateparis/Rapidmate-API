@@ -44,6 +44,10 @@ exports.updateAddressBook = async (req, res) => {
     const requestData = req.body;
     var queryCondition = "";
     var queryConditionParam = [];
+    if(requestData.address){
+      queryCondition += ", address = ?";
+      queryConditionParam.push(requestData.address);
+    }
     if(requestData.first_name){
       queryCondition += ", first_name = ?";
       queryConditionParam.push(requestData.first_name);
@@ -96,6 +100,7 @@ exports.deleteAddressBook = async (req, res) => {
       return res.status(500).json(utils.buildErrorObject(500,'Unable to delete address. Please try again later.',1001));
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json(utils.buildErrorObject(500,'Unable to delete address. Please try again later.',1001));
   }
 }

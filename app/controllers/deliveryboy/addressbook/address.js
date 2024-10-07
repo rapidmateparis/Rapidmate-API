@@ -1,5 +1,5 @@
 const utils = require('../../../middleware/utils')
-const { insertQuery,fetch,updateQuery} = require('../../../middleware/db')
+const { insertQuery,fetch, updateQuery, executeQuery} = require('../../../middleware/db')
 const { FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY, INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY, DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY, transformKeysToLowercase,} = require('../../../db/database.query')
 
 
@@ -101,6 +101,7 @@ exports.deleteAddressBook = async (req, res) => {
       return res.status(500).json(utils.buildErrorObject(500,'Unable to delete address. Please try again later.',1001));
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json(utils.buildErrorObject(500,'Unable to delete address. Please try again later.',1001));
   }
 }

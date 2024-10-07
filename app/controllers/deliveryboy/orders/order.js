@@ -64,7 +64,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
   try {
       const id = req.params.id;
       const reqStatus = req.query.status;
-      console.log(reqStatus);
+      const orderNumber = req.query.o || '';
       let statusParams = [];
       if(reqStatus == 'current'){
         statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
@@ -73,7 +73,11 @@ exports.getItemByConsumerExtId = async (req, res) => {
       }else{
         statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
       }
-      var query = "select waiting_fare,discount,next_action_status ,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_order where order_status in (" + statusParams + ") AND consumer_id =(select id from rmt_consumer where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+      var conditions = "";
+      if(orderNumber && orderNumber != '' ){
+        conditions = " and order_number = '" + orderNumber + "' ";
+      }
+      var query = "select waiting_fare,discount,next_action_status,consumer_order_title,delivery_boy_order_title ,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance," + " schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order where " + "order_status in (" + statusParams + ") " + conditions + " AND consumer_id =(select id from rmt_consumer where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
       const data = await fetch(query, [id]);
       const filterdata=await transformKeysToLowercase(data)
       let message = "Items retrieved successfully";
@@ -99,8 +103,10 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
   try {
     const id = req.params.id;
     const reqStatus = req.query.status;
+    const orderNumber = req.query.o || '';
     const orderType = req.query.orderType || "N";
     let statusParams = [];
+    let conditions = "";
     if(reqStatus == 'current'){
       statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'ORDER_ACCEPTED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
     }else if(reqStatus == "past") {
@@ -108,10 +114,18 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     }else{
       statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
     }
-    var query = "select waiting_fare,discount,next_action_status,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
-    if(orderType == "E"){
-      query = "select waiting_fare,discount,next_action_status,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_enterprise_order where is_del=0 and order_status in (" + statusParams + ") and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+    if(orderNumber && orderNumber != '' ){
+      conditions = " and order_number = '" + orderNumber + "' ";
     }
+    console.log(conditions);
+    console.log(orderNumber);
+    var query = "select waiting_fare,discount,next_action_status,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order where is_del=0 and order_status in (" + statusParams + ") " 
+                 + " and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) " + conditions + "order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+    if(orderType == "E"){
+      query = "select waiting_fare,discount,next_action_status,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, "
+               + " ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_enterprise_order where is_del=0 and order_status in (" + statusParams + ")" + conditions + "and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+    }
+    console.log(query);
     const data = await fetch(query, [id]);
     const filterdata=await transformKeysToLowercase(data)
     let message = "Items retrieved successfully";
@@ -223,6 +237,10 @@ const createItem = async (req) => {
   requestBody.push(req.promo_value || null);
   requestBody.push(req.order_amount || 0.00);
   requestBody.push(req.discount || 0.00);
+  requestBody.push(req.drop_first_name || null);
+  requestBody.push(req.drop_last_name || null);
+  requestBody.push(req.drop_company_name || null);
+  requestBody.push(req.drop_mobile || null);
   var requestBodyNew = requestBody.filter(function(item) {
     return item !== undefined;
   });
@@ -448,7 +466,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
 
 const getOrderInfo = async (order_number) => {
   try {
-    const data = await fetch("select waiting_fare,discount,next_action_status,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,ord.first_name,ord.last_name,ord.company_name,ord.email,ord.mobile,package_photo,package_id,pickup_notes,ord.created_on,ord.otp,ord.is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_value,cancel_reason_id, cancel_reason, order_amount,con.ext_id as ext_id from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and ord.is_del=0", [order_number]);
+    const data = await fetch("select waiting_fare,discount,next_action_status,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,ord.first_name,ord.last_name,ord.company_name,ord.email,ord.mobile,package_photo,package_id,pickup_notes,ord.created_on,ord.otp,ord.is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_value,cancel_reason_id, cancel_reason, order_amount,con.ext_id as ext_id,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and ord.is_del=0", [order_number]);
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
@@ -564,6 +582,42 @@ exports.otpVerifiy = async (req, res) => {
   }
 };
 
+exports.deliveredOtpVerifiy = async (req, res) => {
+  try {
+    var requestData = req.body;
+    const data = await fetch("select is_delivered_otp_verified from rmt_order where is_del=0 AND delivered_otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",[requestData.otp, requestData.order_number, requestData.delivery_boy_ext_id]);
+    if (data.length >0) {
+      var is_otp_verified = parseInt(data[0].is_delivered_otp_verified);
+      if(is_otp_verified == 0){
+        const updateData = await updateQuery("update rmt_order set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?", [requestData.order_number])
+        if(updateData){
+          return res.status(202).json(utils.buildCreateMessage(202, "Delivered OTP has been verified successfully", {
+            status : "DELIVERED_OTP_VERIFIED",
+            next_action_status : "Mark as delivered"
+          }));
+        }else{
+          return res
+          .status(500)
+          .json(utils.buildErrorObject(500, "Unable to verify OTP. Please try again", 1001));
+        }
+      }else{
+        return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "OTP is already verified", 1001));
+      }
+    }else{
+      return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Invalid OTP", 1001));
+    }
+   
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to verify OTP", 1001));
+  }
+};
 
 exports.requestAction = async (req, res) => {
   try {
@@ -639,22 +693,35 @@ exports.updateOrderStatus = async (req, res) => {
   try {
     var requestData = req.body;
     var status = "ORDER_ACCEPTED";
+    var deliveredOtp = "" ;
     var next_action_status = "Ready to pickup";
+    var consumer_order_title = "Delivery boy has allocated";
+    var delivery_boy_order_title = "OTP verified";
     if(requestData.status == "Ready to pickup"){
       status = "ON_THE_WAY_PICKUP";
       next_action_status = 'Reached';
+      consumer_order_title = "On the way to pickup";
+      delivery_boy_order_title = "Going to pickup location";
     }else if(requestData.status == "Reached"){
       status = "REACHED";
       next_action_status = 'Enter OTP';
+      consumer_order_title = "Reached pickup location";
+      delivery_boy_order_title = "Waiting for OTP";
     }else if(requestData.status == "Ready to delivered"){
       status = "ON_THE_WAY_DROP_OFF";
-      next_action_status = 'Delivered';
-    }else if(requestData.status == "Delivered"){
+      next_action_status = 'Enter Delivered OTP';
+      consumer_order_title = "On the way to drop";
+      delivery_boy_order_title = "Going to drop location";
+      deliveredOtp = ", delivered_otp = (LPAD(FLOOR(RAND() * 9999.99),4,  '0'))" ;
+    }else if(requestData.status == "Mark as delivered"){
       status = "COMPLETED";
       next_action_status = 'Completed';
+      consumer_order_title = "Order delivered ";
+      delivery_boy_order_title = "Order completed ";
     }
     
-    const updateData = await updateQuery("update rmt_order set order_status = '" + status + "', next_action_status = '" + next_action_status + "' where order_number = ?", [requestData.order_number])
+    const updateData = await updateQuery("update rmt_order set consumer_order_title = '" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" + status + "', next_action_status = '" + next_action_status + "' where order_number = ?", [requestData.order_number])
+    console.log(updateData);
     if(updateData){
       return res.status(202).json(utils.buildResponse(202, {
         status : status,
@@ -678,7 +745,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     console.log(req.params.ordernumber);
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = 'select waiting_fare,discount,next_action_status,is_delivery_boy_allocated,paid_with,total_duration,promo_code,promo_value,cancel_reason_id, cancel_reason, order_amount, order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code from rmt_order where is_del=0 and order_number = ?';
+    const orderAllocationQuery = 'select waiting_fare,discount,next_action_status,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,promo_code,promo_value,cancel_reason_id, cancel_reason, order_amount, order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order where is_del=0 and order_number = ?';
     const dbData = await fetch(orderAllocationQuery, [order_number])
     if(dbData.length <= 0){
       message="Invalid Order number";
