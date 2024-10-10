@@ -55,7 +55,7 @@ router.get(
  * Update item route
  */
 router.put(
-  '/:id',
+  '/',
   trimRequest.all,
   validate.updateItem,
   controller.updateItem
