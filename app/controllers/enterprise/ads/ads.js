@@ -1,6 +1,6 @@
-const utils = require('../../middleware/utils')
-const {fetch,insertQuery,updateQuery} = require('../../middleware/db')
-const {FETCH_MANAGE_ADS_BY_EXT_ID, FETCH_MANAGE_ADS_BY_ID, UPDATE_MANAGE_ADS, INSERT_MANAGE_ADS, DELETE_MANAGE_ADS,FETCH_MANAGE_ADS_BY_ADSID} = require('../../db/database.query')
+const utils = require('../../../middleware/utils')
+const {fetch,insertQuery,updateQuery} = require('../../../middleware/db')
+const {FETCH_MANAGE_ADS_BY_EXT_ID, FETCH_MANAGE_ADS_BY_ID, UPDATE_MANAGE_ADS, INSERT_MANAGE_ADS, DELETE_MANAGE_ADS,FETCH_MANAGE_ADS_BY_ADSID} = require('../../../db/database.query')
 /********************
  * Public functions *
  ********************/
