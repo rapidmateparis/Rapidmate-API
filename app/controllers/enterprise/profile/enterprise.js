@@ -113,25 +113,6 @@ const updateItem = async (profielUpdateQuery, params) => {
 }
 
 exports.updateItem = async (req, res) => {
-  // try {
-  //   const { id } = req.params;
-  //   const getId = await utils.isIDGood(id, "ENTERPRISE_ID", "rmt_enterprise");
-  //   if (getId) {
-  //     const updatedItem = await updateItem(id, req.body);
-  //     if (updatedItem) {
-  //       return res
-  //         .status(200)
-  //         .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
-  //     } else {
-  //       return res
-  //         .status(500)
-  //         .json(utils.buildErrorObject(500, "Something went wrong", 1001));
-  //     }
-  //   }
-  //   return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
-  // } catch (error) {
-  //   return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
-  // }
   try {
     const id = await utils.getValueById(
       "id",
