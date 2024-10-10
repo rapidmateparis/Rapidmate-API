@@ -1,7 +1,12 @@
-const utils = require("../../middleware/utils");
-const { runQuery, fetch } = require("../../middleware/db");
-const auth = require("../../middleware/auth");
-const { FETCH_SCHEDULES, FETCH_SLOT_CHART, FETCH_BRANCH_FOR_DASH, FETCH_BRANCH_BOOKHR } = require("../../db/database.query");
+const utils = require("../../../middleware/utils");
+const { runQuery, fetch } = require("../../../middleware/db");
+const auth = require("../../../middleware/auth");
+const {
+  FETCH_SCHEDULES,
+  FETCH_SLOT_CHART,
+  FETCH_BRANCH_FOR_DASH,
+  FETCH_BRANCH_BOOKHR,
+} = require("../../../db/database.query");
 /********************
  * Public functions *
  ********************/
@@ -23,7 +28,7 @@ exports.getItems = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500,error.message, 1001));
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
 
@@ -31,35 +36,43 @@ exports.dashboardItem = async (req, res) => {
   try {
     const { id } = req.params;
     const [bookings] = await fetch(FETCH_SCHEDULES, [id]);
-    const branchData=await fetch(FETCH_BRANCH_FOR_DASH,[id])
+    const branchData = await fetch(FETCH_BRANCH_FOR_DASH, [id]);
     const branchBookingStatus = await Promise.all(
       branchData.map(async (item) => {
-          const [branchhr] = await fetch(FETCH_BRANCH_BOOKHR, [item.branch_id]);
-          const chartData=await fetch(FETCH_SLOT_CHART,[item.branch_id]);
-          return { ...item, bookings: branchhr?.all_bookings || 0, chartData:chartData || [] }; // Return a new object with bookings
+        const [branchhr] = await fetch(FETCH_BRANCH_BOOKHR, [item.branch_id]);
+        const chartData = await fetch(FETCH_SLOT_CHART, [item.branch_id]);
+        return {
+          ...item,
+          bookings: branchhr?.all_bookings || 0,
+          chartData: chartData || [],
+        }; // Return a new object with bookings
       })
-  );
-  const resporse=[{
+    );
+    const resporse = [
+      {
         dashboard: {
           bookings: {
-              active: bookings.active,
-              scheduled: bookings.scheduled,
-              all: bookings.all_bookings
+            active: bookings.active,
+            scheduled: bookings.scheduled,
+            all: bookings.all_bookings,
           },
-          branch: branchBookingStatus
-      }
-    }];
+          branch: branchBookingStatus,
+        },
+      },
+    ];
     // console.log(branchData)
     let message = "Items retrieved successfully";
     if (bookings.length <= 0) {
       message = "No items found";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
-    return res.status(200).json(utils.buildCreateMessage(200, message, resporse));
+    return res
+      .status(200)
+      .json(utils.buildCreateMessage(200, message, resporse));
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500,error.message, 1001));
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
 /**
@@ -82,7 +95,7 @@ exports.getItem = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500,error.message, 1001));
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
 
@@ -91,31 +104,97 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id, req) => {
-  const registerQuery = `UPDATE rmt_enterprise SET ENTERPRISE_NAME='${req.enterprise_name}',EMAIL='${req.email}',PHONE_NUMBER='${req.phone_number}',CITY='${req.city}',STATE='${req.state}',COUNTRY='${req.country}',ADDRESS='${req.address}' ,POSTAL_CODE='${req.postal_code}',WEBSITE='${req.website}',INDUSTRY='${req.industry}',FOUNDED_DATE='${req.founded_date}',IS_DEL='${req.is_del}'  WHERE ENTERPRISE_ID='${id}'`;
-  const registerRes = await runQuery(registerQuery);
-  return registerRes;
-};
+const updateItem = async (profielUpdateQuery, params) => {
+  console.log(profielUpdateQuery);
+  console.log(params);
+  const updateConsumerProfile = await updateQuery(profielUpdateQuery, params);
+  console.log(updateConsumerProfile);
+  return updateConsumerProfile;
+}
 
 exports.updateItem = async (req, res) => {
   try {
-    const { id } = req.params;
-    const getId = await utils.isIDGood(id, "ENTERPRISE_ID", "rmt_enterprise");
-    if (getId) {
-      const updatedItem = await updateItem(id, req.body);
-      if (updatedItem) {
+    const id = await utils.getValueById(
+      "id",
+      "rmt_enterprise",
+      "ext_id",
+      req.body.ext_id
+    );
+    if (id) {
+      var queryCondition = "";
+      var queryConditionParam = [];
+      requestBody = req.body;
+      console.log(requestBody);
+      if (requestBody.first_name) {
+        queryCondition += ", first_name = ?";
+        queryConditionParam.push(requestBody.first_name);
+      }
+      if (requestBody.last_name) {
+        queryCondition += ", last_name = ?";
+        queryConditionParam.push(requestBody.last_name);
+      }
+      if (requestBody.phone) {
+        queryCondition += ", phone = ?";
+        queryConditionParam.push(requestBody.phone);
+      }
+      if (requestBody.profile_pic) {
+        queryCondition += ", profile_pic = ?";
+        queryConditionParam.push(requestBody.profile_pic);
+      }
+      if (requestBody.token) {
+        queryCondition += ", token = ?";
+        queryConditionParam.push(requestBody.token);
+      }
+      if (requestBody.language_id) {
+        queryCondition += ", language_id = ?";
+        queryConditionParam.push(requestBody.language_id);
+      }
+      if (
+        requestBody.enable_push_notification == 0 ||
+        requestBody.enable_push_notification == 1
+      ) {
+        queryCondition += ", enable_push_notification = ?";
+        queryConditionParam.push(requestBody.enable_push_notification);
+      }
+      if (
+        requestBody.enable_email_notification == 0 ||
+        requestBody.enable_email_notification == 1
+      ) {
+        queryCondition += ", enable_email_notification = ?";
+        queryConditionParam.push(requestBody.enable_email_notification);
+      }
+      queryConditionParam.push(req.body.ext_id);
+      var updateQuery =
+        "update rmt_entrprise set is_del = 0 " +
+        queryCondition +
+        " where ext_id = ?";
+
+      const executeResult = await updateItem(updateQuery, queryConditionParam);
+      if (executeResult) {
         return res
           .status(200)
           .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
       } else {
         return res
           .status(500)
-          .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+          .json(
+            utils.buildErrorObject(
+              500,
+              "Unable to update the Enterprise Profile",
+              1001
+            )
+          );
       }
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Invalid Enterprise", 1001));
     }
-    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
   }
 };
 /**
@@ -134,7 +213,7 @@ exports.createItem = async (req, res) => {
     const doesNameExists = await utils.nameExists(
       req.body.enterprise_name,
       "rmt_enterprise",
-      "ENTERPRISE_NAME"
+      "company_name"
     );
     if (!doesNameExists) {
       const item = await createItem(req.body);
@@ -157,12 +236,14 @@ exports.createItem = async (req, res) => {
         );
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_interprise WHERE INTERPRISE_ID='${id}'`;
+  const deleteQuery = `DELETE FROM rmt_interprise WHERE ext_id='${id}'`;
   const deleteRes = await runQuery(deleteQuery);
   return deleteRes;
 };
@@ -174,7 +255,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id, "ENTERPRISE_ID", "rmt_enterpise");
+    const getId = await utils.isIDGood(id, "ext_id", "rmt_enterpise");
     if (getId) {
       const deletedItem = await deleteItem(getId);
       if (deletedItem.affectedRows > 0) {
@@ -191,6 +272,8 @@ exports.deleteItem = async (req, res) => {
       .status(400)
       .json(utils.buildErrorObject(400, "Data not found.", 1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };

@@ -10,13 +10,14 @@ const { removeExtensionFromFile } = require('../middleware/utils')
 
 // Load Auth route
 router.use('/', require('./authuser'))
+router.use('/admin', require('./auth'))
 
 // Loop routes path and loads every file as a route except this file and Auth route
 fs.readdirSync(routesPath).filter((file) => {
   // Take filename and remove last part (extension)
   const routeFile = removeExtensionFromFile(file)
   // Prevents loading of this file and auth file
-  return routeFile !== 'index' && routeFile !== 'auth'
+  return routeFile !== 'index' && routeFile !== 'authuser' && routeFile !== 'auth'
     ? router.use(`/${routeFile}`, require(`./${routeFile}`))
     : ''
 })
