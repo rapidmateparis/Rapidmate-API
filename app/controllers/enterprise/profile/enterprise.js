@@ -1,5 +1,5 @@
 const utils = require("../../../middleware/utils");
-const { runQuery, fetch } = require("../../../middleware/db");
+const { runQuery, fetch, updateQuery } = require("../../../middleware/db");
 const auth = require("../../../middleware/auth");
 const {
   FETCH_SCHEDULES,
@@ -164,10 +164,7 @@ exports.updateItem = async (req, res) => {
         queryConditionParam.push(requestBody.enable_email_notification);
       }
       queryConditionParam.push(req.body.ext_id);
-      var updateQuery =
-        "update rmt_entrprise set is_del = 0 " +
-        queryCondition +
-        " where ext_id = ?";
+      let updateQuery ="update rmt_enterprise set is_del = 0 " +queryCondition +" where ext_id = ?";
 
       const executeResult = await updateItem(updateQuery, queryConditionParam);
       if (executeResult) {
