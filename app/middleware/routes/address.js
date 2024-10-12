@@ -1,5 +1,5 @@
-const controller = require('../../controllers/enterprise/address')
-const validate = require('../../controllers/enterprise/address.validate')
+const controller = require('../../controllers/enterprise/addressbook/address')
+const validate = require('../../controllers/enterprise/addressbook/address.validate')
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')

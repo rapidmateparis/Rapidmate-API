@@ -1,6 +1,6 @@
-const utils = require('../../middleware/utils')
-const {updateQuery,fetch, insertQuery,} = require('../../middleware/db');
-const {INSERT_SHIFT_SLOTS_QUERY,UPDATE_SLOTS_STATUS,FETCH__SLOTS_STATUS,FETCH_SLOTS_BY_SHIFT_ID,FETCH_SLOTS_BY_ID,FETCH_ALL_DELETED_SLOTS,DELETE_SLOTS_QUERY,FETCH_SLOTS_BY_STATUS,RESTORE_SLOTS_QUERY} = require('../../db/enterprise.order');
+const utils = require('../../../middleware/utils')
+const {updateQuery,fetch, insertQuery,} = require('../../../middleware/db');
+const {INSERT_SHIFT_SLOTS_QUERY,UPDATE_SLOTS_STATUS,FETCH__SLOTS_STATUS,FETCH_SLOTS_BY_SHIFT_ID,FETCH_SLOTS_BY_ID,FETCH_ALL_DELETED_SLOTS,DELETE_SLOTS_QUERY,FETCH_SLOTS_BY_STATUS,RESTORE_SLOTS_QUERY} = require('../../../db/enterprise.order');
 
 /********************
  * Public functions *

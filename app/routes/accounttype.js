@@ -2,6 +2,11 @@ const controller = require('../controllers/admin/accounttypes/accounttype')
 const validate = require('../controllers/admin/accounttypes/accounttype.validate')
 const express = require('express')
 const router = express.Router()
+require('../../config/passport')
+const passport = require('passport')
+const requireAuth = passport.authenticate('jwt', {
+  session: false
+})
 const trimRequest = require('trim-request')
 
 /*
@@ -13,6 +18,7 @@ const trimRequest = require('trim-request')
  */
 router.get(
   '/',
+  requireAuth,
   trimRequest.all,
   controller.getItems
 )

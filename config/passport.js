@@ -36,7 +36,7 @@ const jwtOptions = {
  * Login with JWT middleware
  */
 const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
-  User.findById(payload.data._id, (err, user) => {
+  User.findById(payload.data.userId, (err, user) => {
     if (err) {
       return done(err, false)
     }
