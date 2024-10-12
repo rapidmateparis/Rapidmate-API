@@ -356,6 +356,7 @@ async function login(userInfo) {
      }
 }
 async function logout(userInfo) {
+    clearToken(userinfo);
     if (process.env.PROD_FLAG == "true") {
         return new Promise((resolve, reject) => {
             var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
@@ -367,7 +368,6 @@ async function logout(userInfo) {
 
             if (cognitoUser != null) {
                 cognitoUser.signOut();
-                clearToken(userinfo);
                 logger.info("User logged out successfully");
                 resolve({ message: "User logged out successfully" });
             } else {

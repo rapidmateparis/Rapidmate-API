@@ -123,7 +123,7 @@ exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSU
 //exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,COMPANY_NAME,EMAIL,MOBILE,PACKAGE_PHOTO,PACKAGE_ID,PICKUP_NOTES,IS_MY_SELF) VALUES ((now()+1),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?,?,?,?,0)`;
 exports.UPDATE_ORDER_QUERY = `UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NAME=?,EMAIL=?,COMPANY_NAME=?,PHONE_NUMBER=?,PACKAGE_ID=?,PACKAGE_ATTACH=?,PACKAGE_NOTES=?,ORDER_DATE=?,ORDER_STATUS=?,AMOUNT=?,VEHICLE_TYPE_ID=?,PICKUP_LOCATION_ID=?,DROPOFF_LOCATION_ID=?,IS_ACTIVE=?,SERVICE_TYPE_ID=?,SHIFT_START_TIME=?,SHIFT_END_TIME=?,DELIVERY_DATE=?,DELIVERY_STATUS=?  WHERE ORDER_ID=?`;
 exports.UPDATE_ORDER_BY_STATUS = `UPDATE rmt_order SET DELIVERY_STATUS=? WHERE is_del=0 AND  ORDER_ID=?`;
-exports.DELETE_ORDER_QUERY = `UPDATE rmt_order SET order_status = 'CANCELLED', is_del =1, cancel_reason_id =?, cancel_reason = ? WHERE id=?`;
+exports.DELETE_ORDER_QUERY = `UPDATE rmt_order SET order_status = 'CANCELLED', is_del =1, cancel_reason_id =?, cancel_reason = ?=?, cancel_reason = ?,consumer_order_title = 'Cancelled', delivery_boy_order_title = 'Cancelled', updated_on = now() WHERE id=?`;
 
 //check order
 exports.CHECK_ORDER_FOR_OTP = `SELECT order_number, otp FROM rmt_order WHERE order_number = ? AND is_otp_verified=0`;
