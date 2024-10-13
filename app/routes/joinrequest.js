@@ -12,16 +12,16 @@ const trimRequest = require('trim-request')
 /**
  * get joinRequest list
  */
-router.post(
+router.get(
   '/getall',
   trimRequest.all,
-  validate.getJoinRequest,
+  // validate.getJoinRequest,
   joinrequest.getJoinRequest
 )
 /**
  * view single joinRequest
  */
-router.post(
+router.get(
   '/getjoinrequest',
   trimRequest.all,
   validate.viewJoinRequest,

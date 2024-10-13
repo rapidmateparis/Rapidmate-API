@@ -1,4 +1,4 @@
-const { runQuery } = require('../../middleware/db');
+const {fetch} = require('../../middleware/db');
 const utils = require('../../middleware/utils')
 
 /**
@@ -8,10 +8,9 @@ const utils = require('../../middleware/utils')
  */
 exports.getdashboardData = async (req,res) =>{
  try{
-
-    const [userDetail] = await runQuery(`SELECT SUM(CASE WHEN role = 'CONSUMER' THEN 1 ELSE 0 END) AS totalConsumers,SUM(CASE WHEN role = 'ENTERPRISE' THEN 1 ELSE 0 END) AS totalEnterprises,SUM(CASE WHEN role = 'DELIVERY_BOY' THEN 1 ELSE 0 END) AS totalDeliveryBoys FROM vw_rmt_user`);
-    const [orderDetails] = await runQuery(`SELECT COUNT(*) AS totalOrders,SUM(CASE WHEN order_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedOrders,SUM(CASE WHEN order_status = 'CANCELLED' THEN 1 ELSE 0 END) AS canceledOrders FROM rmt_order`);
-    // const [requestuserDetails]=await runQuery(`SELECT COUNT(*) AS totalRequestsleft FROM vw_rmt_user WHERE is_active=0`)
+   const [userDetail] = await fetch(`SELECT SUM(CASE WHEN role = ? THEN 1 ELSE 0 END) AS totalConsumers,SUM(CASE WHEN role = ? THEN 1 ELSE 0 END) AS totalEnterprises,SUM(CASE WHEN role = ? THEN 1 ELSE 0 END) AS totalDeliveryBoys FROM vw_rmt_user`,['CONSUMER','ENTERPRISE','DELIVERY_BOY']);
+   const [orderDetails] = await fetch(`SELECT COUNT(*) AS totalOrders,SUM(CASE WHEN order_status = ? THEN 1 ELSE 0 END) AS completedOrders,SUM(CASE WHEN order_status = ? THEN 1 ELSE 0 END) AS canceledOrders FROM rmt_order`,['COMPLETED','CANCELLED']);
+   const [requestuserDetails]=await fetch(`SELECT COUNT(*) AS totalRequestsleft FROM vw_rmt_user WHERE is_active=0`)
     // add is_active column in vw_rmt_user 
     const dashboardData = {
         totalConsumers: userDetail.totalConsumers,
@@ -20,7 +19,7 @@ exports.getdashboardData = async (req,res) =>{
         totalOrders: orderDetails.totalOrders,
         completedOrders: orderDetails.completedOrders,
         canceledOrders: orderDetails.canceledOrders,
-        // requestuserleft: requestuserDetails.totalRequestsleft
+        requestuserleft: requestuserDetails.totalRequestsleft
     };
 
     return res.status(200).json(utils.buildCreateMessage(200,'dashboard',[dashboardData]))
