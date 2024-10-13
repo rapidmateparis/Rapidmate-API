@@ -77,6 +77,24 @@ exports.removeExtensionFromFile = (file) => {
 }
 
 /**
+ * Gets IP from user
+ * @param {*} req - request object
+ */
+exports.getIP = (req) => requestIp.getClientIp(req)
+
+/**
+ * Gets browser info from user
+ * @param {*} req - request object
+ */
+exports.getBrowserInfo = (req) => req.headers['user-agent']
+
+/**
+ * Gets country from user using CloudFlare header 'cf-ipcountry'
+ * @param {*} req - request object
+ */
+exports.getCountry = (req) =>
+  req.headers['cf-ipcountry'] ? req.headers['cf-ipcountry'] : 'XX'
+/**
  * Builds s error object
  * @param {number} code - error code
  * @param {string} message - error text
@@ -185,7 +203,21 @@ exports.validationResult = (req, res, next) => {
   }
 }
 
-
+/**
+ * Item not found
+ * @param {Object} err - error object
+ * @param {Object} item - item result object
+ * @param {Object} reject - reject object
+ * @param {string} message - message
+ */
+exports.itemNotFound = (err, item, reject, message) => {
+  if (err) {
+    reject(this.buildErrObject(422, err.message))
+  }
+  if (!item) {
+    reject(this.buildErrObject(404, message))
+  }
+}
 
 exports.uploadFileToS3 = async (req, $filename, file = null) => {
   let imageBuffer;
