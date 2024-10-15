@@ -241,10 +241,10 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
 
 exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
   try {
-    const {title, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
+    const {title, body, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
     const insertData = {
       title,
-      body: bodydata,
+      body: bodydata || body,
       message, 
       topic,
       token,
