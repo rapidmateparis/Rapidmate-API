@@ -694,14 +694,14 @@ exports.updateOrderStatus = async (req, res) => {
     var requestData = req.body;
     var status = "ORDER_ACCEPTED";
     var deliveredOtp = "" ;
-    var next_action_status = "Ready to pickup";
-    var consumer_order_title = "Delivery boy has allocated";
-    var delivery_boy_order_title = "OTP verified";
+    var next_action_status = "Ready pickup";
+    var consumer_order_title = "Delivery boy allocated on";
+    var delivery_boy_order_title = "OTP verified on";
     if(requestData.status == "Ready to pickup"){
       status = "ON_THE_WAY_PICKUP";
       next_action_status = 'Reached';
-      consumer_order_title = "On the way to pickup";
-      delivery_boy_order_title = "Going to pickup location";
+      consumer_order_title = "On the way pickup";
+      delivery_boy_order_title = "Going pickup location";
     }else if(requestData.status == "Reached"){
       status = "REACHED";
       next_action_status = 'Enter OTP';
@@ -710,14 +710,14 @@ exports.updateOrderStatus = async (req, res) => {
     }else if(requestData.status == "Ready to delivered"){
       status = "ON_THE_WAY_DROP_OFF";
       next_action_status = 'Enter Delivered OTP';
-      consumer_order_title = "On the way to drop";
-      delivery_boy_order_title = "Going to drop location";
+      consumer_order_title = "On the way drop";
+      delivery_boy_order_title = "Going drop location";
       deliveredOtp = ", delivered_otp = (LPAD(FLOOR(RAND() * 9999.99),4,  '0'))" ;
     }else if(requestData.status == "Mark as delivered"){
       status = "COMPLETED";
       next_action_status = 'Completed';
-      consumer_order_title = "Order delivered ";
-      delivery_boy_order_title = "Order completed ";
+      consumer_order_title = "Delivered";
+      delivery_boy_order_title = "Delivered";
     }
     
     const updateData = await updateQuery("update rmt_order set consumer_order_title = '" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" + status + "', next_action_status = '" + next_action_status + "' where order_number = ?", [requestData.order_number])
