@@ -215,10 +215,44 @@ exports.createItem = async (req, res) => {
       console.log(requestData.delivery_boy_amount);
       console.log(requestData);
     }
+
+    
    
     const item = await createItem(requestData);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
+      let titleText='Your order has been created.';
+      if(requestData.delivery_type_id==1){
+        titleText='Your order has been created.'
+      }else if(requestData.delivery_type_id==2){
+        titleText='Your multiple order delivery has been created.'
+      }else if(requestData.delivery_type_id==3){
+        titleText='Your shift order has been created.'
+      }
+      var notifiationRequest = {
+        title : titleText,
+        body: {},
+        payload: {
+          message :  "Your booking has been confirmed successfully.",
+          orderNumber : currData[0].order_number
+        },
+        extId: currData[0].order_number,
+        message : "Your booking has been confirmed successfully", 
+        topic : "",
+        token : "",
+        senderExtId : "",
+        receiverExtId : requestData.enterprise_ext_id,
+        statusDescription : "",
+        status : "",
+        notifyStatus : "",
+        tokens : "",
+        tokenList : "",
+        actionName : "",
+        path : "",
+        userRole : "ENTERPRISE",
+        redirect : "ORDER"
+      }
+      notification.createNotificationRequest(notifiationRequest);
       return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",currData));
     } else {
       return res
@@ -469,7 +503,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
             tokenList : "",
             actionName : "",
             path : "",
-            userRole : "CONSUMER",
+            userRole : "ENTERPRISE",
             redirect : "ORDER"
           }
           notification.createNotificationRequest(notifiationConsumerRequest);
