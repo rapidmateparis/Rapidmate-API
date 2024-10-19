@@ -67,11 +67,11 @@ exports.getItemByConsumerExtId = async (req, res) => {
       const orderNumber = req.query.o || '';
       let statusParams = [];
       if(reqStatus == 'current'){
-        statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
+        statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'REACHED'","'OTP_VERIFIED'","'DELIVERED_OTP_VERIFIED'"]);
       }else if(reqStatus == "past") {
         statusParams.push(["'PAYMENT_FAILED'","'ORDER_REJECTED'","'COMPLETED'","'CANCELLED'"]);
       }else{
-        statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
+        statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'REACHED'","'OTP_VERIFIED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'","'DELIVERED_OTP_VERIFIED'"]);
       }
       var conditions = "";
       if(orderNumber && orderNumber != '' ){
@@ -108,11 +108,11 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     let statusParams = [];
     let conditions = "";
     if(reqStatus == 'current'){
-      statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'ORDER_ACCEPTED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
+      statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'REACHED'","'OTP_VERIFIED'","'DELIVERED_OTP_VERIFIED'"]);
     }else if(reqStatus == "past") {
       statusParams.push(["'PAYMENT_FAILED'","'ORDER_REJECTED'","'COMPLETED'","'CANCELLED'"]);
     }else{
-      statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_FAILED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
+      statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'REACHED'","'OTP_VERIFIED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'","'DELIVERED_OTP_VERIFIED'"]);
     }
     if(orderNumber && orderNumber != '' ){
       conditions = " and order_number = '" + orderNumber + "' ";
