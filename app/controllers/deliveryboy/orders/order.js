@@ -10,15 +10,77 @@ const doc = new jsPDF();
 
 exports.getItems = async (req, res) => {
   try {
-    const data = await runQuery(FETCH_ORDER_QUERY);
-    const filterdata=await transformKeysToLowercase(data)
-    let message = "Items retrieved successfully";
-    if (data.length <= 0) {
-      message = "No items found";
-      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    const reqStatus = req.query.status || 'current';
+    const orderNumber = req.query.o || "";
+    const page = parseInt(req.query.page) || 1;
+    const search = req.query.search || "";
+    const pageSize = 10;
+    let statusParams = [];
+    if (reqStatus == "current") {
+      statusParams.push([
+        "'ORDER_PLACED'",
+        "'CONIRMED'",
+        "'PAYMENT_COMPLETED'",
+        "'ORDER_ALLOCATED'",
+        "'ORDER_ACCEPTED'",
+        "'ON_THE_WAY_PICKUP'",
+        "'ON_THE_WAY_DROP_OFF'",
+      ]);
+    } else if (reqStatus == "past") {
+      statusParams.push([
+        "'PAYMENT_FAILED'",
+        "'ORDER_REJECTED'",
+        "'COMPLETED'",
+        "'CANCELLED'",
+      ]);
+    }else {
+      statusParams.push([
+        "'ORDER_PLACED'",
+        "'CONIRMED'",
+        "'PAYMENT_COMPLETED'",
+        "'ORDER_ALLOCATED'",
+        "'ORDER_ACCEPTED'",
+        "'ON_THE_WAY_PICKUP'",
+        "'PICKUP_COMPLETED'",
+        "'ON_THE_WAY_DROP_OFF'",
+      ]);
     }
-    return res.status(200).json(utils.buildCreateMessage(200, message, filterdata));
+    var conditions = "";
+    if (orderNumber && orderNumber != "") {
+      conditions = " and o.order_number = '" + orderNumber + "' ";
+    }
+    let queryReq = ``; 
+    let queryForCount=``;
+    if (search.trim()) {
+      queryReq += ` and (o.order_number LIKE ?)`;
+      queryForCount += ` and (order_number LIKE ?)`;
+
+    }
+    const searchQuery = `%${search}%`;
+    var query = "SELECT o.*, CONCAT(c.first_name, ' ', c.last_name) AS consumerName, CONCAT(d.first_name, ' ', d.last_name) AS deliveryboyName,v.vehicle_type as vehiclename,s.service_name FROM rmt_order o LEFT JOIN rmt_consumer c ON o.consumer_id = c.id LEFT JOIN rmt_delivery_boy d ON o.delivery_boy_id = d.id LEFT JOIN rmt_vehicle_type v ON o.vehicle_type_id=v.id LEFT JOIN rmt_service s ON o.service_type_id=s.id WHERE o.order_status IN (" + statusParams + ") " + conditions + queryReq + " ORDER BY o.created_on DESC " + utils.getPagination(page, pageSize);
+
+    const data = await fetch(query,[searchQuery]);
+    const filterdata = await transformKeysToLowercase(data || []);
+    let message = "Items retrieved successfully";
+    if (data?.length <= 0) {
+      message = "No items found";
+      return res.status(400).json(utils.buildErrorObject(404, message, 1001));
+    }
+    const countQuery = `SELECT COUNT(*) AS total FROM rmt_order WHERE order_status IN(${statusParams}) ${conditions} ${queryForCount}`;
+    const countResult = await fetch(countQuery,[searchQuery]);
+    const totalRecords = countResult[0].total;
+    const resData = {
+      total: totalRecords,
+      page: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(totalRecords / pageSize),
+      data: filterdata,
+    };
+    return res
+      .status(200)
+      .json(utils.buildCreateMessage(200, message, resData));
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, error.message, 1001));
