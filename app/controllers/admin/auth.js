@@ -399,7 +399,7 @@ exports.register = async (req, res) => {
 
     // Step 2: Create a role if not already created
     const roleData = {
-      name: "Admin",  // Example role
+      name: "admin",  // Example role
       permissions: []
     };
     
