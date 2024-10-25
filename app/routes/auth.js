@@ -34,5 +34,6 @@ router.get(
  * Login route
  */
 router.post('/login', trimRequest.all, validate.login, controller.login)
+router.get('/register',trimRequest.all,controller.register)
 router.use('/dashboard',dashboarRouter);
 module.exports = router

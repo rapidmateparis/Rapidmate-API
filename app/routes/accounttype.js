@@ -18,7 +18,7 @@ const trimRequest = require('trim-request')
  */
 router.get(
   '/',
-  requireAuth,
+  // requireAuth,
   trimRequest.all,
   controller.getItems
 )
