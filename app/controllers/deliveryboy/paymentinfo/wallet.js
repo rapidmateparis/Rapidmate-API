@@ -83,6 +83,8 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
     var additionalQueryConditions ="";
     if(durationType == 'today'){
       additionalQueryConditions = " and date(trans.created_on) = date(now()) ";
+    }else if (durationType == 'week') {
+      additionalQueryConditions = " and week(trans.created_on) = week(now()) and year(trans.created_on) = year(now()) ";
     }else if(durationType == 'month'){
       additionalQueryConditions = " and month(trans.created_on) = month(now()) ";
     }else if(durationType == 'year'){
