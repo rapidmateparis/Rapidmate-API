@@ -241,7 +241,7 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
   
 }
 
-exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
+exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
   try {
     const {title, body, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
     const bodyContent = typeof bodydata === 'object' ? JSON.stringify(bodydata) : (typeof body === 'object' ? JSON.stringify(body) : body || '');
@@ -270,14 +270,10 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
     if (!savedNotification) {
       return false;
     }
-    // if(isSendFCMNotify){
-    //   const objId=savedNotification._id
-    //   const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-    // }
-
-    const objId=savedNotification._id
-    const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-   
+    if(isSendFCMNotify){
+       const objId=savedNotification._id
+       const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
+    }
     return savedNotification;
    
   } catch (error) {
