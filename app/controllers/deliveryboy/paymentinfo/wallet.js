@@ -80,6 +80,7 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
   try {
     const id = req.params.id;
     const durationType = req.query.durationType;
+    const orderNumber = req.query.o;
     var additionalQueryConditions ="";
     if(durationType == 'today'){
       additionalQueryConditions = " and date(trans.created_on) = date(now()) ";
@@ -89,8 +90,9 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
       additionalQueryConditions = " and month(trans.created_on) = month(now()) ";
     }else if(durationType == 'year'){
       additionalQueryConditions = " and year(trans.created_on) = year(now()) ";
-    }else if(durationType){
-      additionalQueryConditions = " and year(trans.created_on) ='" + durationType + "' ";
+    }
+    if(orderNumber){
+      additionalQueryConditions += " and ord.order_number ='" + orderNumber + "' ";
     }
     const balance = await getWallentBalance(id);
     var data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
