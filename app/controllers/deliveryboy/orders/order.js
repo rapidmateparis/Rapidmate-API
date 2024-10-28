@@ -50,6 +50,10 @@ exports.getItems = async (req, res) => {
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
         "'ORDER_ACCEPTED'",
+        "'PICKUP_COMPLETED'",
+        "'REACHED'",
+        "'DELIVERED_OTP_VERIFIED'",
+        "'OTP_VERIFIED'",
         "'ON_THE_WAY_PICKUP'",
         "'ON_THE_WAY_DROP_OFF'",
       ]);
@@ -176,6 +180,10 @@ exports.getItemByConsumerExtId = async (req, res) => {
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
         "'ORDER_ACCEPTED'",
+        "'PICKUP_COMPLETED'",
+        "'REACHED'",
+        "'DELIVERED_OTP_VERIFIED'",
+        "'OTP_VERIFIED'",
         "'ON_THE_WAY_PICKUP'",
         "'ON_THE_WAY_DROP_OFF'",
       ]);
@@ -256,6 +264,10 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
         "'ORDER_ACCEPTED'",
+        "'PICKUP_COMPLETED'",
+        "'REACHED'",
+        "'DELIVERED_OTP_VERIFIED'",
+        "'OTP_VERIFIED'",
         "'ON_THE_WAY_PICKUP'",
         "'ON_THE_WAY_DROP_OFF'",
       ]);
