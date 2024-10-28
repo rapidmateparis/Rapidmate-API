@@ -66,10 +66,17 @@ exports.getItems = async (req, res) => {
         "'CONIRMED'",
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
+        "'PAYMENT_FAILED'",
         "'ORDER_ACCEPTED'",
+        "'ORDER_REJECTED'",
         "'ON_THE_WAY_PICKUP'",
         "'PICKUP_COMPLETED'",
+        "'REACHED'",
+        "'OTP_VERIFIED'",
         "'ON_THE_WAY_DROP_OFF'",
+        "'COMPLETED'",
+        "'CANCELLED'",
+        "'DELIVERED_OTP_VERIFIED'",
       ]);
     }
     var conditions = "";
