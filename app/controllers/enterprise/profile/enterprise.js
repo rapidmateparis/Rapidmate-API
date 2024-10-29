@@ -6,6 +6,7 @@ const {
   FETCH_SLOT_CHART,
   FETCH_BRANCH_FOR_DASH,
   FETCH_BRANCH_BOOKHR,
+  FETCH_ENTERPRISE_ID,
 } = require("../../../db/database.query");
 /********************
  * Public functions *
@@ -20,13 +21,13 @@ exports.getItems = async (req, res) => {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
     const pageSize = 10;
-    let queryReq = ` WHERE is_del=0 AND is_active=1`; 
+    let queryReq = ` WHERE e.is_del=0 AND e.is_active=1`; 
     if (search.trim()) {
-      queryReq += ` AND (first_name LIKE ? OR last_name LIKE ? OR email LIKE ? OR phone LIKE ?)`;
+      queryReq += ` AND (e.first_name LIKE ? OR e.last_name LIKE ? OR e.email LIKE ? e.OR phone LIKE ?)`;
     }
     const searchQuery = `%${search}%`;
-    const countQuery = `SELECT COUNT(*) AS total FROM rmt_enterprise ${queryReq}`;
-    const sql = `SELECT * FROM rmt_enterprise ${queryReq} ORDER BY created_on DESC ${utils.getPagination(page, pageSize)}`;
+    const countQuery = `SELECT COUNT(*) AS total FROM rmt_enterprise as e ${queryReq}`;
+    const sql = `SELECT e.*,it.industry_type FROM rmt_enterprise as e LEFT JOIN rmt_industry_type as it ON e.industry_type_id=it.id ${queryReq} ORDER BY e.created_on DESC ${utils.getPagination(page, pageSize)}`;
 
     const countResult = await fetch(countQuery,[searchQuery, searchQuery, searchQuery, searchQuery]);
     const data = await fetch(sql,[searchQuery, searchQuery, searchQuery, searchQuery]);
@@ -104,9 +105,7 @@ exports.dashboardItem = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye =
-      "select * from rmt_enterprise where ENTERPRISE_ID='" + id + "'";
-    const data = await runQuery(getUserQuerye);
+    const data = await fetch(FETCH_ENTERPRISE_ID,[id]);
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
       message = "No items found";

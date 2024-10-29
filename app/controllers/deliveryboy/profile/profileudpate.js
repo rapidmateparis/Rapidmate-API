@@ -15,14 +15,14 @@ exports.getItems = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10;
-    let queryReq = ` WHERE is_del=0 AND is_active=1`; 
+    const pageSize = req.query.pagesize || 10;
+    let queryReq = ` WHERE d.is_del=0 AND d.is_active=1`; 
     if (search.trim()) {
-      queryReq += ` AND (first_name LIKE ? OR last_name LIKE ? OR email LIKE ? OR phone LIKE ?)`;
+      queryReq += ` AND (d.first_name LIKE ? OR d.last_name LIKE ? OR d.email LIKE ? OR d.phone LIKE ?)`;
     }
     const searchQuery = `%${search}%`;
-    const countQuery = `SELECT COUNT(*) AS total FROM rmt_delivery_boy ${queryReq}`;
-    const sql = `SELECT * FROM rmt_delivery_boy ${queryReq} ORDER BY created_on DESC ${utils.getPagination(page, pageSize)}`;
+    const countQuery = `SELECT COUNT(*) AS total FROM rmt_delivery_boy as d ${queryReq}`;
+    const sql = `SELECT d.*,w.work_type FROM rmt_delivery_boy as d LEFT JOIN rmt_work_type w ON d.work_type_id = w.id ${queryReq} ORDER BY d.created_on DESC ${utils.getPagination(page, pageSize)}`;
 
     const countResult = await fetch(countQuery,[searchQuery, searchQuery, searchQuery, searchQuery]);
     const data = await fetch(sql,[searchQuery, searchQuery, searchQuery, searchQuery]);
@@ -169,19 +169,46 @@ exports.getNearbydriver = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuery = "SELECT e.ext_id, e.first_name, e.last_name, e.username, e.email, e.phone, e.profile_pic, e.city_id, e.country_id, e.state_id, e.language_id, e.is_active, e.is_availability, e.is_email_verified, e.is_mobile_verified, e.is_del, e.role_id, e.driver_licence_no, e.identity_card, e.insurance, e.passport, e.otp, e.token, e.verification_code, e.siret_no, e.logout_on, e.created_on, e.created_by, e.updated_on, e.updated_by, e.enable_email_notification, e.enable_push_notification, e.is_work_type, e.work_type_id, w.work_type_desc, e.reason, e.description, e.company_name, e.term_cond1, e.term_cond2, e.latitude, e.longitude, c.country_name AS country, s.state_name AS state, ct.city_name AS city, w.work_type FROM rmt_delivery_boy e LEFT JOIN rmt_country c ON e.country_id = c.id LEFT JOIN rmt_state s ON e.state_id = s.id LEFT JOIN rmt_city ct ON e.city_id = ct.id LEFT JOIN rmt_work_type w ON e.work_type_id = w.id WHERE e.ext_id = '"+id+"'";
+    
+    const getUserQuery = `
+      SELECT e.ext_id, e.first_name, e.last_name, e.username, e.email, e.phone, e.profile_pic, e.city_id, e.country_id, 
+             e.state_id, e.language_id, e.is_active, e.is_availability, e.is_email_verified, e.is_mobile_verified, 
+             e.is_del, e.role_id, e.driver_licence_no, e.identity_card, e.insurance, e.passport, e.otp, e.token, 
+             e.verification_code, e.siret_no, e.logout_on, e.created_on, e.created_by, e.updated_on, e.updated_by, 
+             e.enable_email_notification, e.enable_push_notification, e.is_work_type, e.work_type_id, w.work_type_desc, 
+             e.reason, e.description, e.company_name, e.term_cond1, e.term_cond2, e.latitude, e.longitude, 
+             c.country_name AS country, s.state_name AS state, ct.city_name AS city, w.work_type 
+      FROM rmt_delivery_boy e 
+      LEFT JOIN rmt_country c ON e.country_id = c.id 
+      LEFT JOIN rmt_state s ON e.state_id = s.id 
+      LEFT JOIN rmt_city ct ON e.city_id = ct.id 
+      LEFT JOIN rmt_work_type w ON e.work_type_id = w.id 
+      WHERE e.ext_id = ?`;
 
-    const data = await fetch(getUserQuery)
-    let message="Items retrieved successfully";
-    if(data.length <=0){
-        message="No items found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    const fetchUserData = fetch(getUserQuery, [id]);
+    const fetchVehicleData = fetch(
+      `SELECT v.*,t.vehicle_type FROM rmt_vehicle as v LEFT JOIN rmt_vehicle_type as t ON v.vehicle_type_id=t.id WHERE v.delivery_boy_id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?)`,
+      [id]
+    );
+
+    const [userData, vehicleData] = await Promise.all([fetchUserData, fetchVehicleData]);
+
+    if (!userData || userData.length === 0) {
+      return res.status(404).json(utils.buildErrorObject(404, "No items found", 1001));
     }
-    return res.status(200).json(utils.buildCreateMessage(200,message,data))
+
+    return res
+      .status(200)
+      .json(utils.buildCreateMessage(200, "Items retrieved successfully", { ...userData[0], vehicles: vehicleData || [] }));
+    
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    console.error("Error fetching item data:", error);
+    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
   }
-}
+};
+
+
+
 /**
  * Update item function called by route
  * @param {Object} req - request object

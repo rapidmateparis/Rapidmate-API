@@ -70,7 +70,7 @@ exports.DELETE_COUNTRY_QUERY = `UPDATE rmt_country SET is_del=1 WHERE id=?`;
 //-------------------------------RMT_CONSUMER------------------------------------------------
 
 exports.FETCH_CN_QUERY = `select * from rmt_consumer`;
-exports.FETCH_CN_BY_ID = `select * from rmt_consumer where ext_id=?`;
+exports.FETCH_CN_BY_ID = `select c.*,ct.country_name as country from rmt_consumer as c LEFT JOIN rmt_country as ct ON c.country_id=ct.id where ext_id=?`;
 exports.INSERT_CN_QUERY = `INSERT INTO rmt_consumer(FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,AUTAAR,ROLE_ID,CITY_ID,STATE_ID,COUNTRY_ID,ADDRESS,SIRET_NO,VEHICLE_ID,DRIVER_LICENCE_NO,INSURANCE,PASSPORT,IDENTITY_CARD,COMPANY_NAME,INDUSTRY,DESCRIPTION,TERM_COND1,TERM_COND2,ACCOUNT_TYPE,ACTIVE,OTP) VALUES(?,?,?,?,?,?,?,?,?,?,?)`;
 exports.UPDATE_CN_QUERY = `UPDATE rmt_consumer SET FIRST_NAME=?,LAST_NAME=?,EMAIL=?,EMAIL_VERIFICATION=?,PHONE=?,PASSWORD=?,AUTAAR=?,ROLE_ID=?,CITY_ID=?,STATE_ID=?,COUNTRY_ID=?,ADDRESS=?,SIRET_NO=?,VEHICLE_ID=?,DRIVER_LICENCE_NO=?,INSURANCE=?,PASSPORT=?,IDENTITY_CARD=?,COMPANY_NAME=?,INDUSTRY=?,DESCRIPTION=?,TERM_COND1=?,TERM_COND2=?,ACCOUNT_TYPE=?,ACTIVE=?,OTP=?,WHERE CONSUMER_ID=?`;
 exports.DELETE_CN_QUERY = `DELETE FROM rmt_consumer WHERE CONSUMER_ID=?`;
@@ -164,7 +164,7 @@ exports.FETCH_ENTERPRISE = `SELECT * FROM rmt_enterprise WHERE is_del=0 and is_a
 //join request views
 exports.FETCH_DELIVERY_BOY_ID = `SELECT * FROM rmt_delivery_boy WHERE is_del=0 AND ext_id=?`;
 exports.FETCH_CONSUMER_ID = `SELECT * FROM rmt_consumer WHERE is_del=0 AND ext_id=?`;
-exports.FETCH_ENTERPRISE_ID = `SELECT * FROM rmt_enterprise WHERE is_del=0 AND ext_id=?`;
+exports.FETCH_ENTERPRISE_ID = `SELECT e.*,c.country_name as country,it.industry_type,it.industry_type_desc,s.state_name as state,ct.city_name as city FROM rmt_enterprise as e LEFT JOIN rmt_country as c ON e.country_id=c.id LEFT JOIN rmt_state as s ON e.state_id=s.id LEFT JOIN rmt_city as ct ON e.city_id=ct.id LEFT JOIN rmt_industry_type as it ON e.industry_type_id=it.id WHERE ext_id=?`;
 //join request udpate
 exports.UPDATE_DELIVERY_BOY_STATUS = `UPDATE rmt_delivery_boy SET is_active=?,reason=? WHERE ext_id=?`;
 exports.UPDATE_CONSUMER_STATUS = `UPDATE rmt_consumer SET STATUS=? WHERE ext_id=?`;
