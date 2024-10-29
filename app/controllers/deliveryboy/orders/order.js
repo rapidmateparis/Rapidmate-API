@@ -474,8 +474,10 @@ const createItem = async (req) => {
   if(req.schedule_date_time){
     var deliveredOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
     requestBody.push("Scheduled on " + deliveredOnFormat);
+    requestBody.push("Scheduled on " + deliveredOnFormat);
   }else{
     requestBody.push("Order placed");
+    requestBody.push("Order received");
   }
   var requestBodyNew = requestBody.filter(function (item) {
     return item !== undefined;
