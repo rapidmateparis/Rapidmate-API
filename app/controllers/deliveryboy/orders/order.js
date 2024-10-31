@@ -472,9 +472,9 @@ const createItem = async (req) => {
   requestBody.push(req.drop_company_name || null);
   requestBody.push(req.drop_mobile || null);
   if(req.schedule_date_time){
-    var deliveredOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
-    requestBody.push("Scheduled on " + deliveredOnFormat);
-    requestBody.push("Scheduled on " + deliveredOnFormat);
+    var scheduledOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
+    requestBody.push("Scheduled on " + scheduledOnFormat);
+    requestBody.push("Scheduled on " + scheduledOnFormat);
   }else{
     requestBody.push("Order placed");
     requestBody.push("Order received");
