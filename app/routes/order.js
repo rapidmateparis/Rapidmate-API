@@ -147,5 +147,12 @@ router.get(
   controller.downloadInvoiceFs
 )
 
+router.get(
+  '/pdf/temp',
+  trimRequest.all,
+  controller.downloadInvoiceTemp
+)
+
+
 
 module.exports = router

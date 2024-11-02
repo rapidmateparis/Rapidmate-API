@@ -341,23 +341,40 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
 
 exports.getItemByDeliveryBoyExtIdWithPlan = async (req, res) => {
   try {
-    const { delivery_boy_ext_id, planning_date, page, size } = req.body;
+    const { delivery_boy_ext_id, planning_date, planning_from_date, planning_to_date, day, page, size } = req.body;
 
-    var query =
-      "select * from vw_delivery_boy_plan_list where is_del=0 and date(order_date) = date(?) and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" +
-      utils.getPagination(page, size);
-    const data = await fetch(query, [planning_date, delivery_boy_ext_id]);
-    const filterdata = await transformKeysToLowercase(data);
-    let message = "Items retrieved successfully";
-    if (data.length <= 0) {
-      message = "No items found";
-      return res.status(400).json(utils.buildErrorObject(404, message, 1001));
+    var queryCondition = "";
+    var queryConditionParam = [];
+    queryConditionParam.push(delivery_boy_ext_id);
+ 
+    if(planning_date){
+      queryCondition = " and date(schedule_date_time) = date(?)";
+      queryConditionParam.push(planning_date);
     }
-    return res
-      .status(200)
-      .json(utils.buildCreateMessage(200, message, filterdata));
+
+    if(planning_from_date && planning_to_date){
+      queryCondition += " and (date(schedule_date_time) between date(?) and date(?))";
+      queryConditionParam.push(planning_from_date);
+      queryConditionParam.push(planning_to_date);
+    }
+    if(day){
+      queryCondition += " and dayofweek(schedule_date_time) = ?";
+      queryConditionParam.push(day);
+    }
+    var query = "select * from vw_delivery_boy_plan_list where delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) " + queryCondition + " order by created_on desc" +  utils.getPagination(page, size);
+    var message = "";
+    const data = await fetch(query, queryConditionParam);
+    if (!data || data.length <= 0) {
+      message = "No planning found";
+      return res.status(400).json(utils.buildErrorObject(404, message, 1001));
+    }else {
+      const filterdata = await transformKeysToLowercase(data);
+      message = "Items retrieved successfully";
+      return res
+        .status(200)
+        .json(utils.buildCreateMessage(200, message, filterdata));
+    }
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, error.message, 1001));
@@ -457,8 +474,7 @@ const createItem = async (req) => {
   requestBody.push((req.commission_percentage || 0.0).toFixed(2));
   requestBody.push((req.commission_amount || 0.0).toFixed(2));
   requestBody.push((req.delivery_boy_amount || 0.0).toFixed(2));
-  console.info(req.schedule_date_time);
-  requestBody.push(req.schedule_date_time || new Date());
+  requestBody.push(req.schedule_date_time || null);
   requestBody.push(req.package_photo || null);
   requestBody.push(req.package_id || null);
   requestBody.push(req.pickup_notes || null);
@@ -472,9 +488,9 @@ const createItem = async (req) => {
   requestBody.push(req.drop_company_name || null);
   requestBody.push(req.drop_mobile || null);
   if(req.schedule_date_time){
-    var deliveredOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
-    requestBody.push("Scheduled on " + deliveredOnFormat);
-    requestBody.push("Scheduled on " + deliveredOnFormat);
+    var scheduledOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
+    requestBody.push("Scheduled on " + scheduledOnFormat);
+    requestBody.push("Pickup on " + scheduledOnFormat);
   }else{
     requestBody.push("Order placed");
     requestBody.push("Order received");
@@ -1473,34 +1489,21 @@ const getOrderByOrderNumber = async (order_number) => {
   }
 };
 
-/*const prepareInvoiceDocument = async (fileName, order) =>{
-  const browser = await puppeteer.launch({
-    headless: 'shell',
-    args: ['--enable-gpu'],
-  })
-  const page = await browser.newPage();
-  var html = await fs.readFileSync('default/invoice/invoice.html', 'utf-8');
-  var htmlContent = html.replace("<name>", order.first_name   + " " + order.last_name);
-  htmlContent = htmlContent.replace("<ordernumber>", order.order_number);
-  htmlContent = htmlContent.replace("<orderdate>", new Date(order.order_date).toISOString());
-  htmlContent = htmlContent.replace("<logo>", process.env.LOGO || "http://localhost:3000/api/documents/view/file/logo.png");
-  await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-  await page.emulateMediaType('screen');
-  const pdf = await page.pdf({
-    path:  fileName,
-    margin: { top: '5px', right: '5px', bottom: '5px', left: '5px' },
-    printBackground: true,
-    format: 'A4',
-  });
-  await browser.close();
-}
-
-const getOrderByOrderNumber = async (order_number) => {
+exports.downloadInvoiceTemp = async (req, res) => {
   try {
-    const data = await fetch("select ord.*,con.* from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =?", [order_number]);
-    const filterdata=await transformKeysToLowercase(data);
-    return filterdata[0];
+    var orderNumber = req.params.o;
+    var orderDetail = await getOrderByOrderNumber(orderNumber);
+    if (orderDetail) {
+      return await prepareInvoiceDocumentFs(res, orderDetail);
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Invalid Order number", 1001));
+    }
   } catch (error) {
-    return {};
+    console.error(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to download invoice", 1001));
   }
-};*/
+};
