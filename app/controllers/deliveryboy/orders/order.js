@@ -474,7 +474,7 @@ const createItem = async (req) => {
   requestBody.push((req.commission_percentage || 0.0).toFixed(2));
   requestBody.push((req.commission_amount || 0.0).toFixed(2));
   requestBody.push((req.delivery_boy_amount || 0.0).toFixed(2));
-  requestBody.push(req.schedule_date_time || null);
+  requestBody.push(req.order_date || req.schedule_date_time || null);
   requestBody.push(req.package_photo || null);
   requestBody.push(req.package_id || null);
   requestBody.push(req.pickup_notes || null);
