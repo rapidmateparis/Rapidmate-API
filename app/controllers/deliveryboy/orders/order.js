@@ -1158,6 +1158,7 @@ exports.updateOrderStatus = async (req, res) => {
     var next_action_status = "Ready pickup";
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
+    var deliveredOTPNumber= "1212"; 
     if (requestData.status == "Ready to pickup") {
       status = "ON_THE_WAY_PICKUP";
       next_action_status = "Reached";
@@ -1173,8 +1174,8 @@ exports.updateOrderStatus = async (req, res) => {
       next_action_status = "Enter Delivered OTP";
       consumer_order_title = "Your order is on it’s way";
       delivery_boy_order_title = "Going drop location";
-      const otp = Math.floor(1000 + Math.random() * 9999);
-      deliveredOtp = ", delivered_otp = '" +  otp + "'";
+      deliveredOTPNumber = Math.floor(1000 + Math.random() * 9999);
+      deliveredOtp = ", delivered_otp = '" +  deliveredOTPNumber + "'";
       isDeliveredOtpGenerated = true;
     } else if (requestData.status == "Mark as delivered") {
       status = "COMPLETED";
@@ -1206,11 +1207,11 @@ exports.updateOrderStatus = async (req, res) => {
           title: "Delivered OTP Generated!!!",
           body: {},
           payload: {
-            message: "Your Delivered OTP is " + otp,
+            message: "Your Delivered OTP is " + deliveredOTPNumber,
             orderNumber: requestData.order_number,
           },
           extId: "",
-          message: "Your Delivered OTP is " + otp,
+          message: "Your Delivered OTP is " + deliveredOTPNumber,
           topic: "",
           token: "",
           senderExtId: "",
