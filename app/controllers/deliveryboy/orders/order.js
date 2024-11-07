@@ -474,7 +474,8 @@ const createItem = async (req) => {
   requestBody.push((req.commission_percentage || 0.0).toFixed(2));
   requestBody.push((req.commission_amount || 0.0).toFixed(2));
   requestBody.push((req.delivery_boy_amount || 0.0).toFixed(2));
-  requestBody.push(req.order_date || req.schedule_date_time || null);
+  requestBody.push(req.order_date || req.schedule_date_time || moment(new Date()).format("YYYY-MM-DD HH:mm:ss"));  //'2024-09-09 01:02:42'
+
   requestBody.push(req.package_photo || null);
   requestBody.push(req.package_id || null);
   requestBody.push(req.pickup_notes || null);
@@ -1176,6 +1177,7 @@ exports.updateOrderStatus = async (req, res) => {
       delivery_boy_order_title = "Going drop location";
       deliveredOTPNumber = Math.floor(1000 + Math.random() * 9999);
       deliveredOtp = ", delivered_otp = '" +  deliveredOTPNumber + "'";
+      console.log("deliveredOTPNumber = " + deliveredOTPNumber);
       isDeliveredOtpGenerated = true;
     } else if (requestData.status == "Mark as delivered") {
       status = "COMPLETED";
