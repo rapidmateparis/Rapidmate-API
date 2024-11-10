@@ -151,9 +151,8 @@ exports.createItem = async (req, res) => {
   try {
     const doesNameExists =await utils.nameExists(req.body.email,'rmt_consumer','EMAIL')
     if (!doesNameExists) {
-      let insurance='';
-      let passport='';
-      let identity_card='';
+      
+      
       let autaar='';
       let filename='';
       // console.log(req.body)
