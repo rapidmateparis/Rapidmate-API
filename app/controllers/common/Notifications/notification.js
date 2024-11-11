@@ -76,6 +76,7 @@ exports.getNotificationByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json(
