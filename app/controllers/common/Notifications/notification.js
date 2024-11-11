@@ -268,6 +268,8 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
   
     const notification = new Notification(insertData);
     const savedNotification = await notification.save();
+    console.log("savedNotification");
+    console.log(savedNotification);
     if (!savedNotification) {
       return false;
     }
