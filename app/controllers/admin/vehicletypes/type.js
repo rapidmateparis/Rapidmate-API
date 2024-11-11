@@ -223,10 +223,11 @@ function priceCalculation(vehicleTypedata, distance) {
       } else {
         vehicleType.total_price = vehicleType.truck_price;
       }
+      console.log(vehicleType);
       responseData.push({
         vehicle_type_id: vehicleType.vehicle_type_id,
         vehicle_type: vehicleType.vehicle_type,
-        total_price: (vehicleType.total_price || 0.0).toFixed(2)
+        total_price: (vehicleType && vehicleType.total_price || "0.000").toFixed(2)
       });
     });
   }
