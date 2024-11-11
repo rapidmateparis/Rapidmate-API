@@ -226,7 +226,7 @@ function priceCalculation(vehicleTypedata, distance) {
       responseData.push({
         vehicle_type_id: vehicleType.vehicle_type_id,
         vehicle_type: vehicleType.vehicle_type,
-        total_price: vehicleType.total_price.toFixed(2)
+        total_price: (vehicleType.total_price || 0.0).toFixed(2)
       });
     });
   }
