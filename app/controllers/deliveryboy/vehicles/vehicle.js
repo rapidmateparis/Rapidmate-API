@@ -237,3 +237,23 @@ exports.getItemByExtId = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
 }
+
+exports.updatedeleteOrrestroy = async (req,res) =>{
+  try {
+    const id = req.params.id;
+    if(id){
+      const {status}=req.body
+      const query =`UPDATE rmt_vehicle SET is_del=? WHERE id=?`
+      const data = await fetch(query,[status,id])
+      if(data.affectedRows > 0){
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      }
+      return res.status(400).json(utils.buildErrorObject(500,'Something went wrong.',1001));
+      
+    }else{
+      return res.status(400).json(utils.buildErrorObject(500,'Something went wrong.',1001));
+    }
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}

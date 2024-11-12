@@ -13,6 +13,7 @@ const { fetch } = require("../../../middleware/db");
  */
 exports.getItems = async (req, res) => {
   try {
+    console.log('sdfasd')
     const data = await Notification.find({ is_del: false });
     let message = "Notification loaded successfully";
     if (data.length <= 0) {
@@ -68,7 +69,7 @@ exports.getNotificationByExtId = async (req, res) => {
     console.log(page);
     const ext_id = req.params.ext_id;
     console.log(ext_id);
-    const data = await Notification.find({ receiverExtId: ext_id,is_del: false }).skip(perPage * page).limit(perPage);
+    const data = await Notification.find({ receiverExtId: ext_id,is_del: false }).sort({createdAt:-1}).skip(page * perPage).limit(parPage);
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
       message = "No notification found.";
