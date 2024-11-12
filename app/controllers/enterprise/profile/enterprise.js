@@ -135,87 +135,53 @@ const updateItem = async (profielUpdateQuery, params) => {
 
 exports.updateItem = async (req, res) => {
   try {
-    const id = await utils.getValueById(
-      "id",
-      "rmt_enterprise",
-      "ext_id",
-      req.body.ext_id
-    );
-    if (id) {
-      var queryCondition = "";
-      var queryConditionParam = [];
-      requestBody = req.body;
-      console.log(requestBody);
-      if (requestBody.first_name) {
-        queryCondition += ", first_name = ?";
-        queryConditionParam.push(requestBody.first_name);
+    const extId = req.body.ext_id;
+    const id = await utils.getValueById('id', 'rmt_enterprise', 'ext_id', extId);
+    
+    if (!id) {
+      return res.status(400).json(utils.buildErrorObject(400, 'Invalid Delivery boy', 1001));
+    }
+    const { ext_id, ...requestBody } = req.body;
+    const validFields = [
+      'first_name', 'last_name', 'phone', 'profile_pic','siret_no', 'country_id', 'state_id', 'city_id', 'term_cond1','term_cond2','deliveryMonthHours','company_name','description','industry_type_id','postal_code','is_pay_later','reason', 'token', 'language_id','enable_push_notification', 'enable_email_notification'
+    ];
+    const updates = [];
+    const queryParams = [];
+    // Loop over fields and add to query if they are present in the request
+    validFields.forEach(field => {
+      if (requestBody[field] !== undefined) {
+        updates.push(`${field} = ?`);
+        queryParams.push(requestBody[field]);
       }
-      if (requestBody.last_name) {
-        queryCondition += ", last_name = ?";
-        queryConditionParam.push(requestBody.last_name);
-      }
-      if (requestBody.phone) {
-        queryCondition += ", phone = ?";
-        queryConditionParam.push(requestBody.phone);
-      }
-      if (requestBody.profile_pic) {
-        queryCondition += ", profile_pic = ?";
-        queryConditionParam.push(requestBody.profile_pic);
-      }
-      if (requestBody.token) {
-        queryCondition += ", token = ?";
-        queryConditionParam.push(requestBody.token);
-      }
-      if (requestBody.language_id) {
-        queryCondition += ", language_id = ?";
-        queryConditionParam.push(requestBody.language_id);
-      }
-      if (
-        requestBody.enable_push_notification == 0 ||
-        requestBody.enable_push_notification == 1
-      ) {
-        queryCondition += ", enable_push_notification = ?";
-        queryConditionParam.push(requestBody.enable_push_notification);
-      }
-      if (
-        requestBody.enable_email_notification == 0 ||
-        requestBody.enable_email_notification == 1
-      ) {
-        queryCondition += ", enable_email_notification = ?";
-        queryConditionParam.push(requestBody.enable_email_notification);
-      }
-      queryConditionParam.push(req.body.ext_id);
-      let updateQuery ="update rmt_enterprise set is_del = 0 " +queryCondition +" where ext_id = ?";
+    });
+    if (!updates.length) {
+      return res.status(400).json(utils.buildErrorObject(400, 'No valid fields provided for update', 1002));
+    }
 
-      const executeResult = await updateItem(updateQuery, queryConditionParam);
-      if (executeResult) {
-        return res
-          .status(200)
-          .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
-      } else {
-        return res
-          .status(500)
-          .json(
-            utils.buildErrorObject(
-              500,
-              "Unable to update the Enterprise Profile",
-              1001
-            )
-          );
-      }
+    // Build the update query
+    const updateQuery = `
+      UPDATE rmt_enterprise
+      SET is_del = 0, ${updates.join(', ')}
+      WHERE ext_id = ?
+    `;
+
+    // Add `ext_id` as the final parameter for the query
+    queryParams.push(extId);
+
+    // Execute the update query
+    const executeResult = await updateItem(updateQuery, queryParams);
+
+    if (executeResult.affectedRows > 0) {
+      return res.status(200).json(utils.buildUpdatemessage(200, 'Record Updated Successfully'));
     } else {
-      return res
-        .status(500)
-        .json(utils.buildErrorObject(500, "Invalid Enterprise", 1001));
+      return res.status(500).json(utils.buildErrorObject(500, 'Unable to update the delivery boy profile', 1001));
     }
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    console.error(error);
+    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
   }
 };
-/**
+/** 
  * Create item function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object
