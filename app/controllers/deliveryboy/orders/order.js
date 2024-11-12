@@ -492,12 +492,12 @@ const createItem = async (req) => {
     requestBody.push("Scheduled on " + scheduledOnFormat);
     requestBody.push("Scheduled on " + scheduledOnFormat);
     requestBody.push(2); // Title : Scheduled
-    requestBody.push(1); // Service Type : Schedule
+    requestBody.push(2); // Service Type : Schedule
   }else{
     requestBody.push("Order placed");
     requestBody.push("Order received");
     requestBody.push(1); // Title : Order received
-    requestBody.push(2); // Service Type : Pickup
+    requestBody.push(1); // Service Type : Pickup
   }
   var requestBodyNew = requestBody.filter(function (item) {
     return item !== undefined;
