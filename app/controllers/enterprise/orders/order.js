@@ -73,6 +73,21 @@ exports.searchByFilter = async (req, res) => {
         requestArrayData.push(requestData.delivery_type_id);
         conditionQuery += " and delivery_type_id = ?"
       }
+      if(requestData.tab_id){
+        if(requestData.tab_id==1){ // OneTime/ Multiple
+          requestArrayData.push(1);
+          requestArrayData.push(2);
+          conditionQuery += " and delivery_type_id in (?,?)";
+        }else if(requestData.tab_id==2){ // Shift
+          requestArrayData.push(3);
+          conditionQuery += " and delivery_type_id in (?)";
+        } else{// past
+          requestArrayData.push(1);
+          requestArrayData.push(2);
+          requestArrayData.push(3);
+          conditionQuery += " and delivery_type_id in (?,?,?) and order_status in ('COMPLETED','CANCELLED')";
+        }
+      }
       var query = "SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) " + conditionQuery + " ORDER BY created_on DESC";
       const responseData = await fetch(query, requestArrayData);
       let message = "Items retrieved successfully";
