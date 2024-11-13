@@ -38,6 +38,13 @@ router.get(
    controller.getItemByEnterpriseExt
 )
 
+router.post(
+  '/search',
+    trimRequest.all,
+    validate.seachItem,
+   controller.searchByFilter
+)
+
 /*
  * Get item route
  */

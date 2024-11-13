@@ -16,6 +16,7 @@ exports.getItemByEnterpriseExt = async (req, res) => {
       //console.log(isAuththorized)
       //if(isAuththorized.status==200){
         const id = req.params.id;
+        const orderNumber = req.params.o;
       // const reqStatus = req.query.status;
       // console.log(reqStatus);
       // let statusParams = [];
@@ -51,6 +52,67 @@ exports.getItemByEnterpriseExt = async (req, res) => {
     } catch (error) {
       return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
     }
+};
+
+exports.searchByFilter = async (req, res) => {
+  try {
+      const requestData = req.body;
+      var conditionQuery = "";
+      var requestArrayData = [];
+      requestArrayData.push(requestData.enterprise_ext_id);
+      if(requestData.order_number){
+        requestArrayData.push(requestData.order_number);
+        conditionQuery = " and order_number = ?";
+      }
+      if(requestData.from_date && requestData.to_date){
+        requestArrayData.push(requestData.from_date);
+        requestArrayData.push(requestData.to_date);
+        conditionQuery += " and date(order_date) between date(?) and date(?)";
+      }
+      if(requestData.delivery_type_id){
+        requestArrayData.push(requestData.delivery_type_id);
+        conditionQuery += " and delivery_type_id = ?"
+      }
+      if(requestData.tab_id){
+        if(requestData.tab_id==1){ // OneTime/ Multiple
+          requestArrayData.push(1);
+          requestArrayData.push(2);
+          conditionQuery += " and delivery_type_id in (?,?)";
+        }else if(requestData.tab_id==2){ // Shift
+          requestArrayData.push(3);
+          conditionQuery += " and delivery_type_id in (?)";
+        } else{// past
+          requestArrayData.push(1);
+          requestArrayData.push(2);
+          requestArrayData.push(3);
+          conditionQuery += " and delivery_type_id in (?,?,?) and order_status in ('COMPLETED','CANCELLED')";
+        }
+      }
+      var query = "SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) " + conditionQuery + " ORDER BY created_on DESC";
+      const responseData = await fetch(query, requestArrayData);
+      let message = "Items retrieved successfully";
+      if (responseData.length <= 0) {
+        message = "No items found";
+        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+      }
+      const shiftWithSlots = await Promise.all(
+        responseData.map(async (shift) => {
+          const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+          return {
+            ...shift,
+            slots,
+          };
+        })
+      );
+      return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
+    //}else{
+   //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
+   // }
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
+  }
 };
 /**
  * Get item function called by route

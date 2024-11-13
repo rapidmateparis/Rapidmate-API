@@ -77,6 +77,7 @@ exports.getNotificationByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json(
@@ -268,6 +269,8 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
   
     const notification = new Notification(insertData);
     const savedNotification = await notification.save();
+    console.log("savedNotification");
+    console.log(savedNotification);
     if (!savedNotification) {
       return false;
     }

@@ -454,13 +454,12 @@ exports.updateItem = async (req, res) => {
 const createItem = async (req) => {
   var requestBody = [
     req.consumer_ext_id,
-    req.service_type_id,
     req.vehicle_type_id,
     req.pickup_location_id,
     req.dropoff_location_id,
   ];
   var createOrderQuery = INSERT_ORDER_QUERY;
-  console.log(req.is_my_self);
+
   if (req.is_my_self == "0") {
     requestBody.push(req.first_name);
     requestBody.push(req.last_name);
@@ -491,10 +490,14 @@ const createItem = async (req) => {
   if(req.schedule_date_time){
     var scheduledOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
     requestBody.push("Scheduled on " + scheduledOnFormat);
-    requestBody.push("Pickup on " + scheduledOnFormat);
+    requestBody.push("Scheduled on " + scheduledOnFormat);
+    requestBody.push(2); // Title : Scheduled
+    requestBody.push(2); // Service Type : Schedule
   }else{
     requestBody.push("Order placed");
     requestBody.push("Order received");
+    requestBody.push(1); // Title : Order received
+    requestBody.push(1); // Service Type : Pickup
   }
   var requestBodyNew = requestBody.filter(function (item) {
     return item !== undefined;
@@ -507,6 +510,7 @@ const createItem = async (req) => {
 exports.createOrder = async (req, res) => {
   try {
     const requestData = req.body;
+    console.log(requestData);
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
     console.log(vehicleType);
 

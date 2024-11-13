@@ -5,6 +5,7 @@ const { check } = require("express-validator");
  * Validates create new item request
  */
 exports.createItem = [
+
   check("delivery_boy_ext_id")
     .exists()
     .withMessage("MISSING")
@@ -65,6 +66,7 @@ exports.createItem = [
     validationResult(req, res, next);
   },
 ];
+
 
 /**
  * Validates update item request
