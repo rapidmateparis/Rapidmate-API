@@ -187,7 +187,7 @@ exports.requestAction=[
 
 exports.updateOrderStatus=[
   check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['Payment Faild','Ready to pickup', 'Reached', 'Enter OTP', 'OTP Verify' , 'Ready to delivered', 'Delivered', 'Completed', 'Mark as delivered','Enter Delivered OTP']).withMessage('Enter valid order status'),
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['Payment Failed','Ready to pickup', 'Reached', 'Enter OTP', 'OTP Verify' , 'Ready to delivered', 'Delivered', 'Completed', 'Mark as delivered','Enter Delivered OTP']).withMessage('Enter valid order status'),
 (req, res, next) => {
   validationResult(req, res, next)
 }

@@ -1166,10 +1166,10 @@ exports.updateOrderStatus = async (req, res) => {
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
     var deliveredOTPNumber= "1212";
-    if (requestData.status == "Payment Faild") {
+    if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
-      next_action_status = "Payment Faild";
-      consumer_order_title = "Payment faild on " + deliveredOnFormat;
+      next_action_status = "Payment Failed";
+      consumer_order_title = "Payment failed on " + deliveredOnFormat;
       delivery_boy_order_title = "Waiting for allocation";
     } else if (requestData.status == "Ready to pickup") {
       status = "ON_THE_WAY_PICKUP";
