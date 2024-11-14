@@ -180,10 +180,6 @@ exports.getItemByConsumerExtId = async (req, res) => {
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
         "'ORDER_ACCEPTED'",
-        "'PICKUP_COMPLETED'",
-        "'REACHED'",
-        "'DELIVERED_OTP_VERIFIED'",
-        "'OTP_VERIFIED'",
         "'ON_THE_WAY_PICKUP'",
         "'ON_THE_WAY_DROP_OFF'",
       ]);
@@ -215,17 +211,74 @@ exports.getItemByConsumerExtId = async (req, res) => {
     }
     var conditions = "";
     if (orderNumber && orderNumber != "") {
-      conditions = " and order_number = '" + orderNumber + "' ";
+      conditions = " and o.order_number like '%" + orderNumber + "%' ";
     }
-    var query =
-      "select waiting_fare,discount,delivered_on,next_action_status,consumer_order_title,delivery_boy_order_title ,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance," +
-      " schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order where " +
-      "order_status in (" +
-      statusParams +
-      ") " +
-      conditions +
-      " AND consumer_id =(select id from rmt_consumer where ext_id =?)  order by created_on desc" +
-      utils.getPagination(req.query.page, req.query.size);
+    var query = `
+  SELECT 
+    o.waiting_fare,
+    o.discount,
+    o.next_action_status,
+    o.consumer_order_title,
+    o.delivery_boy_order_title,
+    o.is_delivery_boy_allocated,
+    o.paid_with,
+    o.total_duration,
+    o.order_number,
+    o.consumer_id,
+    o.delivery_boy_id,
+    o.service_type_id,
+    o.vehicle_type_id,
+    o.order_date,
+    o.pickup_location_id,
+    o.dropoff_location_id,
+    o.shift_start_time,
+    o.shift_end_time,
+    o.order_status,
+    o.delivery_date,
+    o.is_my_self,
+    o.first_name,
+    o.last_name,
+    o.company_name,
+    o.email,
+    o.mobile,
+    o.package_photo,
+    o.package_id,
+    o.pickup_notes,
+    o.created_by,
+    o.created_on,
+    o.otp,
+    o.is_otp_verified,
+    o.delivered_otp,
+    o.is_delivered_otp_verified,
+    ROUND(o.amount, 2) AS amount,
+    o.commission_percentage,
+    o.commission_amount,
+    o.delivery_boy_amount,
+    ROUND(o.distance, 2) AS distance,
+    o.schedule_date_time,
+    o.promo_code,
+    o.promo_value,
+    o.cancel_reason_id,
+    o.cancel_reason,
+    ROUND(o.order_amount, 2) AS order_amount,
+    o.drop_first_name,
+    o.drop_last_name,
+    o.drop_company_name,
+    o.drop_mobile,
+    s.service_name,
+    CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
+    t.vehicle_type
+  FROM rmt_order AS o
+  LEFT JOIN rmt_service AS s ON o.service_type_id = s.id
+  LEFT JOIN rmt_delivery_boy AS d ON o.delivery_boy_id = d.id
+  LEFT JOIN rmt_vehicle_type AS t ON o.vehicle_type_id = t.id
+  WHERE o.order_status IN (${statusParams})
+    ${conditions}
+    AND o.consumer_id = (SELECT id FROM rmt_consumer WHERE ext_id = ?)
+  ORDER BY o.created_on DESC
+  ${utils.getPagination(req.query.page, req.query.size)};
+`;
+
     const data = await fetch(query, [id]);
     const filterdata = await transformKeysToLowercase(data);
     let message = "Items retrieved successfully";
@@ -264,10 +317,6 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
         "'ORDER_ACCEPTED'",
-        "'PICKUP_COMPLETED'",
-        "'REACHED'",
-        "'DELIVERED_OTP_VERIFIED'",
-        "'OTP_VERIFIED'",
         "'ON_THE_WAY_PICKUP'",
         "'ON_THE_WAY_DROP_OFF'",
       ]);
@@ -298,21 +347,85 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
       ]);
     }
     if (orderNumber && orderNumber != "") {
-      conditions = " and order_number = '" + orderNumber + "' ";
+      conditions = " AND o.order_number like '%" + orderNumber + "%' ";
     }
-    console.log(conditions);
-    console.log(orderNumber);
-    var query =
-      "select waiting_fare,discount,delivered_on,next_action_status,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order where is_del=0 and order_status in (" +
-      statusParams +
-      ") " +
-      " and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) " +
-      conditions +
-      "order by created_on desc" +
-      utils.getPagination(req.query.page, req.query.size);
+    // console.log(conditions);
+    // console.log(orderNumber);
+    var query = `
+  SELECT 
+    o.waiting_fare,
+    o.discount,
+    o.next_action_status,
+    o.consumer_order_title,
+    o.delivery_boy_order_title,
+    o.is_delivery_boy_allocated,
+    o.paid_with,
+    o.total_duration,
+    o.order_number,
+    o.consumer_id,
+    o.delivery_boy_id,
+    o.service_type_id,
+    o.vehicle_type_id,
+    o.order_date,
+    o.pickup_location_id,
+    o.dropoff_location_id,
+    o.shift_start_time,
+    o.shift_end_time,
+    o.order_status,
+    o.delivery_date,
+    o.is_my_self,
+    o.first_name,
+    o.last_name,
+    o.company_name,
+    o.email,
+    o.mobile,
+    o.package_photo,
+    o.package_id,
+    o.pickup_notes,
+    o.created_by,
+    o.created_on,
+    o.otp,
+    o.is_otp_verified,
+    o.delivered_otp,
+    o.is_delivered_otp_verified,
+    ROUND(o.amount, 2) AS amount,
+    o.commission_percentage,
+    o.commission_amount,
+    o.delivery_boy_amount,
+    ROUND(o.distance, 2) AS distance,
+    o.schedule_date_time,
+    o.promo_code,
+    o.promo_value,
+    o.cancel_reason_id,
+    o.cancel_reason,
+    ROUND(o.order_amount, 2) AS order_amount,
+    o.drop_first_name,
+    o.drop_last_name,
+    o.drop_company_name,
+    o.drop_mobile,
+    s.service_name,
+    CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
+    t.vehicle_type,
+    CONCAT(c.first_name, ' ', c.last_name) AS consumer_name   
+  FROM rmt_order AS o
+  LEFT JOIN rmt_service AS s ON o.service_type_id = s.id
+  LEFT JOIN rmt_delivery_boy AS d ON o.delivery_boy_id = d.id
+  LEFT JOIN rmt_vehicle_type AS t ON o.vehicle_type_id = t.id
+  LEFT JOIN rmt_consumer AS c ON o.consumer_id = c.id
+  WHERE o.is_del = 0
+    ${conditions}
+    AND o.order_status IN (${statusParams})
+    AND o.delivery_boy_id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?)
+    
+  ORDER BY o.created_on DESC
+  ${utils.getPagination(req.query.page, req.query.size)};
+`;
+
+    // Execute the query with necessary parameters (e.g., statusParams, conditions, etc.)
+
     if (orderType == "E") {
       query =
-        "select waiting_fare,discount,delivered_on,next_action_status,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
+        "select waiting_fare,discount,next_action_status,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
         " ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_enterprise_order where is_del=0 and order_status in (" +
         statusParams +
         ")" +
@@ -320,7 +433,6 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" +
         utils.getPagination(req.query.page, req.query.size);
     }
-    console.log(query);
     const data = await fetch(query, [id]);
     const filterdata = await transformKeysToLowercase(data);
     let message = "Items retrieved successfully";
@@ -341,33 +453,46 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
 
 exports.getItemByDeliveryBoyExtIdWithPlan = async (req, res) => {
   try {
-    const { delivery_boy_ext_id, planning_date, planning_from_date, planning_to_date, day, page, size } = req.body;
+    const {
+      delivery_boy_ext_id,
+      planning_date,
+      planning_from_date,
+      planning_to_date,
+      day,
+      page,
+      size,
+    } = req.body;
 
     var queryCondition = "";
     var queryConditionParam = [];
     queryConditionParam.push(delivery_boy_ext_id);
- 
-    if(planning_date){
+
+    if (planning_date) {
       queryCondition = " and date(schedule_date_time) = date(?)";
       queryConditionParam.push(planning_date);
     }
 
-    if(planning_from_date && planning_to_date){
-      queryCondition += " and (date(schedule_date_time) between date(?) and date(?))";
+    if (planning_from_date && planning_to_date) {
+      queryCondition +=
+        " and (date(schedule_date_time) between date(?) and date(?))";
       queryConditionParam.push(planning_from_date);
       queryConditionParam.push(planning_to_date);
     }
-    if(day){
+    if (day) {
       queryCondition += " and dayofweek(schedule_date_time) = ?";
       queryConditionParam.push(day);
     }
-    var query = "select * from vw_delivery_boy_plan_list where delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) " + queryCondition + " order by created_on desc" +  utils.getPagination(page, size);
+    var query =
+      "select * from vw_delivery_boy_plan_list where delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) " +
+      queryCondition +
+      " order by created_on desc" +
+      utils.getPagination(page, size);
     var message = "";
     const data = await fetch(query, queryConditionParam);
     if (!data || data.length <= 0) {
       message = "No planning found";
       return res.status(400).json(utils.buildErrorObject(404, message, 1001));
-    }else {
+    } else {
       const filterdata = await transformKeysToLowercase(data);
       message = "Items retrieved successfully";
       return res
@@ -459,7 +584,7 @@ const createItem = async (req) => {
     req.dropoff_location_id,
   ];
   var createOrderQuery = INSERT_ORDER_QUERY;
-
+  console.log(req.is_my_self);
   if (req.is_my_self == "0") {
     requestBody.push(req.first_name);
     requestBody.push(req.last_name);
@@ -473,7 +598,11 @@ const createItem = async (req) => {
   requestBody.push((req.commission_percentage || 0.0).toFixed(2));
   requestBody.push((req.commission_amount || 0.0).toFixed(2));
   requestBody.push((req.delivery_boy_amount || 0.0).toFixed(2));
-  requestBody.push(req.order_date || req.schedule_date_time || moment(new Date()).format("YYYY-MM-DD HH:mm:ss"));  //'2024-09-09 01:02:42'
+  requestBody.push(
+    req.order_date ||
+      req.schedule_date_time ||
+      moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
+  ); //'2024-09-09 01:02:42'
 
   requestBody.push(req.package_photo || null);
   requestBody.push(req.package_id || null);
@@ -487,13 +616,15 @@ const createItem = async (req) => {
   requestBody.push(req.drop_last_name || null);
   requestBody.push(req.drop_company_name || null);
   requestBody.push(req.drop_mobile || null);
-  if(req.schedule_date_time){
-    var scheduledOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
+  if (req.schedule_date_time) {
+    var scheduledOnFormat = moment(req.schedule_date_time).format(
+      "MMM DD, YYYY # hh:mm A"
+    );
     requestBody.push("Scheduled on " + scheduledOnFormat);
     requestBody.push("Scheduled on " + scheduledOnFormat);
     requestBody.push(2); // Title : Scheduled
     requestBody.push(2); // Service Type : Schedule
-  }else{
+  } else {
     requestBody.push("Order placed");
     requestBody.push("Order received");
     requestBody.push(1); // Title : Order received
@@ -510,7 +641,6 @@ const createItem = async (req) => {
 exports.createOrder = async (req, res) => {
   try {
     const requestData = req.body;
-    console.log(requestData);
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
     console.log(vehicleType);
 
@@ -737,7 +867,10 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
             userRole: "CONSUMER",
             redirect: "ORDER",
           };
-          notification.createNotificationRequest(notifiationConsumerRequest, false);
+          notification.createNotificationRequest(
+            notifiationConsumerRequest,
+            false
+          );
           var notifiationDriverRequest = {
             title: "New order received!!!Order# : " + order_number,
             body: {
@@ -1163,7 +1296,7 @@ exports.updateOrderStatus = async (req, res) => {
     var next_action_status = "Ready pickup";
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
-    var deliveredOTPNumber= "1212"; 
+    var deliveredOTPNumber = "1212";
     if (requestData.status == "Ready to pickup") {
       status = "ON_THE_WAY_PICKUP";
       next_action_status = "Reached";
@@ -1180,14 +1313,14 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title = "Your order is on it’s way";
       delivery_boy_order_title = "Going drop location";
       deliveredOTPNumber = Math.floor(1000 + Math.random() * 9999);
-      deliveredOtp = ", delivered_otp = '" +  deliveredOTPNumber + "'";
+      deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
       console.log("deliveredOTPNumber = " + deliveredOTPNumber);
       isDeliveredOtpGenerated = true;
     } else if (requestData.status == "Mark as delivered") {
       status = "COMPLETED";
       next_action_status = "Completed";
       var deliveredOn = new Date();
-      deliveredOtp = ", delivered_on = '" + deliveredOnDBFormat + "'"; 
+      deliveredOtp = ", delivered_on = '" + deliveredOnDBFormat + "'";
       consumer_order_title = "Delivered on " + deliveredOnFormat;
       delivery_boy_order_title = "Delivered";
     }
@@ -1208,8 +1341,8 @@ exports.updateOrderStatus = async (req, res) => {
     );
     console.log(updateData);
     if (updateData) {
-      if(isDeliveredOtpGenerated){
-         var notifiationRequest = {
+      if (isDeliveredOtpGenerated) {
+        var notifiationRequest = {
           title: "Delivered OTP Generated!!!",
           body: {},
           payload: {
@@ -1264,8 +1397,97 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     console.log(req.params.ordernumber);
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery =
-      "select waiting_fare,discount,delivered_on,next_action_status,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,promo_code,promo_value,cancel_reason_id, cancel_reason, order_amount, order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,first_name,last_name,company_name,email,mobile,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,is_delivered_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_code,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order where is_del=0 and order_number = ?";
+    const orderAllocationQuery = `
+      SELECT 
+        o.waiting_fare,
+        o.discount,
+        o.next_action_status,
+        o.consumer_order_title,
+        o.delivery_boy_order_title,
+        o.is_delivery_boy_allocated,
+        o.paid_with,
+        o.total_duration,
+        o.promo_code,
+        o.promo_value,
+        o.cancel_reason_id,
+        o.cancel_reason,
+        ROUND(o.order_amount, 2) AS order_amount,
+        o.order_number,
+        o.consumer_id,
+        o.delivery_boy_id,
+        o.service_type_id,
+        o.vehicle_type_id,
+        o.order_date,
+        o.pickup_location_id,
+        o.dropoff_location_id,
+        o.shift_start_time,
+        o.shift_end_time,
+        o.order_status,
+        o.delivery_date,
+        o.is_my_self,
+        o.first_name,
+        o.last_name,
+        o.company_name,
+        o.email,
+        o.mobile,
+        o.package_photo,
+        o.package_id,
+        o.pickup_notes,
+        o.created_by,
+        o.created_on,
+        o.otp,
+        o.is_otp_verified,
+        o.delivered_otp,
+        o.is_delivered_otp_verified,
+        ROUND(o.amount, 2) AS amount,
+        o.commission_percentage,
+        o.commission_amount,
+        o.delivery_boy_amount,
+        ROUND(o.distance, 2) AS distance,
+        o.schedule_date_time,
+        o.promo_code,
+        o.drop_first_name,
+        o.drop_last_name,
+        o.drop_company_name,
+        o.drop_mobile,
+        l.location_name AS pickup_location_name,
+        l.address AS pickup_location_address,
+        l.city AS pickup_location_city,
+        l.state AS pickup_location_state,
+        l.country AS pickup_location_country,
+        l.postal_code AS pickup_location_postal_code,
+        l.latitude,
+        l.longitude,
+        dl.location_name AS dropoff_location_name,
+        dl.address AS dropoff_location_address,
+        dl.city AS dropoff_location_city,
+        dl.state AS dropoff_location_state,
+        dl.country AS dropoff_location_country,
+        dl.postal_code AS dropoff_location_postal_code,
+        dl.latitude as dlatitude,
+        dl.longitude as dlongitude,
+        CONCAT(c.first_name, ' ', c.last_name) AS consumer_name,
+        c.email AS consumer_email,
+        c.phone AS consumer_mobile,
+        c.ext_id AS consumer_ext,
+        CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
+        d.phone AS delivery_boy_mobile,
+        d.ext_id AS delivery_boy_ext,
+        s.service_name,
+        t.vehicle_type AS vehicle_type
+      FROM rmt_order AS o
+      LEFT JOIN rmt_location AS l ON o.pickup_location_id = l.id
+      LEFT JOIN rmt_location AS dl ON o.dropoff_location_id = dl.id
+      LEFT JOIN rmt_consumer AS c ON o.consumer_id = c.id
+      LEFT JOIN rmt_delivery_boy AS d ON o.delivery_boy_id = d.id
+      LEFT JOIN rmt_service AS s ON o.service_type_id = s.id
+      LEFT JOIN rmt_vehicle_type AS t ON o.vehicle_type_id = t.id
+      WHERE o.is_del = 0
+        AND o.order_number = ?;
+    `;
+
+    // Execute the query with necessary parameters (e.g., order_number)
+
     const dbData = await fetch(orderAllocationQuery, [order_number]);
     if (dbData.length <= 0) {
       message = "Invalid Order number";

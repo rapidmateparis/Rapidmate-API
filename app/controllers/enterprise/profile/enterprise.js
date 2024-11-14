@@ -6,6 +6,7 @@ const {
   FETCH_SLOT_CHART,
   FETCH_BRANCH_FOR_DASH,
   FETCH_BRANCH_BOOKHR,
+  FETCH_ENTERPRISE_ID,
 } = require("../../../db/database.query");
 /********************
  * Public functions *
@@ -104,9 +105,7 @@ exports.dashboardItem = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye =
-      "select * from rmt_enterprise where ENTERPRISE_ID='" + id + "'";
-    const data = await runQuery(getUserQuerye);
+    const data = await fetch(FETCH_ENTERPRISE_ID,[id]);
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
       message = "No items found";
