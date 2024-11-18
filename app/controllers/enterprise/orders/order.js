@@ -398,8 +398,12 @@ exports.updateOrderlineStatus = async (req, res) => {
 };
 
 
-const deleteItem = async (id) => {
-  const deleteRes = await updateQuery(DELETE_ORDER_QUERY,[id]);
+const deleteItem = async (id, cancel_reason_id, cancel_reason) => {
+  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, [
+    cancel_reason_id,
+    cancel_reason,
+    id,
+  ]);
   return deleteRes;
 };
 /**
@@ -407,29 +411,61 @@ const deleteItem = async (id) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-exports.deleteItem = async (req, res) => {
+exports.cancelOrder = async (req, res) => {
   try {
-    const { id } = req.params;
-    const getId = await utils.isIDGood(id, "id", "rmt_order");
-    if (getId) {
-      const deletedItem = await deleteItem(getId);
+    const { order_number, cancel_reason_id, cancel_reason } = req.body;
+    const order = await utils.getValuesById(
+      "id, is_del",
+      "rmt_order",
+      "order_number",
+      order_number
+    );
+    if (order) {
+      if (parseInt(order.is_del) == 1) {
+        return res
+          .status(200)
+          .json(utils.buildUpdatemessage(200, "Order was already cancelled"));
+      }
+      const deletedItem = await deleteItem(
+        order.id,
+        cancel_reason_id,
+        cancel_reason
+      );
       if (deletedItem.affectedRows > 0) {
         return res
           .status(200)
-          .json(utils.buildUpdatemessage(200, "Record Deleted Successfully"));
+          .json(
+            utils.buildUpdatemessage(
+              200,
+              "Order has been cancelled successfully"
+            )
+          );
       } else {
         return res
           .status(500)
-          .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+          .json(
+            utils.buildErrorObject(
+              500,
+              "Unable to cancel an order. Please contact customer care",
+              1001
+            )
+          );
       }
     }
     return res
       .status(400)
-      .json(utils.buildErrorObject(400, "Data not found.", 1001));
+      .json(utils.buildErrorObject(400, "Invalid Order number", 1001));
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, 'Unable to delete order', 1001));
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to cancel an order. Please contact customer care",
+          1001
+        )
+      );
   }
 };
 
