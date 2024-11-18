@@ -4,7 +4,7 @@ const { FETCH_SLOTS_BY_SHIFT_ID,FETCH_ORDER_BY_ORDER_EXT_SEARCH, transformKeysTo
 const notification = require("../../../controllers/common/Notifications/notification");
 const { insertQuery } = require("../../../middleware/db");
 const { UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE} = require("../../../db/database.query");
-
+const moment = require("moment");
 const fs = require('fs');
 const { jsPDF } = require("jspdf"); // will automatically load the node version
 const doc = new jsPDF();
@@ -171,38 +171,131 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
       return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
     }
 };
-/**
- * Update item function called by route
- * @param {Object} req - request object
- * @param {Object} res - response object
- */
-const updateStatus = async (id, status) => {
-  const registerRes = await updateQuery(UPDATE_ENTERPRISE_ORDER_BY_STATUS,[status,id]);
-  return registerRes;
-};
 
-exports.updateStatus = async (req, res) => {
+exports.updateOrderStatus = async (req, res) => {
+  //2024-09-08 15:34:23
+  var deliveredOn = new Date();
+  var deliveredOnDBFormat = moment(deliveredOn).format("YYYY-MM-DD HH:mm:ss");
+  //Apr 19, 2024 at 11:30 AM
+  var deliveredOnFormat = moment(deliveredOn).format("MMM DD, YYYY # hh:mm A");
+  deliveredOnFormat = deliveredOnFormat.replace("#", "at");
   try {
-    const { id } = req.params;
-    const { status } = req.body;
-    const getId = await utils.isIDGood(id, "id", "rmt_enterprise_order");
-    if (getId) {
-      const updatedItem = await updateStatus(id, status);
-      if (updatedItem.affectedRows >0) {
-        return res
-          .status(200)
-          .json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
-      } else {
-        return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    var requestData = req.body;
+    var status = "ORDER_ACCEPTED";
+    var deliveredOtp = "";
+    var isDeliveredOtpGenerated = false;
+    var next_action_status = "Ready pickup";
+    var consumer_order_title = "Delivery boy allocated on";
+    var delivery_boy_order_title = "OTP verified on";
+    var deliveredOTPNumber= "1212";
+    if (requestData.status == "Payment Failed") {
+      status = "PAYMENT_FAILED";
+      next_action_status = "Payment Failed";
+      consumer_order_title = "Payment failed on " + deliveredOnFormat;
+      delivery_boy_order_title = "Waiting for allocation";
+    } else if (requestData.status == "Ready to pickup") {
+      status = "ON_THE_WAY_PICKUP";
+      next_action_status = "Reached";
+      consumer_order_title = "Pickup in progress";
+      delivery_boy_order_title = "Going pickup location";
+    } else if (requestData.status == "Ready to Start") {
+      status = "WORKING_INPROGRESS";
+      next_action_status = "Mask as completed";
+      consumer_order_title = "Work ongoing";
+      delivery_boy_order_title = "Work in-progress";
+    } else if (requestData.status == "Reached") {
+      status = "REACHED";
+      next_action_status = "Enter OTP";
+      consumer_order_title = "Reached pickup location";
+      delivery_boy_order_title = "Waiting for OTP";
+    } else if (requestData.status == "Ready to delivered") {
+      status = "ON_THE_WAY_DROP_OFF";
+      next_action_status = "Enter Delivered OTP";
+      consumer_order_title = "Your order is on it’s way";
+      delivery_boy_order_title = "Going drop location";
+      deliveredOTPNumber = Math.floor(1000 + Math.random() * 9999);
+      deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
+      console.log("deliveredOTPNumber = " + deliveredOTPNumber);
+      isDeliveredOtpGenerated = true;
+    } else if (requestData.status == "Mark as delivered" || requestData.status == "Mask as completed") {
+      status = "COMPLETED";
+      next_action_status = "Completed";
+      var deliveredOn = new Date();
+      deliveredOtp = ", delivered_on = '" + deliveredOnDBFormat + "'";
+      if(requestData.status == "Mask as completed"){
+        consumer_order_title = "Completed on " + deliveredOnFormat;
+        delivery_boy_order_title = "Completed on" + deliveredOnFormat;
+      }else{
+        consumer_order_title = "Delivered on " + deliveredOnFormat;
+        delivery_boy_order_title = "Delivered on" + deliveredOnFormat;
       }
+     
     }
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    console.log("Delivered On " + deliveredOn);
+    const updateData = await updateQuery(
+      "update rmt_enterprise_order set consumer_order_title = '" +
+        consumer_order_title +
+        "'" +
+        deliveredOtp +
+        ", delivery_boy_order_title = '" +
+        delivery_boy_order_title +
+        "', order_status = '" +
+        status +
+        "', next_action_status = '" +
+        next_action_status +
+        "' where order_number = ?",
+      [requestData.order_number]
+    );
+    console.log(updateData);
+    if (updateData) {
+      if (isDeliveredOtpGenerated) {
+        var notifiationRequest = {
+          title: "Delivered OTP Generated!!!",
+          body: {},
+          payload: {
+            message: "Your Delivered OTP is " + deliveredOTPNumber,
+            orderNumber: requestData.order_number,
+          },
+          extId: "",
+          message: "Your Delivered OTP is " + deliveredOTPNumber,
+          topic: "",
+          token: "",
+          senderExtId: "",
+          receiverExtId: "",
+          statusDescription: "",
+          status: "",
+          notifyStatus: "",
+          tokens: "",
+          tokenList: "",
+          actionName: "",
+          path: "",
+          userRole: "CONSUMER",
+          redirect: "ORDER",
+        };
+        notification.createNotificationRequest(notifiationRequest);
+      }
+      return res.status(202).json(
+        utils.buildResponse(202, {
+          status: status,
+          next_action_status: next_action_status,
+        })
+      );
+    } else {
+      return res
+        .status(500)
+        .json(
+          utils.buildErrorObject(
+            500,
+            "Unable to order status. Please try again",
+            1001
+          )
+        );
+    }
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500,error.message, 1001));
+      .json(utils.buildErrorObject(500, "Unable to order status", 1001));
   }
 };
 

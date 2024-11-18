@@ -192,25 +192,11 @@ exports.updateStatus = [
     .isEmpty()
     .withMessage("IS_EMPTY")
     .isIn([
-      "ORDER_PLACED",
-      "CONFIRMED",
-      "PAYMENT_COMPLETED",
-      "PAYMENT_FAILED",
-      "ORDER_ACCEPTED",
-      "ORDER_REJECTED",
-      "ON_THE_WAY_PICKUP",
-      "PICKUP_COMPLETED",
-      "ON_THE_WAY_DROP_OFF",
-      "COMPLETED",
-      "CANCELLED",
+      'Payment Failed','Ready to pickup', 'Reached', 'Enter OTP', 'OTP Verify' , 
+'Ready to delivered', 'Delivered', 'Completed', 'Mark as delivered','Enter Delivered OTP','Request Pending', 'Ready to Start', 'Mask as completed'
     ])
     .withMessage("Enter valid status"),
-  check("id")
-    .exists()
-    .withMessage("MISSING")
-    .not()
-    .isEmpty()
-    .withMessage("IS_EMPTY"),
+
   (req, res, next) => {
     validationResult(req, res, next);
   },
