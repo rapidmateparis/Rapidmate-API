@@ -101,4 +101,14 @@ router.post(
   controller.search
 )
 
+/*
+ * Delete item route
+ */
+router.post(
+  '/cancel',
+  trimRequest.all,
+  validate.cancelOrder,
+  controller.cancelOrder
+)
+
 module.exports = router
