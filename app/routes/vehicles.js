@@ -56,6 +56,13 @@ router.put(
   controller.updateItem
 )
 
+router.put(
+  '/updatestatus/:id',
+  trimRequest.all,
+  validate.updateStatus,
+  controller.updatedeleteOrrestroy
+)
+
 /*
  * Delete item route
  */

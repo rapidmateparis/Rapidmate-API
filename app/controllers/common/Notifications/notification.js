@@ -13,6 +13,7 @@ const { fetch } = require("../../../middleware/db");
  */
 exports.getItems = async (req, res) => {
   try {
+    console.log('sdfasd')
     const data = await Notification.find({ is_del: false });
     let message = "Notification loaded successfully";
     if (data.length <= 0) {

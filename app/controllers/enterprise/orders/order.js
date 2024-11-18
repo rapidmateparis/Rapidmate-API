@@ -11,47 +11,38 @@ const doc = new jsPDF();
 
 
 exports.getItemByEnterpriseExt = async (req, res) => {
-    try {
-      //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
-      //console.log(isAuththorized)
-      //if(isAuththorized.status==200){
-        const id = req.params.id;
-        const orderNumber = req.params.o;
-      // const reqStatus = req.query.status;
-      // console.log(reqStatus);
-      // let statusParams = [];
-      // if(reqStatus == 'current'){
-      //   statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
-      // }else if(reqStatus == "past") {
-      //   statusParams.push(["'PAYMENT_FAILED'","'ORDER_REJECTED'","'COMPLETED'","'CANCELLED'"]);
-      // }else{
-      //   statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
-      // }
-      // var query = "select waiting_fare,discount,delivered_on,next_action_status ,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location,dropoff_location,shift_from_date,shift_tp_date,order_status,delivery_date,is_same_slot_all_days,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_enterprise_order where order_status in (" + statusParams + ") AND enterprise_id =(select id from rmt_enterprise where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
-      // const data = await fetch(query, [id]);
-        const data = await fetch(FETCH_ORDER_BY_ORDER_EXT,[id]);
-        let message = "Items retrieved successfully";
-        if (data.length <= 0) {
-          message = "No items found";
-          return res.status(400).json(utils.buildErrorObject(400, message, 1001));
-        }
-        const shiftWithSlots = await Promise.all(
-          data.map(async (shift) => {
-            const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
-            return {
-              ...shift,
-              slots,
-            };
-          })
-        );
-        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
-      //}else{
-     //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
-     // }
-      
-    } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
+  try {
+    const id = req.params.id;
+    const orderNumber = req.query.o || "";
+    var conditions = "";
+    if (orderNumber && orderNumber != "") {
+      conditions = " AND e.order_number like '%" + orderNumber + "%' ";
     }
+    const query = `SELECT e.*,dt.delivery_type,CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,s.service_name FROM rmt_enterprise_order as e LEFT JOIN rmt_enterprise_delivery_type as dt ON  e.delivery_type_id=dt.id LEFT JOIN rmt_service AS s ON e.service_type_id = s.id LEFT JOIN rmt_delivery_boy AS d ON e.delivery_boy_id = d.id WHERE e.is_del=0 ${conditions} AND e.enterprise_id=(select id from rmt_enterprise where ext_id=?) ORDER BY e.created_on DESC ${utils.getPagination(req.query.page, req.query.size)}`;
+
+    const data = await fetch(query, [id]);
+    let message = "Items retrieved successfully";
+    if (data.length <= 0) {
+      message = "No items found";
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    }
+    const shiftWithSlots = await Promise.all(
+      data.map(async (shift) => {
+        const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+        return {
+          ...shift,
+          slots,
+        };
+      })
+    );
+    return res
+      .status(200)
+      .json(utils.buildCreateMessage(200, message, shiftWithSlots));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
+  }
 };
 
 exports.searchByFilter = async (req, res) => {
@@ -486,23 +477,36 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     console.log(req.params.ordernumber);
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = 'select * from rmt_enterprise_order where is_del=0 and order_number = ?';
-    const dbData = await fetch(orderAllocationQuery, [order_number])
-    if(dbData.length <= 0){
-      message="Invalid Order number";
-      return res.status(400).json(utils.buildErrorObject(400,message,1001));
-    }else{
-        var orderData = dbData[0];
-        responseData.order = orderData;
-        responseData.deliveryBoy = await getDeliveryBoyInfo(orderData.delivery_boy_id);
-        responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
-        responseData.orderLines = await getOrderLineInfo(order_number);
-        return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
+    const orderAllocationQuery = "SELECT o.*, l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile, c.ext_id AS consumer_ext FROM rmt_enterprise_order AS o LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id WHERE o.is_del = 0 AND o.order_number = ?";
+
+    const dbData = await fetch(orderAllocationQuery, [order_number]);
+    if (dbData.length <= 0) {
+      message = "Invalid Order number";
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    } else {
+      var orderData = dbData[0];
+      responseData.order = orderData;
+      responseData.deliveryBoy = await getDeliveryBoyInfo(
+        orderData.delivery_boy_id
+      );
+      responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
+      responseData.orderLines = await getOrderLineInfo(order_number);
+      return res
+        .status(201)
+        .json(
+          utils.buildCreateMessage(
+            201,
+            "Delivery boy has been allocated successfully",
+            responseData
+          )
+        );
     }
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Unable to fetch an Order number", 1001));
+      .json(
+        utils.buildErrorObject(500, "Unable to fetch an Order number", 1001)
+      );
   }
 };
 

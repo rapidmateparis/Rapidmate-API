@@ -146,8 +146,12 @@ exports.updateItem = async (req, res) => {
         queryCondition += ", passport = ?";
         queryConditionParam.push(requestBody.passport);
       }
+      if(requestBody.vehicleId){
+        queryConditionParam.push(requestBody.vehicleId);
+      }
       queryConditionParam.push(id);
-      var updateQuery = "update rmt_vehicle set is_del = 0 " + queryCondition + " where delivery_boy_id = ?";
+      
+      var updateQuery = "update rmt_vehicle set is_del = 0 " + queryCondition + " where id=? and delivery_boy_id = ?";
       
       const executeResult = await updateItem(updateQuery, queryConditionParam);
       if(executeResult) {
@@ -163,6 +167,7 @@ exports.updateItem = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to update vehicle. Please try again',1001));
   }
 }
+
 
 const updateItem = async (updateQueryCmd, params) => {
   console.log(updateQueryCmd);
@@ -233,6 +238,27 @@ exports.getItemByExtId = async (req, res) => {
     }
     const filterdata=await transformKeysToLowercase(data)
     return res.status(200).json(utils.buildCreateMessage(200,message,filterdata))
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}
+
+
+exports.updatedeleteOrrestroy = async (req,res) =>{
+  try {
+    const id = req.params.id;
+    if(id){
+      const {status}=req.body
+      const query =`UPDATE rmt_vehicle SET is_del=? WHERE id=?`
+      const data = await fetch(query,[status,id])
+      if(data.affectedRows > 0){
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      }
+      return res.status(400).json(utils.buildErrorObject(500,'Something went wrong.',1001));
+      
+    }else{
+      return res.status(400).json(utils.buildErrorObject(500,'Something went wrong.',1001));
+    }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
