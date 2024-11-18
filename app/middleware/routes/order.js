@@ -64,14 +64,15 @@ router.put(
   validate.updateAssigndeliveryboy,
   controller.updateAssigndeliveryboy
 )
+
 /*
  * Update order status route
  */
 router.put(
-  '/status/:id',
+  '/estatus',
   trimRequest.all,
   validate.updateStatus,
-  controller.updateStatus
+  controller.updateOrderStatus
 )
 
 

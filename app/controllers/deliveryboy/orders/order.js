@@ -1329,7 +1329,7 @@ exports.updateOrderStatus = async (req, res) => {
       var deliveredOn = new Date();
       deliveredOtp = ", delivered_on = '" + deliveredOnDBFormat + "'";
       consumer_order_title = "Delivered on " + deliveredOnFormat;
-      delivery_boy_order_title = "Delivered";
+      delivery_boy_order_title = "Delivered on " + deliveredOnFormat;
     }
     console.log("Delivered On " + deliveredOn);
     const updateData = await updateQuery(
