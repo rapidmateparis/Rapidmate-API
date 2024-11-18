@@ -86,16 +86,18 @@ exports.searchByFilter = async (req, res) => {
         message = "No items found";
         return res.status(400).json(utils.buildErrorObject(400, message, 1001));
       }
-      const shiftWithSlots = await Promise.all(
-        responseData.map(async (shift) => {
-          const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+      const responseEnterpriseData = await Promise.all(
+        responseData.map(async (order) => {
+          const locations = await fetch("SELECT * FROM rmt_enterprise_order_line WHERE order_id = ?", [order.id]);
+          const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [order.id]);
           return {
-            ...shift,
+            ...order,
             slots,
+            locations,
           };
         })
       );
-      return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
+      return res.status(200).json(utils.buildCreateMessage(200,message,responseEnterpriseData))
     //}else{
    //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
    // }

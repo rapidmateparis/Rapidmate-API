@@ -623,12 +623,14 @@ const createItem = async (req) => {
     requestBody.push("Scheduled on " + scheduledOnFormat);
     requestBody.push("Scheduled on " + scheduledOnFormat);
     requestBody.push(2); // Title : Scheduled
-    requestBody.push(2); // Service Type : Schedule
-  } else {
+    requestBody.push(1); // Service Type : Schedule
+    requestBody.push(req.schedule_date_time);
+  }else{
     requestBody.push("Order placed");
     requestBody.push("Order received");
     requestBody.push(1); // Title : Order received
-    requestBody.push(1); // Service Type : Pickup
+    requestBody.push(2); // Service Type : Pickup
+    requestBody.push(null);
   }
   var requestBodyNew = requestBody.filter(function (item) {
     return item !== undefined;
@@ -1296,8 +1298,13 @@ exports.updateOrderStatus = async (req, res) => {
     var next_action_status = "Ready pickup";
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
-    var deliveredOTPNumber = "1212";
-    if (requestData.status == "Ready to pickup") {
+    var deliveredOTPNumber= "1212";
+    if (requestData.status == "Payment Failed") {
+      status = "PAYMENT_FAILED";
+      next_action_status = "Payment Failed";
+      consumer_order_title = "Payment failed on " + deliveredOnFormat;
+      delivery_boy_order_title = "Waiting for allocation";
+    } else if (requestData.status == "Ready to pickup") {
       status = "ON_THE_WAY_PICKUP";
       next_action_status = "Reached";
       consumer_order_title = "Pickup in progress";
