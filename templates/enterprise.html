@@ -115,7 +115,7 @@
         <tr>
           <td class="company-info">
             <h2>Company Name</h2>
-            <p>Lorem ipsum dolor sit amet consectetur.</p>
+            <p>{{companyName}}</p>
           </td>
           <td class="customer-info">
             <p><strong>State GSTIN:</strong> JK23H4G5KJH2345</p>
@@ -130,12 +130,12 @@
       <table>
         <tr>
           <td class="company-info">
-            <p><strong>Invoice ID:</strong> RM23K4JH5KJ</p>
-            <p><strong>Customer Name:</strong> John Doe</p>
+            <p><strong>Invoice ID:</strong> {{orderNumber}}</p>
+            <p><strong>Customer Name:</strong> {{consumerName}}</p>
           </td>
           <td class="customer-info">
-            <p><strong>Invoice Date:</strong> 01-02-2024</p>
-            <p><strong>Mobile Number:</strong> +123456789</p>
+            <p><strong>Invoice Date:</strong> {{createdOn}}</p>
+            <p><strong>Mobile Number:</strong> +{{consumerPhone}}</p>
           </td>
         </tr>
       </table>
@@ -145,12 +145,12 @@
         <tr>
           <td style="width: 150px"><strong>Supply Address:</strong></td>
           <td>
-            Lorem ipsum dolor sit amet, consectetur, Nisi risus morbi ac vitae.
+            {{pickupAddressLoc}}
           </td>
         </tr>
         <tr>
           <td style="width: 150px"><strong>Order Number:</strong></td>
-          <td>M3B4JK5KLJB4</td>
+          <td>{{orderNumber}}</td>
         </tr>
       </table>
 
@@ -158,19 +158,19 @@
       <table>
         <tr>
           <td>Ride Fee</td>
-          <td style="text-align: end">€12.34</td>
+          <td style="text-align: end">€ {{orderAmount}}</td>
         </tr>
         <tr>
-          <td>{{tax}} 2.5%</td>
-          <td style="text-align: end">€12.34</td>
+          <td>{{tax}}</td>
+          <td style="text-align: end">€ 0.00</td>
         </tr>
         <tr>
           <td>Subtotal</td>
-          <td style="text-align: end">€12.34</td>
+          <td style="text-align: end">€ {{orderAmount}}</td>
         </tr>
         <tr class="total-row">
           <td>{{total}}</td>
-          <td style="text-align: end">€12.34</td>
+          <td style="text-align: end">€ {{orderAmount}}</td>
         </tr>
       </table>
 
@@ -178,7 +178,7 @@
       <table class="payment-info">
         <tr>
           <td><strong>Payment Date</strong></td>
-          <td style="text-align: end">01-02-2024</td>
+          <td style="text-align: end"> {{createdOn}}</td>
         </tr>
         <tr>
           <td><strong>Payment Method</strong></td>

@@ -106,7 +106,7 @@
             <img style="height: 40px" src="{{imageUrl}}" alt="rapidmate" />
             <p>
               8 AVENUE DANIELLE CASANOVA 95210 SAINT-GRATIEN - France
-              contact@ajs-borne.cm
+              contact@rapidmate.fr
             </p>
           </td>
           <td style="width: 50%; text-align: end">
@@ -115,10 +115,10 @@
         </tr>
         <tr>
           <td>
-            <h2 style="margin: 3px 0px">€12.34</h2>
+            <h2 style="margin: 3px 0px">€ {{orderNumber}}</h2>
             <p style="margin: 0px">Thanks for booking with us!</p>
             <p style="margin: 5px 0px; font-size: 14px; color: #787878">
-              RMK23J45J7747
+             {{orderNumber}}
             </p>
           </td>
           <td></td>
@@ -136,12 +136,12 @@
               </h3>
             </div>
             <p style="margin: 5px 0px">
-              Lorem ipsum dolor sit amet consectetur. Nisi risus morbi ac vitae.
+              {{pickupAddressLoc}}
             </p>
           </td>
           <td>
             <p style="margin: 0px; text-align: end">
-              <strong>12 May, 2024 | 10:30 AM</strong>
+              <strong>{{createdOn}}</strong>
             </p>
           </td>
         </tr>
@@ -156,12 +156,12 @@
               </h3>
             </div>
             <p style="margin: 5px 0px">
-              Lorem ipsum dolor sit amet consectetur. Nisi risus morbi ac vitae.
+              {{dropoffAddressLoc}}
             </p>
           </td>
-          <td>
+          <!-- <td>
             <p style="margin: 0px; text-align: end"><strong>11:23 AM</strong></p>
-          </td>
+          </td> -->
         </tr>
       </table>
 
@@ -173,15 +173,15 @@
               src="{{consumerImg}}"
               alt="Consumer"
             />
-            <p>John Doe</p>
+            <p>{{deliveryBoyName}}</p>
           </td>
           <td style="text-align: center; padding-top: 20px">
             <img style="height: 55px" src="{{timeImg}}" alt="TimeIcon" />
-            <p>2.8 km - 12 min</p>
+            <p>{{distance}} km</p>
           </td>
           <td style="text-align: center; padding-top: 20px">
             <img style="height: 50px" src="{{vanImg}}" alt="Van" />
-            <p>Van - FH16 2022</p>
+            <p>{{vehicleType}}</p>
           </td>
         </tr>
       </table>
@@ -191,34 +191,34 @@
         <p><strong>{{billDetails}}</strong></p>
         <tr>
           <td>{{deliveryFare}}</td>
-          <td style="text-align: end">€12.34</td>
+          <td style="text-align: end">€ {{deliveryAmount}}</td>
         </tr>
         <tr>
           <td>{{tax}}</td>
-          <td style="text-align: end">€12.34</td>
+          <td style="text-align: end">€ 0.00</td>
         </tr>
         <tr class="total-row">
           <td>{{total}}</td>
-          <td style="text-align: end">€12.34</td>
+          <td style="text-align: end">€ {{orderAmount}}</td>
         </tr>
       </table>
 
       <!-- Payment Info -->
-      <table class="payment-info">
+      <!-- <table class="payment-info">
         <p><strong>{{payment}}</strong></p>
         <tr>
           <td>Rapidmate wallet</td>
-          <td style="text-align: end">€12.34</td>
+          <td style="text-align: end">€ {{orderAmount}}</td>
         </tr>
         <tr>
           <td>Cash</td>
           <td style="text-align: end">€12.34</td>
         </tr>
-      </table>
+      </table> -->
 
       <!-- Queries Section -->
       <div class="query">
-        {{visit}} <a href="#">{{queries}}</a>
+        {{visit}} <a href="mailto:contact@rapidmate.fr">{{queries}}</a>
       </div>
     </div>
   </body>

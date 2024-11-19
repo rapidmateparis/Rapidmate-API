@@ -37,7 +37,7 @@ const options = {
   const convert = async (res, order,role,locale) => {
     return new Promise(async (resolve, reject) => {
       let template = fs.readFileSync(path.join(__dirname, getTemplate[role]),"utf8");
-      const translations = translate.getTranslate(role,locale)
+      const translations = translate.getTranslate(role,locale,order)
         // console.log(translations)
       Object.entries(translations).forEach(([key, value]) => {
         template = template.replace(`{{${key}}}`, value);
