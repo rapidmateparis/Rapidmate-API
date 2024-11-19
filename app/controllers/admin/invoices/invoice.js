@@ -59,7 +59,7 @@ const options = {
     
     try {
       const role = req.params.role
-      const locale="fr"
+      const locale=req.getLocale() || 'en'
 
       let orderList=[];
       if(role=='deliveryboy'){
