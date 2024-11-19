@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Invoice</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      td,
+      a {
+        font-family: "Montserrat", sans-serif;
+      }
+      .invoice-container {
+        background-color: #fff;
+        margin: 20px auto;
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        min-height: 297mm; /* A4 height */
+        padding: 20mm;
+        box-sizing: border-box;
+        border-radius: 10px;
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      td,
+      th {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+      }
+      .company-info,
+      .customer-info {
+        width: 50%;
+      }
+      .company-info h2 {
+        margin-top: 0px;
+      }
+      .total-row {
+        font-weight: bold;
+      }
+      .payment-info {
+        margin-top: 20px;
+      }
+      .query {
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      a {
+        color: #ff007f;
+        text-decoration: none;
+      }
+
+      /* Print-specific styling */
+      @media print {
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #fff;
+        }
+        .invoice-container {
+          box-shadow: none;
+          page-break-after: always;
+          background-color: #fff;
+          margin: 0;
+          padding: 0px 60px;
+        }
+
+        /* Ensures that the content fits within an A4 page size */
+        @page {
+          size: A4;
+          margin: 20mm;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-container">
+      <!-- Invoice Header -->
+      <table>
+        <tr>
+          <td style="width: 50%">
+            <img style="height: 40px" src="{{imageUrl}}" alt="rapidmate" />
+            <p>
+              8 AVENUE DANIELLE CASANOVA 95210 SAINT-GRATIEN - France
+              contact@ajs-borne.cm
+            </p>
+          </td>
+          <td style="width: 50%; text-align: end">
+            <h2 style="font-size: 25px">Invoice</h2>
+          </td>
+        </tr>
+        <tr>
+          <td class="company-info">
+            <div style="display: flex; gap: 10px">
+              <img
+                style="width: 60px; height: 60px; border-radius: 100%"
+                src="{{consumerImg}}"
+                alt="Consumer"
+              />
+              <div>
+                <h3>John Doe</h3>
+                <p style="margin: 3px 0px">Van - FH16 2022</p>
+                <p style="margin: 3px 0px">
+                  Lorem ipsum dolor sit amet consectetur.
+                </p>
+              </div>
+            </div>
+          </td>
+          <td class="customer-info">
+            <p><strong>Service tax category:</strong> Renting of motor cab</p>
+            <p><strong>SAC Code:</strong> 123456</p>
+          </td>
+        </tr>
+      </table>
+
+      <table>
+        <tr>
+          <td class="company-info">
+            <p><strong>Invoice ID:</strong> RM23K4JH5KJ</p>
+            <p><strong>Customer Name:</strong> John Doe</p>
+          </td>
+          <td class="customer-info">
+            <p><strong>Invoice Date:</strong> 01-02-2024</p>
+            <p><strong>Mobile Number:</strong> +123456789</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Supply Address and Order Number -->
+      <table>
+        <tr>
+          <td style="width: 150px"><strong>Pickup address:</strong></td>
+          <td>
+            Lorem ipsum dolor sit amet, consectetur, Nisi risus morbi ac vitae.
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 150px"><strong>Order Number:</strong></td>
+          <td>M3B4JK5KLJB4</td>
+        </tr>
+      </table>
+
+      <!-- Ride Fee Details -->
+      <table>
+        <tr>
+          <td>Ride Fee</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+        <tr>
+          <td>{{tax}} 2.5%</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+        <tr>
+          <td>Subtotal</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+        <tr class="total-row">
+          <td>{{total}}</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+      </table>
+
+      <!-- Queries Section -->
+      <div class="query">
+        {{visit}} <a href="#">{{queries}}</a>
+      </div>
+    </div>
+  </body>
+</html>

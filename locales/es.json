@@ -6,5 +6,16 @@
   "forgotPassword": {
     "SUBJECT": "Recuperar contraseña en myProject",
     "MESSAGE": "<p>Para recuperar la contraseña para el usuario: %s</p> <p>haz click en el siguiente enlace:</p> <p>%s/reset/%s</p> <p>Si esto fue un error, puedes ignorar este mensaje.</p> <p>Gracias.</p>"
-  }
+  },
+  "invoice_title": "Factura del viaje del conductor",
+  "pickup_address": "Dirección de recogida",
+  "dropoff_address": "Dirección de entrega",
+  "bill_details": "Detalles de la factura",
+  "delivery_fare": "Tarifa de entrega",
+  "tax": "Impuesto",
+  "total": "Total",
+  "payment": "Pago",
+  "queries": "Visita el soporte para este viaje",
+  "visit":"¿Tienes preguntas?"
+
 }

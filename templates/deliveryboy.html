@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+    <title>Invoice</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      td,
+      a {
+        font-family: "Montserrat", sans-serif;
+      }
+      .invoice-container {
+        background-color: #fff;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        padding: 20mm;
+        box-sizing: border-box;
+        border-radius: 10px;
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      td,
+      th {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+      }
+      .company-info,
+      .customer-info {
+        width: 50%;
+      }
+      .company-info h2 {
+        margin-top: 0px;
+      }
+      .total-row {
+        font-weight: bold;
+      }
+      .payment-info {
+        margin-top: 20px;
+      }
+      .query {
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      a {
+        color: #ff007f;
+        text-decoration: none;
+      }
+
+      /* Print-specific styling */
+      @media print {
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #fff;
+        }
+        .invoice-container {
+          box-shadow: none;
+          page-break-after: always;
+          background-color: #fff;
+          margin: 0;
+          padding: 0px 60px;
+        }
+
+        /* Ensures that the content fits within an A4 page size */
+        @page {
+          size: A4;
+          margin: 20mm;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-container">
+      <!-- Invoice Header -->
+      <table>
+        <tr>
+          <td style="width: 50%">
+            <img style="height: 40px" src="{{imageUrl}}" alt="rapidmate" />
+            <p>
+              8 AVENUE DANIELLE CASANOVA 95210 SAINT-GRATIEN - France
+              contact@ajs-borne.cm
+            </p>
+          </td>
+          <td style="width: 50%; text-align: end">
+            <h2 style="font-size: 25px">{{invoiceTitle}}</h2>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h2 style="margin: 3px 0px">€12.34</h2>
+            <p style="margin: 0px">Thanks for booking with us!</p>
+            <p style="margin: 5px 0px; font-size: 14px; color: #787878">
+              RMK23J45J7747
+            </p>
+          </td>
+          <td></td>
+        </tr>
+      </table>
+
+      <table>
+        <tr>
+          <td>
+            <div>
+              <h3 style="margin: 3px 0px">
+                <span style="margin-right: 5px; color: #ff0058"
+                  ><i class="fa-solid fa-location-dot"></i></span
+                >{{pickupAddress}}
+              </h3>
+            </div>
+            <p style="margin: 5px 0px">
+              Lorem ipsum dolor sit amet consectetur. Nisi risus morbi ac vitae.
+            </p>
+          </td>
+          <td>
+            <p style="margin: 0px; text-align: end">
+              <strong>12 May, 2024 | 10:30 AM</strong>
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div>
+              <h3 style="margin: 3px 0px">
+                <span style="margin-right: 5px; color: #ffc72b"
+                  ><i class="fa-solid fa-location-crosshairs"></i></span
+                >{{dropoffAddress}}
+              </h3>
+            </div>
+            <p style="margin: 5px 0px">
+              Lorem ipsum dolor sit amet consectetur. Nisi risus morbi ac vitae.
+            </p>
+          </td>
+          <td>
+            <p style="margin: 0px; text-align: end"><strong>11:23 AM</strong></p>
+          </td>
+        </tr>
+      </table>
+
+      <table>
+        <tr>
+          <td style="text-align: center; padding-top: 20px">
+            <img
+              style="width: 60px; height: 60px; border-radius: 100%"
+              src="{{consumerImg}}"
+              alt="Consumer"
+            />
+            <p>John Doe</p>
+          </td>
+          <td style="text-align: center; padding-top: 20px">
+            <img style="height: 55px" src="{{timeImg}}" alt="TimeIcon" />
+            <p>2.8 km - 12 min</p>
+          </td>
+          <td style="text-align: center; padding-top: 20px">
+            <img style="height: 50px" src="{{vanImg}}" alt="Van" />
+            <p>Van - FH16 2022</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Ride Fee Details -->
+      <table>
+        <p><strong>{{billDetails}}</strong></p>
+        <tr>
+          <td>{{deliveryFare}}</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+        <tr>
+          <td>{{tax}}</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+        <tr class="total-row">
+          <td>{{total}}</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+      </table>
+
+      <!-- Payment Info -->
+      <table class="payment-info">
+        <p><strong>{{payment}}</strong></p>
+        <tr>
+          <td>Rapidmate wallet</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+        <tr>
+          <td>Cash</td>
+          <td style="text-align: end">€12.34</td>
+        </tr>
+      </table>
+
+      <!-- Queries Section -->
+      <div class="query">
+        {{visit}} <a href="#">{{queries}}</a>
+      </div>
+    </div>
+  </body>
+</html>

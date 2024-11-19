@@ -472,7 +472,7 @@ exports.cancelOrder = async (req, res) => {
 };
 
 
-exports.viewOrderByOrderNumber = async (req, res) => {
+exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
   var responseData = {};
   try {
     console.log(req.params.ordernumber);
@@ -481,6 +481,9 @@ exports.viewOrderByOrderNumber = async (req, res) => {
 
     const dbData = await fetch(orderAllocationQuery, [order_number]);
     if (dbData.length <= 0) {
+      if (returnData) {
+        return { data: [] };
+      }
       message = "Invalid Order number";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     } else {
@@ -491,6 +494,10 @@ exports.viewOrderByOrderNumber = async (req, res) => {
       );
       responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
       responseData.orderLines = await getOrderLineInfo(order_number);
+      console.log("irder",responseData)
+      if (returnData) {
+        return { data: responseData };
+      }
       return res
         .status(201)
         .json(
@@ -502,6 +509,9 @@ exports.viewOrderByOrderNumber = async (req, res) => {
         );
     }
   } catch (error) {
+    if (returnData) {
+      return { data: [] };
+    }
     return res
       .status(500)
       .json(
