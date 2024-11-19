@@ -11,46 +11,101 @@ const doc = new jsPDF();
 
 
 exports.getItemByEnterpriseExt = async (req, res) => {
-    try {
-      //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
-      //console.log(isAuththorized)
-      //if(isAuththorized.status==200){
-        const id = req.params.id;
-      // const reqStatus = req.query.status;
-      // console.log(reqStatus);
-      // let statusParams = [];
-      // if(reqStatus == 'current'){
-      //   statusParams.push(["'ORDER_PLACED'","'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'ORDER_ACCEPTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'"]);
-      // }else if(reqStatus == "past") {
-      //   statusParams.push(["'PAYMENT_FAILED'","'ORDER_REJECTED'","'COMPLETED'","'CANCELLED'"]);
-      // }else{
-      //   statusParams.push(["'ORDER_PLACED'", "'CONIRMED'","'PAYMENT_COMPLETED'", "'ORDER_ALLOCATED'", "'PAYMENT_FAILED'","'ORDER_ACCEPTED'","'ORDER_REJECTED'","'ON_THE_WAY_PICKUP'","'PICKUP_COMPLETED'","'ON_THE_WAY_DROP_OFF'","'COMPLETED'","'CANCELLED'"]);
-      // }
-      // var query = "select waiting_fare,discount,next_action_status ,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location,dropoff_location,shift_from_date,shift_tp_date,order_status,delivery_date,is_same_slot_all_days,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,schedule_date_time,promo_code,promo_value,cancel_reason_id, cancel_reason, ROUND(order_amount, 2) as order_amount from rmt_enterprise_order where order_status in (" + statusParams + ") AND enterprise_id =(select id from rmt_enterprise where ext_id =?)  order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
-      // const data = await fetch(query, [id]);
-        const data = await fetch(FETCH_ORDER_BY_ORDER_EXT,[id]);
-        let message = "Items retrieved successfully";
-        if (data.length <= 0) {
-          message = "No items found";
-          return res.status(400).json(utils.buildErrorObject(400, message, 1001));
-        }
-        const shiftWithSlots = await Promise.all(
-          data.map(async (shift) => {
-            const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
-            return {
-              ...shift,
-              slots,
-            };
-          })
-        );
-        return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
-      //}else{
-     //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
-     // }
-      
-    } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
+  try {
+    const id = req.params.id;
+    const orderNumber = req.query.o || "";
+    var conditions = "";
+    if (orderNumber && orderNumber != "") {
+      conditions = " AND e.order_number like '%" + orderNumber + "%' ";
     }
+    const query = `SELECT e.*,dt.delivery_type,CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,s.service_name FROM rmt_enterprise_order as e LEFT JOIN rmt_enterprise_delivery_type as dt ON  e.delivery_type_id=dt.id LEFT JOIN rmt_service AS s ON e.service_type_id = s.id LEFT JOIN rmt_delivery_boy AS d ON e.delivery_boy_id = d.id WHERE e.is_del=0 ${conditions} AND e.enterprise_id=(select id from rmt_enterprise where ext_id=?) ORDER BY e.created_on DESC ${utils.getPagination(req.query.page, req.query.size)}`;
+
+    const data = await fetch(query, [id]);
+    let message = "Items retrieved successfully";
+    if (data.length <= 0) {
+      message = "No items found";
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    }
+    const shiftWithSlots = await Promise.all(
+      data.map(async (shift) => {
+        const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [shift.id]);
+        return {
+          ...shift,
+          slots,
+        };
+      })
+    );
+    return res
+      .status(200)
+      .json(utils.buildCreateMessage(200, message, shiftWithSlots));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
+  }
+};
+
+exports.searchByFilter = async (req, res) => {
+  try {
+      const requestData = req.body;
+      var conditionQuery = "";
+      var requestArrayData = [];
+      requestArrayData.push(requestData.enterprise_ext_id);
+      if(requestData.order_number){
+        requestArrayData.push(requestData.order_number);
+        conditionQuery = " and order_number = ?";
+      }
+      if(requestData.from_date && requestData.to_date){
+        requestArrayData.push(requestData.from_date);
+        requestArrayData.push(requestData.to_date);
+        conditionQuery += " and date(order_date) between date(?) and date(?)";
+      }
+      if(requestData.delivery_type_id){
+        requestArrayData.push(requestData.delivery_type_id);
+        conditionQuery += " and delivery_type_id = ?"
+      }
+      if(requestData.tab_id){
+        if(requestData.tab_id==1){ // OneTime/ Multiple
+          requestArrayData.push(1);
+          requestArrayData.push(2);
+          conditionQuery += " and delivery_type_id in (?,?)";
+        }else if(requestData.tab_id==2){ // Shift
+          requestArrayData.push(3);
+          conditionQuery += " and delivery_type_id in (?)";
+        } else{// past
+          requestArrayData.push(1);
+          requestArrayData.push(2);
+          requestArrayData.push(3);
+          conditionQuery += " and delivery_type_id in (?,?,?) and order_status in ('COMPLETED','CANCELLED')";
+        }
+      }
+      var query = "SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) " + conditionQuery + " ORDER BY created_on DESC";
+      const responseData = await fetch(query, requestArrayData);
+      let message = "Items retrieved successfully";
+      if (responseData.length <= 0) {
+        message = "No items found";
+        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+      }
+      const responseEnterpriseData = await Promise.all(
+        responseData.map(async (order) => {
+          const locations = await fetch("SELECT * FROM rmt_enterprise_order_line WHERE order_id = ?", [order.id]);
+          const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [order.id]);
+          return {
+            ...order,
+            slots,
+            locations,
+          };
+        })
+      );
+      return res.status(200).json(utils.buildCreateMessage(200,message,responseEnterpriseData))
+    //}else{
+   //   return res.status(401).json(utils.buildErrorObject(400, "Unauthorized", 1001));
+   // }
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
+  }
 };
 /**
  * Get item function called by route
@@ -215,10 +270,44 @@ exports.createItem = async (req, res) => {
       console.log(requestData.delivery_boy_amount);
       console.log(requestData);
     }
+
+    
    
     const item = await createItem(requestData);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
+      let titleText='Your order has been created.';
+      if(requestData.delivery_type_id==1){
+        titleText='Your order has been created.'
+      }else if(requestData.delivery_type_id==2){
+        titleText='Your multiple order delivery has been created.'
+      }else if(requestData.delivery_type_id==3){
+        titleText='Your shift order has been created.'
+      }
+      var notifiationRequest = {
+        title : titleText,
+        body: {},
+        payload: {
+          message :  "Your booking has been confirmed successfully.",
+          orderNumber : currData[0].order_number
+        },
+        extId: currData[0].order_number,
+        message : "Your booking has been confirmed successfully", 
+        topic : "",
+        token : "",
+        senderExtId : "",
+        receiverExtId : requestData.enterprise_ext_id,
+        statusDescription : "",
+        status : "",
+        notifyStatus : "",
+        tokens : "",
+        tokenList : "",
+        actionName : "",
+        path : "",
+        userRole : "ENTERPRISE",
+        redirect : "ORDER"
+      }
+      notification.createNotificationRequest(notifiationRequest);
       return res.status(201).json(utils.buildCreateMessage(201, "Record Inserted Successfully",currData));
     } else {
       return res
@@ -311,8 +400,12 @@ exports.updateOrderlineStatus = async (req, res) => {
 };
 
 
-const deleteItem = async (id) => {
-  const deleteRes = await updateQuery(DELETE_ORDER_QUERY,[id]);
+const deleteItem = async (id, cancel_reason_id, cancel_reason) => {
+  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, [
+    cancel_reason_id,
+    cancel_reason,
+    id,
+  ]);
   return deleteRes;
 };
 /**
@@ -320,29 +413,61 @@ const deleteItem = async (id) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-exports.deleteItem = async (req, res) => {
+exports.cancelOrder = async (req, res) => {
   try {
-    const { id } = req.params;
-    const getId = await utils.isIDGood(id, "id", "rmt_order");
-    if (getId) {
-      const deletedItem = await deleteItem(getId);
+    const { order_number, cancel_reason_id, cancel_reason } = req.body;
+    const order = await utils.getValuesById(
+      "id, is_del",
+      "rmt_order",
+      "order_number",
+      order_number
+    );
+    if (order) {
+      if (parseInt(order.is_del) == 1) {
+        return res
+          .status(200)
+          .json(utils.buildUpdatemessage(200, "Order was already cancelled"));
+      }
+      const deletedItem = await deleteItem(
+        order.id,
+        cancel_reason_id,
+        cancel_reason
+      );
       if (deletedItem.affectedRows > 0) {
         return res
           .status(200)
-          .json(utils.buildUpdatemessage(200, "Record Deleted Successfully"));
+          .json(
+            utils.buildUpdatemessage(
+              200,
+              "Order has been cancelled successfully"
+            )
+          );
       } else {
         return res
           .status(500)
-          .json(utils.buildErrorObject(500, "Something went wrong", 1001));
+          .json(
+            utils.buildErrorObject(
+              500,
+              "Unable to cancel an order. Please contact customer care",
+              1001
+            )
+          );
       }
     }
     return res
       .status(400)
-      .json(utils.buildErrorObject(400, "Data not found.", 1001));
+      .json(utils.buildErrorObject(400, "Invalid Order number", 1001));
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, 'Unable to delete order', 1001));
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to cancel an order. Please contact customer care",
+          1001
+        )
+      );
   }
 };
 
@@ -352,23 +477,36 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     console.log(req.params.ordernumber);
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = 'select * from rmt_enterprise_order where is_del=0 and order_number = ?';
-    const dbData = await fetch(orderAllocationQuery, [order_number])
-    if(dbData.length <= 0){
-      message="Invalid Order number";
-      return res.status(400).json(utils.buildErrorObject(400,message,1001));
-    }else{
-        var orderData = dbData[0];
-        responseData.order = orderData;
-        responseData.deliveryBoy = await getDeliveryBoyInfo(orderData.delivery_boy_id);
-        responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
-        responseData.orderLines = await getOrderLineInfo(order_number);
-        return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
+    const orderAllocationQuery = "SELECT o.*, l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile, c.ext_id AS consumer_ext FROM rmt_enterprise_order AS o LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id WHERE o.is_del = 0 AND o.order_number = ?";
+
+    const dbData = await fetch(orderAllocationQuery, [order_number]);
+    if (dbData.length <= 0) {
+      message = "Invalid Order number";
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    } else {
+      var orderData = dbData[0];
+      responseData.order = orderData;
+      responseData.deliveryBoy = await getDeliveryBoyInfo(
+        orderData.delivery_boy_id
+      );
+      responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
+      responseData.orderLines = await getOrderLineInfo(order_number);
+      return res
+        .status(201)
+        .json(
+          utils.buildCreateMessage(
+            201,
+            "Delivery boy has been allocated successfully",
+            responseData
+          )
+        );
     }
   } catch (error) {
     return res
       .status(500)
-      .json(utils.buildErrorObject(500, "Unable to fetch an Order number", 1001));
+      .json(
+        utils.buildErrorObject(500, "Unable to fetch an Order number", 1001)
+      );
   }
 };
 
@@ -469,7 +607,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
             tokenList : "",
             actionName : "",
             path : "",
-            userRole : "CONSUMER",
+            userRole : "ENTERPRISE",
             redirect : "ORDER"
           }
           notification.createNotificationRequest(notifiationConsumerRequest);

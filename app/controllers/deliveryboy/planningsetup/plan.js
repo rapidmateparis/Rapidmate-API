@@ -98,7 +98,7 @@ exports.getItems = async (req, res) => {
 exports.getItemsByfilter = async (req, res) => {
  
   try {
-    const {from_date,to_date,from_time,to_time,ext_id,day}=req.body
+    const {from_date,to_date,from_time,to_time,ext_id,day}=req.body;
     const plannings = await fetch(FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, [ext_id])
     let message = "Items retrieved successfully";
     let planninSetupgData;

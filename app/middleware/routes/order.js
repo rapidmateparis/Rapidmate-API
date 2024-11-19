@@ -38,6 +38,13 @@ router.get(
    controller.getItemByEnterpriseExt
 )
 
+router.post(
+  '/search',
+    trimRequest.all,
+    validate.seachItem,
+   controller.searchByFilter
+)
+
 /*
  * Get item route
  */
@@ -92,6 +99,16 @@ router.post(
   '/plan/search',
   trimRequest.all,
   controller.search
+)
+
+/*
+ * Delete item route
+ */
+router.post(
+  '/cancel',
+  trimRequest.all,
+  validate.cancelOrder,
+  controller.cancelOrder
 )
 
 module.exports = router

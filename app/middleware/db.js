@@ -102,7 +102,7 @@ module.exports = {
 
   async fetch(query, param = []) {
     try {
-      console.log(query, param);
+      // console.log(query, param);
       return await pool
         .execute(query, param)
         .then(([rows, fields]) => {
