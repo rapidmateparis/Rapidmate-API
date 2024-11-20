@@ -511,7 +511,7 @@ exports.cancelOrder = async (req, res) => {
     const { order_number, cancel_reason_id, cancel_reason } = req.body;
     const order = await utils.getValuesById(
       "id, is_del",
-      "rmt_order",
+      "rmt_enterprise_order",
       "order_number",
       order_number
     );
