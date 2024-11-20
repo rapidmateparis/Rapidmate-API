@@ -16,37 +16,51 @@ exports.getItems = async (req, res) => {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
     const pageSize = 10;
-    let queryReq = ` WHERE is_del=0 AND is_active=1`; 
+
+    let queryReq = ` WHERE d.is_del=0`;
     if (search.trim()) {
-      queryReq += ` AND (first_name LIKE ? OR last_name LIKE ? OR email LIKE ? OR phone LIKE ?)`;
+      queryReq += ` AND (d.first_name LIKE ? OR d.last_name LIKE ? OR d.email LIKE ? OR d.phone LIKE ?)`;
     }
     const searchQuery = `%${search}%`;
-    const countQuery = `SELECT COUNT(*) AS total FROM rmt_delivery_boy ${queryReq}`;
-    const sql = `SELECT * FROM rmt_delivery_boy ${queryReq} ORDER BY created_on DESC ${utils.getPagination(page, pageSize)}`;
 
-    const countResult = await fetch(countQuery,[searchQuery, searchQuery, searchQuery, searchQuery]);
-    const data = await fetch(sql,[searchQuery, searchQuery, searchQuery, searchQuery]);
+    const countQuery = `
+      SELECT COUNT(*) AS total 
+      FROM rmt_delivery_boy d
+      ${queryReq}`;
 
-    let message = "Items retrieved successfully";
+    const sql = `SELECT d.id, d.ext_id, d.username, d.first_name, d.last_name, d.email, d.email_verification, d.phone, d.autaar, d.role_id, d.city_id, d.state_id, d.country_id, d.address, d.siret_no, d.vehicle_id, d.driver_licence_no, d.insurance, d.passport, d.identity_card, d.company_name, d.description, d.term_cond1, d.term_cond2, d.reason, d.work_type_id, wt.work_type, wt.work_type_desc, d.profile_pic, d.is_active, d.is_availability, d.latitude, d.longitude,d.created_by, d.created_on, d.updated_by, d.updated_on, d.is_work_type, d.token, d.verification_code, d.is_mobile_verified, d.is_email_verified, d.enable_push_notification, d.enable_email_notification, d.language_id FROM rmt_delivery_boy d LEFT JOIN rmt_work_type wt ON d.work_type_id = wt.id ${queryReq} ORDER BY d.created_on DESC ${utils.getPagination(page, pageSize)}`;
+
+
+    const countResult = await fetch(countQuery, [searchQuery, searchQuery, searchQuery, searchQuery]);
+    const data = await fetch(sql, [searchQuery, searchQuery, searchQuery, searchQuery]);
+
     if (data.length <= 0) {
-      message = "No items found";
+      const message = "No items found";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
+
+    // Remove `password` field from each record
+    const sanitizedData = data.map(item => {
+      const { password, ...rest } = item;
+      return rest;
+    });
+
     const totalRecords = countResult[0].total;
     const resData = {
       total: totalRecords,
       page: page,
       pageSize: pageSize,
       totalPages: Math.ceil(totalRecords / pageSize),
-      data,
+      data: sanitizedData,
     };
 
-    return res.status(200).json(utils.buildCreateMessage(200, message, resData));
+    return res.status(200).json(utils.buildCreateMessage(200, "Items retrieved successfully", resData));
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
   }
-}
+};
+
 
 exports.reset = async (req, res) => {
   try {
