@@ -1,8 +1,8 @@
-const nodemailer = require('nodemailer')
-const mg = require('nodemailer-mailgun-transport')
-const i18n = require('i18n')
-const User = require('../models/user')
-const { itemAlreadyExists } = require('../middleware/utils')
+const nodemailer = require("nodemailer");
+const mg = require("nodemailer-mailgun-transport");
+const i18n = require("i18n");
+const User = require("../models/user");
+const { itemAlreadyExists } = require("../middleware/utils");
 
 /**
  * Sends email
@@ -11,26 +11,29 @@ const { itemAlreadyExists } = require('../middleware/utils')
  */
 const sendEmail = async (data, callback) => {
   const auth = {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: process.env.SMTP_SECURE === "true", // Convert string to boolean
     auth: {
-      // eslint-disable-next-line camelcase
-      api_key: process.env.EMAIL_SMTP_API_MAILGUN,
-      domain: process.env.EMAIL_SMTP_DOMAIN_MAILGUN
-    }
-  }
-  const transporter = nodemailer.createTransport(mg(auth))
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  };
+  const transporter = nodemailer.createTransport(auth);
   const mailOptions = {
     from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM_ADDRESS}>`,
     to: `${data.user.name} <${data.user.email}>`,
     subject: data.subject,
-    html: data.htmlMessage
-  }
+    html: data.htmlMessage,
+  };
   transporter.sendMail(mailOptions, (err) => {
     if (err) {
-      return callback(false)
+      console.log(err);
+      return callback(false);
     }
-    return callback(true)
-  })
-}
+    return callback(true);
+  });
+};
 
 /**
  * Prepares to send email
@@ -42,23 +45,28 @@ const prepareToSendEmail = (user, subject, htmlMessage) => {
   user = {
     name: user.name,
     email: user.email,
-    verification: user.verification
-  }
+    verification: user.verification,
+  };
   const data = {
     user,
     subject,
-    htmlMessage
-  }
-  if (process.env.NODE_ENV === 'production') {
+    htmlMessage,
+  };
+  if (process.env.NODE_ENV === "production") {
+    sendEmail(
+      data,
+      (messageSent) => messageSent
+      // ? console.log(`Email SENT to: ${user.email}`)
+      // : console.log(`Email FAILED to: ${user.email}`)
+    );
+  } else if (process.env.NODE_ENV === "development") {
     sendEmail(data, (messageSent) =>
       messageSent
-        // ? console.log(`Email SENT to: ${user.email}`)
-        // : console.log(`Email FAILED to: ${user.email}`)
-    )
-  } else if (process.env.NODE_ENV === 'development') {
-    // console.log(data)
+        ? console.log(`Email SENT to: ${user.email}`)
+        : console.log(`Email FAILED to: ${user.email}`)
+    );
   }
-}
+};
 
 module.exports = {
   /**
@@ -69,14 +77,14 @@ module.exports = {
     return new Promise((resolve, reject) => {
       User.findOne(
         {
-          email
+          email,
         },
         (err, item) => {
-          itemAlreadyExists(err, item, reject, 'EMAIL_ALREADY_EXISTS')
-          resolve(false)
+          itemAlreadyExists(err, item, reject, "EMAIL_ALREADY_EXISTS");
+          resolve(false);
         }
-      )
-    })
+      );
+    });
   },
 
   /**
@@ -90,15 +98,15 @@ module.exports = {
         {
           email,
           _id: {
-            $ne: id
-          }
+            $ne: id,
+          },
         },
         (err, item) => {
-          itemAlreadyExists(err, item, reject, 'EMAIL_ALREADY_EXISTS')
-          resolve(false)
+          itemAlreadyExists(err, item, reject, "EMAIL_ALREADY_EXISTS");
+          resolve(false);
         }
-      )
-    })
+      );
+    });
   },
 
   /**
@@ -107,15 +115,15 @@ module.exports = {
    * @param {Object} user - user object
    */
   async sendRegistrationEmailMessage(locale, user) {
-    i18n.setLocale(locale)
-    const subject = i18n.__('registration.SUBJECT')
+    i18n.setLocale(locale);
+    const subject = i18n.__("registration.SUBJECT");
     const htmlMessage = i18n.__(
-      'registration.MESSAGE',
+      "registration.MESSAGE",
       user.name,
       process.env.FRONTEND_URL,
       user.verification
-    )
-    prepareToSendEmail(user, subject, htmlMessage)
+    );
+    prepareToSendEmail(user, subject, htmlMessage);
   },
 
   /**
@@ -124,14 +132,20 @@ module.exports = {
    * @param {Object} user - user object
    */
   async sendResetPasswordEmailMessage(locale, user) {
-    i18n.setLocale(locale)
-    const subject = i18n.__('forgotPassword.SUBJECT')
+    i18n.setLocale(locale);
+    const subject = i18n.__("forgotPassword.SUBJECT");
     const htmlMessage = i18n.__(
-      'forgotPassword.MESSAGE',
+      "forgotPassword.MESSAGE",
       user.email,
       process.env.FRONTEND_URL,
       user.verification
-    )
-    prepareToSendEmail(user, subject, htmlMessage)
-  }
-}
+    );
+    prepareToSendEmail(user, subject, htmlMessage);
+  },
+  async sendTestMail(locale, user) {
+    i18n.setLocale(locale);
+    const subject = i18n.__("testmail.SUBJECT");
+    const htmlMessage = i18n.__("testmail.MESSAGE", user.name);
+    prepareToSendEmail(user, subject, htmlMessage);
+  },
+};

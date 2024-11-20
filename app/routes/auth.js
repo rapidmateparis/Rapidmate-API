@@ -10,6 +10,8 @@ const requireAuth = passport.authenticate('jwt', {
 })
 const trimRequest = require('trim-request')
 const dashboarRouter=require('../middleware/routes/admin/dashboard')
+const invoiceRouter=require('../middleware/routes/admin/invoice')
+const sendMainRouter =require('../middleware/routes/admin/sendmail')
 
 
 /*
@@ -36,4 +38,6 @@ router.get(
 router.post('/login', trimRequest.all, validate.login, controller.login)
 router.get('/register',trimRequest.all,controller.register)
 router.use('/dashboard',dashboarRouter);
+router.use('/invoice',invoiceRouter);
+router.use('/sendmail',sendMainRouter);
 module.exports = router
