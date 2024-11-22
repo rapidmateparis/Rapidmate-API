@@ -193,7 +193,7 @@ exports.updateStatus = [
     .withMessage("IS_EMPTY")
     .isIn([
       'Payment Failed','Ready to pickup', 'Reached', 'Enter OTP', 'OTP Verify' , 
-'Ready to delivered', 'Delivered', 'Completed', 'Mark as delivered','Enter Delivered OTP','Request Pending', 'Ready to Start', 'Mask as completed'
+'Ready to delivered', 'Delivered', 'Completed', 'Mark as delivered','Enter Delivered OTP','Request Pending', 'Ready to Start', 'Mask as completed','accepted'
     ])
     .withMessage("Enter valid status"),
 
