@@ -568,10 +568,8 @@ exports.cancelOrder = async (req, res) => {
 exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
   var responseData = {};
   try {
-    console.log(req.params.ordernumber);
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = "SELECT o.*, l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile, c.ext_id AS consumer_ext FROM rmt_enterprise_order AS o LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id WHERE o.is_del = 0 AND o.order_number = ?";
-
+    const orderAllocationQuery = "SELECT o.*,dt.delivery_type,l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile,c.profile_pic as consumer_pic, c.ext_id AS consumer_ext,s.service_name,b.branch_name,b.address as b_address,b.city as b_city,b.state as b_state,b.country as b_country,b.postal_code as b_postal_code,b.latitude as b_latitude,b.longitude as b_longitude FROM rmt_enterprise_order AS o LEFT JOIN rmt_service AS s ON o.service_type_id = s.id LEFT JOIN rmt_enterprise_delivery_type as dt ON  o.delivery_type_id=dt.id LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id LEFT JOIN rmt_enterprise_branch as b ON o.branch_id=b.id WHERE o.is_del = 0 AND o.order_number = ?";
     const dbData = await fetch(orderAllocationQuery, [order_number]);
     if (dbData.length <= 0) {
       if (returnData) {
@@ -580,13 +578,19 @@ exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
       message = "Invalid Order number";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     } else {
+      
       var orderData = dbData[0];
+      
       responseData.order = orderData;
       responseData.deliveryBoy = await getDeliveryBoyInfo(
         orderData.delivery_boy_id
       );
       responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
       responseData.orderLines = await getOrderLineInfo(order_number);
+      if(orderData?.delivery_type_id==3){
+        const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [orderData.id]);
+        responseData.slots=slots
+      }
       console.log("irder",responseData)
       if (returnData) {
         return { data: responseData };
@@ -627,7 +631,7 @@ const getOrderInfo = async (orderNumber) => {
 
 const getOrderLineInfo = async (orderNumber) => {
   try {
-    const data = await fetch("select * from rmt_enterprise_order_line where order_number =? and is_del=0", [orderNumber]);
+    const data = await fetch("select l.*,dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude from rmt_enterprise_order_line as l LEFT JOIN rmt_location as dl ON l.dropoff_location=dl.id where l.order_number =? and l.is_del=0", [orderNumber]);
     console.log(data)
     const filterdata=await transformKeysToLowercase(data);
     return filterdata;
