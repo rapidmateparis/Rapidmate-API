@@ -1,7 +1,7 @@
 const pool = require('../../config/database')
 const {GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY,INSERT_SLOTS_QUERY,} = require('../db/planning.query')
 const {INSERT_SHIFT_SLOTS_QUERY} = require('../db/enterprise.order')
-
+const moment = require("moment");
 /**
  * Builds sorting
  * @param {string} sort - field to sort from
@@ -465,6 +465,21 @@ module.exports = {
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
       await connections.beginTransaction();
+      var deliveredOn = new Date();
+      var deliveredOnDBFormat = moment(deliveredOn).format("YYYY-MM-DD HH:mm:ss");
+      //Apr 19, 2024 at 11:30 AM
+      var deliveredOnFormat = moment(deliveredOn).format("MMM DD, YYYY # hh:mm A");
+      deliveredOnFormat = deliveredOnFormat.replace("#", "at");
+      status = "COMPLETED";
+      next_action_status = "Completed";
+      consumer_order_title = "Completed on " + deliveredOnFormat;
+      delivery_boy_order_title = "Completed on" + deliveredOnFormat;
+      await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
+        delivery_boy_order_title +
+        "', order_status = '" +
+        status +
+        "', next_action_status = '" +
+        next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days
       } = req; 
@@ -482,9 +497,8 @@ module.exports = {
           if (result) {
               const enterpriseOrderId = result.insertId;
               console.log(enterpriseOrderId);
-              await connections.query('DELETE FROM rmt_enterprise_order_slot WHERE branch_id = ?', [req.branch_id]);
-        
-              // Insert new slots
+              await connections.query('update rmt_enterprise_order_slot set is_del = 1 WHERE branch_id = ?', [req.branch_id]);
+             
               let slotPromises = [];
               const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
               const slots =  req.slots;
