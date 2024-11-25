@@ -182,6 +182,10 @@ exports.getItemByConsumerExtId = async (req, res) => {
         "'ORDER_ACCEPTED'",
         "'ON_THE_WAY_PICKUP'",
         "'ON_THE_WAY_DROP_OFF'",
+        "'PICKUP_COMPLETED'",
+        "'REACHED'",
+        "'OTP_VERIFIED'",
+        "'DELIVERED_OTP_VERIFIED'",
       ]);
     } else if (reqStatus == "past") {
       statusParams.push([
@@ -319,6 +323,9 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'ORDER_ACCEPTED'",
         "'ON_THE_WAY_PICKUP'",
         "'ON_THE_WAY_DROP_OFF'",
+        "'REACHED'",
+        "'OTP_VERIFIED'",
+        "'DELIVERED_OTP_VERIFIED'",
       ]);
     } else if (reqStatus == "past") {
       statusParams.push([
