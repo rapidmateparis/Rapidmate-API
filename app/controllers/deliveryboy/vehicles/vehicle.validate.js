@@ -38,30 +38,6 @@ exports.createItem = [
     .trim(),
   check("make").exists().withMessage("MISSING"),
   check("variant").exists().withMessage("MISSING"),
-  check("reg_doc")
-    .exists()
-    .withMessage("MISSING")
-    .not()
-    .isEmpty()
-    .withMessage("IS_EMPTY")
-    .isInt()
-    .withMessage("Invalid value")
-    .trim(),
-  check("driving_license")
-    .exists()
-    .withMessage("MISSING")
-    .isInt()
-    .withMessage("Invalid value"),
-  check("insurance")
-    .exists()
-    .withMessage("MISSING")
-    .isInt()
-    .withMessage("Invalid value"),
-  check("passport")
-    .exists()
-    .withMessage("MISSING")
-    .isInt()
-    .withMessage("Invalid value"),
   (req, res, next) => {
     validationResult(req, res, next);
   },
