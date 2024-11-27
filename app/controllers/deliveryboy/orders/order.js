@@ -1326,7 +1326,7 @@ exports.updateOrderStatus = async (req, res) => {
       next_action_status = "Enter Delivered OTP";
       consumer_order_title = "Your order is on it’s way";
       delivery_boy_order_title = "Going drop location";
-      deliveredOTPNumber = Math.floor(1000 + Math.random() * 9999);
+      deliveredOTPNumber = Math.floor(1000 + Math.random() * 8999);
       deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
       console.log("deliveredOTPNumber = " + deliveredOTPNumber);
       isDeliveredOtpGenerated = true;

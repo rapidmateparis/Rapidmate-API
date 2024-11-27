@@ -65,13 +65,15 @@ exports.searchByFilter = async (req, res) => {
         conditionQuery += " and delivery_type_id = ?"
       }
       if(requestData.tab_id){
-        if(requestData.tab_id==1){ // OneTime/ Multiple
+        if(requestData.tab_id==1){ // OneTime/ 
           requestArrayData.push(1);
+          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED')";
+        }else if(requestData.tab_id==2){ // Multiple
           requestArrayData.push(2);
-          conditionQuery += " and delivery_type_id in (?,?)";
-        }else if(requestData.tab_id==2){ // Shift
+          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED')";
+        }else if(requestData.tab_id==3){ // Shift
           requestArrayData.push(3);
-          conditionQuery += " and delivery_type_id in (?)";
+          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED')";
         } else{// past
           requestArrayData.push(1);
           requestArrayData.push(2);

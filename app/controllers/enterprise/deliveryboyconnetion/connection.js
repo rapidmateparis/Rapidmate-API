@@ -14,7 +14,7 @@ exports.getItems = async (req, res) => {
       const data = await runQuery(FETCH_CONNECTION_WITH_DELIVERYBOY)
       let message="Items retrieved successfully";
       if(data.length <=0){
-        message="No items found"
+        message="No connections"
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
@@ -54,7 +54,7 @@ exports.getBydeliveryboyextId = async (req, res) => {
       const data = await fetch(FETCH_CONNECTION_WITH_DELIVERYBOY_BYDELIVERYBOYID,[id])
       let message="Items retrieved successfully";
       if(data.length <=0){
-          message="Invalid connection list."
+          message="No connections"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
@@ -74,7 +74,7 @@ exports.getByenterpriseExtid = async (req, res) => {
       const data = await fetch(FETCH_CONNECTION_WITH_DELIVERYBOY_BYENTERPRISEID,[id])
       let message="Items retrieved successfully";
       if(data.length <=0){
-          message="Invalid connection list."
+          message="No connections."
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))

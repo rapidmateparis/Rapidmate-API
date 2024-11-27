@@ -250,7 +250,7 @@ exports.FETCH_BRANCH_FOR_DASH = `
             FROM rmt_enterprise 
             WHERE ext_id = ?
         )
-            GROUP BY branch_id
+            GROUP BY b.id
  
 `;
 
