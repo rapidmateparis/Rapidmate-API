@@ -9,7 +9,7 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
     if(!(pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || pathValue.includes("resetpassword"))){
         try {
-            const token = req.headers.rapid_token;
+            const token = req.headers.rapid_token || req.headers.Rapid_token;
             const verified = jwt.verify(token, JWT_SECRET_KEY);
             if (verified) {
                 console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified);
