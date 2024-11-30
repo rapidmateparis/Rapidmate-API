@@ -22,7 +22,8 @@ var poolData =
     UserPoolId : userPoolId, // Your user pool id here
     ClientId :  ClientId// sempercon2 client id here
 };
-
+const jwt = require('jsonwebtoken');
+const JWT_SECRET_KEY = "R@M1DM@T3$2024APP";
 
 const jwtVerifier = CognitoJwtVerifier.create({
     userPoolId: userPoolId,
@@ -158,8 +159,8 @@ async function signup(userInfo) {
               makeRoleExtId = "A" + externalId;
               const item = await createItem(userInfo, "rmt_admin_user",makeRoleExtId);
             } 
-        
-            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], ...data };
+            const token = jwt.sign(makeRoleExtId, JWT_SECRET_KEY);
+            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], rapid_token : token, ...data };
         
           } catch (err) {
             logger.error('selfSignUp error');
@@ -185,7 +186,8 @@ async function signup(userInfo) {
               makeRoleExtId = "A" + externalId;
               const item = await createItem(userInfo, "rmt_admin_user",makeRoleExtId);
             } 
-            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], 
+            const token = jwt.sign(makeRoleExtId, JWT_SECRET_KEY);
+            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'],  rapid_token : token,
                 UserConfirmed: false,
                 CodeDeliveryDetails: {
                     Destination: "y***@a***",
@@ -462,11 +464,13 @@ async function loginResponseData(resolve, reject, result, userInfo) {
         }
         const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
         profileData[0].token = token;
+        const rapid_token = jwt.sign(profileData.ext_id, JWT_SECRET_KEY);
         resolve({
             token:result.accessToken.jwtToken,
             refreshtoken:result.refreshToken.token,
             user: result,
-            user_profile : profileData
+            user_profile : profileData,
+            rapid_token : rapid_token
         })
     }else{
         var body = {};

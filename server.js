@@ -14,6 +14,8 @@ const socketIo = require('socket.io');
 const mongoose = require('mongoose');
 const Notification =require('./app/models/Notification')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
+const httpRequestResponseInterceptor =require('./config/Interceptor');
+
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -24,12 +26,13 @@ require('log4js').configure({
   }
 });
 const app = express();
+
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ = "Asia/Calcutta";
 console.log("Timezone", new Date().toString());
 const server = http.createServer(app);
 const io = socketIo(server);
-
+app.use(httpRequestResponseInterceptor);
 app.set('port', process.env.PORT || 3004);
 app.set('io', io);
 
@@ -128,5 +131,7 @@ cron.schedule('59 23 * * *', () => {
 server.listen(app.get('port'), () => {
   console.log('Server is running on port', app.get('port'));
 });
+
+
 
 module.exports = app;
