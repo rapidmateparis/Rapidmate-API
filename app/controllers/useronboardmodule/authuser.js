@@ -464,7 +464,7 @@ async function loginResponseData(resolve, reject, result, userInfo) {
         }
         const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
         profileData[0].token = token;
-        const rapid_token = jwt.sign(profileData.ext_id, JWT_SECRET_KEY);
+        const rapid_token = jwt.sign(username, JWT_SECRET_KEY);
         resolve({
             token:result.accessToken.jwtToken,
             refreshtoken:result.refreshToken.token,
