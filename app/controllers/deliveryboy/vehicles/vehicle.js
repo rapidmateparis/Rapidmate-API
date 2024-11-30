@@ -66,7 +66,6 @@ exports.getSingleItem = async (req, res) => {
 exports.createItem = async (req, res) => {
   try {
     const id = await utils.getValueById('id','rmt_delivery_boy','ext_id', req.body.delivery_boy_ext_id);
-    console.log(id);
     if(id){
       const vehicleId = await utils.getValueById('id','rmt_vehicle','delivery_boy_id', id);
       if(vehicleId){
