@@ -16,7 +16,7 @@ exports.getBranchByEnterpriseId = async (req, res) => {
         const data = await fetch(FETCH_BRANCH_BY_ENTERPRISEID,[ext_id])
         let message="Items retrieved successfully";
         if(data.length <=0){
-            message="Invalid branch.";
+            message="No branches.";
             return res.status(400).json(utils.buildErrorObject(400,message,1001));
         }
         return res.status(200).json(utils.buildCreateMessage(200,message,data))
@@ -36,7 +36,7 @@ exports.getItem = async (req, res) => {
     const data = await fetch(FETCH_BRANCH_BY_ID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
-        message="Invalid branch."
+        message="No branches."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))

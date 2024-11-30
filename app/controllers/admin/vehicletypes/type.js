@@ -50,28 +50,93 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_VT_QUERY,[req.vehicle_type,req.vehicle_type_desc,req.length,req.height,req.width,req.base_price,req.km_price,req.is_price,req.percent,req.vt_type_id,req.with_price,req.is_parent,id]);
-    return registerRes;
+const updateItem = async (updateQueryCmd, params) => {
+  const updateVehicle = await updateQuery(updateQueryCmd, params);
+  return updateVehicle;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
     const getId = await utils.isIDGood(id,'id','rmt_vehicle_type')
+    
     if(getId){
-      const { vehicle_type } = req.body;
-      const doesNameExists = await utils.nameExists(vehicle_type,'rmt_vehicle_type','vehicle_type')
-      if (doesNameExists) {
-        return res.status(400).json(utils.buildErrorObject(400,'Vehicle type already exists',1001));
+      var queryCondition = "";
+      var queryConditionParam = [];
+      requestBody = req.body;
+      if(requestBody.vehicle_type){
+        queryCondition += ", vehicle_type = ?";
+        queryConditionParam.push(requestBody.vehicle_type);
       }
-      const updatedItem = await updateItem(id, req.body);
-      if (updatedItem.affectedRows >0) {
+      if(requestBody.vehicle_type_desc){
+        queryCondition += ", vehicle_type_desc = ?";
+        queryConditionParam.push(requestBody.vehicle_type_desc);
+      }
+      if(requestBody.base_price){
+        queryCondition += ", base_price = ?";
+        queryConditionParam.push(requestBody.base_price);
+      }
+      if(requestBody.make){
+        queryCondition += ", make = ?";
+        queryConditionParam.push(requestBody.make);
+      }
+      if(requestBody.km_price){
+        queryCondition += ", km_price = ?";
+        queryConditionParam.push(requestBody.km_price);
+      }
+      if(requestBody.percent){
+        queryCondition += ", percent = ?";
+        queryConditionParam.push(requestBody.percent);
+      }
+      if(requestBody.percent_calc){
+        queryCondition += ", percent_calc = ?";
+        queryConditionParam.push(requestBody.percent_calc);
+      }
+      if(requestBody.length){
+        queryCondition += ", length = ?";
+        queryConditionParam.push(requestBody.length);
+      }
+      if(requestBody.height){
+        queryCondition += ", height = ?";
+        queryConditionParam.push(requestBody.height);
+      }
+      if(requestBody.width){
+        queryCondition += ", width = ?";
+        queryConditionParam.push(requestBody.width);
+      }
+      if(requestBody.is_base_price){
+        queryCondition += ", is_base_price = ?";
+        queryConditionParam.push(requestBody.is_base_price);
+      }
+      if(requestBody.commission_percentage){
+        queryCondition += ", commission_percentage = ?";
+        queryConditionParam.push(requestBody.commission_percentage);
+      }
+      if(requestBody.enterprise_commission_percentage){
+        queryCondition += ", enterprise_commission_percentage = ?";
+        queryConditionParam.push(requestBody.enterprise_commission_percentage);
+      }
+      if(requestBody.waiting_fare){
+        queryCondition += ", waiting_fare = ?";
+        queryConditionParam.push(requestBody.waiting_fare);
+      }
+      if(requestBody.enterprise_waiting_fare){
+        queryCondition += ", enterprise_waiting_fare = ?";
+        queryConditionParam.push(requestBody.enterprise_waiting_fare);
+      }
+      
+      queryConditionParam.push(id);
+      
+      var updateQuery = "update rmt_vehicle_type set is_del = 0 " + queryCondition + " where id=?";
+      
+      const executeResult = await updateItem(updateQuery, queryConditionParam);
+      if(executeResult) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to update the vehicle details',1001));
       }
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500,'Invalid vehicle',1001));
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
   }
@@ -115,7 +180,7 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_vehicle_type')
+    const getId = await utils.isIDGood(id,'id','rmt_vehicle_type')
     if(getId){
         const deletedItem = await deleteItem(getId);
         if (deletedItem.affectedRows > 0) {
@@ -223,13 +288,33 @@ function priceCalculation(vehicleTypedata, distance) {
       } else {
         vehicleType.total_price = vehicleType.truck_price;
       }
+      console.log(vehicleType);
       responseData.push({
         vehicle_type_id: vehicleType.vehicle_type_id,
         vehicle_type: vehicleType.vehicle_type,
-        total_price: vehicleType.total_price.toFixed(2)
+        total_price: vehicleType.total_price
       });
     });
   }
   return responseData;
 }
 
+exports.updatedeleteOrrestroys = async (req,res) =>{
+  try {
+    const id = req.params.id;
+    if(id){
+      const {status}=req.body
+      const query =`UPDATE rmt_vehicle_type SET is_del=? WHERE id=?`
+      const data = await fetch(query,[status,id])
+      if(data.affectedRows > 0){
+        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
+      }
+      return res.status(400).json(utils.buildErrorObject(500,'Something went wrong.',1001));
+      
+    }else{
+      return res.status(400).json(utils.buildErrorObject(500,'Something went wrong.',1001));
+    }
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+  }
+}

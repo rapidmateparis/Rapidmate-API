@@ -13,18 +13,54 @@ const DriverBoy = require('../../../models/Driveryboy')
  */
 exports.getItems = async (req, res) => {
   try {
-    const getUserQuerye = 'select * from rmt_delivery_boy'
-    const data = await runQuery(getUserQuerye)
-    let message="Items retrieved successfully";
-    if(data.length <=0){
-      message="No items found"
-      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+
+    let queryReq = ` WHERE d.is_del=0`;
+    if (search.trim()) {
+      queryReq += ` AND (d.first_name LIKE ? OR d.last_name LIKE ? OR d.email LIKE ? OR d.phone LIKE ?)`;
     }
-    return res.status(200).json(utils.buildCreateMessage(200,message,data))
+    const searchQuery = `%${search}%`;
+
+    const countQuery = `
+      SELECT COUNT(*) AS total 
+      FROM rmt_delivery_boy d
+      ${queryReq}`;
+
+    const sql = `SELECT d.id, d.ext_id, d.username, d.first_name, d.last_name, d.email, d.email_verification, d.phone, d.autaar, d.role_id, d.city_id, d.state_id, d.country_id, d.address, d.siret_no, d.vehicle_id, d.driver_licence_no, d.insurance, d.passport, d.identity_card, d.company_name, d.description, d.term_cond1, d.term_cond2, d.reason, d.work_type_id, wt.work_type, wt.work_type_desc, d.profile_pic, d.is_active, d.is_availability, d.latitude, d.longitude,d.created_by, d.created_on, d.updated_by, d.updated_on, d.is_work_type, d.token, d.verification_code, d.is_mobile_verified, d.is_email_verified, d.enable_push_notification, d.enable_email_notification, d.language_id FROM rmt_delivery_boy d LEFT JOIN rmt_work_type wt ON d.work_type_id = wt.id ${queryReq} ORDER BY d.created_on DESC ${utils.getPagination(page, pageSize)}`;
+
+
+    const countResult = await fetch(countQuery, [searchQuery, searchQuery, searchQuery, searchQuery]);
+    const data = await fetch(sql, [searchQuery, searchQuery, searchQuery, searchQuery]);
+
+    if (data.length <= 0) {
+      const message = "No items found";
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    }
+
+    // Remove `password` field from each record
+    const sanitizedData = data.map(item => {
+      const { password, ...rest } = item;
+      return rest;
+    });
+
+    const totalRecords = countResult[0].total;
+    const resData = {
+      total: totalRecords,
+      page: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(totalRecords / pageSize),
+      data: sanitizedData,
+    };
+
+    return res.status(200).json(utils.buildCreateMessage(200, "Items retrieved successfully", resData));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    console.error(error);
+    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
   }
-}
+};
+
 
 exports.reset = async (req, res) => {
   try {
@@ -147,18 +183,43 @@ exports.getNearbydriver = async (req, res) => {
 exports.getItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const getUserQuerye = "select * from rmt_delivery_boy where ext_id ='"+id+"'"
-    const data = await runQuery(getUserQuerye)
-    let message="Items retrieved successfully";
-    if(data.length <=0){
-        message="No items found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    
+    const getUserQuery = `
+      SELECT e.ext_id, e.first_name, e.last_name, e.username, e.email, e.phone, e.profile_pic, e.city_id, e.country_id, 
+             e.state_id, e.language_id, e.is_active, e.is_availability, e.is_email_verified, e.is_mobile_verified, 
+             e.is_del, e.role_id, e.driver_licence_no, e.identity_card, e.insurance, e.passport, e.otp, e.token, 
+             e.verification_code, e.siret_no, e.logout_on, e.created_on, e.created_by, e.updated_on, e.updated_by, 
+             e.enable_email_notification, e.enable_push_notification, e.is_work_type, e.work_type_id, w.work_type_desc, 
+             e.reason, e.description, e.company_name, e.term_cond1, e.term_cond2, e.latitude, e.longitude, 
+             c.country_name AS country, s.state_name AS state, ct.city_name AS city, w.work_type 
+      FROM rmt_delivery_boy e 
+      LEFT JOIN rmt_country c ON e.country_id = c.id 
+      LEFT JOIN rmt_state s ON e.state_id = s.id 
+      LEFT JOIN rmt_city ct ON e.city_id = ct.id 
+      LEFT JOIN rmt_work_type w ON e.work_type_id = w.id 
+      WHERE e.ext_id = ?`;
+
+    const fetchUserData = fetch(getUserQuery, [id]);
+    const fetchVehicleData = fetch(
+      `SELECT v.*,t.vehicle_type FROM rmt_vehicle as v LEFT JOIN rmt_vehicle_type as t ON v.vehicle_type_id=t.id WHERE v.delivery_boy_id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?)`,
+      [id]
+    );
+
+    const [userData, vehicleData] = await Promise.all([fetchUserData, fetchVehicleData]);
+
+    if (!userData || userData.length === 0) {
+      return res.status(404).json(utils.buildErrorObject(404, "No items found", 1001));
     }
-    return res.status(200).json(utils.buildCreateMessage(200,message,data))
+
+    return res
+      .status(200)
+      .json(utils.buildCreateMessage(200, "Items retrieved successfully", { ...userData[0], vehicles: vehicleData || [] }));
+    
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    console.error("Error fetching item data:", error);
+    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
   }
-}
+};
 /**
  * Update item function called by route
  * @param {Object} req - request object
@@ -174,70 +235,54 @@ const updateItem = async (profielUpdateQuery, params) => {
 
 exports.updateItem = async (req, res) => {
   try {
-    const id = await utils.getValueById('id','rmt_delivery_boy','ext_id', req.body.ext_id);
-    if(id){
-      var queryCondition = "";
-      var queryConditionParam = [];
-      requestBody = req.body;
-      if(requestBody.first_name){
-        queryCondition += ", first_name = ?";
-        queryConditionParam.push(requestBody.first_name);
+    const extId = req.body.ext_id;
+    const id = await utils.getValueById('id', 'rmt_delivery_boy', 'ext_id', extId);
+    
+    if (!id) {
+      return res.status(400).json(utils.buildErrorObject(400, 'Invalid Delivery boy', 1001));
+    }
+    const { ext_id, ...requestBody } = req.body;
+    const validFields = [
+      'first_name', 'last_name', 'phone', 'profile_pic', 'driver_licence_no', 'work_type_id',
+      'siret_no', 'country_id', 'state_id', 'city_id', 'term_condone', 'token', 'language_id',
+      'enable_push_notification', 'enable_email_notification'
+    ];
+    const updates = [];
+    const queryParams = [];
+    // Loop over fields and add to query if they are present in the request
+    validFields.forEach(field => {
+      if (requestBody[field] !== undefined) {
+        updates.push(`${field} = ?`);
+        queryParams.push(requestBody[field]);
       }
-      if(requestBody.last_name){
-        queryCondition += ", last_name = ?";
-        queryConditionParam.push(requestBody.last_name);
-      }
-      if(requestBody.phone){
-        queryCondition += ", phone = ?";
-        queryConditionParam.push(requestBody.phone);
-      }
-      if(requestBody.profile_pic){
-        queryCondition += ", profile_pic = ?";
-        queryConditionParam.push(requestBody.profile_pic);
-      }
-      if(requestBody.driver_licence_no){
-        queryCondition += ", driver_licence_no = ?";
-        queryConditionParam.push(requestBody.driver_licence_no);
-      }
-      if(requestBody.work_type_id){
-        queryCondition += ", work_type_id = ?";
-        queryConditionParam.push(requestBody.work_type_id);
-      }
-      if(requestBody.token){
-        queryCondition += ", token = ?";
-        queryConditionParam.push(requestBody.token);
-      }
-      if(requestBody.language_id){
-        queryCondition += ", language_id = ?";
-        queryConditionParam.push(requestBody.language_id);
-      }
-      if(requestBody.enable_push_notification == 0 || requestBody.enable_push_notification == 1){
-        queryCondition += ", enable_push_notification = ?";
-        queryConditionParam.push(requestBody.enable_push_notification);
-      }
-      if(requestBody.enable_email_notification  == 0 || requestBody.enable_email_notification == 1){
-        queryCondition += ", enable_email_notification = ?";
-        queryConditionParam.push(requestBody.enable_email_notification);
-      }
+    });
+    if (!updates.length) {
+      return res.status(400).json(utils.buildErrorObject(400, 'No valid fields provided for update', 1002));
+    }
 
-      queryConditionParam.push(req.body.ext_id);
-      var updateQuery = "update rmt_delivery_boy set is_del = 0 " + queryCondition + " where ext_id = ?";
-      
-      const executeResult = await updateItem(updateQuery, queryConditionParam);
-      if(executeResult) {
-        return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
-      } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update the delivery boy profile',1001));
-      }
-    }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Invalid Delivery boy',1001));
+    // Build the update query
+    const updateQuery = `
+      UPDATE rmt_delivery_boy
+      SET is_del = 0, ${updates.join(', ')}
+      WHERE ext_id = ?
+    `;
+
+    // Add `ext_id` as the final parameter for the query
+    queryParams.push(extId);
+
+    // Execute the update query
+    const executeResult = await updateItem(updateQuery, queryParams);
+
+    if (executeResult.affectedRows > 0) {
+      return res.status(200).json(utils.buildUpdatemessage(200, 'Record Updated Successfully'));
+    } else {
+      return res.status(500).json(utils.buildErrorObject(500, 'Unable to update the delivery boy profile', 1001));
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    console.error(error);
+    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
   }
-    
-}
+};
 /**
  * Create item function called by route
  * @param {Object} req - request object

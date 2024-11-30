@@ -10,9 +10,9 @@ const requireAuth = passport.authenticate('jwt', {
 })
 const trimRequest = require('trim-request')
 const dashboarRouter=require('../middleware/routes/admin/dashboard')
-const consumerRouter=require('../middleware/routes/admin/consumer')
-const enterpriseRouter=require('../middleware/routes/admin/enterprise')
-const deliveryboyRouter=require('../middleware/routes/admin/deliveryboy')
+const invoiceRouter=require('../middleware/routes/admin/invoice')
+const sendMainRouter =require('../middleware/routes/admin/sendmail')
+
 
 /*
  * Auth routes
@@ -36,8 +36,8 @@ router.get(
  * Login route
  */
 router.post('/login', trimRequest.all, validate.login, controller.login)
+router.get('/register',trimRequest.all,controller.register)
 router.use('/dashboard',dashboarRouter);
-router.use('/consumer',consumerRouter);
-router.use('/enterprise',enterpriseRouter);
-router.use('/deliveryboy',deliveryboyRouter);
+router.use('/invoice',invoiceRouter);
+router.use('/sendmail',sendMainRouter);
 module.exports = router

@@ -13,6 +13,7 @@ const { fetch } = require("../../../middleware/db");
  */
 exports.getItems = async (req, res) => {
   try {
+    console.log('sdfasd')
     const data = await Notification.find({ is_del: false });
     let message = "Notification loaded successfully";
     if (data.length <= 0) {
@@ -68,7 +69,7 @@ exports.getNotificationByExtId = async (req, res) => {
     console.log(page);
     const ext_id = req.params.ext_id;
     console.log(ext_id);
-    const data = await Notification.find({ receiverExtId: ext_id,is_del: false }).skip(perPage * page).limit(perPage);
+    const data = await Notification.find({ receiverExtId: ext_id,is_del: false }).sort({createdAt:-1}).skip(page * perPage).limit(perPage);
     let message = "Items retrieved successfully";
     if (data.length <= 0) {
       message = "No notification found.";
@@ -76,6 +77,7 @@ exports.getNotificationByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json(
@@ -234,17 +236,20 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
       token: token,
     };
     admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
+  }else{
+    console.log('not send ')
   }
 
   
 }
 
-exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
+exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
   try {
-    const {title, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
+    const {title, body, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
+    const bodyContent = typeof bodydata === 'object' ? JSON.stringify(bodydata) : (typeof body === 'object' ? JSON.stringify(body) : body || '');
     const insertData = {
       title,
-      body: bodydata,
+      body:bodyContent,
       message, 
       topic,
       token,
@@ -259,22 +264,20 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = false) => {
       actionName,
       path,
       userRole,
-      redirect,
-      extId
+      redirect
     };
+  
     const notification = new Notification(insertData);
     const savedNotification = await notification.save();
+    console.log("savedNotification");
+    console.log(savedNotification);
     if (!savedNotification) {
       return false;
     }
-    // if(isSendFCMNotify){
-    //   const objId=savedNotification._id
-    //   const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-    // }
-
-    const objId=savedNotification._id
-    const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-   
+    if(isSendFCMNotify){
+       const objId=savedNotification._id
+       const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
+    }
     return savedNotification;
    
   } catch (error) {

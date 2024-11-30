@@ -38,6 +38,13 @@ router.get(
    controller.getItemByEnterpriseExt
 )
 
+router.post(
+  '/search',
+    trimRequest.all,
+    validate.seachItem,
+   controller.searchByFilter
+)
+
 /*
  * Get item route
  */
@@ -57,14 +64,15 @@ router.put(
   validate.updateAssigndeliveryboy,
   controller.updateAssigndeliveryboy
 )
+
 /*
  * Update order status route
  */
 router.put(
-  '/status/:id',
+  '/estatus',
   trimRequest.all,
   validate.updateStatus,
-  controller.updateStatus
+  controller.updateOrderStatus
 )
 
 
@@ -79,7 +87,7 @@ router.get(
   '/view/:ordernumber',
     trimRequest.all,
     validate.validateOrderNumber,
-   controller.viewOrderByOrderNumber
+   (req,res) => controller.viewOrderByOrderNumber(req,res,false)
 )
 
 router.get(
@@ -92,6 +100,16 @@ router.post(
   '/plan/search',
   trimRequest.all,
   controller.search
+)
+
+/*
+ * Delete item route
+ */
+router.post(
+  '/cancel',
+  trimRequest.all,
+  validate.cancelOrder,
+  controller.cancelOrder
 )
 
 module.exports = router

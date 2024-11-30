@@ -1,6 +1,6 @@
 //---------------------RMT_VEHICLE_TYPE----------------------------
 exports.FETCH_VT_ALL =
-  "select *,id as vehicle_type_id from rmt_vehicle_type where is_del=0";
+  "select *,id as vehicle_type_id from rmt_vehicle_type";
 exports.FETCH_VT_BY_ID =
   "select *, id as vehicle_type_id from rmt_vehicle_type where is_del=0 and id=?";
 exports.INSERT_VT_QUERY = `INSERT INTO rmt_vehicle_type (vehicel_type,vehicle_type_desc,length,height,width,base_price,km_price,is_price,percent,vt_type_id,with_price,is_parent) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`;
@@ -17,7 +17,7 @@ exports.DELETE_SUB_VT = `UPDATE rmt_vehicle_sub_type SET is_del=1 WHERE id=?`;
 
 //------------------------RMT_VEHICLE------------------------------
 exports.FETCH_VEHILCLE_ALL =
-  "select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0";
+  "select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name,dbs.ext_id from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id";
 exports.FETCH_VEHICLE_BY_ID = `select vs.*,vt.vehicle_type,CONCAT(dbs.first_name,' ',dbs.last_name) as delivery_boy_name from rmt_vehicle as vs JOIN rmt_vehicle_type as vt ON vs.vehicle_type_id=vt.id JOIN rmt_delivery_boy as dbs ON vs.delivery_boy_id=dbs.id where vs.is_del=0 and vs.id=?`;
 exports.INSERT_VEHICLE_QUERY = `INSERT INTO rmt_vehicle(delivery_boy_id,vehicle_type_id,plat_no,modal,make,variant,reg_doc,driving_license,insurance,passport) VALUES((select id from rmt_delivery_boy where ext_id=?),?,?,?,?,?,?,?,?,?)`;
 exports.UPDATE_VEHICLE_QUERY = `UPDATE rmt_vehicle SET delivery_boy_id=select id from rmt_delivery_boy where ext_id=?,vehicle_type_id=?,plat_no=?,modal=?,make=?,variant=?,req_doc=?,driving_license=?,insurance=?,passport=? WHERE id=?`;
@@ -70,7 +70,7 @@ exports.DELETE_COUNTRY_QUERY = `UPDATE rmt_country SET is_del=1 WHERE id=?`;
 //-------------------------------RMT_CONSUMER------------------------------------------------
 
 exports.FETCH_CN_QUERY = `select * from rmt_consumer`;
-exports.FETCH_CN_BY_ID = `select * from rmt_consumer where ext_id=?`;
+exports.FETCH_CN_BY_ID = `select c.*,ct.country_name as country from rmt_consumer as c LEFT JOIN rmt_country as ct ON c.country_id=ct.id where ext_id=?`;
 exports.INSERT_CN_QUERY = `INSERT INTO rmt_consumer(FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,AUTAAR,ROLE_ID,CITY_ID,STATE_ID,COUNTRY_ID,ADDRESS,SIRET_NO,VEHICLE_ID,DRIVER_LICENCE_NO,INSURANCE,PASSPORT,IDENTITY_CARD,COMPANY_NAME,INDUSTRY,DESCRIPTION,TERM_COND1,TERM_COND2,ACCOUNT_TYPE,ACTIVE,OTP) VALUES(?,?,?,?,?,?,?,?,?,?,?)`;
 exports.UPDATE_CN_QUERY = `UPDATE rmt_consumer SET FIRST_NAME=?,LAST_NAME=?,EMAIL=?,EMAIL_VERIFICATION=?,PHONE=?,PASSWORD=?,AUTAAR=?,ROLE_ID=?,CITY_ID=?,STATE_ID=?,COUNTRY_ID=?,ADDRESS=?,SIRET_NO=?,VEHICLE_ID=?,DRIVER_LICENCE_NO=?,INSURANCE=?,PASSPORT=?,IDENTITY_CARD=?,COMPANY_NAME=?,INDUSTRY=?,DESCRIPTION=?,TERM_COND1=?,TERM_COND2=?,ACCOUNT_TYPE=?,ACTIVE=?,OTP=?,WHERE CONSUMER_ID=?`;
 exports.DELETE_CN_QUERY = `DELETE FROM rmt_consumer WHERE CONSUMER_ID=?`;
@@ -117,13 +117,13 @@ exports.FETCH_ORDER_BY_CONSUMER_ID=`select * from rmt_order where is_del=0 AND C
 exports.FETCH_ORDER_DELIVERY_BOY_ID=`select * from rmt_order where is_del=0 AND DELIVERY_BOY_ID=(select ID from rmt_delivery_boy where ext_id=?)`
 exports.FETCH_ORDER_BY_CONSUMER_ID_STATUS="select * from rmt_order where is_del=0 and order_status in (?) AND consumer_id =(select id from rmt_consumer where ext_id =?)"
 exports.FETCH_ORDER_DELIVERY_BOY_ID_STATUS=`select * from rmt_order where is_del=0 and order_status in (?) AND DELIVERY_BOY_ID=(select ID from rmt_delivery_boy where ext_id=?)`
-exports.INSERT_ORDER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,order_date,package_photo,package_id,pickup_notes,company_name,promo_code,promo_value,order_amount,discount,drop_first_name,drop_last_name,drop_company_name,drop_mobile) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,EMAIL,MOBILE,'/IS_MY_SELF,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,order_date,package_photo,package_id,pickup_notes,company_name,promo_code,promo_value,order_amount,discount,drop_first_name,drop_last_name,drop_company_name,drop_mobile) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+exports.INSERT_ORDER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,order_date,package_photo,package_id,pickup_notes,company_name,promo_code,promo_value,order_amount,discount,drop_first_name,drop_last_name,drop_company_name,drop_mobile,consumer_order_title,delivery_boy_order_title,delivery_boy_order_title_id,SERVICE_TYPE_ID,schedule_date_time) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,EMAIL,MOBILE,'/IS_MY_SELF,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,order_date,package_photo,package_id,pickup_notes,company_name,promo_code,promo_value,order_amount,discount,drop_first_name,drop_last_name,drop_company_name,drop_mobile,consumer_order_title,delivery_boy_order_title,delivery_boy_order_title_id,SERVICE_TYPE_ID,schedule_date_time) VALUES (concat('N',(now()+1)),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
 //exports.INSERT_ORDER_FOR_ANOTHER_QUERY=`INSERT INTO rmt_order(ORDER_NUMBER,CONSUMER_ID,SERVICE_TYPE_ID,VEHICLE_TYPE_ID,PICKUP_LOCATION_ID,DROPOFF_LOCATION_ID, FIRST_NAME, LAST_NAME,COMPANY_NAME,EMAIL,MOBILE,PACKAGE_PHOTO,PACKAGE_ID,PICKUP_NOTES,IS_MY_SELF) VALUES ((now()+1),(select ID from rmt_consumer where EXT_ID=?),?,?,?,?,?,?,?,?,?,?,?,?,0)`;
 exports.UPDATE_ORDER_QUERY = `UPDATE rmt_order SET  USER_ID=?,FIRST_NAME=?,LAST_NAME=?,EMAIL=?,COMPANY_NAME=?,PHONE_NUMBER=?,PACKAGE_ID=?,PACKAGE_ATTACH=?,PACKAGE_NOTES=?,ORDER_DATE=?,ORDER_STATUS=?,AMOUNT=?,VEHICLE_TYPE_ID=?,PICKUP_LOCATION_ID=?,DROPOFF_LOCATION_ID=?,IS_ACTIVE=?,SERVICE_TYPE_ID=?,SHIFT_START_TIME=?,SHIFT_END_TIME=?,DELIVERY_DATE=?,DELIVERY_STATUS=?  WHERE ORDER_ID=?`;
 exports.UPDATE_ORDER_BY_STATUS = `UPDATE rmt_order SET DELIVERY_STATUS=? WHERE is_del=0 AND  ORDER_ID=?`;
-exports.DELETE_ORDER_QUERY = `UPDATE rmt_order SET order_status = 'CANCELLED', is_del =1, cancel_reason_id =?, cancel_reason = ?=?, cancel_reason = ?,consumer_order_title = 'Cancelled', delivery_boy_order_title = 'Cancelled', updated_on = now() WHERE id=?`;
+exports.DELETE_ORDER_QUERY = `UPDATE rmt_order SET order_status = 'CANCELLED', is_del =1, cancel_reason_id =?, cancel_reason = ?,consumer_order_title = 'Cancelled', delivery_boy_order_title = 'Cancelled', updated_on = now() WHERE id=?`;
 
 //check order
 exports.CHECK_ORDER_FOR_OTP = `SELECT order_number, otp FROM rmt_order WHERE order_number = ? AND is_otp_verified=0`;
@@ -164,7 +164,7 @@ exports.FETCH_ENTERPRISE = `SELECT * FROM rmt_enterprise WHERE is_del=0 and is_a
 //join request views
 exports.FETCH_DELIVERY_BOY_ID = `SELECT * FROM rmt_delivery_boy WHERE is_del=0 AND ext_id=?`;
 exports.FETCH_CONSUMER_ID = `SELECT * FROM rmt_consumer WHERE is_del=0 AND ext_id=?`;
-exports.FETCH_ENTERPRISE_ID = `SELECT * FROM rmt_enterprise WHERE is_del=0 AND ext_id=?`;
+exports.FETCH_ENTERPRISE_ID = `SELECT e.*,c.country_name as country,it.industry_type,it.industry_type_desc,s.state_name as state,ct.city_name as city FROM rmt_enterprise as e LEFT JOIN rmt_country as c ON e.country_id=c.id LEFT JOIN rmt_state as s ON e.state_id=s.id LEFT JOIN rmt_city as ct ON e.city_id=ct.id LEFT JOIN rmt_industry_type as it ON e.industry_type_id=it.id WHERE ext_id=?`;
 //join request udpate
 exports.UPDATE_DELIVERY_BOY_STATUS = `UPDATE rmt_delivery_boy SET is_active=?,reason=? WHERE ext_id=?`;
 exports.UPDATE_CONSUMER_STATUS = `UPDATE rmt_consumer SET STATUS=? WHERE ext_id=?`;
@@ -250,7 +250,7 @@ exports.FETCH_BRANCH_FOR_DASH = `
             FROM rmt_enterprise 
             WHERE ext_id = ?
         )
-            GROUP BY branch_id
+            GROUP BY b.id
  
 `;
 
