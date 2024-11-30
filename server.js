@@ -32,7 +32,7 @@ require('log4js').configure({
   }
 });
 const app = express();
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ = "Asia/Calcutta";
 console.log("Timezone", new Date().toString());
@@ -67,7 +67,7 @@ i18n.configure({
 });
 app.use(i18n.init);
 
-//app.use(cors({origin: '*',}));
+app.use(cors({origin: '*',}));
 app.use(passport.initialize());
 app.use(compression());
 app.use(helmet());
