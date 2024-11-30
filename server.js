@@ -16,6 +16,12 @@ const Notification =require('./app/models/Notification')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
 
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,POST,PUT, DELETE', // Allow only these methods
+  allowedHeaders: ['Content-Type', 'rapid_token', 'Rapid_token'] // Allow only these headers
+};
+
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -26,7 +32,7 @@ require('log4js').configure({
   }
 });
 const app = express();
-
+app.use(cors(corsOptions));
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ = "Asia/Calcutta";
 console.log("Timezone", new Date().toString());
@@ -61,11 +67,7 @@ i18n.configure({
 });
 app.use(i18n.init);
 
-app.use(
-  cors({
-    origin: '*',
-  })
-);
+//app.use(cors({origin: '*',}));
 app.use(passport.initialize());
 app.use(compression());
 app.use(helmet());
