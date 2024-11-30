@@ -132,7 +132,8 @@ router.get(
    '/view/:ordernumber',
     trimRequest.all,
     validate.orderNumber,
-    controller.viewOrderByOrderNumber
+   (req,res) => controller.viewOrderByOrderNumber(req,res,false)
+
 )
 
 router.get(
@@ -146,6 +147,13 @@ router.get(
   trimRequest.all,
   controller.downloadInvoiceFs
 )
+
+router.get(
+  '/pdf/temp',
+  trimRequest.all,
+  controller.downloadInvoiceTemp
+)
+
 
 
 module.exports = router

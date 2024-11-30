@@ -25,23 +25,28 @@ exports.createItem = [
  * Validates update item request
  */
 exports.updateItem = [
-  check('vehicle_type').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('base_price').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
-  check('km_price').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isDecimal({ decimal_digits: '0,2' }).withMessage('INVALID_DECIMAL'),
-  check('vehicle_type_desc').exists().withMessage('MISSING'),
-  check('length').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('height').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('width').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
-  check('is_price').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-  check('vt_type_id').exists().withMessage('MISSING').isInt().withMessage('Enter valid value.'),
-  check('percent').exists().withMessage('MISSING').isInt().withMessage('Enter valid value.'),
-  check('with_price').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
-  check('is_parent').exists().withMessage('MISSING').isIn([0, 1]).withMessage('INVALID_VALUE'),
   check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   (req, res, next) => {
     validationResult(req, res, next)
   }
 ]
+
+exports.updateStatus = [
+  check("status")
+    .exists()
+    .withMessage("MISSING")
+    .isInt()
+    .withMessage("status value"),
+  check("id")
+    .exists()
+    .withMessage("MISSING")
+    .not()
+    .isEmpty()
+    .withMessage("IS_EMPTY"),
+  (req, res, next) => {
+    validationResult(req, res, next);
+  },
+];
 
 /**
  * Validates get item request
