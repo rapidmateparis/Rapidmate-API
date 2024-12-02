@@ -194,7 +194,7 @@ exports.updateOrderStatus=[
 ]
 
 exports.planningSetup=[
-  check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
 (req, res, next) => {
   validationResult(req, res, next)
 }
