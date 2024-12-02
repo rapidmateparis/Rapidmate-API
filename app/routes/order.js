@@ -79,11 +79,25 @@ router.get(
   controller.getItemByDeliveryBoyExtId
 )
 
+router.get(
+  '/deliveryboy/dashboard/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getItemByDeliveryBoyDashboardByExtId
+)
+
 router.post(
   '/deliveryboy/plan/list',
   trimRequest.all,
   validate.planningSetup,
   controller.getItemByDeliveryBoyExtIdWithPlan
+)
+
+router.get(
+  '/deliveryboy/plan/calendar/data/:id',
+  trimRequest.all,
+  validate.planningSetup,
+  controller.getCalendarDataByDeliveryBoyExtIdWithPlan
 )
 
 /*

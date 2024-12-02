@@ -7,6 +7,7 @@ const JWT_TOKEN_HEADER_KEY = "rapid-token";
 
 var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
+    console.log(pathValue);
     if(!(pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || pathValue.includes("resetpassword"))){
         try {
             const token = req.headers.rapid_token || req.headers.Rapid_token;
