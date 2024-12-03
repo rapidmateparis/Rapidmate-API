@@ -26,7 +26,11 @@ router.post(
   validate.createItem,
   controller.createItem
 )
-
+router.post(
+  '/create-payment-intent',
+  trimRequest.all,
+  paymentController.makePaymentIntent
+)
 /*
  * Get item route
  */
