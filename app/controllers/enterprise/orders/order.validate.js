@@ -150,7 +150,7 @@ exports.updateItem = [
     .withMessage("Enter valid mobile number"),
   check("package_photo").exists().withMessage("MISSING"),
   check("package_id").exists().withMessage("MISSING"),
-  check("package_note").exists().withMessage("MISSING"),
+  check("pickup_notes").exists().withMessage("MISSING"),
   check("is_same_dropoff_location")
     .exists()
     .withMessage("MISSING")
@@ -346,7 +346,7 @@ exports.orderItem = [
     .withMessage("Enter valid mobile number"),
   check("package_photo").exists().withMessage("MISSING"),
   check("package_id").exists().withMessage("MISSING"),
-  check("package_note").exists().withMessage("MISSING"),
+  check("pickup_notes").exists().withMessage("MISSING"),
   check("is_same_dropoff_location")
     .exists()
     .withMessage("MISSING")
