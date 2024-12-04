@@ -593,7 +593,6 @@ exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
         const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [orderData.id]);
         responseData.slots=slots
       }
-      console.log("irder",responseData)
       if (returnData) {
         return { data: responseData };
       }
