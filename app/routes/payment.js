@@ -1,5 +1,6 @@
 const controller = require('../controllers/consumer/payments/payment')
 const validate = require('../controllers/consumer/payments/payment.validate')
+const paymentController = require('../controllers/payment.stripe');
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
