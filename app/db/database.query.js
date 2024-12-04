@@ -367,7 +367,7 @@ exports.INSERT_ENTERPRISE_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_enterprise_address
 exports.DELETE_ENTERPRISE_ADDRESS_BOOK_QUERY=`Delete from  rmt_enterprise_address_book where id = ?`;
 
 //======================================= rmt_service =============================================================
-exports.FETCH_ALL_SERVICE = `select * from rmt_service where is_del=0`;
+exports.FETCH_ALL_SERVICE = `select * from rmt_service where is_del=0 order by id asc`;
 exports.FETCH_SERVICE_BYID = `select * from rmt_service where is_del=0 AND id=?`;
 exports.UPDATE_SERVICE = `UPDATE rmt_service SET service_name=?,id_del=? WHERE id =?`;
 exports.INSERT_SERVICE = `INSERT INTO rmt_service (service_name,is_del) VALUES (?,?)`;
