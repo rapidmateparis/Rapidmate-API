@@ -336,7 +336,7 @@ module.exports = {
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
         pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
-        package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
+        package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount
 
       } = req; 
@@ -372,7 +372,7 @@ module.exports = {
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
         pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
-        package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
+        package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount
 
       } = req; 

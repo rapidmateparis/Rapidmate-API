@@ -665,7 +665,7 @@ const updateItem = async (id, req, package_attach) => {
     req.phone_number,
     req.package_id,
     package_attach,
-    req.package_notes,
+    req.pickup_notes,
     req.order_date,
     req.order_status,
     req.amount,
