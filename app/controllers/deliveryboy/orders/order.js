@@ -270,6 +270,8 @@ exports.getItemByConsumerExtId = async (req, res) => {
     o.drop_last_name,
     o.drop_company_name,
     o.drop_mobile,
+    o.drop_notes,
+    o.drop_email,
     s.service_name,
     CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
     t.vehicle_type
@@ -412,6 +414,8 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     o.drop_last_name,
     o.drop_company_name,
     o.drop_mobile,
+    o.drop_notes,
+    o.drop_email,
     s.service_name,
     CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
     t.vehicle_type,
@@ -435,7 +439,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     if (orderType == "E") {
       query =
         "select waiting_fare,discount,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,delivered_on,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
-        " ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_enterprise_order where is_del=0 and order_status in (" +
+        " ROUND(order_amount, 2) as order_amount, drop_first_name, drop_last_name,drop_company_name,drop_mobile,drop_notes,drop_email, from rmt_enterprise_order where is_del=0 and order_status in (" +
         statusParams +
         ")" +
         conditions +
@@ -526,6 +530,8 @@ exports.getItemByDeliveryBoyDashboardByExtId = async (req, res) => {
     o.drop_last_name,
     o.drop_company_name,
     o.drop_mobile,
+    o.drop_notes,
+    o.drop_email,
     s.service_name,
     CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
     t.vehicle_type,
@@ -544,7 +550,7 @@ exports.getItemByDeliveryBoyDashboardByExtId = async (req, res) => {
     if (orderType == "E") {
       query =
         "select waiting_fare,discount,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,delivered_on,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
-        " ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_enterprise_order where is_del=0 and order_status in (" +
+        " ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes from rmt_enterprise_order where is_del=0 and order_status in (" +
         statusParams +
         ")" +
         conditions +
@@ -761,6 +767,8 @@ const createItem = async (req) => {
   requestBody.push(req.drop_last_name || null);
   requestBody.push(req.drop_company_name || null);
   requestBody.push(req.drop_mobile || null);
+  requestBody.push(req.drop_notes || null);
+  requestBody.push(req.drop_email || null);
   if (req.schedule_date_time) {
     var scheduledOnFormat = moment(req.schedule_date_time).format(
       "MMM DD, YYYY # hh:mm A"
@@ -1091,7 +1099,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
 const getOrderInfo = async (order_number) => {
   try {
     const data = await fetch(
-      "select waiting_fare,discount,delivered_on,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,ord.first_name,ord.last_name,ord.company_name,ord.email,ord.mobile,package_photo,package_id,pickup_notes,ord.created_on,ord.otp,ord.is_otp_verified,delivered_otp,is_delivered_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_value,cancel_reason_id, cancel_reason, order_amount,con.ext_id as ext_id,drop_first_name,drop_last_name,drop_company_name,drop_mobile from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and ord.is_del=0",
+      "select waiting_fare,discount,delivered_on,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,ord.first_name,ord.last_name,ord.company_name,ord.email,ord.mobile,package_photo,package_id,pickup_notes,ord.created_on,ord.otp,ord.is_otp_verified,delivered_otp,is_delivered_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_value,cancel_reason_id, cancel_reason, order_amount,con.ext_id as ext_id,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_notes,drop_email from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and ord.is_del=0",
       [order_number]
     );
     const filterdata = await transformKeysToLowercase(data);
@@ -1601,6 +1609,8 @@ exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
         o.drop_last_name,
         o.drop_company_name,
         o.drop_mobile,
+        o.drop_notes,
+        o.drop_email,
         l.location_name AS pickup_location_name,
         l.address AS pickup_location_address,
         l.city AS pickup_location_city,
