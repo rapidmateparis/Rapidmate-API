@@ -1550,10 +1550,11 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
+exports.viewOrderByOrderNumber = async (req, res) => {
   var responseData = {};
+  let returnData=false
   try {
-    console.log(req.params.ordernumber);
+    returnData = req.query.show ? true : false;
     const order_number = req.params.ordernumber;
     const orderAllocationQuery = `
       SELECT 
