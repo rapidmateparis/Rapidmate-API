@@ -1524,6 +1524,7 @@ exports.updateOrderStatus = async (req, res) => {
           payload: {
             message: delivery_boy_order_title_notify,
             orderNumber: requestData.order_number,
+            orderStatus: status
           },
           extId: "",
           message: delivery_boy_order_title_notify,
@@ -1547,6 +1548,7 @@ exports.updateOrderStatus = async (req, res) => {
           payload: {
             message: consumer_order_title_notify ,
             orderNumber: requestData.order_number,
+            orderStatus: status
           },
           extId: "",
           message: consumer_order_title_notify,
