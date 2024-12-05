@@ -1031,10 +1031,12 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
             body: {
               message: "You have been received new order successfully",
               orderNumber: order_number,
+              orderStatus : "ORDER_ALLOCATED"
             },
             payload: {
               message: "You have been received new order successfully",
               orderNumber: order_number,
+              orderStatus : "ORDER_ALLOCATED"
             },
             extId: order_number,
             message: "You have been received new order successfully",
