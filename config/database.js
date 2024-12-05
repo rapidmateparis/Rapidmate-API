@@ -10,7 +10,7 @@ const pool = mysql
     password: process.env.DB_PWD,
     database: process.env.DB_NAME,
     connectTimeout: 10000,
-    timezone: 'utc'
+    timezone: 'Z'
   })
   .promise();
 // Test the connection pool
