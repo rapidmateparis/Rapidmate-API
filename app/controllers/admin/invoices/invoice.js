@@ -37,6 +37,7 @@ const options = {
     'enterprise': '/home/ubuntu/source/QA/templates/enterprise.html',
   }
   const convert = async (res, order,role,locale) => {
+    try {
     return new Promise(async (resolve, reject) => {
       let template = fs.readFileSync(getTemplate[role],"utf8");
       const translations = translate.getTranslate(role,locale,order)
@@ -55,6 +56,10 @@ const options = {
         reject(error);
       }
     });
+    } catch (error) {
+      console.log(error);
+    }
+    return null;
   };
   
   exports.pdfConvertFileAndDownload = async (req, res) => {
