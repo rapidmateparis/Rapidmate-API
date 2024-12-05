@@ -1453,7 +1453,7 @@ exports.updateOrderStatus = async (req, res) => {
     }
     var status = "ORDER_ACCEPTED";
     var deliveredOtp = "";
-    var isDeliveredOtpGenerated = false;
+    var isDriverNotify = true;
     var next_action_status = "Ready pickup";
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
@@ -1465,28 +1465,37 @@ exports.updateOrderStatus = async (req, res) => {
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
       next_action_status = "Payment Failed";
+      consumer_order_title_notify= "Payment Failid";
+      delivery_boy_order_title_notify = "Payment Failid";
       consumer_order_title = "Payment failed on " + deliveredOnFormat;
       delivery_boy_order_title = "Waiting for allocation";
+      isDriverNotify = false;
     } else if (requestData.status == "Ready to pickup") {
+      consumer_order_title_notify= "Delivery boy on the way";
       status = "ON_THE_WAY_PICKUP";
       next_action_status = "Reached";
       consumer_order_title = "Pickup in progress";
       delivery_boy_order_title = "Going pickup location";
+      isDriverNotify = false;
     } else if (requestData.status == "Reached") {
       status = "REACHED";
+      consumer_order_title_notify= "Delivery boy here!!!";
       next_action_status = "Enter OTP";
       consumer_order_title = "Reached pickup location";
       delivery_boy_order_title = "Waiting for OTP";
+      isDriverNotify = false;
     } else if (requestData.status == "Ready to delivered") {
       status = "ON_THE_WAY_DROP_OFF";
+      consumer_order_title_notify= "Delivery boy on the way to destination!!!";
       next_action_status = "Enter Delivered OTP";
       consumer_order_title = "Your order is on it’s way";
       delivery_boy_order_title = "Going drop location";
       deliveredOTPNumber = Math.floor(1000 + Math.random() * 8999);
       deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
       console.log("deliveredOTPNumber = " + deliveredOTPNumber);
-      isDeliveredOtpGenerated = true;
+      isDriverNotify = false;
     } else if (requestData.status == "Mark as delivered") {
+      consumer_order_title_notify= "Delivery boy completed your ride";
       status = "COMPLETED";
       next_action_status = "Completed";
       var deliveredOn = new Date();
@@ -1510,14 +1519,14 @@ exports.updateOrderStatus = async (req, res) => {
     );
     if (updateData) {
         var notifiationRequestDeliveryBoy = {
-          title: consumer_order_title_notify,
+          title: delivery_boy_order_title_notify,
           body: {},
           payload: {
-            message: consumer_order_title_notify,
+            message: delivery_boy_order_title_notify,
             orderNumber: requestData.order_number,
           },
           extId: "",
-          message: consumer_order_title_notify,
+          message: delivery_boy_order_title_notify,
           topic: "",
           token: "",
           senderExtId: "",
@@ -1533,14 +1542,14 @@ exports.updateOrderStatus = async (req, res) => {
           redirect: "ORDER",
         };
         var notifiationRequest = {
-          title: delivery_boy_order_title_notify,
+          title: consumer_order_title_notify,
           body: {},
           payload: {
-            message: delivery_boy_order_title_notify ,
+            message: consumer_order_title_notify ,
             orderNumber: requestData.order_number,
           },
           extId: "",
-          message: delivery_boy_order_title_notify,
+          message: consumer_order_title_notify,
           topic: "",
           token: "",
           senderExtId: "",
@@ -1555,7 +1564,9 @@ exports.updateOrderStatus = async (req, res) => {
           userRole: "CONSUMER",
           redirect: "ORDER",
         };
-        notification.createNotificationRequest(notifiationRequestDeliveryBoy);
+        if(isPaymentFailed==true){
+          notification.createNotificationRequest(notifiationRequestDeliveryBoy);
+        }
         notification.createNotificationRequest(notifiationRequest);
       return res.status(202).json(
         utils.buildResponse(202, {
