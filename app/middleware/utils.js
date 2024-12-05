@@ -120,6 +120,30 @@ exports.buildErrorObject=(code,message,trcode)=>{
   }];
 }
 
+/**
+ * @param {HttpStatusCode} code - The date
+ * @param {string} message - The string
+ */
+exports.buildResponseMessageContent=(statusCode, status, errorCode, message)=>{
+  const timestamp = Date.now(); // current timestamp in milliseconds
+  const trackId = uuidv4(); // generate a new UUID
+  return [{
+    "_success": false,
+    "_httpsStatus": status,
+    "_httpsStatusCode": statusCode,
+    "_responedOn": timestamp,
+    "_errors": {
+        "code": errorCode,
+        "message": message,
+        "target": {
+            "code": errorCode,
+            "message": "Invalid"
+        }
+    },
+    "_trackId": trackId
+  }];
+}
+
 
 /**
  * builds success object

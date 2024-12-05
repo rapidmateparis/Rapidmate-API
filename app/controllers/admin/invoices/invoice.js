@@ -19,26 +19,36 @@ const options = {
   format: "A4",
   orientation: "portrait",
   border: "10mm",
+  phantomPath: require("phantomjs-prebuilt").path,
 };
 
   
   const saveCreatePdf = async (template) => {
-    return new Promise((resolve, reject) => {
-      pdf.create(template, options).toBuffer(function (err, buffer) {
-        resolve(buffer);
+    try {
+      return new Promise((resolve, reject) => {
+        pdf.create(template, options).toBuffer(function (err, buffer) {
+          if(err){
+            reject(err);
+          }
+          resolve(buffer);
+        });
       });
-    });
+    } catch (error) {
+      console.log(error);
+    }
+    return null;
   };
+
   const getTemplate ={
-    'deliveryboy': '`../../../../../../templates/deliveryboy.html',
-    'consumer': '`../../../../../../templates/consumer.html',
-    'enterprise': '`../../../../../../templates/enterprise.html',
+    'deliveryboy': '/home/ubuntu/source/QA/templates/deliveryboy.html',
+    'consumer': '/home/ubuntu/source/QA/templates/consumer.html',
+    'enterprise': '/home/ubuntu/source/QA/templates/enterprise.html',
   }
   const convert = async (res, order,role,locale) => {
+    try {
     return new Promise(async (resolve, reject) => {
-      let template = fs.readFileSync(path.join(__dirname, getTemplate[role]),"utf8");
+      let template = fs.readFileSync(getTemplate[role],"utf8");
       const translations = translate.getTranslate(role,locale,order)
-        // console.log(translations)
       Object.entries(translations).forEach(([key, value]) => {
         template = template.replace(`{{${key}}}`, value);
       });
@@ -53,6 +63,10 @@ const options = {
         reject(error);
       }
     });
+    } catch (error) {
+      console.log(error);
+    }
+    return null;
   };
   
   exports.pdfConvertFileAndDownload = async (req, res) => {
@@ -60,24 +74,30 @@ const options = {
     try {
       const role = req.params.role
       const locale=req.getLocale() || 'en'
-
       let orderList=[];
-      if(role=='deliveryboy'){
-        orderList = await consumer.viewOrderByOrderNumber(req,res,true);
-      }else if(role=='enterprise'){
-        orderList = await enterprise.viewOrderByOrderNumber(req,res,true);
-      }else{
-        orderList = await consumer.viewOrderByOrderNumber(req,res,true);
-      }
-      if (role) {
-        if(orderList?.data?.order){
-            return await convert(res, orderList?.data?.order,role,locale);
+      let show=req.query.show ? true : false
+      if(show){
+        if(role=='deliveryboy'){
+          orderList = await consumer.viewOrderByOrderNumber(req,res);
+        }else if(role=='enterprise'){
+          orderList = await enterprise.viewOrderByOrderNumber(req,res);
+        }else{
+          orderList = await consumer.viewOrderByOrderNumber(req,res);
         }
-        return res.status(404).json(utils.buildErrorObject(404, "Invalid Order number", 1001));
-      } else {
-        return res.status(500).json(utils.buildErrorObject(500, "Invalid Order number or role", 1001));
+        if (role) {
+          if(orderList?.data?.order){
+              return await convert(res, orderList?.data?.order,role,locale);
+          }
+          return res.status(404).json(utils.buildErrorObject(404, "Invalid Order number", 1001));
+        } else {
+          return res.status(500).json(utils.buildErrorObject(500, "Invalid Order number or role", 1001));
+        }
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500, "Please provide valid and complete details", 1001));
       }
+      
     } catch (err) {
+      console.log(err);
       return res.status(500).json(utils.buildErrorObject(500, "Unable to download invoice", 1001));
     }
   };

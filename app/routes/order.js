@@ -79,11 +79,25 @@ router.get(
   controller.getItemByDeliveryBoyExtId
 )
 
+router.get(
+  '/deliveryboy/dashboard/:id',
+    trimRequest.all,
+    validate.getItem,
+  controller.getItemByDeliveryBoyDashboardByExtId
+)
+
 router.post(
   '/deliveryboy/plan/list',
   trimRequest.all,
   validate.planningSetup,
   controller.getItemByDeliveryBoyExtIdWithPlan
+)
+
+router.get(
+  '/deliveryboy/plan/calendar/data/:id',
+  trimRequest.all,
+  validate.planningSetup,
+  controller.getCalendarDataByDeliveryBoyExtIdWithPlan
 )
 
 /*
@@ -132,8 +146,7 @@ router.get(
    '/view/:ordernumber',
     trimRequest.all,
     validate.orderNumber,
-   (req,res) => controller.viewOrderByOrderNumber(req,res,false)
-
+    controller.viewOrderByOrderNumber
 )
 
 router.get(
@@ -154,6 +167,17 @@ router.get(
   controller.downloadInvoiceTemp
 )
 
+router.get(
+  '/pdf/temp',
+  trimRequest.all,
+  controller.downloadInvoiceTemp
+)
+
+router.get(
+  '/temp/otp/:ordernumber',
+  trimRequest.all,
+  controller.otpDetails
+)
 
 
 module.exports = router

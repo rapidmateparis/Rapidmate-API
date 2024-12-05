@@ -336,7 +336,7 @@ module.exports = {
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
         pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
-        package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
+        package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount
 
       } = req; 
@@ -344,13 +344,13 @@ module.exports = {
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
           pickup_date, pickup_time, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount
-        ) VALUES (concat('E',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`,
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes
+        ) VALUES (concat('E',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
-          delivery_boy_amount
+          delivery_boy_amount,pickup_notes
         ]
       );
       await connections.commit(); // Commit the transaction
@@ -372,7 +372,7 @@ module.exports = {
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
         pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
-        package_photo,package_id,package_note,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
+        package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount
 
       } = req; 
@@ -380,13 +380,13 @@ module.exports = {
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
           pickup_date, pickup_time, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount
-        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?)`,
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes
+        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
-          delivery_boy_amount
+          delivery_boy_amount,pickup_notes
         ]
       );
       console.log("result ---->", result);
