@@ -24,11 +24,20 @@ const options = {
 
   
   const saveCreatePdf = async (template) => {
-    return new Promise((resolve, reject) => {
-      pdf.create(template, options).toBuffer(function (err, buffer) {
-        resolve(buffer);
+    try {
+      return new Promise((resolve, reject) => {
+        pdf.create(template, options).toBuffer(function (err, buffer) {
+          log(err);
+          if(err){
+            reject(err);
+          }
+          resolve(buffer);
+        });
       });
-    });
+    } catch (error) {
+      console.log(error);
+    }
+    return null;
   };
 
   const getTemplate ={
