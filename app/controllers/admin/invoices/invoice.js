@@ -60,23 +60,28 @@ const options = {
     try {
       const role = req.params.role
       const locale=req.getLocale() || 'en'
-
       let orderList=[];
-      if(role=='deliveryboy'){
-        orderList = await consumer.viewOrderByOrderNumber(req,res,true);
-      }else if(role=='enterprise'){
-        orderList = await enterprise.viewOrderByOrderNumber(req,res,true);
-      }else{
-        orderList = await consumer.viewOrderByOrderNumber(req,res,true);
-      }
-      if (role) {
-        if(orderList?.data?.order){
-            return await convert(res, orderList?.data?.order,role,locale);
+      let show=req.query.show ? true : false
+      if(show){
+        if(role=='deliveryboy'){
+          orderList = await consumer.viewOrderByOrderNumber(req,res);
+        }else if(role=='enterprise'){
+          orderList = await enterprise.viewOrderByOrderNumber(req,res);
+        }else{
+          orderList = await consumer.viewOrderByOrderNumber(req,res);
         }
-        return res.status(404).json(utils.buildErrorObject(404, "Invalid Order number", 1001));
-      } else {
-        return res.status(500).json(utils.buildErrorObject(500, "Invalid Order number or role", 1001));
+        if (role) {
+          if(orderList?.data?.order){
+              return await convert(res, orderList?.data?.order,role,locale);
+          }
+          return res.status(404).json(utils.buildErrorObject(404, "Invalid Order number", 1001));
+        } else {
+          return res.status(500).json(utils.buildErrorObject(500, "Invalid Order number or role", 1001));
+        }
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500, "Please provide valid and complete details", 1001));
       }
+      
     } catch (err) {
       return res.status(500).json(utils.buildErrorObject(500, "Unable to download invoice", 1001));
     }
