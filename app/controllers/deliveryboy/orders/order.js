@@ -1445,12 +1445,22 @@ exports.updateOrderStatus = async (req, res) => {
   deliveredOnFormat = deliveredOnFormat.replace("#", "at");
   try {
     var requestData = req.body;
+    var responseOrderData = await getOrderDetails(requestData.order_number);
+    console.log(responseOrderData);
+    if (!responseOrderData) {
+      message = "Invalid Order number";
+      return res.status(400).json(utils.buildErrorObject(404, message, 1001));
+    }
     var status = "ORDER_ACCEPTED";
     var deliveredOtp = "";
     var isDeliveredOtpGenerated = false;
     var next_action_status = "Ready pickup";
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
+
+    var consumer_order_title_notify = "Delivery boy allocated on";
+    var delivery_boy_order_title_notify = "OTP verified on";
+
     var deliveredOTPNumber= "1212";
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
@@ -1499,20 +1509,42 @@ exports.updateOrderStatus = async (req, res) => {
       [requestData.order_number]
     );
     if (updateData) {
-      if (isDeliveredOtpGenerated) {
-        var notifiationRequest = {
-          title: "Delivered OTP Generated!!!",
+        var notifiationRequestDeliveryBoy = {
+          title: consumer_order_title_notify,
           body: {},
           payload: {
-            message: "Your Delivered OTP is " + deliveredOTPNumber,
+            message: consumer_order_title_notify,
             orderNumber: requestData.order_number,
           },
           extId: "",
-          message: "Your Delivered OTP is " + deliveredOTPNumber,
+          message: consumer_order_title_notify,
           topic: "",
           token: "",
           senderExtId: "",
-          receiverExtId: "",
+          receiverExtId: responseOrderData.delivery_boy_ext_id,
+          statusDescription: "",
+          status: "",
+          notifyStatus: "",
+          tokens: "",
+          tokenList: "",
+          actionName: "",
+          path: "",
+          userRole: "DELIVERY_BOY",
+          redirect: "ORDER",
+        };
+        var notifiationRequest = {
+          title: delivery_boy_order_title_notify,
+          body: {},
+          payload: {
+            message: delivery_boy_order_title_notify ,
+            orderNumber: requestData.order_number,
+          },
+          extId: "",
+          message: delivery_boy_order_title_notify,
+          topic: "",
+          token: "",
+          senderExtId: "",
+          receiverExtId: responseOrderData.consumer_ext_id,
           statusDescription: "",
           status: "",
           notifyStatus: "",
@@ -1523,8 +1555,8 @@ exports.updateOrderStatus = async (req, res) => {
           userRole: "CONSUMER",
           redirect: "ORDER",
         };
+        notification.createNotificationRequest(notifiationRequestDeliveryBoy);
         notification.createNotificationRequest(notifiationRequest);
-      }
       return res.status(202).json(
         utils.buildResponse(202, {
           status: status,
@@ -1905,5 +1937,50 @@ exports.downloadInvoiceTemp = async (req, res) => {
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Unable to download invoice", 1001));
+  }
+};
+
+exports.otpDetails = async (req, res) => {
+  try {
+    var orderNumber = req.params.ordernumber;
+    var responseData = await getOTP(orderNumber);
+    if (responseData) {
+      return res.status(202).json(utils.buildResponse(202, responseData));
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Invalid Order number", 1001));
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to get OTP", 1001));
+  }
+};
+
+const getOTP = async (order_number) => {
+  try {
+    const data = await fetch(
+      "select otp,delivered_otp from rmt_order where order_number =?",
+      [order_number]
+    );
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
+const getOrderDetails = async (order_number) => {
+  try {
+    const data = await fetch(
+      "select (select ext_id from rmt_consumer where id = consumer_id) as consumer_ext_id,  (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id from rmt_order where order_number =?",
+      [order_number]
+    );
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
   }
 };

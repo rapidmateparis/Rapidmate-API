@@ -167,6 +167,17 @@ router.get(
   controller.downloadInvoiceTemp
 )
 
+router.get(
+  '/pdf/temp',
+  trimRequest.all,
+  controller.downloadInvoiceTemp
+)
+
+router.get(
+  '/temp/otp/:ordernumber',
+  trimRequest.all,
+  controller.otpDetails
+)
 
 
 module.exports = router
