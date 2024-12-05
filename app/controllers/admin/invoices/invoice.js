@@ -19,6 +19,7 @@ const options = {
   format: "A4",
   orientation: "portrait",
   border: "10mm",
+  phantomPath: require("phantomjs-prebuilt").path,
 };
 
   
