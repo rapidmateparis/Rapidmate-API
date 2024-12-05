@@ -241,7 +241,6 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
     var requestData = req.body;
     var stmtResult = {};
     const data = await fetch("select * from rmt_consumer_billing_address where consumer_id = (select id from rmt_consumer where ext_id = ?)",[requestData.consumer_ext_id])
-    
     if(data && data.length >0){
         requestData.id = data[0].id;
         stmtResult = await updateBillingAddressRequest(requestData);
