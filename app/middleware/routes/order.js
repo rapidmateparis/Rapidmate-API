@@ -87,7 +87,7 @@ router.get(
   '/view/:ordernumber',
     trimRequest.all,
     validate.validateOrderNumber,
-   (req,res) => controller.viewOrderByOrderNumber(req,res,false)
+    controller.viewOrderByOrderNumber
 )
 
 router.get(

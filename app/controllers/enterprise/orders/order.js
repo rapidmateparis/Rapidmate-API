@@ -567,9 +567,11 @@ exports.cancelOrder = async (req, res) => {
 };
 
 
-exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
+exports.viewOrderByOrderNumber = async (req, res) => {
   var responseData = {};
+  let returnData = false
   try {
+    returnData = req.query.show ? true : false;
     const order_number = req.params.ordernumber;
     const orderAllocationQuery = "SELECT o.*,dt.delivery_type,l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile,c.profile_pic as consumer_pic, c.ext_id AS consumer_ext,s.service_name,b.branch_name,b.address as b_address,b.city as b_city,b.state as b_state,b.country as b_country,b.postal_code as b_postal_code,b.latitude as b_latitude,b.longitude as b_longitude FROM rmt_enterprise_order AS o LEFT JOIN rmt_service AS s ON o.service_type_id = s.id LEFT JOIN rmt_enterprise_delivery_type as dt ON  o.delivery_type_id=dt.id LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id LEFT JOIN rmt_enterprise_branch as b ON o.branch_id=b.id WHERE o.is_del = 0 AND o.order_number = ?";
     const dbData = await fetch(orderAllocationQuery, [order_number]);
@@ -593,7 +595,6 @@ exports.viewOrderByOrderNumber = async (req, res,returnData=false) => {
         const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [orderData.id]);
         responseData.slots=slots
       }
-      console.log("irder",responseData)
       if (returnData) {
         return { data: responseData };
       }
