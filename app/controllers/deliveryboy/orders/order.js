@@ -1236,7 +1236,7 @@ exports.otpVerifiy = async (req, res) => {
       var is_otp_verified = parseInt(data[0].is_otp_verified);
       if (is_otp_verified == 0) {
         const updateData = await updateQuery(
-          "update rmt_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', is_enable_cancel_request=0 where order_number = ?",
+          "update rmt_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0 where order_number = ?",
           [requestData.order_number]
         );
         if (updateData) {
