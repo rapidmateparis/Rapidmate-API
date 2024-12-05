@@ -27,7 +27,6 @@ const options = {
     try {
       return new Promise((resolve, reject) => {
         pdf.create(template, options).toBuffer(function (err, buffer) {
-          log(err);
           if(err){
             reject(err);
           }
