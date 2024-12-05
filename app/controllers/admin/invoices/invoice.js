@@ -31,13 +31,14 @@ const options = {
     });
   };
   const getTemplate ={
-    'deliveryboy': '`../../../../../../templates/deliveryboy.html',
-    'consumer': '`../../../../../../templates/consumer.html',
-    'enterprise': '`../../../../../../templates/enterprise.html',
+    'deliveryboy': '../../../../templates/deliveryboy.html',
+    'consumer': '../../../../templates/consumer.html',
+    'enterprise': '../../../../templates/enterprise.html',
   }
   const convert = async (res, order,role,locale) => {
     return new Promise(async (resolve, reject) => {
-      let template = fs.readFileSync(path.join(__dirname, getTemplate[role]),"utf8");
+      const templatePath = path.join(__dirname, getTemplate[role]);
+      let template = fs.readFileSync(templatePath,"utf8");
       const translations = translate.getTranslate(role,locale,order)
         // console.log(translations)
       Object.entries(translations).forEach(([key, value]) => {
