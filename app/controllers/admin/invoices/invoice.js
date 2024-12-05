@@ -49,13 +49,10 @@ const options = {
     try {
     return new Promise(async (resolve, reject) => {
       let template = fs.readFileSync(getTemplate[role],"utf8");
-      console.log("template", template);
       const translations = translate.getTranslate(role,locale,order)
-      console.log("translations", translations);
       Object.entries(translations).forEach(([key, value]) => {
         template = template.replace(`{{${key}}}`, value);
       });
-      console.log("Block 2");
       try {
         let pdfBuffer = await saveCreatePdf(template);
         return res
