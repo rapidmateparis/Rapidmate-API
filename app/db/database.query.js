@@ -408,9 +408,9 @@ exports.DELETE_PAYMENTTYPE = `UPDATE rmt_payment_method_type SET is_del=1 WHERE 
 
 //---------------------------------------------------------------------------------------------------------------\
 exports.INSERT_BILLING_ADDRESS =
-  "insert into rmt_consumer_billing_address(consumer_id, first_name, last_name, address, city_id, state_id, country_id, dni_number, postal_code) values((select id from rmt_consumer where ext_id=?),?,?,?,?,?,?,?,?)";
+  "insert into rmt_consumer_billing_address(consumer_id, first_name, last_name, address, city_id, state_id, country_id, dni_number, postal_code, account_type) values((select id from rmt_consumer where ext_id=?),?,?,?,?,?,?,?,?,?)";
 exports.UPDATE_BILLING_ADDRESS =
-  "update rmt_consumer_billing_address set first_name = ?, last_name = ?, address = ?, city_id = ? , state_id = ?, country_id = ?, dni_number = ?, postal_code = ? where id = ?";
+  "update rmt_consumer_billing_address set first_name = ?, last_name = ?, address = ?, city_id = ? , state_id = ?, country_id = ?, dni_number = ?, postal_code = ?, account_type=? where id = ?";
 //---------------------------------------------------------------------------------------------------------------\
 
 exports.transformKeysToLowercase = async (results) => {
