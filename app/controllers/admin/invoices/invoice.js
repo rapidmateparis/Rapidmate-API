@@ -30,15 +30,15 @@ const options = {
       });
     });
   };
+
   const getTemplate ={
-    'deliveryboy': '../../../../templates/deliveryboy.html',
-    'consumer': '../../../../templates/consumer.html',
-    'enterprise': '../../../../templates/enterprise.html',
+    'deliveryboy': '/home/ubuntu/source/QA/templates/deliveryboy.html',
+    'consumer': '/home/ubuntu/source/QA/templates/consumer.html',
+    'enterprise': '/home/ubuntu/source/QA/templates/enterprise.html',
   }
   const convert = async (res, order,role,locale) => {
     return new Promise(async (resolve, reject) => {
-      const templatePath = path.join(__dirname, getTemplate[role]);
-      let template = fs.readFileSync(templatePath,"utf8");
+      let template = fs.readFileSync(getTemplate[role],"utf8");
       const translations = translate.getTranslate(role,locale,order)
         // console.log(translations)
       Object.entries(translations).forEach(([key, value]) => {
