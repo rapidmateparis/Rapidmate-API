@@ -1564,7 +1564,7 @@ exports.updateOrderStatus = async (req, res) => {
           userRole: "CONSUMER",
           redirect: "ORDER",
         };
-        if(isPaymentFailed==true){
+        if(isDriverNotify==true){
           notification.createNotificationRequest(notifiationRequestDeliveryBoy);
         }
         notification.createNotificationRequest(notifiationRequest);
