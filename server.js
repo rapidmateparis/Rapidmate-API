@@ -12,7 +12,8 @@ const http = require('http');
 const cron = require('node-cron');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
-const Notification =require('./app/models/Notification')
+const Notification =require('./app/models/Notification');
+const orderControl =require('./app/controllers/deliveryboy/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
 
@@ -127,8 +128,14 @@ const softDeleteOldNotifications = async () => {
     console.error('Error soft-deleting old notifications:', err);
   }
 };
+
 cron.schedule('59 23 * * *', () => {
   softDeleteOldNotifications();
+});
+
+cron.schedule("*/10 * * * * *", function() {
+  console.log("Schedule Order : Running..." , new Date());
+  orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
 });
 server.listen(app.get('port'), () => {
   console.log('Server is running on port', app.get('port'));
