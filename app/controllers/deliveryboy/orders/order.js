@@ -1,5 +1,5 @@
 const utils = require("../../../middleware/utils");
-const moment = require("moment");
+const moment = require("moment-timezone");
 const notification = require("../../../controllers/common/Notifications/notification");
 const {
   runQuery,
@@ -951,6 +951,147 @@ exports.allocateDeliveryBoy = async (req, res) => {
   }
 };
 
+exports.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber = async () => {
+  try {
+    var responseData = await getScheduleUnallocateOrderList();
+    console.log("Unallocated Orders : ", responseData);
+    if (responseData) {
+        responseData.forEach(order => {
+          console.log("Allocated Started on ", new Date(), "OrderNumber : ", order.order_number);
+          scheduleAllocateDeliveryBoyByOrderNumber(order.order_number);
+        })
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const scheduleAllocateDeliveryBoyByOrderNumber = async (order_number) => {
+  var responseData = {};
+  try {
+    const order = await utils.getValuesById(
+      "id, is_del, order_date, order_number, service_type_id",
+      "rmt_order",
+      "order_number",
+      order_number
+    );
+    if (order) {
+      const orderAllocationQuery =
+        "select * from vw_delivery_plan_setup_slots slot where work_type_id in (?,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " +
+        "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) limit 1";
+      const dbData = await fetch(orderAllocationQuery, [
+        order.service_type_id,
+        order.order_date,
+        order.order_date,
+        order.id,
+      ]);
+      if (dbData.length <= 0) {
+        message = "Delivery boys are busy. Please try again!!!";
+        title = "Error";
+      } else {
+        allocatedDeliveryBoy = dbData[0];
+        responseData.deliveryBoy = allocatedDeliveryBoy;
+        const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
+        const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
+        const allocateDeliveryBoyResult = await insertQuery(
+          INSERT_DELIVERY_BOY_ALLOCATE,
+          [order_number, delivery_boy_id]
+        );
+        console.log(allocateDeliveryBoyResult);
+        if (allocateDeliveryBoyResult.insertId) {
+          const setDeliveryBoy = await updateQuery(
+            UPDATE_SET_DELIVERY_BOY_FOR_ORDER,
+            [delivery_boy_id, order_number]
+          );
+          const updateAllocate = await updateQuery(
+            UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,
+            [delivery_boy_id]
+          );
+          responseData.order = await getOrderInfo(order_number);
+          responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
+          var consumer_ext_id = responseData.order.ext_id;
+          var notifiationConsumerRequest = {
+            title: "Driver allocated!!!Order# : " + order_number,
+            body: {
+              message: "Driver has been allocated successfully for your order",
+              orderNumber: order_number,
+            },
+            payload: {
+              message: "You have been received new order successfully",
+              orderNumber: order_number,
+            },
+            extId: order_number,
+            message: "Driver has been allocated successfully for your order",
+            topic: "",
+            token: "",
+            senderExtId: "",
+            receiverExtId: consumer_ext_id,
+            statusDescription: "",
+            status: "",
+            notifyStatus: "",
+            tokens: "",
+            tokenList: "",
+            actionName: "",
+            path: "",
+            userRole: "CONSUMER",
+            redirect: "ORDER",
+          };
+          notification.createNotificationRequest(
+            notifiationConsumerRequest,
+            false
+          );
+          var notifiationDriverRequest = {
+            title: "New order received!!!Order# : " + order_number,
+            body: {
+              message: "You have been received new order successfully",
+              orderNumber: order_number,
+              orderStatus : "ORDER_ALLOCATED"
+            },
+            payload: {
+              message: "You have been received new order successfully",
+              orderNumber: order_number,
+              orderStatus : "ORDER_ALLOCATED"
+            },
+            extId: order_number,
+            message: "You have been received new order successfully",
+            topic: "",
+            token: "",
+            senderExtId: "",
+            receiverExtId: delivery_boy_ext_id,
+            statusDescription: "",
+            status: "",
+            notifyStatus: "",
+            tokens: "",
+            tokenList: "",
+            actionName: "",
+            path: "",
+            userRole: "DELIVERY_BOY",
+            redirect: "ORDER",
+          };
+          notification.createNotificationRequest(
+            notifiationDriverRequest,
+            true
+          );
+          message = "Delivery boy has been allocated successfully " + order_number;
+          title = "Success";
+          
+        } else {
+          message = "Unable to allocate driver your order." + order_number;
+          title = "Error";
+        }
+      }
+    } else {
+      message = "Invalid Order number" + order_number;
+      title = "Error";
+    }
+  } catch (error) {
+    console.log(error);
+    message = "issue with Order number" + order_number;
+    title = "Error";
+  }
+  console.log(title, message);
+}
+
 exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   var responseData = {};
   try {
@@ -1438,12 +1579,15 @@ exports.requestAction = async (req, res) => {
   }
 };
 
+
 exports.updateOrderStatus = async (req, res) => {
+  var timezone = req.headers.time_zone;
+  console.log(timezone);
   //2024-09-08 15:34:23
   var deliveredOn = new Date();
-  var deliveredOnDBFormat = moment(deliveredOn).format("YYYY-MM-DD HH:mm:ss");
+  var deliveredOnDBFormat = moment(deliveredOn).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
   //Apr 19, 2024 at 11:30 AM
-  var deliveredOnFormat = moment(deliveredOn).format("MMM DD, YYYY # hh:mm A");
+  var deliveredOnFormat = moment(deliveredOn).tz(timezone).format("MMM DD, YYYY # hh:mm A");
   deliveredOnFormat = deliveredOnFormat.replace("#", "at");
   try {
     var requestData = req.body;
@@ -1934,6 +2078,15 @@ const getOrderByOrderNumber = async (order_number) => {
   } catch (error) {
     return {};
   }
+};
+
+const getScheduleUnallocateOrderList = async () => {
+  try {
+    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)>=date(now()) and order_status not in('PAYMENT_FAILED','CANCELLED')", []);
+  } catch (error) {
+    console.log(error);
+  }
+  return {};
 };
 
 exports.downloadInvoiceTemp = async (req, res) => {
