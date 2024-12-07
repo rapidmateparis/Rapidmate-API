@@ -2082,7 +2082,7 @@ const getOrderByOrderNumber = async (order_number) => {
 
 const getScheduleUnallocateOrderList = async () => {
   try {
-    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)>=date(now()) and order_status not in('PAYMENT_FAILED','CANCELLED')", []);
+    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)<=date(now()) and time(schedule_date_time)<=time(now()) and order_status not in('PAYMENT_FAILED','CANCELLED') limit ?", [5]);
   } catch (error) {
     console.log(error);
   }
