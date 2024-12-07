@@ -779,8 +779,9 @@ const createItem = async (req) => {
     requestBody.push(1); // Service Type : Schedule
     requestBody.push(req.schedule_date_time);
   }else{
-    requestBody.push("Order placed");
-    requestBody.push("Order received");
+    var orderedOn = moment(req.order_date || new Date()).format("YYYY-MM-DD HH:mm:ss");
+    requestBody.push("Order placed on " +  orderedOn);
+    requestBody.push("Order received on " + orderedOn);
     requestBody.push(1); // Title : Order received
     requestBody.push(2); // Service Type : Pickup
     requestBody.push(null);
@@ -1291,12 +1292,8 @@ const getVehicleTypeInfo = async (vehicle_type_id) => {
   }
 };
 
-const deleteItem = async (id, cancel_reason_id, cancel_reason) => {
-  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, [
-    cancel_reason_id,
-    cancel_reason,
-    id,
-  ]);
+const deleteItem = async (cancelParams) => {
+  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, cancelParams);
   console.log(deleteRes);
   return deleteRes;
 };
@@ -1306,26 +1303,31 @@ const deleteItem = async (id, cancel_reason_id, cancel_reason) => {
  * @param {Object} res - response object
  */
 exports.cancelOrder = async (req, res) => {
+  var timezone = req.headers.time_zone;
+  console.log(timezone);
   try {
     const { order_number, cancel_reason_id, cancel_reason } = req.body;
     const order = await utils.getValuesById(
-      "id, is_del",
+      "id, order_status",
       "rmt_order",
       "order_number",
       order_number
     );
     console.log(order);
     if (order) {
-      if (parseInt(order.is_del) == 1) {
+      if (order.order_status === "CANCELLED") {
         return res
-          .status(200)
-          .json(utils.buildUpdatemessage(200, "Order was already cancelled"));
+          .status(400)
+          .json(utils.buildErrorObject(400, "Order was already cancelled", 1001));
       }
-      const deletedItem = await deleteItem(
-        order.id,
-        cancel_reason_id,
-        cancel_reason
-      );
+      if (order.order_status === "COMPLETED") {
+        return res
+          .status(400)
+          .json(utils.buildErrorObject(400, "Order was already completed", 1001));
+      }
+      var currentDateTime = moment(req.order_date || new Date()).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
+      var cancelParams = [cancel_reason_id, cancel_reason, "Cancelled On " + currentDateTime, "Cancelled On " + currentDateTime, currentDateTime, order.id]
+      const deletedItem = await deleteItem(cancelParams);
       if (deletedItem.affectedRows > 0) {
         return res
           .status(200)
@@ -1337,10 +1339,10 @@ exports.cancelOrder = async (req, res) => {
           );
       } else {
         return res
-          .status(500)
+          .status(400)
           .json(
             utils.buildErrorObject(
-              500,
+              400,
               "Unable to cancel an order. Please contact customer care",
               1001
             )
@@ -2082,7 +2084,7 @@ const getOrderByOrderNumber = async (order_number) => {
 
 const getScheduleUnallocateOrderList = async () => {
   try {
-    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)<=date(now()) and time(schedule_date_time)<=time(now()) and order_status not in('PAYMENT_FAILED','CANCELLED') limit ?", [5]);
+    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)<=date(now()) and time(schedule_date_time)<=time(now()) and order_status not in('PAYMENT_FAILED','CANCELLED') limit 5", []);
   } catch (error) {
     console.log(error);
   }
