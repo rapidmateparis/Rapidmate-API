@@ -472,8 +472,8 @@ module.exports = {
       deliveredOnFormat = deliveredOnFormat.replace("#", "at");
       status = "COMPLETED";
       next_action_status = "Completed";
-      consumer_order_title = "Completed on " + deliveredOnFormat;
-      delivery_boy_order_title = "Completed on" + deliveredOnFormat;
+      consumer_order_title = "Completed on ";
+      delivery_boy_order_title = "Completed on ";
       await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
         delivery_boy_order_title +
         "', order_status = '" +
