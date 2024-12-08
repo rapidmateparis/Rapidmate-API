@@ -770,18 +770,16 @@ const createItem = async (req) => {
   requestBody.push(req.drop_notes || null);
   requestBody.push(req.drop_email || null);
   if (req.schedule_date_time) {
-    var scheduledOnFormat = moment(req.schedule_date_time).format(
-      "MMM DD, YYYY # hh:mm A"
-    );
-    requestBody.push("Scheduled on " + scheduledOnFormat);
-    requestBody.push("Scheduled on " + scheduledOnFormat);
+    //var scheduledOnFormat = moment(req.schedule_date_time).format("MMM DD, YYYY # hh:mm A");
+    requestBody.push("Scheduled on ");
+    requestBody.push("Scheduled on ");
     requestBody.push(2); // Title : Scheduled
     requestBody.push(1); // Service Type : Schedule
     requestBody.push(req.schedule_date_time);
   }else{
-    var orderedOn = moment(req.order_date || new Date()).format("YYYY-MM-DD HH:mm:ss");
-    requestBody.push("Order placed on " +  orderedOn);
-    requestBody.push("Order received on " + orderedOn);
+    //var orderedOn = moment(req.order_date || new Date()).format("YYYY-MM-DD HH:mm:ss");
+    requestBody.push("Order placed on ");
+    requestBody.push("Order received on ");
     requestBody.push(1); // Title : Order received
     requestBody.push(2); // Service Type : Pickup
     requestBody.push(null);
