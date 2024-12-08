@@ -1325,8 +1325,7 @@ exports.cancelOrder = async (req, res) => {
           .status(400)
           .json(utils.buildErrorObject(400, "Order was already completed", 1001));
       }
-      var currentDateTime = moment(req.order_date || new Date()).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
-      var cancelParams = [cancel_reason_id, cancel_reason, "Cancelled On " + currentDateTime, "Cancelled On " + currentDateTime, currentDateTime, order.id]
+      var cancelParams = [cancel_reason_id, cancel_reason, "Cancelled On " , "Cancelled On " , order.id]
       const deletedItem = await deleteItem(cancelParams);
       if (deletedItem.affectedRows > 0) {
         return res
@@ -1583,14 +1582,14 @@ exports.requestAction = async (req, res) => {
 
 
 exports.updateOrderStatus = async (req, res) => {
-  var timezone = req.headers.time_zone;
-  console.log(timezone);
+  //var timezone = req.headers.time_zone;
+  //console.log(timezone);
   //2024-09-08 15:34:23
-  var deliveredOn = new Date();
-  var deliveredOnDBFormat = moment(deliveredOn).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
+  //var deliveredOn = new Date();
+  //var deliveredOnDBFormat = moment(deliveredOn).tz("UTC").format("YYYY-MM-DD HH:mm:ss");
   //Apr 19, 2024 at 11:30 AM
-  var deliveredOnFormat = moment(deliveredOn).tz(timezone).format("MMM DD, YYYY # hh:mm A");
-  deliveredOnFormat = deliveredOnFormat.replace("#", "at");
+  //var deliveredOnFormat = moment(deliveredOn).tz("UTC").format("MMM DD, YYYY # hh:mm A");
+  //deliveredOnFormat = deliveredOnFormat.replace("#", "at");
   try {
     var requestData = req.body;
     var responseOrderData = await getOrderDetails(requestData.order_number);
@@ -1615,7 +1614,7 @@ exports.updateOrderStatus = async (req, res) => {
       next_action_status = "Payment Failed";
       consumer_order_title_notify= "Payment Failid";
       delivery_boy_order_title_notify = "Payment Failid";
-      consumer_order_title = "Payment failed on " + deliveredOnFormat;
+      consumer_order_title = "Payment failed on ";
       delivery_boy_order_title = "Waiting for allocation";
       isDriverNotify = false;
     } else if (requestData.status == "Ready to pickup") {
@@ -1646,10 +1645,9 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title_notify= "Delivery boy completed your ride";
       status = "COMPLETED";
       next_action_status = "Completed";
-      var deliveredOn = new Date();
-      deliveredOtp = ", delivered_on = '" + deliveredOnDBFormat + "'";
-      consumer_order_title = "Delivered on " + deliveredOnFormat;
-      delivery_boy_order_title = "Delivered on " + deliveredOnFormat;
+      deliveredOtp = ", delivered_on = now() ";
+      consumer_order_title = "Delivered on ";
+      delivery_boy_order_title = "Delivered on ";
     }
     const updateData = await updateQuery(
       "update rmt_order set consumer_order_title = '" +
@@ -1662,7 +1660,7 @@ exports.updateOrderStatus = async (req, res) => {
         status +
         "', next_action_status = '" +
         next_action_status +
-        "' where order_number = ?",
+        "', updated_on = now(), updated_by = '" + status + "' where order_number = ?",
       [requestData.order_number]
     );
     if (updateData) {
