@@ -35,8 +35,9 @@ require('log4js').configure({
 const app = express();
 //app.use(cors(corsOptions));
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
-TZ = "Europe/Paris";
-console.log("Timezone", new Date().toString());
+TZ="UTC";
+//TZ = "Europe/Paris";
+//console.log("Timezone", new Date().toString());
 const server = http.createServer(app);
 const io = socketIo(server);
 //app.use(httpRequestResponseInterceptor);
