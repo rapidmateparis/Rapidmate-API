@@ -193,7 +193,7 @@ exports.updateOrderStatus = async (req, res) => {
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
       next_action_status = "Payment Failed";
-      consumer_order_title = "Payment failed on " + deliveredOnFormat;
+      consumer_order_title = "Payment failed on ";
       delivery_boy_order_title = "Waiting for allocation";
     } else if (requestData.status == "Ready to pickup") {
       status = "ON_THE_WAY_PICKUP";
@@ -225,15 +225,14 @@ exports.updateOrderStatus = async (req, res) => {
       var deliveredOn = new Date();
       deliveredOtp = ", delivered_on = '" + deliveredOnDBFormat + "'";
       if(requestData.status == "Mask as completed"){
-        consumer_order_title = "Completed on " + deliveredOnFormat;
-        delivery_boy_order_title = "Completed on" + deliveredOnFormat;
+        consumer_order_title = "Completed on ";
+        delivery_boy_order_title = "Completed on ";
       }else{
-        consumer_order_title = "Delivered on " + deliveredOnFormat;
-        delivery_boy_order_title = "Delivered on" + deliveredOnFormat;
+        consumer_order_title = "Delivered on ";
+        delivery_boy_order_title = "Delivered on ";
       }
      
     }
-    console.log("Delivered On " + deliveredOn);
     const updateData = await updateQuery(
       "update rmt_enterprise_order set consumer_order_title = '" +
         consumer_order_title +
