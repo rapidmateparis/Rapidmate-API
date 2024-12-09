@@ -244,7 +244,7 @@ exports.updateOrderStatus = async (req, res) => {
         status +
         "', next_action_status = '" +
         next_action_status +
-        "' where order_number = ?",
+        "', updated_on = now(), updated_by = '" + status + "' where order_number = ?",
       [requestData.order_number]
     );
     console.log(updateData);
