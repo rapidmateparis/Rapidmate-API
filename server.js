@@ -67,6 +67,7 @@ i18n.configure({
   defaultLocale: 'en',
   objectNotation: true,
 });
+
 app.use(i18n.init);
 
 app.use(cors({origin: '*',}));

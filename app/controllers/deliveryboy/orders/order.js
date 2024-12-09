@@ -224,6 +224,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
     o.next_action_status,o.is_enable_cancel_request,
     o.consumer_order_title,
     o.delivery_boy_order_title,
+    o.is_show_datetime_in_title,
     o.is_delivery_boy_allocated,
     o.paid_with,
     o.total_duration,
@@ -370,6 +371,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     o.next_action_status,o.is_enable_cancel_request,
     o.consumer_order_title,
     o.delivery_boy_order_title,
+    o.is_show_datetime_in_title,
     o.is_delivery_boy_allocated,
     o.paid_with,
     o.total_duration,
@@ -442,7 +444,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
 
     if (orderType == "E") {
       query =
-        "select waiting_fare,discount,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,delivered_on,updated_on,cancelled_on,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
+        "select waiting_fare,discount,next_action_status,is_enable_cancel_request,is_show_datetime_in_title,is_show_datetime_in_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,delivered_on,updated_on,cancelled_on,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
         " ROUND(order_amount, 2) as order_amount, drop_first_name, drop_last_name,drop_company_name,drop_mobile,drop_notes,drop_email, from rmt_enterprise_order where is_del=0 and order_status in (" +
         statusParams +
         ")" +
@@ -555,7 +557,7 @@ exports.getItemByDeliveryBoyDashboardByExtId = async (req, res) => {
 
     if (orderType == "E") {
       query =
-        "select waiting_fare,discount,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,delivered_on,updated_on,cancelled_on,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
+        "select waiting_fare,discount,next_action_status,is_enable_cancel_request,is_show_datetime_in_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,delivered_on,updated_on,cancelled_on,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
         " ROUND(order_amount, 2) as order_amount,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes from rmt_enterprise_order where is_del=0 and order_status in (" +
         statusParams +
         ")" +
@@ -1384,7 +1386,7 @@ exports.otpVerifiy = async (req, res) => {
       var is_otp_verified = parseInt(data[0].is_otp_verified);
       if (is_otp_verified == 0) {
         const updateData = await updateQuery(
-          "update rmt_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0 where order_number = ?",
+          "update rmt_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?",
           [requestData.order_number]
         );
         if (updateData) {
@@ -1611,7 +1613,7 @@ exports.updateOrderStatus = async (req, res) => {
 
     var consumer_order_title_notify = "Delivery boy allocated on";
     var delivery_boy_order_title_notify = "OTP verified on";
-
+    var is_show_datetime_in_title = 1;
     var deliveredOTPNumber= "1212";
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
@@ -1620,6 +1622,7 @@ exports.updateOrderStatus = async (req, res) => {
       delivery_boy_order_title_notify = "Payment Failid";
       consumer_order_title = "Payment failed on ";
       delivery_boy_order_title = "Waiting for allocation";
+      is_show_datetime_in_title = 1;
       isDriverNotify = false;
     } else if (requestData.status == "Ready to pickup") {
       consumer_order_title_notify= "Delivery boy on the way";
@@ -1639,7 +1642,7 @@ exports.updateOrderStatus = async (req, res) => {
       status = "ON_THE_WAY_DROP_OFF";
       consumer_order_title_notify= "Delivery boy on the way to destination!!!";
       next_action_status = "Enter Delivered OTP";
-      consumer_order_title = "Your order is on it’s way";
+      consumer_order_title = "Order on the way";
       delivery_boy_order_title = "Going drop location";
       deliveredOTPNumber = Math.floor(1000 + Math.random() * 8999);
       deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
@@ -1652,6 +1655,7 @@ exports.updateOrderStatus = async (req, res) => {
       deliveredOtp = ", delivered_on = now() ";
       consumer_order_title = "Delivered on ";
       delivery_boy_order_title = "Delivered on ";
+      is_show_datetime_in_title = 1;
     }
     const updateData = await updateQuery(
       "update rmt_order set consumer_order_title = '" +
@@ -1664,7 +1668,8 @@ exports.updateOrderStatus = async (req, res) => {
         status +
         "', next_action_status = '" +
         next_action_status +
-        "', updated_on = now(), updated_by = '" + status + "' where order_number = ?",
+        "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title 
+        + ", updated_by = '" + status + "' where order_number = ?",
       [requestData.order_number]
     );
     if (updateData) {
@@ -1759,6 +1764,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
         o.consumer_order_title,
         o.delivery_boy_order_title,
         o.is_delivery_boy_allocated,
+        o.is_show_datetime_in_title,
         o.paid_with,
         o.total_duration,
         o.promo_code,
