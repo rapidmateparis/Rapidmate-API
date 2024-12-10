@@ -226,10 +226,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (profielUpdateQuery, params) => {
-    console.log(profielUpdateQuery);
-    console.log(params);
     const updateDeliveryBoyProfile = await updateQuery(profielUpdateQuery, params);
-    console.log(updateDeliveryBoyProfile);
     return updateDeliveryBoyProfile;
 }
 
@@ -244,6 +241,9 @@ exports.updateItem = async (req, res) => {
       const requestData = req.body;
       var queryCondition = "";
       var queryConditionParam = [];
+
+      var queryVehicleCondition = "";
+      var queryVehicleConditionParam = [];
       if(requestData.first_name){
         queryCondition += ", first_name = ?";
         queryConditionParam.push(requestData.first_name);
@@ -276,17 +276,37 @@ exports.updateItem = async (req, res) => {
         queryCondition += ", language_id = ?";
         queryConditionParam.push(requestData.language_id);
       }
+
+      // Vehicle Update
+      if(requestData.plat_no){
+        queryVehicleCondition += ", plat_no = ?";
+        queryVehicleConditionParam.push(requestData.plat_no);
+      }
+      if(requestData.modal){
+        queryVehicleCondition += ", modal = ?";
+        queryVehicleConditionParam.push(requestData.modal);
+      }
+      if(requestData.make){
+        queryVehicleCondition += ", make = ?";
+        queryVehicleConditionParam.push(requestData.make);
+      }
+      if(requestData.variant){
+        queryVehicleCondition += ", variant = ?";
+        queryVehicleConditionParam.push(requestData.variant);
+      }
+
       queryConditionParam.push(id);
+      queryVehicleConditionParam.push(id);
       var updateQueryStr = "update rmt_delivery_boy set is_del = 0 " + queryCondition + " where id = ?";
-      const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
-      console.log(queryConditionParam);
-      console.log(updateQueryStr);
-      console.log(executeResult);
-      if(executeResult) {
+      const executeResultQuery = await udpateAddressStatement(updateQueryStr, queryConditionParam);
+      var updateVehicleQueryStr = "update rmt_vehicle set is_del = 0 " + queryVehicleCondition + " where delivery_boy_id = ?";
+      const executeVehicleResultQuery = await udpateAddressStatement(updateVehicleQueryStr, queryVehicleConditionParam);
+      if(executeResultQuery || executeVehicleResultQuery) {
         return res.status(200).json(utils.buildCreateMessageContent(200,'Record Updated Successfully'))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later.',1001));
       }
+
     } catch (error) {
       console.log(error);
       return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
