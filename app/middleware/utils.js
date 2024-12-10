@@ -182,7 +182,7 @@ exports.buildCreateMessage=(code,message,data)=>{
   }];
 }
 
-exports.buildCreateMessage=(code,message,data)=>{
+exports.buildCreateMessageContent=(code,message)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
   return [{
@@ -190,7 +190,9 @@ exports.buildCreateMessage=(code,message,data)=>{
       "_httpsStatus": "OK",
       "_httpsStatusCode": code,
       "_responedOn": timestamp,
-      "_response": data,
+      "_response": {
+        message : message
+      },
       "_trackId": trackId
   }];
 }
