@@ -129,7 +129,7 @@ exports.updateItem = async (req, res) => {
       console.log(updateQueryStr);
       console.log(executeResult);
       if(executeResult) {
-        return res.status(200).json(utils.buildCreateMessage(200,'Record Updated Successfully'))
+        return res.status(200).json(utils.buildCreateMessageContent(200,'Record Updated Successfully'))
       }else{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later.',1001));
       }
@@ -148,7 +148,7 @@ exports.updateItem = async (req, res) => {
         return false;
     }
     return !isNaN(parseInt(value, 10));
-}
+  }
 
   const udpateAddressStatement = async (updateQueryStr, params) => {
     const executeResult = await updateQuery(updateQueryStr, params);

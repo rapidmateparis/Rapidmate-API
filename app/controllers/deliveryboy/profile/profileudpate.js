@@ -234,55 +234,81 @@ const updateItem = async (profielUpdateQuery, params) => {
 }
 
 exports.updateItem = async (req, res) => {
-  try {
     const extId = req.body.ext_id;
     const id = await utils.getValueById('id', 'rmt_delivery_boy', 'ext_id', extId);
     
     if (!id) {
       return res.status(400).json(utils.buildErrorObject(400, 'Invalid Delivery boy', 1001));
     }
-    const { ext_id, ...requestBody } = req.body;
-    const validFields = [
-      'first_name', 'last_name', 'phone', 'profile_pic', 'driver_licence_no', 'work_type_id',
-      'siret_no', 'country_id', 'state_id', 'city_id', 'term_condone', 'token', 'language_id',
-      'enable_push_notification', 'enable_email_notification'
-    ];
-    const updates = [];
-    const queryParams = [];
-    // Loop over fields and add to query if they are present in the request
-    validFields.forEach(field => {
-      if (requestBody[field] !== undefined) {
-        updates.push(`${field} = ?`);
-        queryParams.push(requestBody[field]);
+    try {
+      const requestData = req.body;
+      var queryCondition = "";
+      var queryConditionParam = [];
+      if(requestData.first_name){
+        queryCondition += ", first_name = ?";
+        queryConditionParam.push(requestData.first_name);
       }
-    });
-    if (!updates.length) {
-      return res.status(400).json(utils.buildErrorObject(400, 'No valid fields provided for update', 1002));
+      if(requestData.last_name){
+         queryCondition += ", last_name = ?";
+         queryConditionParam.push(requestData.last_name);
+      }
+      if(requestData.email){
+        queryCondition += ", email = ?";
+        queryConditionParam.push(requestData.email);
+      }
+      if(requestData.phone){
+        queryCondition += ", phone = ?";
+        queryConditionParam.push(requestData.phone);
+      }
+      if(requestData.profile_pic){
+        queryCondition += ", profile_pic = ?";
+        queryConditionParam.push(requestData.profile_pic);
+      }
+      if(isNumber(requestData.enable_push_notification)){
+        queryCondition += ", enable_push_notification = ?";
+        queryConditionParam.push(requestData.enable_push_notification);
+      }
+      if(isNumber(requestData.enable_email_notification)){
+        queryCondition += ", enable_email_notification = ?";
+        queryConditionParam.push(requestData.enable_email_notification);
+      }
+      if(requestData.language_id){
+        queryCondition += ", language_id = ?";
+        queryConditionParam.push(requestData.language_id);
+      }
+      queryConditionParam.push(id);
+      var updateQueryStr = "update rmt_delivery_boy set is_del = 0 " + queryCondition + " where id = ?";
+      const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
+      console.log(queryConditionParam);
+      console.log(updateQueryStr);
+      console.log(executeResult);
+      if(executeResult) {
+        return res.status(200).json(utils.buildCreateMessageContent(200,'Record Updated Successfully'))
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later.',1001));
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
     }
-
-    // Build the update query
-    const updateQuery = `
-      UPDATE rmt_delivery_boy
-      SET is_del = 0, ${updates.join(', ')}
-      WHERE ext_id = ?
-    `;
-
-    // Add `ext_id` as the final parameter for the query
-    queryParams.push(extId);
-
-    // Execute the update query
-    const executeResult = await updateItem(updateQuery, queryParams);
-
-    if (executeResult.affectedRows > 0) {
-      return res.status(200).json(utils.buildUpdatemessage(200, 'Record Updated Successfully'));
-    } else {
-      return res.status(500).json(utils.buildErrorObject(500, 'Unable to update the delivery boy profile', 1001));
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
   }
-};
+  
+  const isNumber = (value, acceptScientificNotation) =>{
+    if(true !== acceptScientificNotation){
+        return /^-{0,1}\d+(\.\d+)?$/.test(value);
+    }
+
+    if (true === Array.isArray(value)) {
+        return false;
+    }
+    return !isNaN(parseInt(value, 10));
+  }
+
+  const udpateAddressStatement = async (updateQueryStr, params) => {
+    const executeResult = await updateQuery(updateQueryStr, params);
+    return executeResult;
+  }
+
 /**
  * Create item function called by route
  * @param {Object} req - request object
