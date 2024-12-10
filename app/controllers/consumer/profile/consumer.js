@@ -72,10 +72,7 @@ exports.getItem = async (req, res) => {
 }
 
 const updateItem = async (profielUpdateQuery, params) => {
-  console.log(profielUpdateQuery);
-  console.log(params);
   const updateConsumerProfile = await updateQuery(profielUpdateQuery, params);
-  console.log(updateConsumerProfile);
   return updateConsumerProfile;
 }
 
@@ -125,9 +122,6 @@ exports.updateItem = async (req, res) => {
       queryConditionParam.push(id);
       var updateQueryStr = "update rmt_consumer set is_del = 0 " + queryCondition + " where id = ?";
       const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
-      console.log(queryConditionParam);
-      console.log(updateQueryStr);
-      console.log(executeResult);
       if(executeResult) {
         return res.status(200).json(utils.buildCreateMessageContent(200,'Record Updated Successfully'))
       }else{
