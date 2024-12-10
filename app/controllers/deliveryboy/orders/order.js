@@ -1613,7 +1613,7 @@ exports.updateOrderStatus = async (req, res) => {
 
     var consumer_order_title_notify = "Delivery boy allocated on";
     var delivery_boy_order_title_notify = "OTP verified on";
-    var is_show_datetime_in_title = 1;
+    var is_show_datetime_in_title = 0;
     var deliveredOTPNumber= "1212";
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
