@@ -75,6 +75,7 @@ exports.updateAddressBook = async (req, res) => {
     queryConditionParam.push(requestData.id);
     var updateQueryStr = "update rmt_consumer_address_book set is_del = 0 " + queryCondition + " where id = ?";
     const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
+
     if(executeResult) {
       return res.status(200).json(utils.buildCreateMessage(200,'Record Updated Successfully'))
     }else{
