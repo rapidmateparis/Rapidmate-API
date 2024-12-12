@@ -334,7 +334,11 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
     if (!savedNotification) {
       return false;
     }
-    if(isSendFCMNotify && isNofitificationEnabled(receiverExtId)){
+    var isNofitificationEnabledStatus = isNofitificationEnabled(receiverExtId);
+    console.log("isSendFCMNotify = " , isSendFCMNotify);
+    console.log("receiverExtId = " , receiverExtId);
+    console.log("isNofitificationEnabledStatus = " , isNofitificationEnabledStatus);
+    if(isSendFCMNotify && isNofitificationEnabledStatus)){
        const objId=savedNotification._id
        const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
     }
@@ -359,6 +363,7 @@ const isNofitificationEnabled = async (extId) => {
   try {
     var tableName = getTableName(new String(extId).charAt(0));
     const notifyData = await fetch("select enable_push_notification from " + tableName + " where ext_id=?", [extId]);
+    console.log("notifyData", notifyData);
     return (notifyData && notifyData.length>0 && parseInt(notifyData[0].enable_push_notification == 1));
   } catch (error) {
     console.log(error);
