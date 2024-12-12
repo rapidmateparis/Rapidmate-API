@@ -338,7 +338,7 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
     console.log("isSendFCMNotify = " , isSendFCMNotify);
     console.log("receiverExtId = " , receiverExtId);
     console.log("isNofitificationEnabledStatus = " , isNofitificationEnabledStatus);
-    if(isSendFCMNotify && isNofitificationEnabledStatus)){
+    if(isSendFCMNotify && isNofitificationEnabledStatus){
        const objId=savedNotification._id
        const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
     }
