@@ -364,7 +364,7 @@ const isNofitificationEnabled = async (extId) => {
     var tableName = getTableName(new String(extId).charAt(0));
     const notifyData = await fetch("select enable_push_notification from " + tableName + " where ext_id=?", [extId]);
     console.log("notifyData", notifyData);
-    return (notifyData && notifyData.length>0 && parseInt(notifyData[0].enable_push_notification == 1));
+    return (notifyData && notifyData.length>0 && parseInt(notifyData[0].enable_push_notification) == 1);
   } catch (error) {
     console.log(error);
   }
