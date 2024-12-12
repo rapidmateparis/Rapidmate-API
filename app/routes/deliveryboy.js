@@ -95,9 +95,20 @@ router.put(
   controller.updateAvailability 
 )
 
-/*
- * Delete item route
- */
+router.post(
+  '/billing/address/update',
+  trimRequest.all,
+  validate.ValidateBillingAddressRequest,
+  controller.createOrUpdateBillingAddress
+)
+
+router.get(
+  '/billing/address/get/:extId',
+  trimRequest.all,
+  validate.validateExtId,
+  controller.getBillingAddressDetailsByExtId
+)
+
 router.delete(
   '/:id',
   trimRequest.all,

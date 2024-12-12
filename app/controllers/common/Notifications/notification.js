@@ -1,7 +1,7 @@
 const utils = require("../../../middleware/utils");
 const Notification = require("../../../models/Notification");
 const admin = require("../../../../config/admin");
-const { fetch } = require("../../../middleware/db");
+const { fetch, updateQuery } = require("../../../middleware/db");
 
 /********************
  * Public functions *
@@ -63,19 +63,18 @@ exports.getItem = async (req, res) => {
  */
 exports.getNotificationByExtId = async (req, res) => {
   try {
+    var extId = req.params.ext_id;
     const perPage = utils.getSize(req.query.size);
-    console.log(perPage);
     const page = utils.getPage(req.query.page);
-    console.log(page);
-    const ext_id = req.params.ext_id;
-    console.log(ext_id);
-    const data = await Notification.find({ receiverExtId: ext_id,is_del: false }).sort({createdAt:-1}).skip(page * perPage).limit(perPage);
+    const notifyData = await Notification.find({ receiverExtId: extId,is_del: false }).sort({createdAt:-1}).skip(page * perPage).limit(perPage);
     let message = "Items retrieved successfully";
-    if (data.length <= 0) {
-      message = "No notification found.";
+    if(notifyData || notifyData.length==0){
+      message = "No notifications";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
-    return res.status(200).json(utils.buildCreateMessage(200, message, data));
+    var tableName = getTableName(new String(extId).charAt(0));
+    const updateNotifyData = await updateQuery("update " + tableName + " set is_viewed_notity = 0, notity_count = 0 where ext_id=?", [extId]);
+    return res.status(200).json(utils.buildCreateMessage(200, message, notifyData));
   } catch (error) {
     console.log(error);
     return res
@@ -89,6 +88,67 @@ exports.getNotificationByExtId = async (req, res) => {
       );
   }
 };
+
+exports.getNotificationCountByExtId = async (req, res) => {
+  try {
+    var extId = req.params.ext_id;
+    var tableName = getTableName(new String(extId).charAt(0));
+    var totalCount = 0;
+    const notifyData = await fetch("select notity_count,is_viewed_notity from " + tableName + " where ext_id=?", [extId]);
+    if(notifyData && notifyData.length>0){
+      totalCount = notifyData[0].notity_count;
+    }
+    var responseData = {
+      notificationCount : totalCount
+    }
+    return res.status(200).json(utils.buildCreateMessage(200, "", responseData));
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to fetch notification count. Please try again later.",
+          1001
+        )
+      );
+  }
+};
+
+exports.updateNotifyStatus = async (req, res) => {
+  try {
+    var extId = req.body.ext_id;
+    var tableName = getTableName(new String(extId).charAt(0));
+    const notifyData = await updateQuery("update " + tableName + " set is_viewed_notity = 0, notity_count = 0 where ext_id=?", [extId]);
+    return res.status(200).json(utils.buildCreateMessage(200, "", "Updated"));
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(
+        utils.buildErrorObject(
+          500,
+          "Unable to fetch notification. Please try again later.",
+          1001
+        )
+      );
+  }
+};
+
+const getTableName = (role) =>{
+  var tableName = "rmt_admin_user";
+  if(role=='D'){
+    tableName = "rmt_delivery_boy";
+  }else  if(role=='C'){
+      tableName = "rmt_consumer";
+  }else  if(role=='E'){
+      tableName = "rmt_enterprise";
+  }else  if(role=='A'){
+      tableName = "rmt_admin_user";
+  }
+  return tableName;
+}
 
 /**
  * Get notification by receiver id function called by route
@@ -269,12 +329,12 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
   
     const notification = new Notification(insertData);
     const savedNotification = await notification.save();
-    console.log("savedNotification");
+    const responseUpdateCount = await updateNotifyCount(receiverExtId);
     console.log(savedNotification);
     if (!savedNotification) {
       return false;
     }
-    if(isSendFCMNotify){
+    if(isSendFCMNotify && isNofitificationEnabled(receiverExtId)){
        const objId=savedNotification._id
        const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
     }
@@ -284,6 +344,26 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
       console.log(error);
       return null;
   }
+};
+
+const updateNotifyCount = async (extId) => {
+  try {
+    var tableName = getTableName(new String(extId).charAt(0));
+    const notifyData = await updateQuery("update " + tableName + " set is_viewed_notity = 1, notity_count = (notity_count + 1) where ext_id=?", [extId]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const isNofitificationEnabled = async (extId) => {
+  try {
+    var tableName = getTableName(new String(extId).charAt(0));
+    const notifyData = await fetch("select enable_push_notification from " + tableName + " where ext_id=?", [extId]);
+    return (notifyData && notifyData.length>0 && parseInt(notifyData[0].enable_push_notification == 1));
+  } catch (error) {
+    console.log(error);
+  }
+  return false;
 };
 
 /**
