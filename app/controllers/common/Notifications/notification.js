@@ -72,6 +72,7 @@ exports.getNotificationByExtId = async (req, res) => {
       message = "No notifications";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
+    var tableName = getTableName(new String(extId).charAt(0));
     const updateNotifyData = await updateQuery("update " + tableName + " set is_viewed_notity = 0, notity_count = 0 where ext_id=?", [extId]);
     return res.status(200).json(utils.buildCreateMessage(200, message, notifyData));
   } catch (error) {
