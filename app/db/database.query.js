@@ -413,6 +413,13 @@ exports.UPDATE_BILLING_ADDRESS =
   "update rmt_consumer_billing_address set first_name = ?, last_name = ?, address = ?, city_id = ? , state_id = ?, country_id = ?, dni_number = ?, postal_code = ?, account_type=? where id = ?";
 //---------------------------------------------------------------------------------------------------------------\
 
+//---------------------------------------------------------------------------------------------------------------\
+exports.INSERT_DB_BILLING_ADDRESS =
+  "insert into rmt_delivery_billing_address(delivery_boy_id, first_name, last_name, address, city_id, state_id, country_id, dni_number, postal_code, account_type) values((select id from rmt_delivery_boy where ext_id=?),?,?,?,?,?,?,?,?,?)";
+exports.UPDATE_DB_BILLING_ADDRESS =
+  "update rmt_delivery_billing_address set first_name = ?, last_name = ?, address = ?, city_id = ? , state_id = ?, country_id = ?, dni_number = ?, postal_code = ?, account_type=? where id = ?";
+//---------------------------------------------------------------------------------------------------------------\
+
 exports.transformKeysToLowercase = async (results) => {
   return results.map((row) => {
     const newRow = {};

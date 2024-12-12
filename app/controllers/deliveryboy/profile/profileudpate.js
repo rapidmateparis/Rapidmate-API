@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
-const { runQuery,fetch,updateQuery} = require('../../../middleware/db')
-const { FETCH_DRIVER_AVAILABLE, UPDATE_DELIVERYBOY_WORK_TYPE, UPDATE_DELIVERYBOY_AVAILABLE } = require('../../../db/database.query')
+const { runQuery,fetch,updateQuery, insertQuery} = require('../../../middleware/db')
+const { FETCH_DRIVER_AVAILABLE, UPDATE_DELIVERYBOY_WORK_TYPE, UPDATE_DELIVERYBOY_AVAILABLE, INSERT_DB_BILLING_ADDRESS, UPDATE_DB_BILLING_ADDRESS } = require('../../../db/database.query')
 const DriverBoy = require('../../../models/Driveryboy')
 
 /********************
@@ -483,4 +483,55 @@ exports.updateAvailability=async (req, res) =>{
          return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
 
     }
+}
+
+
+const createBillingAddressRequest = async (req) => {
+  const executeCreateStmt = await insertQuery(INSERT_DB_BILLING_ADDRESS,[req.delivery_boy_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
+  return executeCreateStmt;
+}
+
+const updateBillingAddressRequest = async (req) => {
+  console.log(req);
+  const executeUpdateStmt = await updateQuery(UPDATE_DB_BILLING_ADDRESS,[req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type, req.id]);
+  console.log(executeUpdateStmt);
+  return executeUpdateStmt;
+}
+
+exports.createOrUpdateBillingAddress = async (req, res) => {
+try {
+  var requestData = req.body;
+  var stmtResult = {};
+  const data = await fetch("select * from rmt_delivery_billing_address where delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)",[requestData.delivery_boy_ext_id])
+  console.log(data);
+  if(data && data.length >0){
+      requestData.id = data[0].id;
+      stmtResult = await updateBillingAddressRequest(requestData);
+  }else{
+      stmtResult = await createBillingAddressRequest(requestData);
+  }
+  console.log(stmtResult);
+  if(stmtResult.affectedRows >=1){
+    return res.status(200).json(utils.buildResponse(200,requestData));
+  }
+} catch (error) {
+  console.log(error);
+}
+return res.status(400).json(utils.buildErrorObject(400,"Unable to update billing address",1001));
+}
+
+
+exports.getBillingAddressDetailsByExtId = async (req, res) => {
+try {
+  const extId = req.params.extId;
+  const data = await fetch("select * from rmt_delivery_billing_address where delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)",[extId])
+  let message="Items retrieved successfully";
+  if(data.length <=0){
+      message="No billing address details."
+      return res.status(400).json(utils.buildErrorObject(400,message,1001));
+  }
+  return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
+} catch (error) {
+  return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch billing address',1001));
+}
 }

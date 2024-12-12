@@ -54,6 +54,21 @@ router.get(
   validate.getItem,
   controller.getNotificationByExtId
 )
+
+router.get(
+  '/count/:ext_id',
+  trimRequest.all,
+  validate.getItem,
+  controller.getNotificationCountByExtId
+)
+
+router.put(
+  '/status',
+  trimRequest.all,
+  validate.getItem,
+  controller.updateNotifyStatus
+)
+
 /*
  * Delete item route
  */
