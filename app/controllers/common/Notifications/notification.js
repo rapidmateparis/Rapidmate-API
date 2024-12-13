@@ -66,9 +66,9 @@ exports.getNotificationByExtId = async (req, res) => {
     var extId = req.params.ext_id;
     const perPage = utils.getSize(req.query.size);
     const page = utils.getPage(req.query.page);
-    const notifyData = await Notification.find({ receiverExtId: extId,is_del: false }).sort({createdAt:-1}).skip(page * perPage).limit(perPage);
+    const notifyData = await Notification.find({ receiverExtId: extId, is_del: false }).sort({createdAt:-1}).skip(page * perPage).limit(perPage);
     let message = "Items retrieved successfully";
-    if(notifyData || notifyData.length==0){
+    if(!notifyData || notifyData.length==0){
       message = "No notifications";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
