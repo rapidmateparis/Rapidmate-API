@@ -16,7 +16,7 @@ router.post(
   '/',
   trimRequest.all,
   validate.createItem,
-  controller.createItem
+  controller.createEnterpriseOrder
 )
 
 /*
