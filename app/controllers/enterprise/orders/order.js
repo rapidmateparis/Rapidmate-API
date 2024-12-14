@@ -323,70 +323,33 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to update an Order number', 1001));
       }
 }
-/**
- * Create item function called by route
- * @param {Object} req - request object
- * @param {Object} res - response object
- */
-const createItem = async (req) => {
-  console.info(req.delivery_type_id);
-  var  executeResult = {};
-  switch(req.delivery_type_id){
-    case 1 :  console.info(req.delivery_type_id);
-            executeResult = await persistEnterpriseOrder(req);  
-            break;
-    case 2 : console.info(req.delivery_type_id);
-            executeResult = await persistMultipleDeliveries(req);  
-            break;
-    case 3 : console.info(req.delivery_type_id);
-             executeResult = await persistShiftOrder(req);  
-             break;
-  }
-  console.log(executeResult);
-  return executeResult;
-};
 
-exports.createItem = async (req, res) => {
+exports.createEnterpriseOrder = async (req, res) => {
   try {
     const requestData = req.body;
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
-    console.log(vehicleType);
-
-    if(requestData.delivery_type_id !== 3){
+     if(vehicleType && requestData.delivery_type_id !== 3){
       var total_amount = requestData.total_amount;
-      console.log(requestData);
-      
       requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
       requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
-      console.log(requestData.commission_amount.toFixed(2));
-  
       requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
-      console.log(requestData.delivery_boy_amount);
-      console.log(requestData);
-    }
+     }
 
-    
-   
-    const item = await createItem(requestData);
+    const item = await createEOrders(requestData);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
-      let titleText='Your order has been created.';
-      if(requestData.delivery_type_id==1){
-        titleText='Your order has been created.'
-      }else if(requestData.delivery_type_id==2){
-        titleText='Your multiple order delivery has been created.'
-      }else if(requestData.delivery_type_id==3){
-        titleText='Your shift order has been created.'
-      }
+      let titleText= titleText=(requestData.delivery_type_id==1)?'Your order has been created.':
+                  (requestData.delivery_type_id==2)?'Your Orders have been created.':
+                  (requestData.delivery_type_id==3)?'Your shift order has been created successfully. Delivery boy will be allocated.':"Invalid delivery type";
       var notifiationRequest = {
         title : titleText,
         body: {},
         payload: {
-          message :  "Your booking has been confirmed successfully.",
+          message :  titleText,
           orderNumber : currData[0].order_number
         },
         extId: currData[0].order_number,
-        message : "Your booking has been confirmed successfully", 
+        message : titleText, 
         topic : "",
         token : "",
         senderExtId : "",
@@ -415,6 +378,17 @@ exports.createItem = async (req, res) => {
       .json(utils.buildErrorObject(500,'Unable to create an order', 1001));
   }
 };
+
+const createEOrders = async (req) => {
+  var  executeResult = {};
+  switch(req.delivery_type_id){
+    case 1 :  executeResult = await persistEnterpriseOrder(req);  break;
+    case 2 :  executeResult = await persistMultipleDeliveries(req);  break;
+    case 3 :  executeResult = await persistShiftOrder(req);  break;
+  }
+  return executeResult;
+};
+
 
 const getVehicleTypeInfo = async (vehicle_type_id) => {
   try {

@@ -1503,7 +1503,7 @@ exports.requestAction = async (req, res) => {
         updateData = await updateQuery(
           "update rmt_order set order_status = '" +
             status +
-            "', next_action_status= 'Ready to pickup' where order_number = ?",
+            "', next_action_status= 'Ready to pickup',consumer_order_title='Delivery Boy allocated for your order',delivery_boy_order_title='You have accepted on ',is_show_datetime_in_title=1 where order_number = ?",
           [requestData.order_number]
         );
         responseData = {
