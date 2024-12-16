@@ -338,7 +338,7 @@ exports.createEnterpriseOrder = async (req, res) => {
     const item = await createEOrders(requestData);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
-      let titleText= titleText=(requestData.delivery_type_id==1)?'Your order has been created.':
+      let titleText =(requestData.delivery_type_id==1)?'Your order has been created.':
                   (requestData.delivery_type_id==2)?'Your Orders have been created.':
                   (requestData.delivery_type_id==3)?'Your shift order has been created successfully. Delivery boy will be allocated.':"Invalid delivery type";
       var notifiationRequest = {
