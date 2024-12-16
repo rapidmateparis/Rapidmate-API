@@ -737,13 +737,13 @@ exports.updateItem = async (req, res) => {
  */
 const createItem = async (req) => {
   var requestBody = [
+    ((req.schedule_date_time)?'NS':'N'),
     req.consumer_ext_id,
     req.vehicle_type_id,
     req.pickup_location_id,
     req.dropoff_location_id,
   ];
   var createOrderQuery = INSERT_ORDER_QUERY;
-  console.log(req.is_my_self);
   if (req.is_my_self == "0") {
     requestBody.push(req.first_name);
     requestBody.push(req.last_name);
@@ -1374,8 +1374,9 @@ exports.cancelOrder = async (req, res) => {
 exports.otpVerifiy = async (req, res) => {
   try {
     var requestData = req.body;
+    var orderInfo = getOrderTypeInfo(requestData.order_number);
     const data = await fetch(
-      "select is_otp_verified from rmt_order where is_del=0 AND otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
+      "select is_otp_verified from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [
         requestData.otp,
         requestData.order_number,
@@ -1386,7 +1387,7 @@ exports.otpVerifiy = async (req, res) => {
       var is_otp_verified = parseInt(data[0].is_otp_verified);
       if (is_otp_verified == 0) {
         const updateData = await updateQuery(
-          "update rmt_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?",
+          "update " + orderInfo.table + " set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?",
           [requestData.order_number]
         );
         if (updateData) {
@@ -1432,8 +1433,9 @@ exports.otpVerifiy = async (req, res) => {
 exports.deliveredOtpVerifiy = async (req, res) => {
   try {
     var requestData = req.body;
+    var orderInfo = getOrderTypeInfo(requestData.order_number);
     const data = await fetch(
-      "select is_delivered_otp_verified from rmt_order where is_del=0 AND delivered_otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
+      "select is_delivered_otp_verified from " + orderInfo.table + " where is_del=0 AND delivered_otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [
         requestData.otp,
         requestData.order_number,
@@ -1444,7 +1446,7 @@ exports.deliveredOtpVerifiy = async (req, res) => {
       var is_otp_verified = parseInt(data[0].is_delivered_otp_verified);
       if (is_otp_verified == 0) {
         const updateData = await updateQuery(
-          "update rmt_order set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?",
+          "update " + orderInfo.table + " set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?",
           [requestData.order_number]
         );
         if (updateData) {
@@ -1487,11 +1489,20 @@ exports.deliveredOtpVerifiy = async (req, res) => {
   }
 };
 
+const getOrderTypeInfo = (orderNumber) =>{
+    var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id"};
+    if(orderNumber.includes("E")){
+      orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id" };
+    }
+    return orderInfo;
+}
+
 exports.requestAction = async (req, res) => {
   try {
     var requestData = req.body;
+    var orderInfo = getOrderTypeInfo(requestData.order_number);
     const data = await fetch(
-      "select ord.*,(select ext_id from rmt_consumer where id = ord.consumer_id) as consumer_ext_id from rmt_order ord where ord.is_del=0 AND ord.order_number =? and ord.delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
+      "select ord.*,(select ext_id from " + orderInfo.consumerTable + " where id = ord." + orderInfo.consumerKey + ") as consumer_ext_id from " + orderInfo.table + " ord where ord.is_del=0 AND ord.order_number =? and ord.delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [requestData.order_number, requestData.delivery_boy_ext_id]
     );
     if (data.length > 0) {
@@ -1590,15 +1601,10 @@ exports.requestAction = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   //var timezone = req.headers.time_zone;
   //console.log(timezone);
-  //2024-09-08 15:34:23
-  //var deliveredOn = new Date();
-  //var deliveredOnDBFormat = moment(deliveredOn).tz("UTC").format("YYYY-MM-DD HH:mm:ss");
-  //Apr 19, 2024 at 11:30 AM
-  //var deliveredOnFormat = moment(deliveredOn).tz("UTC").format("MMM DD, YYYY # hh:mm A");
-  //deliveredOnFormat = deliveredOnFormat.replace("#", "at");
   try {
     var requestData = req.body;
-    var responseOrderData = await getOrderDetails(requestData.order_number);
+    var orderInfo = getOrderTypeInfo(requestData.order_number);
+    var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo);
     console.log(responseOrderData);
     if (!responseOrderData) {
       message = "Invalid Order number";
@@ -1657,21 +1663,22 @@ exports.updateOrderStatus = async (req, res) => {
       delivery_boy_order_title = "Delivered on ";
       is_show_datetime_in_title = 1;
     }
-    const updateData = await updateQuery(
-      "update rmt_order set consumer_order_title = '" +
-        consumer_order_title +
-        "'" +
-        deliveredOtp +
-        ", delivery_boy_order_title = '" +
-        delivery_boy_order_title +
-        "', order_status = '" +
-        status +
-        "', next_action_status = '" +
-        next_action_status +
-        "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title 
-        + ", updated_by = '" + status + "' where order_number = ?",
-      [requestData.order_number]
-    );
+
+    var updateStatusQuery = "update " + orderInfo.table + " set consumer_order_title = '" +
+    consumer_order_title +
+    "'" +
+    deliveredOtp +
+    ", delivery_boy_order_title = '" +
+    delivery_boy_order_title +
+    "', order_status = '" +
+    status +
+    "', next_action_status = '" +
+    next_action_status +
+    "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title 
+    + ", updated_by = '" + status + "' where order_number = ?";
+    console.log("updateStatusQuery = " + updateStatusQuery);
+    const updateData = await updateQuery(updateStatusQuery,[requestData.order_number]);
+    console.info("updateData = " , updateData);
     if (updateData) {
         var notifiationRequestDeliveryBoy = {
           title: delivery_boy_order_title_notify,
@@ -2152,11 +2159,11 @@ const getOTP = async (order_number) => {
   }
 };
 
-const getOrderDetails = async (order_number) => {
+const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo) => {
   try {
     const data = await fetch(
-      "select (select ext_id from rmt_consumer where id = consumer_id) as consumer_ext_id,  (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id from rmt_order where order_number =?",
-      [order_number]
+      "select (select ext_id from " + orderInfo.consumerTable + " where id = " + orderInfo.consumerKey + ") as consumer_ext_id,  (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id from " + orderInfo.table + " where order_number =?",
+      [orderNumber]
     );
     const filterdata = await transformKeysToLowercase(data);
     return filterdata[0];
