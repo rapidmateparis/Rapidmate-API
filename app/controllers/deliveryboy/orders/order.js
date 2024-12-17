@@ -362,96 +362,90 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     if (orderNumber && orderNumber != "") {
       conditions = " AND o.order_number like '%" + orderNumber + "%' ";
     }
-    // console.log(conditions);
-    // console.log(orderNumber);
-    var query = `
-  SELECT 
-    o.waiting_fare,
-    o.discount,
-    o.next_action_status,o.is_enable_cancel_request,
-    o.consumer_order_title,
-    o.delivery_boy_order_title,
-    o.is_show_datetime_in_title,
-    o.is_delivery_boy_allocated,
-    o.paid_with,
-    o.total_duration,
-    o.order_number,
-    o.consumer_id,
-    o.delivery_boy_id,
-    o.service_type_id,
-    o.vehicle_type_id,
-    o.order_date,
-    o.pickup_location_id,
-    o.dropoff_location_id,
-    o.shift_start_time,
-    o.shift_end_time,
-    o.order_status,
-    o.delivery_date,
-    o.is_my_self,
-    o.first_name,
-    o.last_name,
-    o.company_name,
-    o.email,
-    o.mobile,
-    o.package_photo,
-    o.package_id,
-    o.pickup_notes,
-    o.created_by,
-    o.created_on,
-    o.otp,
-    o.is_otp_verified,
-    o.delivered_otp,
-    o.delivered_on,
-    o.cancelled_on,
-    o.updated_on,
-    o.is_delivered_otp_verified,
-    ROUND(o.amount, 2) AS amount,
-    o.commission_percentage,
-    o.commission_amount,
-    o.delivery_boy_amount,
-    ROUND(o.distance, 2) AS distance,
-    o.schedule_date_time,
-    o.promo_code,
-    o.promo_value,
-    o.cancel_reason_id,
-    o.cancel_reason,
-    ROUND(o.order_amount, 2) AS order_amount,
-    o.drop_first_name,
-    o.drop_last_name,
-    o.drop_company_name,
-    o.drop_mobile,
-    o.drop_notes,
-    o.drop_email,
-    s.service_name,
-    CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
-    t.vehicle_type,
-    CONCAT(c.first_name, ' ', c.last_name) AS consumer_name   
-  FROM rmt_order AS o
-  LEFT JOIN rmt_service AS s ON o.service_type_id = s.id
-  LEFT JOIN rmt_delivery_boy AS d ON o.delivery_boy_id = d.id
-  LEFT JOIN rmt_vehicle_type AS t ON o.vehicle_type_id = t.id
-  LEFT JOIN rmt_consumer AS c ON o.consumer_id = c.id
-  WHERE o.is_del = 0
-    ${conditions}
-    AND o.order_status IN (${statusParams})
-    AND o.delivery_boy_id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?)
-    
-  ORDER BY o.created_on DESC
-  ${utils.getPagination(req.query.page, req.query.size)};
-`;
+      // console.log(conditions);
+      // console.log(orderNumber);
+      var query = `
+      SELECT 
+      o.waiting_fare,
+      o.discount,
+      o.next_action_status,o.is_enable_cancel_request,
+      o.consumer_order_title,
+      o.delivery_boy_order_title,
+      o.is_show_datetime_in_title,
+      o.is_delivery_boy_allocated,
+      o.paid_with,
+      o.total_duration,
+      o.order_number,
+      o.consumer_id,
+      o.delivery_boy_id,
+      o.service_type_id,
+      o.vehicle_type_id,
+      o.order_date,
+      o.pickup_location_id,
+      o.dropoff_location_id,
+      o.shift_start_time,
+      o.shift_end_time,
+      o.order_status,
+      o.delivery_date,
+      o.is_my_self,
+      o.first_name,
+      o.last_name,
+      o.company_name,
+      o.email,
+      o.mobile,
+      o.package_photo,
+      o.package_id,
+      o.pickup_notes,
+      o.created_by,
+      o.created_on,
+      o.otp,
+      o.is_otp_verified,
+      o.delivered_otp,
+      o.delivered_on,
+      o.cancelled_on,
+      o.updated_on,
+      o.is_delivered_otp_verified,
+      ROUND(o.amount, 2) AS amount,
+      o.commission_percentage,
+      o.commission_amount,
+      o.delivery_boy_amount,
+      ROUND(o.distance, 2) AS distance,
+      o.schedule_date_time,
+      o.promo_code,
+      o.promo_value,
+      o.cancel_reason_id,
+      o.cancel_reason,
+      ROUND(o.order_amount, 2) AS order_amount,
+      o.drop_first_name,
+      o.drop_last_name,
+      o.drop_company_name,
+      o.drop_mobile,
+      o.drop_notes,
+      o.drop_email,
+      s.service_name,
+      CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
+      t.vehicle_type,
+      CONCAT(c.first_name, ' ', c.last_name) AS consumer_name   
+    FROM rmt_order AS o
+    LEFT JOIN rmt_service AS s ON o.service_type_id = s.id
+    LEFT JOIN rmt_delivery_boy AS d ON o.delivery_boy_id = d.id
+    LEFT JOIN rmt_vehicle_type AS t ON o.vehicle_type_id = t.id
+    LEFT JOIN rmt_consumer AS c ON o.consumer_id = c.id
+    WHERE o.is_del = 0
+      ${conditions}
+      AND o.order_status IN (${statusParams})
+      AND o.delivery_boy_id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?)
+      
+    ORDER BY o.created_on DESC
+    ${utils.getPagination(req.query.page, req.query.size)};
+  `;
 
     // Execute the query with necessary parameters (e.g., statusParams, conditions, etc.)
 
     if (orderType == "E") {
-      query =
-        "select waiting_fare,discount,next_action_status,is_enable_cancel_request,is_show_datetime_in_title,is_show_datetime_in_title,delivery_boy_order_title,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,enterprise_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,order_status,delivery_date,package_photo,package_id,pickup_notes,created_by,created_on,otp,is_otp_verified,delivered_otp,delivered_on,updated_on,cancelled_on,is_delivered_otp_verified,ROUND(amount, 2) as amount,commission_percentage,commission_amount,delivery_boy_amount,ROUND(distance, 2) as distance,promo_code,promo_value,cancel_reason_id, cancel_reason, " +
-        " ROUND(order_amount, 2) as order_amount, drop_first_name, drop_last_name,drop_company_name,drop_mobile,drop_notes,drop_email, from rmt_enterprise_order where is_del=0 and order_status in (" +
-        statusParams +
-        ")" +
-        conditions +
-        "and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" +
-        utils.getPagination(req.query.page, req.query.size);
+      query = "select * from vw_enterprise_order where is_del=0 and order_status in (" + statusParams + ")" + conditions + "and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
     }
+    console.log("Query ", query);
     const data = await fetch(query, [id]);
     const filterdata = await transformKeysToLowercase(data);
     let message = "Items retrieved successfully";
