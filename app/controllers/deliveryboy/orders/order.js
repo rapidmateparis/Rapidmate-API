@@ -1491,6 +1491,10 @@ const getOrderTypeInfo = (orderNumber) =>{
     return orderInfo;
 }
 
+const isEOrder = (orderNumber) =>{
+  return (orderNumber.includes("E"));
+}
+
 exports.requestAction = async (req, res) => {
   try {
     var requestData = req.body;
@@ -1757,7 +1761,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     returnData = req.query.show ? true : false;
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = `
+    var orderAllocationQuery = `
       SELECT 
         o.waiting_fare,
         o.discount,
@@ -1851,7 +1855,9 @@ exports.viewOrderByOrderNumber = async (req, res) => {
       WHERE o.is_del = 0
         AND o.order_number = ?;
     `;
-
+    if(isEOrder(order_number)){
+      orderAllocationQuery = "select * from vw_enterprise_order where order_number=?";
+    }
     // Execute the query with necessary parameters (e.g., order_number)
 
     const dbData = await fetch(orderAllocationQuery, [order_number]);
