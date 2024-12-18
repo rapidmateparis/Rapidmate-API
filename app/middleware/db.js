@@ -418,7 +418,7 @@ module.exports = {
                     const {
                         to_latitude,
                         to_longitude,
-                        dropoff_location,
+                        destinationDescription,
                         delivery_date,
                         delivery_start_time,
                         delivery_end_time,
@@ -434,7 +434,7 @@ module.exports = {
                             order_number,
                             to_latitude,
                             to_longitude,
-                            destinationDescription,
+                            destination_description,
                             delivery_date,
                             delivery_start_time,
                             delivery_end_time,
