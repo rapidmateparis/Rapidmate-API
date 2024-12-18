@@ -1510,7 +1510,7 @@ exports.requestAction = async (req, res) => {
       var responseData = {};
       if (requestData.status == "Accepted") {
         updateData = await updateQuery(
-          "update " + orderInfo.consumerTable + " set order_status = '" +
+          "update " + orderInfo.table + " set order_status = '" +
             status +
             "', next_action_status= 'Ready to pickup',consumer_order_title='Delivery Boy allocated for your order',delivery_boy_order_title='You have accepted on ',is_show_datetime_in_title=1 where order_number = ?",
           [requestData.order_number]
@@ -1521,10 +1521,11 @@ exports.requestAction = async (req, res) => {
         };
       } else {
         updateData = await updateQuery(
-          "update " + orderInfo.consumerTable + " set delivery_boy_Id = null where order_number = ?",
+          "update " + orderInfo.table + " set delivery_boy_Id = null where order_number = ?",
           [requestData.order_number]
         );
       }
+      console.log(updateData);
       if (updateData) {
         const updateOrderAllocData = await updateQuery(
           "update " + orderInfo.orderAllocation + " set status = '" +
