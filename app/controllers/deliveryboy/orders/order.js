@@ -1484,9 +1484,9 @@ exports.deliveredOtpVerifiy = async (req, res) => {
 };
 
 const getOrderTypeInfo = (orderNumber) =>{
-    var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id"};
+    var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id", orderAllocation : "rmt_order_allocation"};
     if(orderNumber.includes("E")){
-      orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id" };
+      orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" };
     }
     return orderInfo;
 }
@@ -1510,7 +1510,7 @@ exports.requestAction = async (req, res) => {
       var responseData = {};
       if (requestData.status == "Accepted") {
         updateData = await updateQuery(
-          "update rmt_order set order_status = '" +
+          "update " + orderInfo.consumerTable + " set order_status = '" +
             status +
             "', next_action_status= 'Ready to pickup',consumer_order_title='Delivery Boy allocated for your order',delivery_boy_order_title='You have accepted on ',is_show_datetime_in_title=1 where order_number = ?",
           [requestData.order_number]
@@ -1521,13 +1521,13 @@ exports.requestAction = async (req, res) => {
         };
       } else {
         updateData = await updateQuery(
-          "update rmt_order set delivery_boy_Id = null where order_number = ?",
+          "update " + orderInfo.consumerTable + " set delivery_boy_Id = null where order_number = ?",
           [requestData.order_number]
         );
       }
       if (updateData) {
         const updateOrderAllocData = await updateQuery(
-          "update rmt_order_allocation set status = '" +
+          "update " + orderInfo.orderAllocation + " set status = '" +
             requestData.status +
             "' where order_id = ?",
           [data[0].id]
