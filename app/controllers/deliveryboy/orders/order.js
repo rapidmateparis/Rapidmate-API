@@ -28,7 +28,7 @@ const {
   FETCH_ORDER_DELIVERY_BOY_ID,
   INSERT_ORDER_FOR_ANOTHER_QUERY,
   CHECK_ORDER_FOR_OTP,
-  UPDATE_ORDER_OTP_VERIFIED,
+  FETCH_SLOTS_BY_SHIFT_ID,
 } = require("../../../db/database.query");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
@@ -332,6 +332,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'REACHED'",
         "'OTP_VERIFIED'",
         "'DELIVERED_OTP_VERIFIED'",
+        "'REQUEST_PENDING'"
       ]);
     } else if (reqStatus == "past") {
       statusParams.push([
@@ -357,6 +358,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'COMPLETED'",
         "'CANCELLED'",
         "'DELIVERED_OTP_VERIFIED'",
+        "'REQUEST_PENDING'"
       ]);
     }
     if (orderNumber && orderNumber != "") {
@@ -441,21 +443,31 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
   `;
 
     // Execute the query with necessary parameters (e.g., statusParams, conditions, etc.)
-
     if (orderType == "E") {
-      query = "select * from vw_enterprise_order where is_del=0 and order_status in (" + statusParams + ")" + conditions + "and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
+      query = "select * from vw_enterprise_order where order_status in (" + statusParams + ")" + conditions + "and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
     }
-    console.log("Query ", query);
-    const data = await fetch(query, [id]);
-    const filterdata = await transformKeysToLowercase(data);
+   const responseData = await fetch(query, [id]);
     let message = "Items retrieved successfully";
-    if (data.length <= 0) {
+    if (responseData.length <= 0) {
       message = "No items found";
-      return res.status(400).json(utils.buildErrorObject(404, message, 1001));
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     }
-    return res
-      .status(200)
-      .json(utils.buildCreateMessage(200, message, filterdata));
+    if (orderType == "E") {
+      const responseEnterpriseData = await Promise.all(
+        responseData.map(async (order) => {
+          const locations = await fetch("SELECT * FROM rmt_enterprise_order_line WHERE order_id = ?", [order.id]);
+          const slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE enterprise_order_id = ?", [order.id]);
+          return {
+            ...order,
+            slots,
+            locations,
+          };
+        })
+      );
+      return res.status(200).json(utils.buildCreateMessage(200, message, responseEnterpriseData));
+    }else{
+      return res.status(200).json(utils.buildCreateMessage(200, message, responseData));
+    }
   } catch (error) {
     console.log(error);
     return res
@@ -463,6 +475,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
       .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
+
 
 
 exports.getItemByDeliveryBoyDashboardByExtId = async (req, res) => {

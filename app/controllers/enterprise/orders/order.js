@@ -665,7 +665,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
           const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_id]);
           console.log(updateAllocate);
           responseData.order = await getOrderInfo(order_number);
-          responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
+          responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.delivery_boy_id);
           var consumer_ext_id = responseData.order.ext_id;
           var notifiationConsumerRequest = {
             title : "Driver allocated!!!Order# : " + order_number ,

@@ -99,7 +99,7 @@ exports.createItem = async (req, res) => {
         return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
       }
     }else{
-      return res.status(400).json(utils.buildErrorObject(400,'Name already exists',1001));
+      return res.status(400).json(utils.buildErrorObject(400,'Unable to create  exists',1001));
     }
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
