@@ -131,11 +131,9 @@ const softDeleteOldNotifications = async () => {
   }
 };
 
-cron.schedule('59 23 * * *', () => {
-  softDeleteOldNotifications();
-});
+cron.schedule('59 23 * * *', () => { softDeleteOldNotifications(); });
 
-cron.schedule("*/10 * * * * *", function() {
+cron.schedule("*/10 * * * * *", function() { 
   console.log("Schedule Order : Running..." , new Date());
   orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
 });
