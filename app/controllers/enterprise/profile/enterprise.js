@@ -55,47 +55,25 @@ exports.getItems = async (req, res) => {
 };
 
 exports.dashboardItem = async (req, res) => {
+  let responseData ={
+    overviewData : {},
+    weekData : [],
+    branchOverviewData : {}
+  }
+  let message = "Items retrieved successfully";
   try {
     const { id } = req.params;
-    const [bookings] = await fetch(FETCH_SCHEDULES, [id]);
-    const branchData = await fetch(FETCH_BRANCH_FOR_DASH, [id]);
-    const branchBookingStatus = await Promise.all(
-      branchData.map(async (item) => {
-        const [branchhr] = await fetch(FETCH_BRANCH_BOOKHR, [item.branch_id]);
-        const chartData = await fetch(FETCH_SLOT_CHART, [item.branch_id]);
-        return {
-          ...item,
-          bookings: branchhr?.all_bookings || 0,
-          chartData: chartData || [],
-        }; // Return a new object with bookings
-      })
-    );
-    const resporse = [
-      {
-        dashboard: {
-          bookings: {
-            active: bookings.active,
-            scheduled: bookings.scheduled,
-            all: bookings.all_bookings,
-          },
-          branch: branchBookingStatus,
-        },
-      },
-    ];
-    // console.log(branchData)
-    let message = "Items retrieved successfully";
-    if (bookings.length <= 0) {
-      message = "No items found";
-      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
-    }
-    return res
-      .status(200)
-      .json(utils.buildCreateMessage(200, message, resporse));
+    const [overviewData] = await fetch("select * from vw_dashboard_overview where enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
+    const weekData = await fetch("select week_short_name as month, ifnull(total, 0) as count from rmt_week ms  left outer join  (select * from vm_dashboard_week_chart where enterprise_id =(select id from rmt_enterprise where ext_id =?)) wcount on ms.week_id=wcount.month", [id]);
+    const [branchOverviewData] = await fetch("select * from vm_dashboard_branch_overview where enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
+    console.log(weekData);
+    responseData.overviewData = overviewData || [];
+    responseData.weekData = weekData || [];
+    responseData.branchOverviewData = branchOverviewData || [];
   } catch (error) {
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, error.message, 1001));
+    console.log(error);
   }
+  return res.status(200).json(utils.buildCreateMessage(200, message, responseData));
 };
 /**
  * Get item function called by route
