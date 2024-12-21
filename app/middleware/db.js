@@ -343,19 +343,20 @@ module.exports = {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
         order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
-        delivery_boy_amount,is_scheduled_order,schedule_date_time
+        delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes
 
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id, order_date,pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time
-        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?)`,
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes
+        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
-          delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time
+          delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes
         ]
       );
       await connections.commit(); // Commit the transaction
@@ -382,20 +383,21 @@ module.exports = {
       const {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
-        delivery_boy_amount,is_scheduled_order,schedule_date_time
+        delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes
 
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
           order_date, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time
-        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?)`,
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes
+        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,
           order_date,pickup_location_id, dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
-          delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time
+          delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes
         ]
       );
       console.log("result ---->", result);
@@ -423,7 +425,13 @@ module.exports = {
                         delivery_start_time,
                         delivery_end_time,
                         total_hours,
-                        distance
+                        distance,
+                        drop_first_name,
+                        drop_last_name,
+                        drop_company_name,
+                        drop_mobile,
+                        drop_email,
+                        drop_notes
                     } = delivery;
     
                     // Insert the data into rmt_enterprise_order_line
@@ -439,8 +447,15 @@ module.exports = {
                             delivery_start_time,
                             delivery_end_time,
                             total_hours,
-                            distance
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            distance,
+                            drop_first_name,
+                            drop_last_name,
+                            drop_company_name,
+                            drop_mobile,
+                            drop_email,
+                            drop_notes,
+                            otp
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')))`,
                         [
                             branch_id,
                             orderId,
@@ -452,7 +467,13 @@ module.exports = {
                             delivery_start_time,
                             delivery_end_time,
                             total_hours,
-                            distance
+                            distance,
+                            drop_first_name,
+                            drop_last_name,
+                            drop_company_name,
+                            drop_mobile,
+                            drop_email,
+                            drop_notes
                         ]
                     );
                 }

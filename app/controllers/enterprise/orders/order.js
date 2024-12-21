@@ -3,7 +3,7 @@ const { persistShiftOrder, fetch, persistMultipleDeliveries, updateQuery, persis
 const { FETCH_SLOTS_BY_SHIFT_ID,FETCH_ORDER_BY_ORDER_EXT_SEARCH, transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../../db/enterprise.order");
 const notification = require("../../../controllers/common/Notifications/notification");
 const { insertQuery } = require("../../../middleware/db");
-const { UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE} = require("../../../db/database.query");
+const { UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE,UPDATE_SET_DELIVERY_BOY_FOR_MULTI_ORDER_ENTERPRISE} = require("../../../db/database.query");
 const moment = require("moment");
 const fs = require('fs');
 const { jsPDF } = require("jspdf"); // will automatically load the node version
@@ -640,10 +640,23 @@ const getDeliveryBoyInfo = async (delivery_boy_id) => {
   }
 };
 
+
+const getOrderTypeInfo = (orderNumber) =>{
+  var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id", orderAllocation : "rmt_order_allocation" , is_multi_order : false};
+  if(orderNumber.includes("EM")){
+    orderInfo = { table : "rmt_enterprise_order_line", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" , is_multi_order : true};
+  }else if(orderNumber.includes("E")){
+    orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation"  , is_multi_order : false};
+  }
+  return orderInfo;
+}
+
+
 exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
   var responseData = {};
   try {
     const order_number = req.query.o;
+    var orderInfo = getOrderTypeInfo(order_number);
     const order = await utils.getValuesById("id, is_del, order_date, order_number, service_type_id", "rmt_enterprise_order", "order_number", order_number);
     if (order) {
       const orderAllocationQuery = "select * from vw_delivery_plan_setup_slots slot where work_type_id in (1,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " + 
@@ -658,10 +671,13 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
         const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
         const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
         const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, [order_number, delivery_boy_id]);
-        console.log(allocateDeliveryBoyResult);
         if (allocateDeliveryBoyResult.insertId) {
           const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
           console.log(setDeliveryBoy);
+          if(orderInfo.is_multi_order){
+            const updateOrderLineDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_MULTI_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
+            console.log(updateOrderLineDeliveryBoy);
+          }
           const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_id]);
           console.log(updateAllocate);
           responseData.order = await getOrderInfo(order_number);
