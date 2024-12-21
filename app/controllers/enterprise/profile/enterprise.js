@@ -58,14 +58,14 @@ exports.dashboardItem = async (req, res) => {
   let responseData ={
     overviewData : {},
     weekData : [],
-    branchOverviewData : {}
+    branchOverviewData : []
   }
   let message = "Items retrieved successfully";
   try {
     const { id } = req.params;
     const [overviewData] = await fetch("select * from vw_dashboard_overview where enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
     const weekData = await fetch("select week_short_name as month, ifnull(total, 0) as count from rmt_week ms  left outer join  (select * from vm_dashboard_week_chart where enterprise_id =(select id from rmt_enterprise where ext_id =?)) wcount on ms.week_id=wcount.month", [id]);
-    const [branchOverviewData] = await fetch("select * from vm_dashboard_branch_overview where enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
+    const branchOverviewData = await fetch("select * from rmt_enterprise_branch branch left join vm_dashboard_branch_overview dbo on branch.id = dbo.branch_id where branch.enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
     console.log(weekData);
     responseData.overviewData = overviewData || [];
     responseData.weekData = weekData || [];
