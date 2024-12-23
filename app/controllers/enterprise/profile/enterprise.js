@@ -55,16 +55,23 @@ exports.getItems = async (req, res) => {
 };
 
 exports.dashboardItem = async (req, res) => {
-  let responseData ={
-    overviewData : {},
-    weekData : [],
-    branchOverviewData : []
-  }
+  const branchId = req.query.branch;
+  const type = req.query.type;
+  var conditionQuery = "";
+  var responseData = {};
+  conditionQuery = (branchId) ? " and branch_id = " + branchId : "";
+  conditionQuery += (type)?((type == 'today')?" and date(order_date) = date(now())":
+                    (type == 'week')?" and week(order_date,1) = week(now(),1)":
+                    (type == 'month')?" and month(order_date) = month(now())":
+                    (type == 'year')?" and year(order_date) = year(now())": ""):"";
+  conditionQuery += " group by enterprise_id, weekday";
   let message = "Items retrieved successfully";
   try {
     const { id } = req.params;
     const [overviewData] = await fetch("select * from vw_dashboard_overview where enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
-    const weekData = await fetch("select week_short_name as month, ifnull(total, 0) as count from rmt_week ms  left outer join  (select * from vm_dashboard_week_chart where enterprise_id =(select id from rmt_enterprise where ext_id =?)) wcount on ms.week_id=wcount.month", [id]);
+    const weekData = await fetch("select week_short_name as month, ifnull(total, 0) as count from rmt_week ms left outer join " + 
+      "(select enterprise_id, weekday, sum(total) total from vm_booked_overview_chart where " + 
+      "enterprise_id =(select id from rmt_enterprise where ext_id =?) " + conditionQuery + ") wcount on ms.week_id=wcount.weekday", [id]);
     const branchOverviewData = await fetch("select * from rmt_enterprise_branch branch left join vm_dashboard_branch_overview dbo on branch.id = dbo.branch_id where branch.enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
     console.log(weekData);
     responseData.overviewData = overviewData || [];
@@ -75,6 +82,8 @@ exports.dashboardItem = async (req, res) => {
   }
   return res.status(200).json(utils.buildCreateMessage(200, message, responseData));
 };
+
+
 /**
  * Get item function called by route
  * @param {Object} req - request object
