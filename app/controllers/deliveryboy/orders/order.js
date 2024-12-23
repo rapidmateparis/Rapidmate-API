@@ -1382,19 +1382,23 @@ exports.otpVerifiy = async (req, res) => {
   try {
     var requestData = req.body;
     var orderInfo = getOrderTypeInfo(requestData.order_number);
+    var multiOrderConditionQuery = (orderInfo.is_multi_order)?" and id= " + requestData.line_id:"";
+    console.log("multiOrderConditionQuery", multiOrderConditionQuery);
+    console.log("orderInfo", orderInfo);
     const data = await fetch(
-      "select is_otp_verified from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
+      "select is_otp_verified from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [
         requestData.otp,
         requestData.order_number,
         requestData.delivery_boy_ext_id,
       ]
     );
+    console.log(data);
     if (data.length > 0) {
       var is_otp_verified = parseInt(data[0].is_otp_verified);
       if (is_otp_verified == 0) {
         const updateData = await updateQuery(
-          "update " + orderInfo.table + " set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?",
+          "update " + orderInfo.table + " set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?" + multiOrderConditionQuery ,
           [requestData.order_number]
         );
         if (updateData) {
@@ -1441,8 +1445,9 @@ exports.deliveredOtpVerifiy = async (req, res) => {
   try {
     var requestData = req.body;
     var orderInfo = getOrderTypeInfo(requestData.order_number);
+    var multiOrderConditionQuery = (orderInfo.is_multi_order)?" and id= " + requestData.line_id:"";
     const data = await fetch(
-      "select is_delivered_otp_verified from " + orderInfo.table + " where is_del=0 AND delivered_otp=? and order_number =? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
+      "select is_delivered_otp_verified from " + orderInfo.table + " where is_del=0 AND delivered_otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [
         requestData.otp,
         requestData.order_number,
@@ -1453,7 +1458,7 @@ exports.deliveredOtpVerifiy = async (req, res) => {
       var is_otp_verified = parseInt(data[0].is_delivered_otp_verified);
       if (is_otp_verified == 0) {
         const updateData = await updateQuery(
-          "update " + orderInfo.table + " set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?",
+          "update " + orderInfo.table + " set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?" + multiOrderConditionQuery,
           [requestData.order_number]
         );
         if (updateData) {
@@ -1496,10 +1501,12 @@ exports.deliveredOtpVerifiy = async (req, res) => {
   }
 };
 
-const getOrderTypeInfo = (orderNumber) =>{
-    var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id", orderAllocation : "rmt_order_allocation"};
-    if(orderNumber.includes("E")){
-      orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" };
+const getOrderTypeInfo = (orderNumber, includeMultiOrder = true) =>{
+    var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id", orderAllocation : "rmt_order_allocation" , is_multi_order : false};
+    if(orderNumber.includes("EM") && includeMultiOrder){
+      orderInfo = { table : "rmt_enterprise_order_line", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" , is_multi_order : true};
+    }else if(orderNumber.includes("E")){
+      orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation"  , is_multi_order : false};
     }
     return orderInfo;
 }
@@ -1511,7 +1518,8 @@ const isEOrder = (orderNumber) =>{
 exports.requestAction = async (req, res) => {
   try {
     var requestData = req.body;
-    var orderInfo = getOrderTypeInfo(requestData.order_number);
+    var orderInfo = getOrderTypeInfo(requestData.order_number, false);
+    console.log(orderInfo);
     const data = await fetch(
       "select ord.*,(select ext_id from " + orderInfo.consumerTable + " where id = ord." + orderInfo.consumerKey + ") as consumer_ext_id from " + orderInfo.table + " ord where ord.is_del=0 AND ord.order_number =? and ord.delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [requestData.order_number, requestData.delivery_boy_ext_id]
@@ -1616,6 +1624,7 @@ exports.updateOrderStatus = async (req, res) => {
   try {
     var requestData = req.body;
     var orderInfo = getOrderTypeInfo(requestData.order_number);
+    var multiOrderConditionQuery = (orderInfo.is_multi_order)?" and id= " + requestData.line_id:"";
     var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo);
     console.log(responseOrderData);
     if (!responseOrderData) {
@@ -1687,7 +1696,7 @@ exports.updateOrderStatus = async (req, res) => {
     "', next_action_status = '" +
     next_action_status +
     "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title 
-    + ", updated_by = '" + status + "' where order_number = ?";
+    + ", updated_by = '" + status + "' where order_number = ?"+ multiOrderConditionQuery;
     console.log("updateStatusQuery = " + updateStatusQuery);
     const updateData = await updateQuery(updateStatusQuery,[requestData.order_number]);
     console.info("updateData = " , updateData);
