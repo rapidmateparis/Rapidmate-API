@@ -454,6 +454,7 @@ module.exports = {
                             order_number,
                             to_latitude,
                             to_longitude,
+                            dropoff_location,
                             destinationDescription,
                             delivery_date,
                             delivery_start_time,
