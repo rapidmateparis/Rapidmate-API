@@ -420,6 +420,7 @@ module.exports = {
                     const {
                         to_latitude,
                         to_longitude,
+                        dropoff_location,
                         destinationDescription,
                         delivery_date,
                         delivery_start_time,
@@ -442,6 +443,7 @@ module.exports = {
                             order_number,
                             to_latitude,
                             to_longitude,
+                            dropoff_location,
                             destination_description,
                             delivery_date,
                             delivery_start_time,
@@ -455,7 +457,7 @@ module.exports = {
                             drop_email,
                             drop_notes,
                             otp
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')))`,
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')))`,
                         [
                             branch_id,
                             orderId,
