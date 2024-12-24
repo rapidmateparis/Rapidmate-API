@@ -329,12 +329,7 @@ module.exports = {
   //Enterprise planning 
   async persistEnterpriseOrder(req) {
     console.info(req);
-    if(req.schedule_date_time){
-      req.is_scheduled_order = 1;
-      req.order_date = req.schedule_date_time;
-    }else{
-      req.is_scheduled_order = 0;
-    }
+    req.schedule_date_time = (parseInt(req.is_scheduled_order) == 1)?req.order_date:null;
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
@@ -370,12 +365,7 @@ module.exports = {
   },
   
   async persistMultipleDeliveries(req) {
-    if(req.schedule_date_time){
-      req.is_scheduled_order = 1;
-      req.order_date = req.schedule_date_time;
-    }else{
-      req.is_scheduled_order = 0;
-    }
+    req.schedule_date_time = (parseInt(req.is_scheduled_order) == 1)?req.order_date:null;
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
