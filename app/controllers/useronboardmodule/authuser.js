@@ -40,18 +40,10 @@ function createUser(userInfo) {
         logger.info("createUser called");
 
         var UserAttributes = [
-            {
-                Name: 'name', Value: userInfo["userName"]
-            },
-            {
-                Name: 'email', Value: userInfo["userName"]
-            },
-            {
-                Name: 'phone_number', Value: userInfo["phoneNumber"]
-            },
-            {
-                Name: 'custom:userrole', Value: userInfo["userrole"]
-            },
+            { Name: 'name', Value: userInfo["userName"]},
+            { Name: 'email', Value: userInfo["userName"]},
+            { Name: 'phone_number', Value: userInfo["phone_code"] + userInfo["phoneNumber"]},
+            { Name: 'custom:userrole', Value: userInfo["userrole"]},
             { Name: 'custom:first_name', Value: userInfo["firstName"] },
             { Name: 'custom:last_name', Value: userInfo["lastName"] },
             { Name: 'custom:company_name', Value: userInfo["companyName"] },
@@ -66,18 +58,13 @@ function createUser(userInfo) {
             { Name: 'custom:country', Value: userInfo["country"] },
             { Name: 'custom:siret_no', Value: userInfo["siretNo"] }
         ]
-
-
         var params =
         {
             UserPoolId: userPoolId, // Your user pool id here
             Username: userInfo["userName"],
-            DesiredDeliveryMediums:
-            [ "EMAIL"],
-            //TemporaryPassword: 'Password_1',
+            DesiredDeliveryMediums:[ "EMAIL"],
             UserAttributes: UserAttributes
         };
-
         var cognitoidentityserviceprovider  = new AWS.CognitoIdentityServiceProvider({region:cognito_region,
           accessKeyId: cognito_accessKeyId,
           secretAccessKey: cognito_secretAccessKey,
@@ -110,7 +97,7 @@ async function signup(userInfo) {
             const UserAttributes = [
               { Name: 'name', Value: userInfo["userName"] },
               { Name: 'email', Value: userInfo["email"] },
-              { Name: 'phone_number', Value: userInfo["phoneNumber"] }
+              { Name: 'phone_number', Value: userInfo["phone_code"] + userInfo["phoneNumber"] }
               // Add other attributes as needed
             ];
         
@@ -207,16 +194,16 @@ async function createItem(userinfo,tablename,extIds){
     const password= await bcrypt.hash(userinfo['password'], 10);
     // password = userinfo['password'];
     if(tablename=='rmt_consumer'){
-      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['token']}',123456)`;
+      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME,token,verification_code,phone_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`;
     }
     if(tablename=='rmt_delivery_boy'){
-        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['token']}',123456)`;
+        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,token,verification_code,phone_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`;
     }
     if(tablename=='rmt_enterprise'){
-        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id,token,verification_code,deliveryMonthHours) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}','${userinfo['token']}',123456,'${userinfo['deliveryMonthHours']}')`;
+        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id,token,verification_code,deliveryMonthHours,phone_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}','${userinfo['token']}',123456,'${userinfo['deliveryMonthHours']}','${userinfo['phone_code']}')`;
     }
     if(tablename=='rmt_admin_user'){
-        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',123456)`; //(LPAD(FLOOR(RAND() * 999999.99),6,  '0')
+        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code,phone_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`; //(LPAD(FLOOR(RAND() * 999999.99),6,  '0')
     }
     // console.log("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);
