@@ -35,10 +35,10 @@ const jwtVerifier = CognitoJwtVerifier.create({
 
 
 function createUser(userInfo) {
-  return new Promise(resolve => {
+    userInfo["phone_code"] = "+33";
+    return new Promise(resolve => {
 
         logger.info("createUser called");
-
         var UserAttributes = [
             { Name: 'name', Value: userInfo["userName"]},
             { Name: 'email', Value: userInfo["userName"]},
@@ -90,10 +90,11 @@ function createUser(userInfo) {
 
 async function signup(userInfo) {
     console.log(process.env.PROD_FLAG);
+    userInfo["phone_code"] = "+33";
     if(process.env.PROD_FLAG == "true"){
         try {
             logger.info("selfSignUp called");
-        
+            
             const UserAttributes = [
               { Name: 'name', Value: userInfo["userName"] },
               { Name: 'email', Value: userInfo["email"] },
