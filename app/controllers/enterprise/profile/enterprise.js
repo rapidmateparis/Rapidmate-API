@@ -83,7 +83,6 @@ exports.dashboardItem = async (req, res) => {
   return res.status(200).json(utils.buildCreateMessage(200, message, responseData));
 };
 
-
 /**
  * Get item function called by route
  * @param {Object} req - request object
