@@ -34,7 +34,7 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const { jsPDF } = require("jspdf"); // will automatically load the node version
 const doc = new jsPDF();
-
+require("../../../../config//response.codes");
 exports.getItems = async (req, res) => {
   try {
     const reqStatus = req.query.status || "current";
@@ -1626,10 +1626,8 @@ exports.updateOrderStatus = async (req, res) => {
     var orderInfo = getOrderTypeInfo(requestData.order_number);
     var multiOrderConditionQuery = (orderInfo.is_multi_order)?" and id= " + requestData.line_id:"";
     var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo);
-    console.log(responseOrderData);
     if (!responseOrderData) {
-      message = "Invalid Order number";
-      return res.status(400).json(utils.buildErrorObject(404, message, 1001));
+      return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
     }
     var status = "ORDER_ACCEPTED";
     var deliveredOtp = "";
@@ -1753,28 +1751,16 @@ exports.updateOrderStatus = async (req, res) => {
           notification.createNotificationRequest(notifiationRequestDeliveryBoy);
         }
         notification.createNotificationRequest(notifiationRequest);
-      return res.status(202).json(
-        utils.buildResponse(202, {
+        return utils.buildJSONResponse(req, res, true, RESPONSE_STATUS.ORDER_STATUS_UPDATED_SUCCESSFULLY, {
           status: status,
           next_action_status: next_action_status,
-        })
-      );
+        });
     } else {
-      return res
-        .status(500)
-        .json(
-          utils.buildErrorObject(
-            500,
-            "Unable to order status. Please try again",
-            1001
-          )
-        );
+      return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.UNABLE_TO_UPDATE_ORDER_STATUS);
     }
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, "Unable to order status", 1001));
+    return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.UNABLE_TO_UPDATE_ORDER_STATUS);
   }
 };
 

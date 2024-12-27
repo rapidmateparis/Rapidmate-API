@@ -33,7 +33,6 @@ const jwtVerifier = CognitoJwtVerifier.create({
     includeRawJwtInErrors: true
 });
 
-
 function createUser(userInfo) {
     var phone = userInfo["phoneNumber"];
     userInfo["phone_code"] = (phone.includes("+"))?"":"+33";

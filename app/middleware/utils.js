@@ -489,3 +489,23 @@ exports.getPagination = (page, size) => {
   }
 };
 
+exports.buildJSONResponse=(req = {}, res = {}, isSuccess = false, responseCodeInfo, data = null)=>{
+  var success;
+  var error = {};
+  console.log(responseCodeInfo.CODE);
+  if(!isSuccess){
+    error = {"code": responseCodeInfo.CODE, "message": res.__(responseCodeInfo.CODE) };
+  }else{
+    success = (data) ? data :res.__(responseCodeInfo.CODE);
+  }
+  let response = [{
+    "_success": false,
+    "_httpsStatus": responseCodeInfo.STATUS,
+    "_httpsStatusCode": responseCodeInfo.STATUS_CODE,
+    "_responedOn": Date.now(),
+    "_response": data,
+    "_errors": error,
+    "_trackId": req.trackId
+  }];
+  return res.status(responseCodeInfo.STATUS_CODE).json(response);
+}
