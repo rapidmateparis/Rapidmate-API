@@ -3,8 +3,6 @@ const utils=require("../middleware/utils")
 const isAuthorized = async (req, res,next) => {
     console.log(req.headers)
     try {
-      
-        
     const authorizationHeader = req.headers.authorization;
    
       if(!authorizationHeader) {

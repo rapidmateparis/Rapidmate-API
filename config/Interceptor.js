@@ -4,9 +4,11 @@ const utils = require('../app/middleware/utils');
 const { HttpStatusCode } = require('axios');
 const JWT_SECRET_KEY = "R@M1DM@T3$2024APP";
 const JWT_TOKEN_HEADER_KEY = "rapid-token";
+const { v4: uuidv4 } = require('uuid');
 
 var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
+    req.trackId = uuidv4(); // generate a new UUID
     console.log(pathValue);
     if(!(pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || pathValue.includes("resetpassword"))){
         try {

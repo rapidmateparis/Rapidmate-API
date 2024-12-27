@@ -16,7 +16,6 @@ const Notification =require('./app/models/Notification');
 const orderControl =require('./app/controllers/deliveryboy/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
-
 const corsOptions = {
   origin: '*',
   methods: 'GET,POST,PUT, DELETE', // Allow only these methods
@@ -66,6 +65,7 @@ i18n.configure({
   directory: `${__dirname}/locales`,
   defaultLocale: 'en',
   objectNotation: true,
+  header: 'accept-language'
 });
 
 app.use(i18n.init);
@@ -140,7 +140,5 @@ cron.schedule("*/10 * * * * *", function() {
 server.listen(app.get('port'), () => {
   console.log('Server is running on port', app.get('port'));
 });
-
-
 
 module.exports = app;
