@@ -467,15 +467,12 @@ exports.updateOrderlineStatus = async (req, res) => {
   }
 };
 
-
-const deleteItem = async (id, cancel_reason_id, cancel_reason) => {
-  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, [
-    cancel_reason_id,
-    cancel_reason,
-    id,
-  ]);
+const deleteItem = async (cancelParams) => {
+  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, cancelParams);
+  console.log(deleteRes);
   return deleteRes;
 };
+
 /**
  * Delete item function called by route
  * @param {Object} req - request object
@@ -491,35 +488,37 @@ exports.cancelOrder = async (req, res) => {
       order_number
     );
     if (order) {
-      if (parseInt(order.is_del) == 1) {
-        return res
-          .status(200)
-          .json(utils.buildUpdatemessage(200, "Order was already cancelled"));
+     if (order.order_status === "CANCELLED") {
+          return res
+            .status(400)
+            .json(utils.buildErrorObject(400, "Order was already cancelled", 1001));
       }
-      const deletedItem = await deleteItem(
-        order.id,
-        cancel_reason_id,
-        cancel_reason
-      );
+      if (order.order_status === "COMPLETED") {
+              return res
+                .status(400)
+                .json(utils.buildErrorObject(400, "Order was already completed", 1001));
+      }
+      var cancelParams = [cancel_reason_id, cancel_reason, "Cancelled On " , "Cancelled On " , order.id];
+      const deletedItem = await deleteItem(cancelParams);
       if (deletedItem.affectedRows > 0) {
-        return res
-          .status(200)
-          .json(
-            utils.buildUpdatemessage(
-              200,
-              "Order has been cancelled successfully"
-            )
-          );
-      } else {
-        return res
-          .status(500)
-          .json(
-            utils.buildErrorObject(
-              500,
-              "Unable to cancel an order. Please contact customer care",
-              1001
-            )
-          );
+          return res
+            .status(200)
+            .json(
+              utils.buildUpdatemessage(
+                200,
+                "Order has been cancelled successfully"
+              )
+            );
+        } else {
+          return res
+            .status(400)
+            .json(
+              utils.buildErrorObject(
+                400,
+                "Unable to cancel an order. Please contact customer care",
+                1001
+              )
+            );
       }
     }
     return res
