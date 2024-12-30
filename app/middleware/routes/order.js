@@ -99,7 +99,7 @@ router.get(
 router.post(
   '/plan/search',
   trimRequest.all,
-  controller.search
+  controller.planSearch
 )
 
 /*
