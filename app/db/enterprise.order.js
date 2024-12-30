@@ -8,7 +8,7 @@ exports.DELETE_ORDER_QUERY = `UPDATE rmt_enterprise_order SET is_enable_cancel_r
 exports.FETCH_ORDER_BY_ORDER_EXT=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) ORDER BY created_on DESC`
 exports.FETCH_ORDER_DELIVERY_BOY_ID=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) ORDER BY created_on DESC`
 exports.UPDATE_DELIVERY_UPDATE_ID=`UPDATE rmt_enterprise_order SET delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?), order_status='ASSIGNED',next_action_status='Ready to Start',delivery_boy_order_title='New Job assigned!!!',consumer_order_title='Request accepted' WHERE id=?`;
-exports.FETCH_ORDER_BY_ORDER_EXT_SEARCH=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) and date(order_date) = date(?)`
+exports.FETCH_ORDER_BY_ORDER_EXT_SEARCH=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) and date(order_date) = date(?) and delivery_type_id=3`
 
 //=================================rmt_shift_and_slots=====================================================================================================
 exports.INSERT_SHIFT_SLOTS_QUERY = `INSERT INTO rmt_enterprise_order_slot (branch_id, enterprise_order_id, day, from_time, to_time) VALUES (?, ?, ?, ?, ?)`;

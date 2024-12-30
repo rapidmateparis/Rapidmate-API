@@ -1772,6 +1772,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
     const order_number = req.params.ordernumber;
     var orderAllocationQuery = `
       SELECT 
+        o.order_number,
         o.waiting_fare,
         o.discount,
         o.next_action_status,o.is_enable_cancel_request,
