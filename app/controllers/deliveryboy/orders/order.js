@@ -1569,6 +1569,7 @@ exports.requestAction = async (req, res) => {
             orderNumber: requestData.order_number,
             orderStatus: requestData.status,
             notifyStatus: "DRIVER_ORDER_ACTION",
+            progressTypeId : 1
           },
           extId: requestData.order_number,
           message: "Driver is " + requestData.status + " for your order",
@@ -1640,6 +1641,7 @@ exports.updateOrderStatus = async (req, res) => {
     var delivery_boy_order_title_notify = "OTP verified on";
     var is_show_datetime_in_title = 0;
     var deliveredOTPNumber= "1212";
+    var progressTypeId = 1;
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
       next_action_status = "Payment Failed";
@@ -1656,6 +1658,7 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title = "Pickup in progress";
       delivery_boy_order_title = "Going pickup location";
       isDriverNotify = false;
+      progressTypeId = 2;
     } else if (requestData.status == "Reached") {
       status = "REACHED";
       consumer_order_title_notify= "Delivery boy here!!!";
@@ -1663,6 +1666,7 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title = "Reached pickup location";
       delivery_boy_order_title = "Waiting for OTP";
       isDriverNotify = false;
+      progressTypeId = 3;
     } else if (requestData.status == "Ready to delivered") {
       status = "ON_THE_WAY_DROP_OFF";
       consumer_order_title_notify= "Delivery boy on the way to destination!!!";
@@ -1673,6 +1677,7 @@ exports.updateOrderStatus = async (req, res) => {
       deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
       console.log("deliveredOTPNumber = " + deliveredOTPNumber);
       isDriverNotify = false;
+      progressTypeId = 4;
     } else if (requestData.status == "Mark as delivered") {
       consumer_order_title_notify= "Delivery boy completed your ride";
       status = "COMPLETED";
@@ -1681,6 +1686,7 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title = "Delivered on ";
       delivery_boy_order_title = "Delivered on ";
       is_show_datetime_in_title = 1;
+      progressTypeId = 5;
     }
 
     var updateStatusQuery = "update " + orderInfo.table + " set consumer_order_title = '" +
@@ -1729,7 +1735,8 @@ exports.updateOrderStatus = async (req, res) => {
           payload: {
             message: consumer_order_title_notify ,
             orderNumber: requestData.order_number,
-            orderStatus: status
+            orderStatus: status,
+            progressTypeId : progressTypeId
           },
           extId: "",
           message: consumer_order_title_notify,
@@ -1846,11 +1853,11 @@ exports.viewOrderByOrderNumber = async (req, res) => {
         dl.postal_code AS dropoff_location_postal_code,
         dl.latitude as dlatitude,
         dl.longitude as dlongitude,
-        CONCAT(c.first_name, ' ', c.last_name) AS consumer_name,
+        CONCAT(IFNULL(c.first_name,''), ' ', IFNULL(c.last_name,'')) AS consumer_name,
         c.email AS consumer_email,
         c.phone AS consumer_mobile,
         c.ext_id AS consumer_ext,
-        CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,
+        CONCAT(IFNULL(d.first_name,''), ' ', IFNULL(d.last_name,'')) AS delivery_boy_name,
         d.phone AS delivery_boy_mobile,
         d.ext_id AS delivery_boy_ext,
         s.service_name,
