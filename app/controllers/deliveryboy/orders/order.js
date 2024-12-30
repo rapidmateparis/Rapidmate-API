@@ -1736,7 +1736,8 @@ exports.updateOrderStatus = async (req, res) => {
             message: consumer_order_title_notify ,
             orderNumber: requestData.order_number,
             orderStatus: status,
-            progressTypeId : progressTypeId
+            progressTypeId : progressTypeId,
+            delivered_otp : deliveredOTPNumber + ""
           },
           extId: "",
           message: consumer_order_title_notify,
