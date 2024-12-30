@@ -9,10 +9,6 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-    />
     <title>Invoice</title>
     <style>
       body {
@@ -34,9 +30,12 @@
       }
       .invoice-container {
         background-color: #fff;
+        margin: 20px auto;
+        padding: 20px;
         width: 100%;
         max-width: 100%;
         height: auto;
+        min-height: 297mm; /* A4 height */
         padding: 20mm;
         box-sizing: border-box;
         border-radius: 10px;
@@ -106,92 +105,73 @@
             <img style="height: 40px" src="{{imageUrl}}" alt="rapidmate" />
             <p>
               8 AVENUE DANIELLE CASANOVA 95210 SAINT-GRATIEN - France
-              contact@rapidmate.fr
+              contact@ajs-borne.cm
             </p>
           </td>
           <td style="width: 50%; text-align: end">
-            <h2 style="font-size: 25px">{{invoiceTitle}}</h2>
+            <h2 style="font-size: 25px">Invoice</h2>
           </td>
         </tr>
         <tr>
-          <td>
-            <h2 style="margin: 3px 0px">€ {{orderAmount}}</h2>
-            <p style="margin: 0px">Thanks for booking with us!</p>
-            <p style="margin: 5px 0px; font-size: 14px; color: #787878">
-             {{orderNumber}}
-            </p>
+          <td class="company-info">
+            <div style="display: flex; gap: 10px">
+              <img
+                style="width: 60px; height: 60px; border-radius: 100%"
+                src="{{consumerImg}}"
+                alt="Consumer"
+              />
+              <div>
+                <h3>{{deliveryBoyName}}</h3>
+                <p style="margin: 3px 0px">{{vehicleType}}</p>
+                <!-- <p style="margin: 3px 0px">
+                  Lorem ipsum dolor sit amet consectetur.
+                </p> -->
+              </div>
+            </div>
           </td>
-          <td></td>
+          <td class="customer-info">
+            <p><strong>Service tax category:</strong> Renting of motor cab</p>
+            <p><strong>SAC Code:</strong> 123456</p>
+          </td>
         </tr>
       </table>
 
       <table>
         <tr>
-          <td>
-            <div>
-              <h3 style="margin: 3px 0px">
-                <span style="margin-right: 5px; color: #ff0058"
-                  ><i class="fa-solid fa-location-dot"></i></span
-                >{{pickupAddress}}
-              </h3>
-            </div>
-            <p style="margin: 5px 0px">
-              {{pickupAddressLoc}}
-            </p>
+          <td class="company-info">
+            <p><strong>Invoice ID:</strong> {{invoiceNumber}}</p>
+            <p><strong>Customer Name:</strong> {{consumerName}}</p>
           </td>
-          <td>
-            <p style="margin: 0px; text-align: end">
-              <strong>{{createdOn}}</strong>
-            </p>
+          <td class="customer-info">
+            <p><strong>Invoice Date:</strong> {{createdOn}}</p>
+            <p><strong>Mobile Number:</strong> +{{consumerPhone}}</p>
           </td>
-        </tr>
-
-        <tr>
-          <td>
-            <div>
-              <h3 style="margin: 3px 0px">
-                <span style="margin-right: 5px; color: #ffc72b"
-                  ><i class="fa-solid fa-location-crosshairs"></i></span
-                >{{dropoffAddress}}
-              </h3>
-            </div>
-            <p style="margin: 5px 0px">
-              {{dropoffAddressLoc}}
-            </p>
-          </td>
-          <!-- <td>
-            <p style="margin: 0px; text-align: end"><strong>11:23 AM</strong></p>
-          </td> -->
         </tr>
       </table>
 
+      <!-- Supply Address and Order Number -->
       <table>
         <tr>
-          <td style="text-align: center; padding-top: 20px">
-            <img
-              style="width: 60px; height: 60px; border-radius: 100%"
-              src="{{consumerImg}}"
-              alt="Consumer"
-            />
-            <p>{{deliveryBoyName}}</p>
+          <td style="width: 150px"><strong>Pickup address:</strong></td>
+          <td>
+            {{pickupAddressLoc}}
           </td>
-          <td style="text-align: center; padding-top: 20px">
-            <img style="height: 55px" src="{{timeImg}}" alt="TimeIcon" />
-            <p>{{distance}} km</p>
-          </td>
-          <td style="text-align: center; padding-top: 20px">
-            <img style="height: 50px" src="{{vanImg}}" alt="Van" />
-            <p>{{vehicleType}}</p>
-          </td>
+        </tr>
+        <tr>
+          <td style="width: 150px"><strong>Order Number:</strong></td>
+          <td>{{orderNumber}}</td>
         </tr>
       </table>
 
       <!-- Ride Fee Details -->
       <table>
-        <p><strong>{{billDetails}}</strong></p>
         <tr>
-          <td>{{deliveryFare}}</td>
-          <td style="text-align: end">€ {{deliveryAmount}}</td>
+          <td>Ride Fee</td>
+          <td style="text-align: end">€ {{orderAmount}}</td>
+        </tr>
+		<tr>
+          <td>Commission</td>
+          <td style="text-align: end">€ 0.00</td>
         </tr>
         <tr>
           <td>{{tax}}</td>
@@ -202,19 +182,6 @@
           <td style="text-align: end">€ {{orderAmountT}}</td>
         </tr>
       </table>
-
-      <!-- Payment Info -->
-      <!-- <table class="payment-info">
-        <p><strong>{{payment}}</strong></p>
-        <tr>
-          <td>Rapidmate wallet</td>
-          <td style="text-align: end">€ {{orderAmount}}</td>
-        </tr>
-        <tr>
-          <td>Cash</td>
-          <td style="text-align: end">€12.34</td>
-        </tr>
-      </table> -->
 
       <!-- Queries Section -->
       <div class="query">
