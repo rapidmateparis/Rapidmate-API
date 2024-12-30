@@ -756,7 +756,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
   }
 };
 
-exports.search = async (req, res) => {
+exports.planSearch = async (req, res) => {
   try {
       const {enterprise_ext_id, plan_date} = req.body
       const data = await fetch(FETCH_ORDER_BY_ORDER_EXT_SEARCH,[enterprise_ext_id, plan_date]);

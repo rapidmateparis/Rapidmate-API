@@ -234,6 +234,14 @@ exports.updateItem = async (req, res) => {
         queryCondition += ", language_id = ?";
         queryConditionParam.push(requestData.language_id);
       }
+      if(requestData.industry_type_id){
+        queryCondition += ", industry_type_id = ?";
+        queryConditionParam.push(requestData.industry_type_id);
+      }
+      if(requestData.deliveryMonthHours){
+        queryCondition += ", deliveryMonthHours = ?";
+        queryConditionParam.push(requestData.deliveryMonthHours);
+      }
 
       queryConditionParam.push(id);
       var updateQueryStr = "update rmt_enterprise set is_del = 0 " + queryCondition + " where id = ?";
