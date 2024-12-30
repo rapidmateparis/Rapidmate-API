@@ -1569,7 +1569,7 @@ exports.requestAction = async (req, res) => {
             orderNumber: requestData.order_number,
             orderStatus: requestData.status,
             notifyStatus: "DRIVER_ORDER_ACTION",
-            progressTypeId : 1
+            progressTypeId : "1"
           },
           extId: requestData.order_number,
           message: "Driver is " + requestData.status + " for your order",
@@ -1641,7 +1641,7 @@ exports.updateOrderStatus = async (req, res) => {
     var delivery_boy_order_title_notify = "OTP verified on";
     var is_show_datetime_in_title = 0;
     var deliveredOTPNumber= "1212";
-    var progressTypeId = 1;
+    var progressTypeId = "1";
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
       next_action_status = "Payment Failed";
@@ -1658,7 +1658,7 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title = "Pickup in progress";
       delivery_boy_order_title = "Going pickup location";
       isDriverNotify = false;
-      progressTypeId = 2;
+      progressTypeId = "2";
     } else if (requestData.status == "Reached") {
       status = "REACHED";
       consumer_order_title_notify= "Delivery boy here!!!";
@@ -1666,7 +1666,7 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title = "Reached pickup location";
       delivery_boy_order_title = "Waiting for OTP";
       isDriverNotify = false;
-      progressTypeId = 3;
+      progressTypeId = "3";
     } else if (requestData.status == "Ready to delivered") {
       status = "ON_THE_WAY_DROP_OFF";
       consumer_order_title_notify= "Delivery boy on the way to destination!!!";
@@ -1677,7 +1677,7 @@ exports.updateOrderStatus = async (req, res) => {
       deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
       console.log("deliveredOTPNumber = " + deliveredOTPNumber);
       isDriverNotify = false;
-      progressTypeId = 4;
+      progressTypeId = "4";
     } else if (requestData.status == "Mark as delivered") {
       consumer_order_title_notify= "Delivery boy completed your ride";
       status = "COMPLETED";
@@ -1686,7 +1686,7 @@ exports.updateOrderStatus = async (req, res) => {
       consumer_order_title = "Delivered on ";
       delivery_boy_order_title = "Delivered on ";
       is_show_datetime_in_title = 1;
-      progressTypeId = 5;
+      progressTypeId = "5";
     }
 
     var updateStatusQuery = "update " + orderInfo.table + " set consumer_order_title = '" +
