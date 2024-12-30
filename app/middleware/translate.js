@@ -65,6 +65,7 @@ const enterprise = {
 };
 
 const getTranslate = (role, locale,order) => {
+  console.log(role);
   i18n.setLocale(locale);
   if (role == "deliveryboy") {
     return {
@@ -82,6 +83,7 @@ const getTranslate = (role, locale,order) => {
       payment: i18n.__("payment"),
       queries: i18n.__("queries"),
       visit: i18n.__("visit"),
+      invoiceNumber:order?.order_number,
       orderNumber:order?.order_number,
       orderAmount:order?.amount?.toFixed(2) || 0.00,
       orderAmountT:order?.amount?.toFixed(2) || 0.00,
@@ -91,7 +93,7 @@ const getTranslate = (role, locale,order) => {
       vehicleType:order?.vehicle_type || 'N/A',
       consumerName:order?.consumer_name || 'N/A',
       consumerEmail:order?.consumer_email || 'N/A',
-      consumerPhone:order?.consumer_phone || 'N/A',
+      consumerPhone:order?.consumer_mobile || 'N/A',
       deliveryBoyName:order?.delivery_boy_name || 'N/A',
       createdOn:order?.created_on,
       companyName:order?.company_name || 'N/A',
