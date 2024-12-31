@@ -88,4 +88,10 @@ router.get(
   controller.getPriceListByDistance
 )
 
+router.get(
+  '/tax/list',
+  trimRequest.all,
+  controller.taxList
+)
+
 module.exports = router

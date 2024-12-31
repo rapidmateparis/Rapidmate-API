@@ -35,6 +35,7 @@ const fs = require("fs");
 const { jsPDF } = require("jspdf"); // will automatically load the node version
 const doc = new jsPDF();
 require("../../../../config//response.codes");
+
 exports.getItems = async (req, res) => {
   try {
     const reqStatus = req.query.status || "current";
@@ -1111,12 +1112,13 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   try {
     const order_number = req.query.o;
     const order = await utils.getValuesById(
-      "id, is_del, order_date, order_number, service_type_id",
-      "rmt_order",
-      "order_number",
-      order_number
+      "id, is_del, order_date, order_number, service_type_id, order_status","rmt_order","order_number", order_number
     );
     if (order) {
+      if(order.order_status !=='ORDER_PLACED'){
+        message = "Delivery boys are busy. Please try again!!!";
+        return res.status(400).json(utils.buildErrorObject(400, "Order allocation was failed. (Current order status is " + order.order_status + ")", 1001));
+      }
       const orderAllocationQuery =
         "select * from vw_delivery_plan_setup_slots slot where work_type_id in (?,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " +
         "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) limit 1";
@@ -1619,10 +1621,14 @@ exports.requestAction = async (req, res) => {
   }
 };
 
+var logger = require('../../../../config/log').logger;
+
 
 exports.updateOrderStatus = async (req, res) => {
   //var timezone = req.headers.time_zone;
   //console.log(timezone);
+  //logger.logger.info("System launch");
+  logger.info("updateOrderStatus = > Request", req.body);
   try {
     var requestData = req.body;
     var orderInfo = getOrderTypeInfo(requestData.order_number);
@@ -1694,10 +1700,7 @@ exports.updateOrderStatus = async (req, res) => {
     consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" +
     status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
     + ", updated_by = '" + status + "' where order_number = ?"+ multiOrderConditionQuery;
-
-    console.log("updateStatusQuery = " + updateStatusQuery);
     const updateData = await updateQuery(updateStatusQuery,[requestData.order_number]);
-    console.info("updateData = " , updateData);
     if (updateData) {
         if(orderInfo.is_multi_order){
           var updateSupportTableStatusQuery = "update " + orderInfo.support_table + " set consumer_order_title = '" +
@@ -1770,7 +1773,7 @@ exports.updateOrderStatus = async (req, res) => {
       return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.UNABLE_TO_UPDATE_ORDER_STATUS);
     }
   } catch (error) {
-    console.log(error);
+    logger.error("Update Order Status =>", error);
     return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.UNABLE_TO_UPDATE_ORDER_STATUS);
   }
 };
