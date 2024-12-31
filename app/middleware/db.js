@@ -421,10 +421,11 @@ module.exports = {
     
             if (getOrderNumberResult.length > 0) {
                 const { order_number } = getOrderNumberResult[0];
-    
+                let idx = 1;
                 // Loop through each delivery entry in addAnothers
                 for (const delivery of req.branches) {
                     const {
+                        line_no,
                         to_latitude,
                         to_longitude,
                         dropoff_location,
@@ -445,6 +446,7 @@ module.exports = {
                     // Insert the data into rmt_enterprise_order_line
                     await connections.query(
                         `INSERT INTO rmt_enterprise_order_line (
+                            line_no,
                             branch_id,
                             order_id,
                             order_number,
@@ -464,8 +466,9 @@ module.exports = {
                             drop_email,
                             drop_notes,
                             otp,consumer_order_title,delivery_boy_order_title
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?)`,
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?)`,
                         [
+                            idx++,
                             branch_id,
                             orderId,
                             order_number,
