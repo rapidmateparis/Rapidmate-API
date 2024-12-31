@@ -1504,7 +1504,8 @@ exports.deliveredOtpVerifiy = async (req, res) => {
 const getOrderTypeInfo = (orderNumber, includeMultiOrder = true) =>{
     var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id", orderAllocation : "rmt_order_allocation" , is_multi_order : false};
     if(orderNumber.includes("EM") && includeMultiOrder){
-      orderInfo = { table : "rmt_enterprise_order_line", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" , is_multi_order : true};
+      orderInfo = { table : "rmt_enterprise_order_line", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" , is_multi_order : true,
+        support_table : "rmt_enterprise_order"};
     }else if(orderNumber.includes("E")){
       orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation"  , is_multi_order : false};
     }
@@ -1690,21 +1691,23 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
     var updateStatusQuery = "update " + orderInfo.table + " set consumer_order_title = '" +
-    consumer_order_title +
-    "'" +
-    deliveredOtp +
-    ", delivery_boy_order_title = '" +
-    delivery_boy_order_title +
-    "', order_status = '" +
-    status +
-    "', next_action_status = '" +
-    next_action_status +
-    "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title 
+    consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" +
+    status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
     + ", updated_by = '" + status + "' where order_number = ?"+ multiOrderConditionQuery;
+
     console.log("updateStatusQuery = " + updateStatusQuery);
     const updateData = await updateQuery(updateStatusQuery,[requestData.order_number]);
     console.info("updateData = " , updateData);
     if (updateData) {
+        if(orderInfo.is_multi_order){
+          var updateSupportTableStatusQuery = "update " + orderInfo.support_table + " set consumer_order_title = '" +
+          "L#" + responseOrderData.line_no + "-" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + "L#" + responseOrderData.line_no + "-" + delivery_boy_order_title + "', order_status = '" +
+          status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
+          + ", updated_by = '" + status + "' where order_number = ?";
+          console.log("updateSupportTableStatusQuery = " + updateSupportTableStatusQuery);
+          const updateSupportTableStatus = await updateQuery(updateSupportTableStatusQuery,[requestData.order_number]);
+          console.info("updateSupportTableStatus = " , updateSupportTableStatus);
+        }
         var notifiationRequestDeliveryBoy = {
           title: delivery_boy_order_title_notify,
           body: {},
@@ -2179,8 +2182,12 @@ const getOTP = async (order_number) => {
 
 const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo) => {
   try {
+    var isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = " + orderInfo.consumerKey + ") as consumer_ext_id,";
+    if(orderInfo.is_multi_order){
+        isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = (select enterprise_id from rmt_enterprise_branch where id=branch_id)) as consumer_ext_id,line_no,";
+    }
     const data = await fetch(
-      "select (select ext_id from " + orderInfo.consumerTable + " where id = " + orderInfo.consumerKey + ") as consumer_ext_id,  (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id from " + orderInfo.table + " where order_number =?",
+      "select " + isMOQuery + " (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id from " + orderInfo.table + " where order_number =?",
       [orderNumber]
     );
     const filterdata = await transformKeysToLowercase(data);
