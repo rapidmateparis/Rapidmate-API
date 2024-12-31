@@ -98,6 +98,7 @@ const getTranslate = (role, locale,order) => {
       createdOn:order?.created_on,
       companyName:order?.company_name || 'N/A',
       discount : order?.discount?.toFixed(2) || 0.00,
+      taxValue : order?.tax?.toFixed(2) || 0.00,
       deliveryAmount : order?.delivery_boy_amount || 0.00
     };
   } else if (role == "enterprise") {
@@ -135,6 +136,7 @@ const getTranslate = (role, locale,order) => {
       consumerPhone:order?.consumer_mobile || 'N/A',
       deliveryBoyName:order?.delivery_boy_name || 'N/A',
       createdOn:order?.created_on,
+      taxValue : order?.tax?.toFixed(2) || 0.00,
       payment_on : order?.payment_on || ""
     };
   } else {
@@ -167,6 +169,7 @@ const getTranslate = (role, locale,order) => {
       createdOn:order?.created_on,
       companyName:order?.company_name || 'N/A',
       discount : order?.discount?.toFixed(2) || 0.00,
+      taxValue : order?.tax?.toFixed(2) || 0.00,
       deliveryAmount : order?.delivery_boy_amount || 0.00,
      
     };
