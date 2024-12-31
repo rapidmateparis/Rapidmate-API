@@ -281,22 +281,32 @@ function priceCalculation(vehicleTypedata, distance) {
       var basePricecalc = 0.0;
       var basePricecalcWithPercentage = 0.0;
       vehicleTypedata.forEach(vehicleType => {
-      if ((vehicleType.vehicle_type_id !== 7) || (vehicleType.vehicle_type_id == 7 && distance > 15)) {
-        basePricecalc = ((vehicleType.isBasPrice) ? vehicleType.base_price + parseFloat(vehicleType.km_price * distance) : basePricecalcWithPercentage);
-        basePricecalcWithPercentage = basePricecalc + (basePricecalc * (vehicleType.percent / 100));
-        vehicleType.total_price = basePricecalcWithPercentage.toFixed(2);
-      } else {
-        vehicleType.total_price = vehicleType.truck_price;
-      }
-      console.log(vehicleType);
-      responseData.push({
-        vehicle_type_id: vehicleType.vehicle_type_id,
-        vehicle_type: vehicleType.vehicle_type,
-        total_price: vehicleType.total_price
-      });
+        if ((vehicleType.vehicle_type_id !== 7) || (vehicleType.vehicle_type_id == 7 && distance > 15)) {
+          basePricecalc = ((vehicleType.isBasPrice) ? vehicleType.base_price + parseFloat(vehicleType.km_price * distance) : basePricecalcWithPercentage);
+          basePricecalcWithPercentage = basePricecalc + (basePricecalc * (vehicleType.percent / 100));
+          vehicleType.total_price = basePricecalcWithPercentage.toFixed(2);
+        } else {
+          vehicleType.total_price = vehicleType.truck_price;
+        }
+        console.log(vehicleType);
+        responseData.push({
+          vehicle_type_id: vehicleType.vehicle_type_id,
+          vehicle_type: vehicleType.vehicle_type,
+          total_price: vehicleType.total_price
+        });
     });
   }
   return responseData;
+}
+
+exports.taxList = async (req, res) => {
+  var responseData = {};
+  try {
+    responseData = await fetch("select `value` from rmt_config where group_name = ? and `key` = ?", ["TAX", "TAX"])
+  } catch (error) {
+    console.log(error);
+  }
+  return res.status(200).json(utils.buildResponse(200, responseData))
 }
 
 exports.updatedeleteOrrestroys = async (req,res) =>{
