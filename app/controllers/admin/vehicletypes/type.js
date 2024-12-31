@@ -302,7 +302,7 @@ function priceCalculation(vehicleTypedata, distance) {
 exports.taxList = async (req, res) => {
   var responseData = {};
   try {
-    responseData = await fetch("select `value` from rmt_config where group_name = ? and `key` = ?", ["TAX", "TAX"])
+    responseData = await fetch("select `value` as tax_value from rmt_config where group_name = ? and `key` = ?", ["TAX", "TAX"])
   } catch (error) {
     console.log(error);
   }
