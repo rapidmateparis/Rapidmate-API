@@ -265,6 +265,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
     o.delivery_boy_amount,
     ROUND(o.distance, 2) AS distance,
     o.schedule_date_time,
+    o.tax,
     o.promo_code,
     o.promo_value,
     o.cancel_reason_id,
@@ -414,6 +415,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
       o.delivery_boy_amount,
       ROUND(o.distance, 2) AS distance,
       o.schedule_date_time,
+      o.tax,
       o.promo_code,
       o.promo_value,
       o.cancel_reason_id,
@@ -537,6 +539,7 @@ exports.getItemByDeliveryBoyDashboardByExtId = async (req, res) => {
     o.delivery_boy_amount,
     ROUND(o.distance, 2) AS distance,
     o.schedule_date_time,
+    o.tax,
     o.promo_code,
     o.promo_value,
     o.cancel_reason_id,
@@ -800,6 +803,7 @@ const createItem = async (req) => {
     requestBody.push(2); // Service Type : Pickup
     requestBody.push(null);
   }
+  requestBody.push(req.tax || 20.00);
   var requestBodyNew = requestBody.filter(function (item) {
     return item !== undefined;
   });
@@ -1258,7 +1262,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
 const getOrderInfo = async (order_number) => {
   try {
     const data = await fetch(
-      "select waiting_fare,discount,delivered_on,ord.updated_on,cancelled_on,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,ord.first_name,ord.last_name,ord.company_name,ord.email,ord.mobile,package_photo,package_id,pickup_notes,ord.created_on,ord.otp,ord.is_otp_verified,delivered_otp,is_delivered_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_value,cancel_reason_id, cancel_reason, order_amount,con.ext_id as ext_id,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_notes,drop_email from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and ord.is_del=0",
+      "select tax,waiting_fare,discount,delivered_on,ord.updated_on,cancelled_on,next_action_status,is_enable_cancel_request,consumer_order_title,delivery_boy_order_title,is_delivery_boy_allocated,paid_with,total_duration,order_number,consumer_id,delivery_boy_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,shift_start_time,shift_end_time,order_status,delivery_date,is_my_self,ord.first_name,ord.last_name,ord.company_name,ord.email,ord.mobile,package_photo,package_id,pickup_notes,ord.created_on,ord.otp,ord.is_otp_verified,delivered_otp,is_delivered_otp_verified,amount,commission_percentage,commission_amount,delivery_boy_amount,distance,schedule_date_time,promo_value,cancel_reason_id, cancel_reason, order_amount,con.ext_id as ext_id,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_notes,drop_email from rmt_order ord join rmt_consumer con on ord.consumer_id = con.id where order_number =? and ord.is_del=0",
       [order_number]
     );
     const filterdata = await transformKeysToLowercase(data);
@@ -1837,6 +1841,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
         o.delivery_boy_amount,
         ROUND(o.distance, 2) AS distance,
         o.schedule_date_time,
+        o.tax,
         o.promo_code,
         o.drop_first_name,
         o.drop_last_name,
