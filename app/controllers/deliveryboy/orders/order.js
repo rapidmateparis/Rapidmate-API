@@ -334,7 +334,9 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'REACHED'",
         "'OTP_VERIFIED'",
         "'DELIVERED_OTP_VERIFIED'",
-        "'REQUEST_PENDING'"
+        "'REQUEST_PENDING'",
+        "'MULTI_ORDER_GOING_ON'"
+
       ]);
     } else if (reqStatus == "past") {
       statusParams.push([
@@ -360,6 +362,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'COMPLETED'",
         "'CANCELLED'",
         "'DELIVERED_OTP_VERIFIED'",
+        "'MULTI_ORDER_GOING_ON'",
         "'REQUEST_PENDING'"
       ]);
     }
@@ -1392,7 +1395,7 @@ exports.otpVerifiy = async (req, res) => {
     console.log("multiOrderConditionQuery", multiOrderConditionQuery);
     console.log("orderInfo", orderInfo);
     const data = await fetch(
-      "select is_otp_verified from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
+      "select is_otp_verified, line_no from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [
         requestData.otp,
         requestData.order_number,
@@ -1408,6 +1411,13 @@ exports.otpVerifiy = async (req, res) => {
           [requestData.order_number]
         );
         if (updateData) {
+          if(orderInfo.is_multi_order){
+            const updateMultiData = await updateQuery(
+              "update rmt_enterprise_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='L@" + data[0].line_no + "Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?" + multiOrderConditionQuery ,
+              [requestData.order_number]
+            );
+          }
+         
           return res.status(202).json(
             utils.buildCreateMessage(
               202,
@@ -1649,6 +1659,7 @@ exports.updateOrderStatus = async (req, res) => {
       return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
     }
     var status = "ORDER_ACCEPTED";
+    var multiOrderStatus = "MULTI_ORDER_GOING_ON";
     var deliveredOtp = "";
     var isDriverNotify = true;
     var next_action_status = "Ready pickup";
@@ -1699,6 +1710,17 @@ exports.updateOrderStatus = async (req, res) => {
     } else if (requestData.status == "Mark as delivered") {
       consumer_order_title_notify= "Delivery boy completed your ride";
       status = "COMPLETED";
+      if(orderInfo.is_multi_order){
+        var responseOrderData = await getPendingOrdersDetailsByOrderNumber(requestData.order_number);
+        console.log(responseOrderData);
+        if(responseOrderData){
+          total_count = responseOrderData.total_count;
+          completed_count = responseOrderData.completed_count;
+          checkCompletedCount = parseInt(total_count)-parseInt(completed_count);
+          multiOrderStatus = (checkCompletedCount==1 || checkCompletedCount == 0)?status:multiOrderStatus;
+        }
+        console.log(multiOrderStatus);
+      }
       next_action_status = "Completed";
       deliveredOtp = ", delivered_on = now() ";
       consumer_order_title = "Delivered on ";
@@ -1715,8 +1737,7 @@ exports.updateOrderStatus = async (req, res) => {
     if (updateData) {
         if(orderInfo.is_multi_order){
           var updateSupportTableStatusQuery = "update " + orderInfo.support_table + " set consumer_order_title = '" +
-          "L#" + responseOrderData.line_no + "-" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + "L#" + responseOrderData.line_no + "-" + delivery_boy_order_title + "', order_status = '" +
-          status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
+          "L#" + responseOrderData.line_no + "-" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + "L#" + responseOrderData.line_no + "-" + delivery_boy_order_title + "', order_status = '" + multiOrderStatus + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
           + ", updated_by = '" + status + "' where order_number = ?";
           console.log("updateSupportTableStatusQuery = " + updateSupportTableStatusQuery);
           const updateSupportTableStatus = await updateQuery(updateSupportTableStatusQuery,[requestData.order_number]);
@@ -2211,3 +2232,16 @@ const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo) => {
     return {};
   }
 };
+
+const getPendingOrdersDetailsByOrderNumber = async (orderNumber) => {
+  try {
+    const data = await fetch("select sum(total_count) as total_count, sum(completed_count) as completed_count from (select count(*) as total_count, case order_status when 'COMPLETED' then count(*) else 0 end as completed_count from rmt_enterprise_order_line where order_number = ? group by order_status) temp",
+      [orderNumber]
+    );
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
