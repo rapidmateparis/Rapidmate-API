@@ -1513,7 +1513,7 @@ const getOrderTypeInfo = (orderNumber, includeMultiOrder = true) =>{
       orderInfo = { table : "rmt_enterprise_order_line", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" , is_multi_order : true,
         support_table : "rmt_enterprise_order"};
     }else if(orderNumber.includes("E")){
-      orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation"  , is_multi_order : false};
+      orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation"  , is_multi_order : orderNumber.includes("EM")};
     }
     return orderInfo;
 }
@@ -1543,6 +1543,13 @@ exports.requestAction = async (req, res) => {
             "', next_action_status= 'Ready to pickup',consumer_order_title='Delivery Boy allocated for your order',delivery_boy_order_title='You have accepted on ',is_show_datetime_in_title=1 where order_number = ?",
           [requestData.order_number]
         );
+        if(orderInfo.is_multi_order){
+          updateMultiData = await updateQuery(
+            "update rmt_enterprise_order_line set order_status = '" + status +
+              "', next_action_status= 'Ready to pickup',consumer_order_title='Delivery Boy allocated for your order',delivery_boy_order_title='You have accepted on ',is_show_datetime_in_title=1 where order_number = ?",
+            [requestData.order_number]
+          );
+        }
         responseData = {
           status: "ORDER_ACCEPTED",
           next_action_status: "Ready to pickup",
