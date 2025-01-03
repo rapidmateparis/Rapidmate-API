@@ -1391,11 +1391,16 @@ exports.otpVerifiy = async (req, res) => {
   try {
     var requestData = req.body;
     var orderInfo = getOrderTypeInfo(requestData.order_number);
-    var multiOrderConditionQuery = (orderInfo.is_multi_order)?" and id= " + requestData.line_id:"";
+    var multiOrderConditionQuery = "";
+    var multiOrderColumnLineNo = "";
+    if(orderInfo.is_multi_order){
+      multiOrderConditionQuery = " and id= " + requestData.line_id;
+      multiOrderColumnLineNo = ", line_no ";
+    }
     console.log("multiOrderConditionQuery", multiOrderConditionQuery);
     console.log("orderInfo", orderInfo);
     const data = await fetch(
-      "select is_otp_verified, line_no from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
+      "select is_otp_verified " + multiOrderColumnLineNo + " from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
       [
         requestData.otp,
         requestData.order_number,
