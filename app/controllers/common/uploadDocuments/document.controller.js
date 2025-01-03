@@ -78,9 +78,7 @@ const download = async (req, res) => {
     }
     res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
         if (err) {
-          res.status(500).send({
-            message: "Could not download the file. " + err,
-          });
+          return res.status(500).send({message: "Could not download the file. " + err,});
         }
     });
   } catch (error) {
