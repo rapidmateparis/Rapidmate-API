@@ -68,7 +68,6 @@ const getListFiles = (req, res) => {
 };
 
 const download = async (req, res) => {
-  console.log(req.params.name);
   try {
     const data =await runQuery("select * from rmt_document where ref_no = '" + req.params.name + "'");
     let message="Items retrieved successfully";
@@ -76,7 +75,7 @@ const download = async (req, res) => {
         message="File not found";
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
+    return res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
         if (err) {
           return res.status(500).send({message: "Could not download the file. " + err,});
         }
