@@ -11,7 +11,7 @@ exports.UPDATE_DELIVERY_UPDATE_ID=`UPDATE rmt_enterprise_order SET delivery_boy_
 exports.FETCH_ORDER_BY_ORDER_EXT_SEARCH=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) and date(order_date) = date(?) and delivery_type_id=3`
 
 //=================================rmt_shift_and_slots=====================================================================================================
-exports.INSERT_SHIFT_SLOTS_QUERY = `INSERT INTO rmt_enterprise_order_slot (branch_id, enterprise_order_id, day, from_time, to_time) VALUES (?, ?, ?, ?, ?)`;
+exports.INSERT_SHIFT_SLOTS_QUERY = `INSERT INTO rmt_enterprise_order_slot (branch_id, enterprise_order_id, day, from_time, to_time, slot_date) VALUES (?, ?, ?, ?, ?, ?)`;
 exports.FETCH_ALL_DELETED_SLOTS=`SELECT * FROM rmt_enterprise_order_slot WHERE is_del=1`
 exports.FETCH_SLOTS_BY_ID=`SELECT * FROM rmt_enterprise_order_slot WHERE is_del=0 AND id=?`
 exports.FETCH_SLOTS_BY_SHIFT_ID=`SELECT * FROM rmt_enterprise_order_slot WHERE enterprise_order_id = ?`

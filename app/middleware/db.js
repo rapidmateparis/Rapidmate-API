@@ -548,12 +548,12 @@ module.exports = {
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
                 slotPromises = days.map(day =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time])
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date])
                 );
               } else if (slots && slots.length > 0) {
                 // Insert provided slots
                 slotPromises = slots.map(slot =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time])
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date])
                 );
               } else {
                 throw new Error('No slots provided');
