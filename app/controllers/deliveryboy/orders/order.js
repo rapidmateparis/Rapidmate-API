@@ -810,7 +810,7 @@ const createItem = async (req) => {
     requestBody.push(null);
   }
   requestBody.push(req.tax || 20.00);
-  requestBody.push(total_duration || null);
+  requestBody.push(req.total_duration || null);
   var requestBodyNew = requestBody.filter(function (item) {
     return item !== undefined;
   });
