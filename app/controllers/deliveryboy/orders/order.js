@@ -1405,7 +1405,7 @@ exports.otpVerifiy = async (req, res) => {
     console.log("orderInfo", orderInfo);
     var otpQuery = "select is_otp_verified " + multiOrderColumnLineNo + " from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)";
     console.log(otpQuery);
-    const data = await fetch(otpQuery, [requestData.otp,requestData.order_number,requestData.delivery_boy_ext_id,]);
+    const data = await fetch(otpQuery, [requestData.otp,requestData.order_number,requestData.delivery_boy_ext_id]);
     console.log(data);
     if (data.length > 0) {
       var updateSuppportTableData;
@@ -1673,7 +1673,7 @@ exports.updateOrderStatus = async (req, res) => {
     var requestData = req.body;
     var orderInfo = getOrderTypeInfo(requestData.order_number);
     var multiOrderConditionQuery = (orderInfo.is_multi_order)?" and id= " + requestData.line_id:"";
-    var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo);
+    var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo, requestData.line_id);
     if (!responseOrderData) {
       return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
     }
@@ -1690,7 +1690,7 @@ exports.updateOrderStatus = async (req, res) => {
     var is_show_datetime_in_title = 0;
     var deliveredOTPNumber= "1212";
     var progressTypeId = "1";
-    let extLineNumber = "L#" + responseOrderData.line_no;
+    let extLineNumber = "L#" + responseOrderData.line_no + "-";
     console.log(responseOrderData);
     console.log(extLineNumber);
     var isEnableMultiOrderOTPUPdateInTheMasterTable = false;
@@ -1764,7 +1764,7 @@ exports.updateOrderStatus = async (req, res) => {
     if (updateData) {
         if(orderInfo.is_multi_order){
           var updateSupportTableStatusQuery = "update " + orderInfo.support_table + " set otp='" + responseOrderData.otp + "',delivered_otp='" + responseOrderData.delivered_otp  + "', consumer_order_title = '" + 
-          extLineNumber + "-" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + extLineNumber + "-" + delivery_boy_order_title + "', order_status = '" + multiOrderStatus + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
+          extLineNumber + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + extLineNumber + delivery_boy_order_title + "', order_status = '" + multiOrderStatus + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
           + ", updated_by = '" + status + "' where order_number = ?";
           console.log("updateSupportTableStatusQuery = " + updateSupportTableStatusQuery);
           const updateSupportTableStatus = await updateQuery(updateSupportTableStatusQuery,[requestData.order_number]);
@@ -2244,16 +2244,18 @@ const getOTP = async (order_number) => {
   }
 };
 
-const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo) => {
+const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo, line_id = 0) => {
   try {
+    let queryCondition = "";
     var isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = " + orderInfo.consumerKey + ") as consumer_ext_id,";
     if(orderInfo.is_multi_order){
         isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = (select enterprise_id from rmt_enterprise_branch where id=branch_id)) as consumer_ext_id,line_no,";
+        queryCondition = " and id = " + line_id;
     }
-    const data = await fetch(
-      "select " + isMOQuery + " (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id,otp, delivered_otp from " + orderInfo.table + " where order_number =?",
-      [orderNumber]
-    );
+    let getOrderQuery = "select " + isMOQuery + " (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id,otp, delivered_otp from " + orderInfo.table + " where order_number =?" + queryCondition;
+    console.log(getOrderQuery);
+    const data = await fetch(getOrderQuery,[orderNumber]);
+    console.log(data);
     const filterdata = await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
