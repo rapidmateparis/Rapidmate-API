@@ -1413,13 +1413,14 @@ exports.otpVerifiy = async (req, res) => {
     );
     console.log(data);
     if (data.length > 0) {
+      var updateSuppportTableData;
       var is_otp_verified = parseInt(data[0].is_otp_verified);
       if (is_otp_verified == 0) {
-        const updateData = await updateQuery(
+        updateSuppportTableData = await updateQuery(
           "update " + orderInfo.table + " set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?" + multiOrderConditionQuery ,
           [requestData.order_number]
         );
-        if (updateData) {
+        if (updateSuppportTableData) {
           if(orderInfo.is_multi_order){
             const updateMultiData = await updateQuery(
               "update rmt_enterprise_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='L@" + data[0].line_no + "Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?" + multiOrderConditionQuery ,
