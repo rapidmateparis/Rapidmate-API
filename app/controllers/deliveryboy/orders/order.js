@@ -1817,7 +1817,7 @@ exports.updateOrderStatus = async (req, res) => {
           tokenList: "",
           actionName: "",
           path: "",
-          userRole: "CONSUMER",
+          userRole: (requestData.order_number.includes("E"))?"ENTERPRISE" : "CONSUMER",
           redirect: "ORDER",
         };
         if(isDriverNotify==true){

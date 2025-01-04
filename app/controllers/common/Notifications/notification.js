@@ -268,39 +268,48 @@ exports.createItem = async (req, res) => {
 };
 
 const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
-  let table=''
-  if(userRole=='CONSUMER'){
-    table='rmt_consumer'
-  }else if(userRole=='ENTERPRISE'){
-    table='rmt_enterprise'
-  }else if(userRole=='DELIVERY_BOY'){
-    table='rmt_delivery_boy'
-  }else{
-    table='rmt_admin_user'
-  }
-  const query=`SELECT token,enable_push_notification,enable_email_notification from ${table} WHERE ext_id=?`;
-  const [result]=await fetch(query,[receiverExtId]);
-  const token = (result?.token === undefined)? false : result?.token;
-  const isSendFCMNotify = result?.enable_push_notification
-  const isSendEmail = result?.enable_email_notification
-  if (!token) {
-    return false;
-  }
-  if(isSendFCMNotify){
-    const messages = {
-      notification: {
-        title: title,
-        body: message,
-      },
-      data: payload,
-      token: token,
-    };
-    admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
-  }else{
-    console.log('not send ')
-  }
-
+  console.log("Block enter-- Notification");
+  console.log("Block title", title);
+  console.log("Block receiverExtId", receiverExtId);
+  console.log("Block payload", payload);
+  console.log("Block userRole", userRole);
+  try{
+    let table=''
+    if(userRole=='CONSUMER'){
+      table='rmt_consumer'
+    }else if(userRole=='ENTERPRISE'){
+      table='rmt_enterprise'
+    }else if(userRole=='DELIVERY_BOY'){
+      table='rmt_delivery_boy'
+    }else{
+      table='rmt_admin_user'
+    }
+    const query=`SELECT token,enable_push_notification,enable_email_notification from ${table} WHERE ext_id=?`;
+    const [result]=await fetch(query,[receiverExtId]);
+    const token = (result?.token === undefined)? false : result?.token;
+    const isSendFCMNotify = result?.enable_push_notification
+    const isSendEmail = result?.enable_email_notification
+    if (!token) {
+      return false;
+    }
+    if(isSendFCMNotify){
+      const messages = {
+        notification: {
+          title: title,
+          body: message,
+        },
+        data: payload,
+        token: token,
+      };
+      admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
+    }else{
+      console.log('not send ')
+    }
   
+  }catch(eror){
+    console.log(eror);
+  }
+  return false;
 }
 
 exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
