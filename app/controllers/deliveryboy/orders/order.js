@@ -1680,6 +1680,7 @@ exports.updateOrderStatus = async (req, res) => {
     var is_show_datetime_in_title = 0;
     var deliveredOTPNumber= "1212";
     var progressTypeId = "1";
+    var isEnableMultiOrderOTPUPdateInTheMasterTable = false;
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
       next_action_status = "Payment Failed";
@@ -1705,6 +1706,7 @@ exports.updateOrderStatus = async (req, res) => {
       delivery_boy_order_title = "Waiting for OTP";
       isDriverNotify = false;
       progressTypeId = "3";
+      isEnableMultiOrderOTPUPdateInTheMasterTable = true;
     } else if (requestData.status == "Ready to delivered") {
       status = "ON_THE_WAY_DROP_OFF";
       consumer_order_title_notify= "Delivery boy on the way to destination!!!";
@@ -1716,19 +1718,19 @@ exports.updateOrderStatus = async (req, res) => {
       console.log("deliveredOTPNumber = " + deliveredOTPNumber);
       isDriverNotify = false;
       progressTypeId = "4";
+      isEnableMultiOrderOTPUPdateInTheMasterTable = true;
     } else if (requestData.status == "Mark as delivered") {
       consumer_order_title_notify= "Delivery boy completed your ride";
       status = "COMPLETED";
       if(orderInfo.is_multi_order){
-        var responseOrderData = await getPendingOrdersDetailsByOrderNumber(requestData.order_number);
-        console.log(responseOrderData);
-        if(responseOrderData){
-          total_count = responseOrderData.total_count;
-          completed_count = responseOrderData.completed_count;
+        let responseOrderStatus = await getPendingOrdersDetailsByOrderNumber(requestData.order_number);
+        console.log(responseOrderStatus);
+        if(responseOrderStatus){
+          total_count = responseOrderStatus.total_count;
+          completed_count = responseOrderStatus.completed_count;
           checkCompletedCount = parseInt(total_count)-parseInt(completed_count);
           multiOrderStatus = (checkCompletedCount==1 || checkCompletedCount == 0)?status:multiOrderStatus;
         }
-        console.log(multiOrderStatus);
       }
       next_action_status = "Completed";
       deliveredOtp = ", delivered_on = now() ";
@@ -1745,7 +1747,7 @@ exports.updateOrderStatus = async (req, res) => {
     const updateData = await updateQuery(updateStatusQuery,[requestData.order_number]);
     if (updateData) {
         if(orderInfo.is_multi_order){
-          var updateSupportTableStatusQuery = "update " + orderInfo.support_table + " set consumer_order_title = '" +
+          var updateSupportTableStatusQuery = "update " + orderInfo.support_table + " set otp='" + responseOrderData.otp + "',delivered_otp='" + responseOrderData.delivered_otp  + "', consumer_order_title = '" + 
           "L#" + responseOrderData.line_no + "-" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + "L#" + responseOrderData.line_no + "-" + delivery_boy_order_title + "', order_status = '" + multiOrderStatus + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
           + ", updated_by = '" + status + "' where order_number = ?";
           console.log("updateSupportTableStatusQuery = " + updateSupportTableStatusQuery);
@@ -2233,7 +2235,7 @@ const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo) => {
         isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = (select enterprise_id from rmt_enterprise_branch where id=branch_id)) as consumer_ext_id,line_no,";
     }
     const data = await fetch(
-      "select " + isMOQuery + " (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id from " + orderInfo.table + " where order_number =?",
+      "select " + isMOQuery + " (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id,otp, delivered_otp from " + orderInfo.table + " where order_number =?",
       [orderNumber]
     );
     const filterdata = await transformKeysToLowercase(data);
