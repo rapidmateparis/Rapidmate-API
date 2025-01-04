@@ -1690,7 +1690,9 @@ exports.updateOrderStatus = async (req, res) => {
     var is_show_datetime_in_title = 0;
     var deliveredOTPNumber= "1212";
     var progressTypeId = "1";
-    let extLineNumber = "L#";
+    let extLineNumber = "L#" + responseOrderData.line_no;
+    console.log(responseOrderData);
+    console.log(extLineNumber);
     var isEnableMultiOrderOTPUPdateInTheMasterTable = false;
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
@@ -1762,7 +1764,7 @@ exports.updateOrderStatus = async (req, res) => {
     if (updateData) {
         if(orderInfo.is_multi_order){
           var updateSupportTableStatusQuery = "update " + orderInfo.support_table + " set otp='" + responseOrderData.otp + "',delivered_otp='" + responseOrderData.delivered_otp  + "', consumer_order_title = '" + 
-          extLineNumber + responseOrderData.line_no + "-" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + extLineNumber + responseOrderData.line_no + "-" + delivery_boy_order_title + "', order_status = '" + multiOrderStatus + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
+          extLineNumber + "-" + consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + extLineNumber + "-" + delivery_boy_order_title + "', order_status = '" + multiOrderStatus + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
           + ", updated_by = '" + status + "' where order_number = ?";
           console.log("updateSupportTableStatusQuery = " + updateSupportTableStatusQuery);
           const updateSupportTableStatus = await updateQuery(updateSupportTableStatusQuery,[requestData.order_number]);
