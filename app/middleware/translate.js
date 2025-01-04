@@ -65,7 +65,6 @@ const enterprise = {
 };
 
 const getTranslate = (role, locale,order) => {
-  console.log(role);
   i18n.setLocale(locale);
   if (role == "deliveryboy") {
     return {
