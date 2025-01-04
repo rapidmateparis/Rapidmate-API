@@ -1673,7 +1673,7 @@ exports.updateOrderStatus = async (req, res) => {
     var requestData = req.body;
     var orderInfo = getOrderTypeInfo(requestData.order_number);
     var multiOrderConditionQuery = (orderInfo.is_multi_order)?" and id= " + requestData.line_id:"";
-    var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo);
+    var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo, requestData.line_id);
     if (!responseOrderData) {
       return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
     }
