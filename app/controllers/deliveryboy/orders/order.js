@@ -1421,7 +1421,7 @@ exports.otpVerifiy = async (req, res) => {
           if(orderInfo.is_multi_order){
             console.log("Block 3");
             const updateMultiData = await updateQuery(
-              "update rmt_enterprise_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='L@" + data[0].line_no + "Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?" + multiOrderConditionQuery ,
+              "update rmt_enterprise_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='L@" + data[0].line_no + "Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?",
               [requestData.order_number]
             );
             console.log("Block 4", updateMultiData);
@@ -1491,7 +1491,7 @@ exports.deliveredOtpVerifiy = async (req, res) => {
           if(orderInfo.is_multi_order){
             console.log("Block 3");
             const updateMultiData = await updateQuery(
-              "update rmt_enterprise_order set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?" + multiOrderConditionQuery ,
+              "update rmt_enterprise_order set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?",
               [requestData.order_number]
             );
             console.log("Block 4", updateMultiData);
