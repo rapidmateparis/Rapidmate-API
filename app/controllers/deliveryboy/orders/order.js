@@ -1403,14 +1403,9 @@ exports.otpVerifiy = async (req, res) => {
     }
     console.log("multiOrderConditionQuery", multiOrderConditionQuery);
     console.log("orderInfo", orderInfo);
-    const data = await fetch(
-      "select is_otp_verified " + multiOrderColumnLineNo + " from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)",
-      [
-        requestData.otp,
-        requestData.order_number,
-        requestData.delivery_boy_ext_id,
-      ]
-    );
+    var otpQuery = "select is_otp_verified " + multiOrderColumnLineNo + " from " + orderInfo.table + " where is_del=0 AND otp=? and order_number =? " + multiOrderConditionQuery + " and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)";
+    console.log(otpQuery);
+    const data = await fetch(otpQuery, [requestData.otp,requestData.order_number,requestData.delivery_boy_ext_id,]);
     console.log(data);
     if (data.length > 0) {
       var updateSuppportTableData;
@@ -1420,14 +1415,18 @@ exports.otpVerifiy = async (req, res) => {
           "update " + orderInfo.table + " set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?" + multiOrderConditionQuery ,
           [requestData.order_number]
         );
+        console.log("updateSuppportTableData", updateSuppportTableData);
         if (updateSuppportTableData) {
+          console.log("Block 2");
           if(orderInfo.is_multi_order){
+            console.log("Block 3");
             const updateMultiData = await updateQuery(
               "update rmt_enterprise_order set order_status = 'OTP_VERIFIED', is_otp_verified = 1, next_action_status ='Ready to delivered', delivery_boy_order_title='L@" + data[0].line_no + "Ready to delivered',consumer_order_title='Ready to delivered',is_enable_cancel_request=0,is_show_datetime_in_title=0 where order_number = ?" + multiOrderConditionQuery ,
               [requestData.order_number]
             );
+            console.log("Block 4", updateMultiData);
           }
-         
+          console.log("Block 4");
           return res.status(202).json(
             utils.buildCreateMessage(
               202,
@@ -1483,11 +1482,21 @@ exports.deliveredOtpVerifiy = async (req, res) => {
     if (data.length > 0) {
       var is_otp_verified = parseInt(data[0].is_delivered_otp_verified);
       if (is_otp_verified == 0) {
-        const updateData = await updateQuery(
+        const updateSuppportTableData = await updateQuery(
           "update " + orderInfo.table + " set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?" + multiOrderConditionQuery,
           [requestData.order_number]
         );
-        if (updateData) {
+        if (updateSuppportTableData) {
+          console.log("Block 2");
+          if(orderInfo.is_multi_order){
+            console.log("Block 3");
+            const updateMultiData = await updateQuery(
+              "update rmt_enterprise_order set order_status = 'DELIVERED_OTP_VERIFIED', is_delivered_otp_verified = 1, next_action_status ='Mark as delivered' where order_number = ?" + multiOrderConditionQuery ,
+              [requestData.order_number]
+            );
+            console.log("Block 4", updateMultiData);
+          }
+          console.log("Block 4");
           return res.status(202).json(
             utils.buildCreateMessage(
               202,
