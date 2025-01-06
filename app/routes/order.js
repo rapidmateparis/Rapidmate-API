@@ -55,6 +55,14 @@ router.put(
   validate.otpVerify,
   controller.deliveredOtpVerifiy
 )
+
+router.put(
+  '/shift/deliveryboy/allocate',
+  trimRequest.all,
+  validate.allocateDeliveryBoyToShiftOrder,
+  controller.allocateDeliveryBoyToShiftOrder
+)
+
 /*
  * Get item route
  */
@@ -140,6 +148,13 @@ router.put(
   trimRequest.all,
   validate.updateOrderStatus,
   controller.updateOrderStatus
+)
+
+router.put(
+  '/update/shift/status',
+  trimRequest.all,
+  validate.updateShiftOrderStatus,
+  controller.updateShiftOrderStatus
 )
 
 router.get(
