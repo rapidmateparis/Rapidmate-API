@@ -75,6 +75,12 @@ router.get(
   controller.getItem
 )
 
+router.get(
+  '/available/list',
+    trimRequest.all,
+    controller.availableDeliveryList
+)
+
 /*
  * Update item route
  */

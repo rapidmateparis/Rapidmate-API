@@ -220,6 +220,23 @@ exports.getItem = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
   }
 };
+
+
+exports.availableDeliveryList = async (req, res) => {
+  try {
+    const getUserQuery = `select * from vw_available_delivery_boy`;
+    const fetchUserData = await fetch(getUserQuery);
+    console.log(fetchUserData);
+    if (!fetchUserData || fetchUserData.length === 0) {
+      return res.status(404).json(utils.buildErrorObject(404, "Currently all Delivery boys are busy. Please try again", 1001));
+    }
+    return res.status(200).json(utils.buildCreateMessage(200, "Items retrieved successfully", fetchUserData));
+  } catch (error) {
+    console.error("Error fetching item data:", error);
+    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+  }
+};
+
 /**
  * Update item function called by route
  * @param {Object} req - request object

@@ -1627,7 +1627,7 @@ exports.requestAction = async (req, res) => {
           tokenList: "",
           actionName: "",
           path: "",
-          userRole: "CONSUMER",
+          userRole: (requestData.order_number.includes("E"))?"ENTERPRISE" : "CONSUMER",
           redirect: "ORDER",
         };
         notification.createNotificationRequest(
@@ -1818,6 +1818,124 @@ exports.updateOrderStatus = async (req, res) => {
           actionName: "",
           path: "",
           userRole: (requestData.order_number.includes("E"))?"ENTERPRISE" : "CONSUMER",
+          redirect: "ORDER",
+        };
+        if(isDriverNotify==true){
+          notification.createNotificationRequest(notifiationRequestDeliveryBoy);
+        }
+        notification.createNotificationRequest(notifiationRequest);
+        return utils.buildJSONResponse(req, res, true, RESPONSE_STATUS.ORDER_STATUS_UPDATED_SUCCESSFULLY, {
+          status: status,
+          next_action_status: next_action_status,
+        });
+    } else {
+      return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.UNABLE_TO_UPDATE_ORDER_STATUS);
+    }
+  } catch (error) {
+    logger.error("Update Order Status =>", error);
+    return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.UNABLE_TO_UPDATE_ORDER_STATUS);
+  }
+};
+
+exports.updateShiftOrderStatus = async (req, res) => {
+  //var timezone = req.headers.time_zone;
+  //console.log(timezone);
+  //logger.logger.info("System launch");
+  logger.info("updateShiftOrderStatus = > Request", req.body);
+  try {
+    var requestData = req.body;
+    var orderInfo = getOrderTypeInfo(requestData.order_number);
+    var responseOrderData = await getOrderDetailsByOrderNumber(requestData.order_number,orderInfo, requestData.line_id);
+    if (!responseOrderData) {
+      return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
+    }
+    var status = "ASSIGED";
+    var isDriverNotify = true;
+    var next_action_status = "Start";
+    var consumer_order_title = "Shift is not started";
+    var delivery_boy_order_title = "Lets start ";
+    var is_show_datetime_in_title = 0;
+    var progressTypeId = "1";
+    var additionQuery = "";
+    if (requestData.status == "Start") {
+      status = "WORKING_INPROGRESS";
+      next_action_status = "End";
+      consumer_order_title_notify= "Shift Started";
+      delivery_boy_order_title_notify = "Shift Started";
+      consumer_order_title = "Shift Started on ";
+      delivery_boy_order_title = "Shift Starte on ";
+      is_show_datetime_in_title = 1;
+      isDriverNotify = true;
+      progressTypeId = "2";
+      additionQuery = ",shift_started_on=now()";
+    } else if (requestData.status == "End") {
+      consumer_order_title_notify= "Delivery boy has been completed the shift";
+      isDriverNotify = true;
+      delivery_boy_order_title_notify = "Shift Ended";
+      status = "COMPLETED";
+      next_action_status = "Ended";
+      consumer_order_title = "Shift Completed on ";
+      delivery_boy_order_title = "Shift Completed on ";
+      is_show_datetime_in_title = 1;
+      progressTypeId = "3";
+      additionQuery = ",shift_completed_on=now()";
+    }
+
+    var updateStatusQuery = "update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "', delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" +
+    status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title   + ", updated_by = '" + status + "' where order_number = ?";
+    const updateData = await updateQuery(updateStatusQuery,[requestData.order_number]);
+    if (updateData) {
+      var updateSupportTableStatusQuery = "update rmt_enterprise_order_slot set next_action_status = '" + next_action_status + "', updated_on = now(), order_status = '" + status  + "', updated_by = '" + status + "'" + additionQuery + " where id = ?";
+      console.log("updateSupportTableStatusQuery = " + updateSupportTableStatusQuery);
+      const updateSupportTableStatus = await updateQuery(updateSupportTableStatusQuery,[requestData.slot_id]);
+      console.info("updateSupportTableStatus = " , updateSupportTableStatus);
+        var notifiationRequestDeliveryBoy = {
+          title: delivery_boy_order_title_notify,
+          body: {},
+          payload: {
+            message: delivery_boy_order_title_notify,
+            orderNumber: requestData.order_number,
+            orderStatus: status
+          },
+          extId: "",
+          message: delivery_boy_order_title_notify,
+          topic: "",
+          token: "",
+          senderExtId: "",
+          receiverExtId: responseOrderData.delivery_boy_ext_id,
+          statusDescription: "",
+          status: "",
+          notifyStatus: "",
+          tokens: "",
+          tokenList: "",
+          actionName: "",
+          path: "",
+          userRole: "DELIVERY_BOY",
+          redirect: "ORDER",
+        };
+        var notifiationRequest = {
+          title: consumer_order_title_notify,
+          body: {},
+          payload: {
+            message: consumer_order_title_notify ,
+            orderNumber: requestData.order_number,
+            orderStatus: status,
+            progressTypeId : progressTypeId,
+          },
+          extId: "",
+          message: consumer_order_title_notify,
+          topic: "",
+          token: "",
+          senderExtId: "",
+          receiverExtId: responseOrderData.consumer_ext_id,
+          statusDescription: "",
+          status: "",
+          notifyStatus: "",
+          tokens: "",
+          tokenList: "",
+          actionName: "",
+          path: "",
+          userRole: "ENTERPRISE",
           redirect: "ORDER",
         };
         if(isDriverNotify==true){
@@ -2275,3 +2393,34 @@ const getPendingOrdersDetailsByOrderNumber = async (orderNumber) => {
   }
 };
 
+exports.allocateDeliveryBoyToShiftOrder = async (req, res) => {
+  try {
+    var requestData = req.body;
+    console.log(requestData);
+    const updateAllocatedData = await updateQuery("update rmt_enterprise_order_slot set order_status ='ASSIGNED', delivery_boy_id = (select id from rmt_delivery_boy where ext_id=?), next_action_status ='Start' where id = ?",
+      [requestData.delivery_boy_ext_id, requestData.slot_id]
+    );
+    console.log(updateAllocatedData);
+    if(updateAllocatedData){
+      return res.status(202).json(
+        utils.buildCreateMessage(
+          202,
+          "Delivery Boy has been allocated successfully",
+          {
+            status: "ASSIGNED",
+            next_action_status: "Start",
+          }
+        )
+      );
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Invalid the delivery boy or Order number", 1001));
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to allocate the delivery boy", 1001));
+  }
+};

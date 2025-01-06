@@ -154,6 +154,7 @@ module.exports = {
   
   async updateQuery(query,param=[]) {
     try {
+      console.log(query);
       return await pool
         .execute(query,param)
         .then(([rows, fields]) => {
@@ -164,6 +165,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
+      console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
@@ -524,13 +526,13 @@ module.exports = {
         "', next_action_status = '" +
         next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days
+        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
           shift_from_date, shift_tp_date, is_same_slot_all_days,order_status) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING')`,
         [
-          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days
+          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount
         ]
       );
       // rmt_enterprise_order_line
@@ -548,12 +550,12 @@ module.exports = {
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
                 slotPromises = days.map(day =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date])
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId])
                 );
               } else if (slots && slots.length > 0) {
                 // Insert provided slots
                 slotPromises = slots.map(slot =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date])
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId])
                 );
               } else {
                 throw new Error('No slots provided');
