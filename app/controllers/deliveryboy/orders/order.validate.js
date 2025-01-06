@@ -66,6 +66,16 @@ exports.otpVerify = [
 }
 ]
 
+
+exports.allocateDeliveryBoyToShiftOrder = [
+  check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('slot_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
 exports.cancelOrder = [
   check('cancel_reason_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('cancel_reason').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
@@ -188,6 +198,16 @@ exports.requestAction=[
 exports.updateOrderStatus=[
   check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
   check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['Payment Failed','Ready to pickup', 'Reached', 'Enter OTP', 'OTP Verify' , 'Ready to delivered', 'Delivered', 'Completed', 'Mark as delivered','Enter Delivered OTP']).withMessage('Enter valid order status'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
+
+exports.updateShiftOrderStatus=[
+  check('order_number').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('slot_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('status').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY').isIn(['Start','End']).withMessage('Enter valid order action status'),
 (req, res, next) => {
   validationResult(req, res, next)
 }
