@@ -8,10 +8,18 @@ const trimRequest = require('trim-request')
  * job routes
  */
 
-
+/*
+ * get  item route
+ */
+router.get(
+  '/list',
+  trimRequest.all,
+  controller.getOrderList
+)
 /*
  * Create new item route
  */
+
 router.post(
   '/',
   trimRequest.all,
