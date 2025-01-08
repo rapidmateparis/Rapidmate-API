@@ -1878,7 +1878,8 @@ exports.updateShiftOrderStatus = async (req, res) => {
       delivery_boy_order_title = "Shift Completed on ";
       is_show_datetime_in_title = 1;
       progressTypeId = "3";
-      additionQuery = ",shift_completed_on=now()";
+      let shift_completed_on = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+      additionQuery = ",shift_completed_on='" + shift_completed_on + "', total_duration = TIMESTAMPDIFF(HOUR, shift_started_on, '" + shift_completed_on +"'),total_duration_text='" + requestData.total_duration_text + "'";
     }
 
     var updateStatusQuery = "update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "', delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" +
