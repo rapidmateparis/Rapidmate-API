@@ -10,6 +10,107 @@ const { jsPDF } = require("jspdf"); // will automatically load the node version
 const doc = new jsPDF();
 
 
+exports.getOrderList = async (req,res) =>{
+  try{
+    const orderNumber = req.query.o || "";
+    const pageSize = parseInt(req.query.pagesize) || 10;
+    const orderType=req.query.ordertype;
+    const reqStatus=req.query.status || "current";
+    const page =parseInt(req.query.page) || 1;
+    let statusParams = [];
+    let conditions = "";
+    if (reqStatus == "current") {
+      statusParams.push([
+        "'ORDER_PLACED'",
+        "'CONIRMED'",
+        "'PAYMENT_COMPLETED'",
+        "'ORDER_ALLOCATED'",
+        "'ORDER_ACCEPTED'",
+        "'ON_THE_WAY_PICKUP'",
+        "'ON_THE_WAY_DROP_OFF'",
+        "'REACHED'",
+        "'OTP_VERIFIED'",
+        "'DELIVERED_OTP_VERIFIED'",
+        "'REQUEST_PENDING'",
+        "'MULTI_ORDER_GOING_ON'"
+
+      ]);
+    } else if (reqStatus == "past" || orderType=='past') {
+      
+      statusParams.push([
+        "'PAYMENT_FAILED'",
+        "'ORDER_REJECTED'",
+        "'COMPLETED'",
+        "'CANCELLED'",
+      ]);
+    } else {
+      statusParams.push([
+        "'ORDER_PLACED'",
+        "'CONIRMED'",
+        "'PAYMENT_COMPLETED'",
+        "'ORDER_ALLOCATED'",
+        "'PAYMENT_FAILED'",
+        "'ORDER_ACCEPTED'",
+        "'ORDER_REJECTED'",
+        "'ON_THE_WAY_PICKUP'",
+        "'PICKUP_COMPLETED'",
+        "'REACHED'",
+        "'OTP_VERIFIED'",
+        "'ON_THE_WAY_DROP_OFF'",
+        "'COMPLETED'",
+        "'CANCELLED'",
+        "'DELIVERED_OTP_VERIFIED'",
+        "'MULTI_ORDER_GOING_ON'",
+        "'REQUEST_PENDING'"
+      ]);
+    }
+    let delivery_type_id=1
+    if(orderType=='multipleorder'){
+      delivery_type_id=2;
+    }else if(orderType=='shift'){
+      delivery_type_id=3;
+    }else if (orderType=='past'){
+      delivery_type_id=0;
+    }else{
+      delivery_type_id=1
+    }
+
+    if (orderNumber && orderNumber != "") {
+      conditions = " AND e.order_number like '%" + orderNumber + "%' ";
+    }
+    if(delivery_type_id){
+      conditions = " AND e.delivery_type_id="+delivery_type_id+" " ;
+    }
+    console.log("ordertype",orderType)
+    let queryForCount = ``;
+    if (orderNumber.trim()) {
+      queryForCount += ` and (order_number LIKE ?)`;
+    }
+    if(delivery_type_id){
+      queryForCount = " AND delivery_type_id="+delivery_type_id+" " ;
+    }
+    const query = "SELECT e.*,er.ext_id,CONCAT(er.first_name, ' ', er.last_name) AS enterprise_name,dt.delivery_type,CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,s.service_type FROM rmt_enterprise_order as e LEFT JOIN rmt_enterprise AS er ON e.enterprise_id = er.id LEFT JOIN rmt_enterprise_delivery_type as dt ON  e.delivery_type_id=dt.id LEFT JOIN rmt_enterprise_service_type AS s ON e.service_type_id = s.id LEFT JOIN rmt_delivery_boy AS d ON e.delivery_boy_id = d.id WHERE e.order_status in (" + statusParams + ")" + conditions + " order by e.created_on desc" + utils.getPagination(page, pageSize);
+    const countQuery = `SELECT COUNT(*) AS total FROM rmt_enterprise_order WHERE order_status IN(${statusParams}) ${queryForCount}`;
+    const countResult = await fetch(countQuery);
+    const totalRecords = countResult[0].total;
+    const filterdata = await fetch(query);
+    const resData = {
+      total: totalRecords,
+      page: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(totalRecords / pageSize),
+      data: filterdata,
+    };
+    return res
+    .status(200)
+    .json(utils.buildCreateMessage(200, "test", resData));
+  }catch(error){
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
+  }
+}
+
 exports.getItemByEnterpriseExt = async (req, res) => {
   try {
     const id = req.params.id;

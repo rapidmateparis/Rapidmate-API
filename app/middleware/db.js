@@ -530,7 +530,7 @@ module.exports = {
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
-          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING')`,
+          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status,amount) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING', ?)`,
         [
           enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount
         ]
@@ -550,12 +550,12 @@ module.exports = {
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
                 slotPromises = days.map(day =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId])
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount])
                 );
               } else if (slots && slots.length > 0) {
                 // Insert provided slots
                 slotPromises = slots.map(slot =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId])
+                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount])
                 );
               } else {
                 throw new Error('No slots provided');
