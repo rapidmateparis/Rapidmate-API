@@ -336,6 +336,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'OTP_VERIFIED'",
         "'DELIVERED_OTP_VERIFIED'",
         "'REQUEST_PENDING'",
+        "'WORKING_INPROGRESS'",
         "'MULTI_ORDER_GOING_ON'"
 
       ]);
@@ -364,6 +365,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         "'CANCELLED'",
         "'DELIVERED_OTP_VERIFIED'",
         "'MULTI_ORDER_GOING_ON'",
+        "'WORKING_INPROGRESS'",
         "'REQUEST_PENDING'"
       ]);
     }
@@ -454,6 +456,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     if (orderType == "E") {
       query = "select * from vw_enterprise_order where order_status in (" + statusParams + ")" + conditions + "and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) order by created_on desc" + utils.getPagination(req.query.page, req.query.size);
     }
+    console.log(query);
    const responseData = await fetch(query, [id]);
     let message = "Items retrieved successfully";
     if (responseData.length <= 0) {
@@ -463,8 +466,9 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     if (orderType == "E") {
       const responseEnterpriseData = await Promise.all(
         responseData.map(async (order) => {
+          console.log(order);
           const locations = await fetch("SELECT * FROM rmt_enterprise_order_line WHERE order_id = ?", [order.id]);
-          const slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE enterprise_order_id = ? and delivery_boy_Id = ?", [order.id, order.delivery_boy_Id]);
+          const slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE enterprise_order_id = ? and delivery_boy_Id = ?", [order.id, order.delivery_boy_id]);
           return {
             ...order,
             slots,
