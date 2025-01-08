@@ -1,4 +1,5 @@
 const controller = require('../controllers/deliveryboy/orders/order')
+const assignerController = require("../controllers/admin/shiftAssigner")
 const validate = require('../controllers/deliveryboy/orders/order.validate')
 const express = require('express')
 const router = express.Router()
@@ -61,6 +62,12 @@ router.put(
   trimRequest.all,
   validate.allocateDeliveryBoyToShiftOrder,
   controller.allocateDeliveryBoyToShiftOrder
+)
+
+router.put(
+  '/shift/multiple/deliveryboy/allocate',
+  trimRequest.all,
+  assignerController.deliveryBoyAssigner
 )
 
 /*
