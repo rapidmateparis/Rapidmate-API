@@ -464,7 +464,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
       const responseEnterpriseData = await Promise.all(
         responseData.map(async (order) => {
           const locations = await fetch("SELECT * FROM rmt_enterprise_order_line WHERE order_id = ?", [order.id]);
-          const slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE enterprise_order_id = ?", [order.id]);
+          const slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE enterprise_order_id = ? and delivery_boy_Id = ?", [order.id, order.delivery_boy_Id]);
           return {
             ...order,
             slots,
