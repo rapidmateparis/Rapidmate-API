@@ -2429,3 +2429,25 @@ exports.allocateDeliveryBoyToShiftOrder = async (req, res) => {
       .json(utils.buildErrorObject(500, "Unable to allocate the delivery boy", 1001));
   }
 };
+
+
+exports.mySlotDetails = async (req, res) => {
+  try {
+    const extId = req.params.extId;
+    const ordernumber = req.params.ordernumber;
+    const data = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE order_number = ? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)", [ordernumber, extId]);
+    const filterdata = await transformKeysToLowercase(data);
+    let message = "Items retrieved successfully";
+    if (data.length <= 0) {
+      message = "No items found";
+      return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+    }
+    return res
+      .status(200)
+      .json(utils.buildCreateMessage(200, message, filterdata));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
+  }
+};
