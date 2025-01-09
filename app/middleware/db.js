@@ -526,13 +526,13 @@ module.exports = {
         "', next_action_status = '" +
         next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount
+        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount,total_hours,total_days,total_amount
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
-          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status,amount) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING', ?)`,
+          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status,amount) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING', ?, ?, ?, ?)`,
         [
-          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount
+          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount, total_hours, total_days, total_amount
         ]
       );
       // rmt_enterprise_order_line
