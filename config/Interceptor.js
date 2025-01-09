@@ -3,13 +3,11 @@ const jwt = require('jsonwebtoken');
 const utils = require('../app/middleware/utils');
 const { HttpStatusCode } = require('axios');
 const JWT_SECRET_KEY = "R@M1DM@T3$2024APP";
-const JWT_TOKEN_HEADER_KEY = "rapid-token";
 const { v4: uuidv4 } = require('uuid');
 
 var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
     req.trackId = uuidv4(); // generate a new UUID
-    console.log(pathValue);
     if(!(pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || pathValue.includes("resetpassword"))){
         try {
             const token = req.headers.rapid_token || req.headers.Rapid_token;
@@ -25,7 +23,7 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
             return res.status(401).json(utils.buildResponseMessageContent(HttpStatusCode.Unauthorized, "Unauthorized", 1001, "Restricted to access this service. Please contact your administrator"));
         }
     }
-    
+   
     return {
       // Only HTML responses will be intercepted
       isInterceptable: function(){
