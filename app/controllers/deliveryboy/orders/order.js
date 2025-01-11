@@ -1978,6 +1978,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     returnData = req.query.show ? true : false;
     const order_number = req.params.ordernumber;
+    const slot_id = req.query.slotid;
     var orderAllocationQuery = `
       SELECT 
         o.order_number,
@@ -2077,6 +2078,14 @@ exports.viewOrderByOrderNumber = async (req, res) => {
     `;
     if(isEOrder(order_number)){
       orderAllocationQuery = "select * from vw_enterprise_order where order_number=?";
+      let slots;
+      if(slot_id){
+          slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE id = ?", [slot_id]);
+          if(slots){
+            responseData.slots = slots;
+          }
+      }
+          
     }
     // Execute the query with necessary parameters (e.g., order_number)
 
