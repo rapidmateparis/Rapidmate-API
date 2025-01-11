@@ -1854,14 +1854,26 @@ exports.updateShiftOrderStatus = async (req, res) => {
       return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
     }
     var status = "ASSIGED";
-    var isDriverNotify = true;
+    var isDriverNotify = false;
     var next_action_status = "Start";
     var consumer_order_title = "Shift is not started";
     var delivery_boy_order_title = "Lets start ";
     var is_show_datetime_in_title = 0;
     var progressTypeId = "1";
     var additionQuery = "";
-    if (requestData.status == "Start") {
+    if (requestData.status == "Accepted") {
+      status = "ACCEPTED";
+      next_action_status = "Start";
+      consumer_order_title_notify= "Delivery boy accepted on ";
+      delivery_boy_order_title_notify = "You have received on ";
+      consumer_order_title = "Delivery boy accepted on ";
+      delivery_boy_order_title = "You have received on ";
+      is_show_datetime_in_title = 1;
+      isDriverNotify = true;
+    } else if (requestData.status == "Rejected") {
+      status = "ASSIGED";
+      next_action_status = "Accepted";
+    } else if (requestData.status == "Start") {
       status = "WORKING_INPROGRESS";
       next_action_status = "End";
       consumer_order_title_notify= "Shift Started";
@@ -2413,7 +2425,8 @@ exports.allocateDeliveryBoyToShiftOrder = async (req, res) => {
         payload: {
           message: "You have been received new order successfully",
           orderNumber: requestData.order_number,
-          slotId: requestData.slot_id,
+          slotId: requestData.slot_id + "",
+          orderStatus: "ASSIGNED",
         },
         extId: requestData.order_number,
         message: "You have been received new order successfully",
