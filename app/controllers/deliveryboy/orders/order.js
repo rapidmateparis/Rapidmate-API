@@ -2431,7 +2431,7 @@ exports.allocateDeliveryBoyToShiftOrder = async (req, res) => {
         userRole: "DELIVERY_BOY",
         redirect: "ORDER",
       };
-      notification.createNotificationRequest(notifiationRequest, false);
+      notification.createNotificationRequest(notifiationRequest, true);
       return res.status(202).json(
         utils.buildCreateMessage(
           202,
