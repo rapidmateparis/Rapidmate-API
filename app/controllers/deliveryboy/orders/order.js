@@ -2407,6 +2407,31 @@ exports.allocateDeliveryBoyToShiftOrder = async (req, res) => {
     );
     console.log(updateAllocatedData);
     if(updateAllocatedData){
+      var notifiationRequest = {
+        title: "New order received!!!Order# : " + requestData.order_number,
+        body: {},
+        payload: {
+          message: "You have been received new order successfully",
+          orderNumber: requestData.order_number,
+          slotId: requestData.slot_id,
+        },
+        extId: requestData.order_number,
+        message: "You have been received new order successfully",
+        topic: "",
+        token: "",
+        senderExtId: "",
+        receiverExtId: requestData.delivery_boy_ext_id,
+        statusDescription: "",
+        status: "",
+        notifyStatus: "",
+        tokens: "",
+        tokenList: "",
+        actionName: "",
+        path: "",
+        userRole: "DELIVERY_BOY",
+        redirect: "ORDER",
+      };
+      notification.createNotificationRequest(notifiationRequest, false);
       return res.status(202).json(
         utils.buildCreateMessage(
           202,
