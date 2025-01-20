@@ -16,6 +16,7 @@ const Notification =require('./app/models/Notification');
 const orderControl =require('./app/controllers/deliveryboy/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
+
 const corsOptions = {
   origin: '*',
   methods: 'GET,POST,PUT, DELETE', // Allow only these methods
@@ -40,7 +41,7 @@ TZ="UTC";
 const server = http.createServer(app);
 const io = socketIo(server);
 
-//app.use(httpRequestResponseInterceptor);
+app.use(httpRequestResponseInterceptor);
 app.set('port', process.env.PORT || 3004);
 app.set('io', io);
 

@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const { FETCH_WORK_TYPE, FETCH_WORK_TYPE_BYID, UPDATE_WORK_TYPE, INSERT_WORK_TYPE, DELETE_WORK_TYPE } = require('../../../db/database.query')
+const { FETCH_WORK_TYPE, FETCH_WORK_TYPE_BYID, UPDATE_WORK_TYPE, INSERT_WORK_TYPE, DELETE_WORK_TYPE } = require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/

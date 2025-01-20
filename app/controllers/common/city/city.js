@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils');
 const { runQuery, fetch, insertQuery, updateQuery } = require('../../../middleware/db');
-const { FETCH_CITY_ALL, FETCH_CITY_BY_ID, INSERT_CITY_QUERY, UPDATE_CITY_QUERY, DELETE_CITY_QUERY, FETCH_CITY_BY_STATEID } = require('../../../db/database.query');
+const { FETCH_CITY_ALL, FETCH_CITY_BY_ID, INSERT_CITY_QUERY, UPDATE_CITY_QUERY, DELETE_CITY_QUERY, FETCH_CITY_BY_STATEID } = require('../../../repo/database.query');
 
 /********************
  * Public functions *

@@ -1,6 +1,6 @@
 const pool = require('../../config/database')
-const {GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY,INSERT_SLOTS_QUERY,} = require('../db/planning.query')
-const {INSERT_SHIFT_SLOTS_QUERY} = require('../db/enterprise.order')
+const {GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY,INSERT_SLOTS_QUERY,} = require('../repo/planning.query')
+const {INSERT_SHIFT_SLOTS_QUERY} = require('../repo/enterprise.order')
 const moment = require("moment");
 /**
  * Builds sorting

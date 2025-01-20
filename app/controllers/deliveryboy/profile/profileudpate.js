@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,updateQuery, insertQuery} = require('../../../middleware/db')
-const { FETCH_DRIVER_AVAILABLE, UPDATE_DELIVERYBOY_WORK_TYPE, UPDATE_DELIVERYBOY_AVAILABLE, INSERT_DB_BILLING_ADDRESS, UPDATE_DB_BILLING_ADDRESS } = require('../../../db/database.query')
+const { FETCH_DRIVER_AVAILABLE, UPDATE_DELIVERYBOY_WORK_TYPE, UPDATE_DELIVERYBOY_AVAILABLE, INSERT_DB_BILLING_ADDRESS, UPDATE_DB_BILLING_ADDRESS } = require('../../../repo/database.query')
 const DriverBoy = require('../../../models/Driveryboy')
 
 /********************
@@ -28,7 +28,7 @@ exports.getItems = async (req, res) => {
       FROM rmt_delivery_boy d
       ${queryReq}`;
 
-    const sql = `SELECT d.id, d.ext_id, d.username, d.first_name, d.last_name, d.email, d.email_verification, d.phone, d.autaar, d.role_id, d.city_id, d.state_id, d.country_id, d.address, d.siret_no, d.vehicle_id, d.driver_licence_no, d.insurance, d.passport, d.identity_card, d.company_name, d.description, d.term_cond1, d.term_cond2, d.reason, d.work_type_id, wt.work_type, wt.work_type_desc, d.profile_pic, d.is_active, d.is_availability, d.latitude, d.longitude,d.created_by, d.created_on, d.updated_by, d.updated_on, d.is_work_type, d.token, d.verification_code, d.is_mobile_verified, d.is_email_verified, d.enable_push_notification, d.enable_email_notification, d.language_id FROM rmt_delivery_boy d LEFT JOIN rmt_work_type wt ON d.work_type_id = wt.id ${queryReq} ORDER BY d.created_on DESC ${utils.getPagination(page, pageSize)}`;
+    const sql = `SELECT d.id, d.ext_id, d.username, d.first_name, d.last_name, d.email, d.is_email_verified, d.phone, d.autaar, d.role_id, d.city_id, d.state_id, d.country_id, d.address, d.siret_no, d.vehicle_id, d.driver_licence_no, d.insurance, d.passport, d.identity_card, d.company_name, d.description, d.term_cond1, d.term_cond2, d.reason, d.work_type_id, wt.work_type, wt.work_type_desc, d.profile_pic, d.is_active, d.is_availability, d.latitude, d.longitude,d.created_by, d.created_on, d.updated_by, d.updated_on, d.is_work_type, d.token, d.verification_code, d.is_mobile_verified, d.is_email_verified, d.enable_push_notification, d.enable_email_notification, d.language_id FROM rmt_delivery_boy d LEFT JOIN rmt_work_type wt ON d.work_type_id = wt.id ${queryReq} ORDER BY d.created_on DESC ${utils.getPagination(page, pageSize)}`;
 
 
     const countResult = await fetch(countQuery, [searchQuery, searchQuery, searchQuery, searchQuery]);
@@ -353,7 +353,7 @@ exports.updateItem = async (req, res) => {
  */
 const createItem = async (req,insurance,autaar,identity_card,passport) => {
   const otp=utils.generateOTP();
-    const registerQuery = `INSERT INTO rmt_delivery_boy(FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,AUTAAR,ROLE_ID,CITY_ID,STATE_ID,COUNTRY_ID,ADDRESS,SIRET_NO,VEHICLE_ID,DRIVER_LICENCE_NO,INSURANCE,PASSPORT,IDENTITY_CARD,COMPANY_NAME,INDUSTRY,DESCRIPTION,TERM_COND1,TERM_COND2,ACCOUNT_TYPE,ACTIVE,OTP,IS_DEL) VALUES('${req.first_name}','${req.last_name}','${req.email}','${req.email_verify}','${req.phone}','${req.password}','${autaar}','${req.role_id}','${req.city_id}','${req.state_id}','${req.country_id}','${req.address}','${req.siret_no}','${req.vehicle_id}','${req.driver_licence_no}','${insurance}','${passport}','${identity_card}','${req.company_name}','${req.industry}','${req.description}','${req.term_condone}','${req.term_condtwo}','${req.account_type}','${req.active}','${otp}','${req.is_del}')`;
+    const registerQuery = `INSERT INTO rmt_delivery_boy(FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,AUTAAR,ROLE_ID,CITY_ID,STATE_ID,COUNTRY_ID,ADDRESS,SIRET_NO,VEHICLE_ID,DRIVER_LICENCE_NO,INSURANCE,PASSPORT,IDENTITY_CARD,COMPANY_NAME,INDUSTRY,DESCRIPTION,TERM_COND1,TERM_COND2,ACCOUNT_TYPE,ACTIVE,OTP,IS_DEL) VALUES('${req.first_name}','${req.last_name}','${req.email}','${req.email_verify}','${req.phone}','${req.password}','${autaar}','${req.role_id}','${req.city_id}','${req.state_id}','${req.country_id}','${req.address}','${req.siret_no}','${req.vehicle_id}','${req.driver_licence_no}','${insurance}','${passport}','${identity_card}','${req.company_name}','${req.industry}','${req.description}','${req.term_condone}','${req.term_condtwo}','${req.account_type}','${req.active}','${otp}','${req.is_del}')`;
     const registerRes = await runQuery(registerQuery);
     return registerRes;
 }
@@ -551,4 +551,17 @@ try {
 } catch (error) {
   return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch billing address',1001));
 }
+}
+
+exports.getDelieryDetailsByExtId = async (extId) => {
+  try {
+    const getUserQuerye = 'select id from rmt_delivery_boy where is_del=0 and ext_id = ?';
+    let data = await fetch(getUserQuerye, [extId]);
+    if(data && data.length>0){
+      return data[0];
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return;
 }

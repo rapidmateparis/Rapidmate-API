@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { insertQuery, fetch, insertOrUpdatePlanningWithSlots, getAllPlanningWithSlots, getPlanningWithSlotsByDeliveryBoy, updateQuery, runQuery } = require('../../../middleware/db')
-const { buildFetchDeliveryBoyPlanningSetupSlotQueryFilter,GET_PLANNING_SETUP_ID_YMW, FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, GET_PLANNING_SETUP_ID, DELETE_SETUP_QUERY, DELETE_SETUP_SLOTS_QUERY, INSERT_PLANNING_SETUP_QUERY, INSERT_PLANNING_QUERY, FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY} = require('../../../db/planning.query')
+const { buildFetchDeliveryBoyPlanningSetupSlotQueryFilter,GET_PLANNING_SETUP_ID_YMW, FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, GET_PLANNING_SETUP_ID, DELETE_SETUP_QUERY, DELETE_SETUP_SLOTS_QUERY, INSERT_PLANNING_SETUP_QUERY, INSERT_PLANNING_QUERY, FETCH_PLANNING_BY_ID, GET_PLANNING_ID, UPDATE_PLANNING_QUERY} = require('../../../repo/planning.query')
 const { consumers } = require('form-data')
 const moment = require('moment');
 /********************

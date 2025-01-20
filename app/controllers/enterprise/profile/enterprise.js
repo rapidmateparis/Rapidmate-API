@@ -7,7 +7,7 @@ const {
   FETCH_BRANCH_FOR_DASH,
   FETCH_BRANCH_BOOKHR,
   FETCH_ENTERPRISE_ID,
-} = require("../../../db/database.query");
+} = require("../../../repo/database.query");
 /********************
  * Public functions *
  ********************/

@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { insertQuery,fetch, executeQuery, updateQuery} = require('../../../middleware/db')
-const { FETCH_CONSUMER_ADDRESS_BOOK_QUERY, transformKeysToLowercase, INSERT_CONSUMER_ADDRESS_BOOK_QUERY, DELETE_CONSUMER_ADDRESS_BOOK_QUERY} = require('../../../db/database.query')
+const { FETCH_CONSUMER_ADDRESS_BOOK_QUERY, transformKeysToLowercase, INSERT_CONSUMER_ADDRESS_BOOK_QUERY, DELETE_CONSUMER_ADDRESS_BOOK_QUERY} = require('../../../repo/database.query')
 
 
 exports.getById = async (req, res) => {

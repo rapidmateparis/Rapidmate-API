@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery, fetch, updateQuery, insertQuery } = require('../../../middleware/db');
-const { FETCH_INDUSTRY_QUERY, FETCH_INDUSTRY_BYID, UPDATE_INDUSTRY, INSERT_INDUSTRY, DELETE_INDUSTRY } = require('../../../db/database.query');
+const { FETCH_INDUSTRY_QUERY, FETCH_INDUSTRY_BYID, UPDATE_INDUSTRY, INSERT_INDUSTRY, DELETE_INDUSTRY } = require('../../../repo/database.query');
 
 
 /********************
