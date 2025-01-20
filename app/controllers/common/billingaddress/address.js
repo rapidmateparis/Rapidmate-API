@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db');
-const { UPDATE_BILLING_ADDRESS, FETCH_BILLING_ADDRESS_BYCNEXTID, FETCH_BILLING_ADDRESS_BYENEXTID, FETCH_BILLING_ADDRESS_BYID, INSERT_BILLING_ADDRESS, DELETE_BILLING_ADDRESS } = require('../../../db/database.query')
+const { UPDATE_BILLING_ADDRESS, FETCH_BILLING_ADDRESS_BYCNEXTID, FETCH_BILLING_ADDRESS_BYENEXTID, FETCH_BILLING_ADDRESS_BYID, INSERT_BILLING_ADDRESS, DELETE_BILLING_ADDRESS } = require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/

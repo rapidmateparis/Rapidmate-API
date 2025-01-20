@@ -509,3 +509,10 @@ exports.buildJSONResponse=(req = {}, res = {}, isSuccess = false, responseCodeIn
   }];
   return res.status(responseCodeInfo.STATUS_CODE).json(response);
 }
+
+exports.getRoleFromExtId = (extId) =>{
+  return  (extId.includes("E"))?"ENTERPRISE":
+          (extId.includes("C"))?"CONSUMER":
+          (extId.includes("D"))?"DELIVERY_bOY":
+          (extId.includes("A"))?"ADMIN":"ANONYMOUS";
+}

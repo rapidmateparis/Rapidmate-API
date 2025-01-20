@@ -29,7 +29,7 @@ const {
   INSERT_ORDER_FOR_ANOTHER_QUERY,
   CHECK_ORDER_FOR_OTP,
   FETCH_SLOTS_BY_SHIFT_ID,
-} = require("../../../db/database.query");
+} = require("../../../repo/database.query");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const { jsPDF } = require("jspdf"); // will automatically load the node version
@@ -317,6 +317,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
  */
 exports.getItemByDeliveryBoyExtId = async (req, res) => {
   try {
+    console.log(req.query);
     const id = req.params.id;
     const reqStatus = req.query.status;
     const orderNumber = req.query.o || "";

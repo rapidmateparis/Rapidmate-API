@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const {FETCH_AC_ALL,FETCH_AC_BY_ID,INSERT_AC_QUERY,UPDATE_AC_QUERY,DELETE_AC_QUERY}=require("../../../db/database.query")
+const {FETCH_AC_ALL,FETCH_AC_BY_ID,INSERT_AC_QUERY,UPDATE_AC_QUERY,DELETE_AC_QUERY}=require("../../../repo/database.query")
 /********************
  * Public functions *
  ********************/

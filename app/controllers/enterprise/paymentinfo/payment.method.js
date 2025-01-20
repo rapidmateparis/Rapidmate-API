@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const { FETCH_PAYMENTEMETHOD_ALL, FETCH_PAYMENTEMETHOD_BY_ID, FETCH_PAYMENTEMETHOD_BY_EXTID, UPDATE_PAYMENTEMETHOD, INSERT_PAYMENTEMETHOD, DELETE_PAYMENTEMETHOD } =require('../../../db/database.query')
+const { FETCH_PAYMENTEMETHOD_ALL, FETCH_PAYMENTEMETHOD_BY_ID, FETCH_PAYMENTEMETHOD_BY_EXTID, UPDATE_PAYMENTEMETHOD, INSERT_PAYMENTEMETHOD, DELETE_PAYMENTEMETHOD } =require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/

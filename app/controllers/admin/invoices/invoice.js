@@ -10,7 +10,7 @@ const {
 const AuthController = require("../../../controllers/useronboardmodule/authuser");
 const {
   transformKeysToLowercase,
-} = require("../../../db/database.query");
+} = require("../../../repo/database.query");
 const fs = require("fs");
 const pdf = require("html-pdf");
 const path = require("path");
