@@ -1,7 +1,7 @@
 const utils = require('../middleware/utils')
 const db = require('../middleware/db')
 const { runQuery,updateQuery,fetch,insertQuery} = require('../middleware/db')
-const { FETCH_ALL_SERVICE, FETCH_SERVICE_BYID, UPDATE_SERVICE, INSERT_SERVICE, DELETE_SERVICE } = require('../db/database.query')
+const { FETCH_ALL_SERVICE, FETCH_SERVICE_BYID, UPDATE_SERVICE, INSERT_SERVICE, DELETE_SERVICE } = require('../repo/database.query')
 
 
 /********************

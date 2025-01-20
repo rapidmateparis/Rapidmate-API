@@ -71,8 +71,8 @@ exports.DELETE_COUNTRY_QUERY = `UPDATE rmt_country SET is_del=1 WHERE id=?`;
 
 exports.FETCH_CN_QUERY = `select * from rmt_consumer`;
 exports.FETCH_CN_BY_ID = `select c.first_name, c.last_name,c.email,c.phone,c.profile_pic,c.enable_push_notification,c.enable_email_notification,c.language_id,ct.country_name as country from rmt_consumer as c LEFT JOIN rmt_country as ct ON c.country_id=ct.id where ext_id=?`;
-exports.INSERT_CN_QUERY = `INSERT INTO rmt_consumer(FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,AUTAAR,ROLE_ID,CITY_ID,STATE_ID,COUNTRY_ID,ADDRESS,SIRET_NO,VEHICLE_ID,DRIVER_LICENCE_NO,INSURANCE,PASSPORT,IDENTITY_CARD,COMPANY_NAME,INDUSTRY,DESCRIPTION,TERM_COND1,TERM_COND2,ACCOUNT_TYPE,ACTIVE,OTP) VALUES(?,?,?,?,?,?,?,?,?,?,?)`;
-exports.UPDATE_CN_QUERY = `UPDATE rmt_consumer SET FIRST_NAME=?,LAST_NAME=?,EMAIL=?,EMAIL_VERIFICATION=?,PHONE=?,PASSWORD=?,AUTAAR=?,ROLE_ID=?,CITY_ID=?,STATE_ID=?,COUNTRY_ID=?,ADDRESS=?,SIRET_NO=?,VEHICLE_ID=?,DRIVER_LICENCE_NO=?,INSURANCE=?,PASSPORT=?,IDENTITY_CARD=?,COMPANY_NAME=?,INDUSTRY=?,DESCRIPTION=?,TERM_COND1=?,TERM_COND2=?,ACCOUNT_TYPE=?,ACTIVE=?,OTP=?,WHERE CONSUMER_ID=?`;
+exports.INSERT_CN_QUERY = `INSERT INTO rmt_consumer(FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,AUTAAR,ROLE_ID,CITY_ID,STATE_ID,COUNTRY_ID,ADDRESS,SIRET_NO,VEHICLE_ID,DRIVER_LICENCE_NO,INSURANCE,PASSPORT,IDENTITY_CARD,COMPANY_NAME,INDUSTRY,DESCRIPTION,TERM_COND1,TERM_COND2,ACCOUNT_TYPE,ACTIVE,OTP) VALUES(?,?,?,?,?,?,?,?,?,?,?)`;
+exports.UPDATE_CN_QUERY = `UPDATE rmt_consumer SET FIRST_NAME=?,LAST_NAME=?,EMAIL=?,is_email_verified=?,PHONE=?,PASSWORD=?,AUTAAR=?,ROLE_ID=?,CITY_ID=?,STATE_ID=?,COUNTRY_ID=?,ADDRESS=?,SIRET_NO=?,VEHICLE_ID=?,DRIVER_LICENCE_NO=?,INSURANCE=?,PASSPORT=?,IDENTITY_CARD=?,COMPANY_NAME=?,INDUSTRY=?,DESCRIPTION=?,TERM_COND1=?,TERM_COND2=?,ACCOUNT_TYPE=?,ACTIVE=?,OTP=?,WHERE CONSUMER_ID=?`;
 exports.DELETE_CN_QUERY = `DELETE FROM rmt_consumer WHERE CONSUMER_ID=?`;
 //--------------------------rmt_consumer_address--------------------------------------------------\
 exports.FETCH_CONSUMER_ADDRESS = `SELECT * FROM rmt_consumer_address WHERE is_del=0`;
@@ -357,9 +357,9 @@ exports.INSERT_CONSUMER_ADDRESS_BOOK_QUERY = `INSERT INTO rmt_consumer_address_b
 exports.DELETE_CONSUMER_ADDRESS_BOOK_QUERY = `Delete from  rmt_consumer_address_book where id = ?`;
 
 //-------------------------------rmt_consumer_address_book-----------------------------------------------------\
-exports.FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `SELECT * FROM rmt_delivery_boy_address_book WHERE is_del=0 and delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)`;
-exports.INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `INSERT INTO rmt_delivery_boy_address_book(delivery_boy_id, first_name, last_name, address, email, phone, company_name, comments) VALUES((select id from rmt_delivery_boy where ext_id = ?), ?, ?, ?, ?, ?, ?, ?)`;
-exports.DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `Delete from  rmt_delivery_boy_address_book where id = ?`;
+exports.FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `SELECT * FROM rmt_delivery_boy_address_book WHERE is_del=0 and delivery_boy_id = ?`;
+exports.INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `INSERT INTO rmt_delivery_boy_address_book(delivery_boy_id, first_name, last_name, address, email, phone, company_name, comments) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
+exports.DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `Delete from  rmt_delivery_boy_address_book where id = ? and delivery_boy_id = ?`;
 
 //-------------------------------rmt_consumer_address_book-----------------------------------------------------\
 exports.FETCH_ENTERPRISE_ADDRESS_BOOK_QUERY=`SELECT * FROM rmt_enterprise_address_book WHERE is_del=0 and enterprise_id = (select id from rmt_enterprise where ext_id = ?)`;

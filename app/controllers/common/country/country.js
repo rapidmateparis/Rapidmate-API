@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db');
-const {FETCH_COUNTRY_QUERY,FETCH_COUNTRY_BY_ID,UPDATE_COUNTRY_QUERY, INSERT_COUNTRY_QUERY,DELETE_COUNTRY_QUERY} = require('../../../db/database.query')
+const {FETCH_COUNTRY_QUERY,FETCH_COUNTRY_BY_ID,UPDATE_COUNTRY_QUERY, INSERT_COUNTRY_QUERY,DELETE_COUNTRY_QUERY} = require('../../../repo/database.query')
 
 /********************
  * Public functions *

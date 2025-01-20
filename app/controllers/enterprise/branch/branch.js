@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const {fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const {FETCH_BRANCH_BY_ID, INSERT_BRANCH_QUERY, UPDATE_BRANCH_QUERY, DELETE_BRANCH_QUERY, FETCH_BRANCH_BY_ENTERPRISEID } = require('../../../db/database.query')
+const {FETCH_BRANCH_BY_ID, INSERT_BRANCH_QUERY, UPDATE_BRANCH_QUERY, DELETE_BRANCH_QUERY, FETCH_BRANCH_BY_ENTERPRISEID } = require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/

@@ -9,7 +9,7 @@ const {
   transformKeysToLowercase,
   UPDATE_DELIVERY_BOY_STATUS,
   UPDATE_ENTERPRISE_STATUS,
-} = require("../../../db/database.query");
+} = require("../../../repo/database.query");
 const DELIVERY_BOY = "DELIVERY_BOY";
 const CONSUMER = "CONSUMER";
 const ENTERPRISE = "ENTERPRISE";

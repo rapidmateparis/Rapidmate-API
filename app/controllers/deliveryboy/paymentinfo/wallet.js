@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const { FETCH_WALLET_ALL, FETCH_WALLET_BY_ID, FETCH_WALLET_BY_EXTID, UPDATE_WALLET, INSERT_WALLET, DELETE_WALLET, FETCH_TRANSACTIONS_BY_EXTID } =require('../../../db/database.query')
+const { FETCH_WALLET_ALL, FETCH_WALLET_BY_ID, FETCH_WALLET_BY_EXTID, UPDATE_WALLET, INSERT_WALLET, DELETE_WALLET, FETCH_TRANSACTIONS_BY_EXTID } =require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/

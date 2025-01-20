@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const {FETCH_VEHICLE_BY_EXT_ID, FETCH_VEHILCLE_ALL,FETCH_VEHICLE_BY_ID,FETCH_VEHICLE_BY_TYPE_ID,INSERT_VEHICLE_QUERY,UPDATE_VEHICLE_QUERY,DELETE_VEHICLE_QUERY,transformKeysToLowercase, DRIVER_DOC_TABLE, FETCH_VEHICLE_BY_DLID}=require("../../../db/database.query")
+const {FETCH_VEHICLE_BY_EXT_ID, FETCH_VEHILCLE_ALL,FETCH_VEHICLE_BY_ID,FETCH_VEHICLE_BY_TYPE_ID,INSERT_VEHICLE_QUERY,UPDATE_VEHICLE_QUERY,DELETE_VEHICLE_QUERY,transformKeysToLowercase, DRIVER_DOC_TABLE, FETCH_VEHICLE_BY_DLID}=require("../../../repo/database.query")
 
 /********************
  * Public functions *
