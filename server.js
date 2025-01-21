@@ -17,11 +17,6 @@ const orderControl =require('./app/controllers/deliveryboy/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
 
-const corsOptions = {
-  origin: '*',
-  methods: 'GET,POST,PUT, DELETE', // Allow only these methods
-  allowedHeaders: ['Content-Type', 'rapid_token', 'Rapid_token'] // Allow only these headers
-};
 
 require('log4js').configure({
   appenders: {
@@ -33,7 +28,29 @@ require('log4js').configure({
   }
 });
 const app = express();
-//app.use(cors(corsOptions));
+const allowedOrigins = [
+  'http://192.168.107.36:5173', // kalim web local development
+  'http://192.168.107.36:3000', // kalim admin local development 
+  'https://rapidmate.fr',
+  'https://admin.rapidmate.fr',
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g., mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
+  })
+);
+
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ="UTC";
 //TZ = "Europe/Paris";
@@ -72,7 +89,6 @@ i18n.configure({
 
 app.use(i18n.init);
 
-app.use(cors({origin: '*',}));
 app.use(passport.initialize());
 app.use(compression());
 app.use(helmet());
