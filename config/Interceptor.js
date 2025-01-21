@@ -8,7 +8,10 @@ const { v4: uuidv4 } = require('uuid');
 var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
     req.trackId = uuidv4(); // generate a new UUID
-    if(!(pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || pathValue.includes("resetpassword"))){
+    if(!( pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || 
+          pathValue.includes("resetpassword") || pathValue.includes("lookup") || pathValue.includes("country") ||
+          pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document")
+        )){
         try {
             const token = req.headers.authorization || req.headers.Authorization;
             const verified = jwt.verify(token, JWT_SECRET_KEY);
