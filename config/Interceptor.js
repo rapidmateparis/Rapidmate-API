@@ -9,16 +9,18 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
     req.trackId = uuidv4(); // generate a new UUID
     if(!( pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || 
-          pathValue.includes("resetpassword") || pathValue.includes("lookup") || pathValue.includes("country") ||
-          pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document") || pathValue.includes("signupverify")
+          pathValue.includes("resetpassword") || pathValue.includes("lookup")  || pathValue.includes("country") ||
+          pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document") || pathValue.includes("documents") ||  
+          pathValue.includes("admin") || pathValue.includes("signupverify")
         )){
         try {
             const token = req.headers.authorization || req.headers.Authorization;
             const verified = jwt.verify(token, JWT_SECRET_KEY);
             if (verified) {
-                console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified.ext_id);
-                req.query.ext_id = verified.ext_id;
-                req.query.role = utils.getRoleFromExtId(verified.ext_id);
+                console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified?.ext_id || verified?.data?.userId);
+                req.query.ext_id = verified?.ext_id || verified?.data?.userId;
+                const role=verified?.ext_id || "A"+verified?.data?.userId;
+                req.query.role = utils.getRoleFromExtId(role);
             } else {
                 return res.status(401).json(utils.buildResponseMessageContent(HttpStatusCode.Unauthorized, "Unauthorized" , 1001, "Restricted to access this service. Please contact your administrator"));
             }
