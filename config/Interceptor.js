@@ -10,7 +10,7 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
     req.trackId = uuidv4(); // generate a new UUID
     if(!( pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || 
           pathValue.includes("resetpassword") || pathValue.includes("lookup") || pathValue.includes("country") ||
-          pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document")
+          pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document") || pathValue.includes("signupverify")
         )){
         try {
             const token = req.headers.authorization || req.headers.Authorization;
