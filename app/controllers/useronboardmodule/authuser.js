@@ -133,7 +133,7 @@ async function signup(userInfo) {
             logger.info(data);
             logger.info("selfSignUp completion");
         
-            let externalId = new Date().getTime();
+            let makeRoleExtId = new Date().getTime();
             if (userInfo['userrole'] === CONSUMER_ROLE) {
               const item = await createItem(userInfo, "rmt_consumer",makeRoleExtId);
             } else if (userInfo['userrole'] === DELEIVERY_BOY_ROLE) {
@@ -157,7 +157,7 @@ async function signup(userInfo) {
         if(userData && userData.length>0){
            return null;
         }else{
-            let externalId = new Date().getTime();
+            let makeRoleExtId = new Date().getTime();
             if (userInfo['userrole'] === CONSUMER_ROLE) {
               const item = await createItem(userInfo, "rmt_consumer",makeRoleExtId);
             } else if (userInfo['userrole'] === DELEIVERY_BOY_ROLE) {
