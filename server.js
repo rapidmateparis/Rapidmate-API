@@ -29,8 +29,8 @@ require('log4js').configure({
 });
 const app = express();
 const allowedOrigins = [
-  'http://192.168.107.36:5173', // kalim web local development
-  'http://192.168.107.36:3000', // kalim admin local development 
+  'http://localhost:5173', 
+  'http://localhost:3000', 
   'https://rapidmate.fr',
   'https://admin.rapidmate.fr',
 ];
