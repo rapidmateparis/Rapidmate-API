@@ -17,10 +17,18 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
             const token = req.headers.authorization || req.headers.Authorization;
             const verified = jwt.verify(token, JWT_SECRET_KEY);
             if (verified) {
-                console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified?.ext_id || verified?.data?.userId);
-                req.query.ext_id = verified?.ext_id || verified?.data?.userId;
-                const role=verified?.ext_id || "A"+verified?.data?.userId;
-                req.query.role = utils.getRoleFromExtId(role);
+                if(verified?.ext_id==undefined){
+                  console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified?.data?.userId);
+                  req.query.adminUserId = verified?.data?.userId;
+                  const role="A"+verified?.data?.userId;
+                  req.query.adminRole = utils.getRoleFromExtId(role);
+                }else{
+                  console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified?.ext_id || verified?.data?.userId);
+                  req.query.ext_id = verified?.ext_id || verified?.data?.userId;
+                  const role=verified?.ext_id || "A"+verified?.data?.userId;
+                  req.query.role = utils.getRoleFromExtId(role);
+                }
+                
             } else {
                 return res.status(401).json(utils.buildResponseMessageContent(HttpStatusCode.Unauthorized, "Unauthorized" , 1001, "Restricted to access this service. Please contact your administrator"));
             }
