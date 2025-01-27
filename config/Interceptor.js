@@ -17,20 +17,6 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
             const token = req.headers.authorization || req.headers.Authorization;
             const verified = jwt.verify(token, JWT_SECRET_KEY);
             if (verified) {
-<<<<<<< HEAD
-                if(verified?.ext_id==undefined){
-                  console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified?.data?.userId);
-                  req.query.adminUserId = verified?.data?.userId;
-                  const role="A"+verified?.data?.userId;
-                  req.query.adminRole = utils.getRoleFromExtId(role);
-                }else{
-                  console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified?.ext_id || verified?.data?.userId);
-                  req.query.ext_id = verified?.ext_id || verified?.data?.userId;
-                  const role=verified?.ext_id || "A"+verified?.data?.userId;
-                  req.query.role = utils.getRoleFromExtId(role);
-                }
-                
-=======
                 console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified.ext_id);
                 const extIdValue = verified?.ext_id || "A"+verified?.data?.userId;
                 let role_type = utils.getRoleFromExtId(extIdValue);
@@ -41,7 +27,6 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
                   req.query.ext_id = verified.ext_id;
                   req.query.role = role_type;
                 }
->>>>>>> 45cc918187c14f776d026089fc3fea58637f875d
             } else {
                 return res.status(401).json(utils.buildResponseMessageContent(HttpStatusCode.Unauthorized, "Unauthorized" , 1001, "Restricted to access this service. Please contact your administrator"));
             }
