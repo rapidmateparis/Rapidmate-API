@@ -81,7 +81,6 @@ exports.getOrderList = async (req,res) =>{
     if(delivery_type_id){
       conditions = " AND e.delivery_type_id="+delivery_type_id+" " ;
     }
-    console.log("ordertype",orderType)
     let queryForCount = ``;
     if (orderNumber.trim()) {
       queryForCount += ` and (order_number LIKE ?)`;
@@ -89,7 +88,7 @@ exports.getOrderList = async (req,res) =>{
     if(delivery_type_id){
       queryForCount = " AND delivery_type_id="+delivery_type_id+" " ;
     }
-    const query = `SELECT e.*,dt.delivery_type,CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,s.service_type as service_name,s.hour_amount FROM rmt_enterprise_order as e LEFT JOIN rmt_enterprise_delivery_type as dt ON  e.delivery_type_id=dt.id LEFT JOIN rmt_enterprise_service_type AS s ON e.service_type_id = s.id LEFT JOIN rmt_delivery_boy AS d ON e.delivery_boy_id = d.id WHERE e.is_del=0 ${conditions} ORDER BY e.created_on DESC ${utils.getPagination(req.query.page, req.query.size)}`;
+    const query = `SELECT e.*,dt.delivery_type,CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,en.ext_id,d.ext_id as deliveryboyId,CONCAT(en.first_name, ' ', en.last_name) AS enterprise_name,s.service_type as service_name,s.hour_amount FROM rmt_enterprise_order as e LEFT JOIN rmt_enterprise_delivery_type as dt ON  e.delivery_type_id=dt.id LEFT JOIN rmt_enterprise en ON e.enterprise_id=en.id LEFT JOIN rmt_enterprise_service_type AS s ON e.service_type_id = s.id LEFT JOIN rmt_delivery_boy AS d ON e.delivery_boy_id = d.id WHERE e.is_del=0 ${conditions} ORDER BY e.created_on DESC ${utils.getPagination(req.query.page, req.query.size)}`;
     const countQuery = `SELECT COUNT(*) AS total FROM rmt_enterprise_order WHERE order_status IN(${statusParams}) ${queryForCount}`;
     const countResult = await fetch(countQuery);
     const totalRecords = countResult[0].total;
