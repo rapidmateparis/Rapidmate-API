@@ -339,6 +339,7 @@ module.exports = {
       req.consumer_order_title ="Order placed on ";
       req.delivery_boy_order_title = "Order received on ";
    }
+   req.is_pay_later=req.is_pay_later ? 1 : 0
    try {
       connections = await pool.getConnection(); // Get a connection from the pool
       await connections.beginTransaction();
@@ -347,21 +348,21 @@ module.exports = {
         order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,
-        drop_email,drop_notes,consumer_order_title,delivery_boy_order_title
+        drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
 
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id, order_date,pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
           repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
-          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title
-        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
           delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
-          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
         ]
       );
       await connections.commit(); // Commit the transaction
@@ -383,6 +384,7 @@ module.exports = {
         req.consumer_order_title ="Order placed on ";
         req.delivery_boy_order_title = "Order received on ";
     }
+    req.is_pay_later=req.is_pay_later ? 1 : 0
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
@@ -391,7 +393,7 @@ module.exports = {
         enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,
-        drop_notes,consumer_order_title,delivery_boy_order_title
+        drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
 
       } = req; 
       const [result] = await connections.query(
@@ -399,14 +401,14 @@ module.exports = {
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
           order_date, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
           repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
-          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title
-        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,
           order_date,pickup_location_id, dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
           delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
-          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
         ]
       );
       console.log("result ---->", result);

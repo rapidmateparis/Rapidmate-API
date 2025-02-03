@@ -244,7 +244,7 @@ exports.updateItem = async (req, res) => {
       }
       if(requestData.isPaylater){
         queryCondition += ", is_pay_later = ?";
-        queryConditionParam.push(requestData.isPaylater);
+        queryConditionParam.push(requestData.isPay);
       }
 
       queryConditionParam.push(id);

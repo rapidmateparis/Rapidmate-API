@@ -879,3 +879,104 @@ exports.planSearch = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
+exports.getBillingReport = async (req, res) => {
+  try {
+    const { enterprise_id, order_type, billing_type, status, start_date, end_date, page = 1, limit = 10 } = req.query;
+
+    let filters = [];
+    let values = [];
+   
+    if (enterprise_id) {
+      const id = await utils.getValueById('id', 'rmt_enterprise', 'ext_id', enterprise_id);
+      if(id){
+        filters.push("eo.enterprise_id = ?");
+        values.push(id);
+      }
+    }
+    if (order_type) {
+      const validTypes = { "ontime": 1, "multiple_delivery": 2, "shift_order": 3 };
+      if (!validTypes[order_type]) {
+        return res.status(400).json({ success: false, error: "Invalid order_type. Allowed values: ontime, multiple_delivery, shift_order" });
+      }
+      filters.push("eo.delivery_type_id = ?");
+      values.push(validTypes[order_type]);
+    }
+    if (billing_type) {
+      if (!["pay_later", "shift_slot"].includes(billing_type)) {
+        return res.status(400).json({ success: false, error: "Invalid billing_type. Allowed values: pay_later, shift_slot" });
+      }
+      filters.push("eo.is_pay_later = ?");
+      values.push(billing_type === "pay_later" ? 1 : 0);
+    }
+    if (status) {
+      filters.push("eo.status = ?");
+      values.push(status);
+    }
+    if (start_date) {
+      filters.push("DATE(eo.order_date) >= ?");
+      values.push(start_date);
+    }
+    if (end_date) {
+      filters.push("DATE(eo.order_date) <= ?");
+      values.push(end_date);
+    }
+
+    const whereClause = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+    const offset = (page - 1) * limit;
+
+
+    const query = `
+    SELECT 
+        eo.id AS order_id,
+        eo.order_number,
+        ent.first_name AS enterprise_name,
+        ent.email AS enterprise_email,
+        ent.phone AS enterprise_phone,
+        eo.order_date,
+        CASE 
+            WHEN eo.delivery_type_id = 1 THEN 'Ontime'
+            WHEN eo.delivery_type_id = 2 THEN 'Multiple Delivery'
+            WHEN eo.delivery_type_id = 3 THEN 'Shift Order'
+        END AS order_type,
+        eo.amount AS total_order_amount,
+        eo.commission_amount,
+        eo.delivery_boy_amount,
+        CASE 
+            WHEN eo.is_pay_later = 1 THEN 'Pay Later Billing'
+            ELSE 'Shift Slot Billing'
+        END AS billing_type,
+        eo.is_scheduled_order,
+        CASE 
+            WHEN eo.is_scheduled_order = 1 THEN eo.schedule_date_time
+            ELSE eo.order_date
+        END AS scheduled_or_placed_date
+    FROM rmt_enterprise_order eo
+    JOIN rmt_enterprise ent ON eo.enterprise_id = ent.id
+    ${whereClause ? whereClause : ""}
+    ORDER BY eo.order_date DESC
+    LIMIT ${Number(limit) || 10} OFFSET ${Number(offset) || 0};
+`;
+
+
+const valuesArray = [...values]; 
+
+const orders = await fetch(query, valuesArray);
+    const [totalCount] = await fetch(`SELECT COUNT(*) as total FROM rmt_enterprise_order eo ${whereClause};`, [values]);    
+    const resData ={ 
+      success: true, 
+      page: Number(page), 
+      limit: Number(limit), 
+      total_orders:  totalCount.total, 
+      data: orders 
+    };
+    return res
+    .status(200)
+    .json(utils.buildCreateMessage(200, "test", resData));
+  }catch(error){
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
+  }
+};
+
+
