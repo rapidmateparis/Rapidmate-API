@@ -106,6 +106,11 @@ router.post(
   controller.planSearch
 )
 
+router.get(
+  '/reports/billing',
+  trimRequest.all,
+  controller.getBillingReport
+)
 /*
  * Delete item route
  */

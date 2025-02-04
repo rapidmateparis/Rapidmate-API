@@ -242,6 +242,10 @@ exports.updateItem = async (req, res) => {
         queryCondition += ", deliveryMonthHours = ?";
         queryConditionParam.push(requestData.deliveryMonthHours);
       }
+      if(requestData.isPaylater){
+        queryCondition += ", is_pay_later = ?";
+        queryConditionParam.push(requestData.isPay);
+      }
 
       queryConditionParam.push(id);
       var updateQueryStr = "update rmt_enterprise set is_del = 0 " + queryCondition + " where id = ?";
