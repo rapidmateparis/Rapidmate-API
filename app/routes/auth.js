@@ -36,6 +36,7 @@ router.get(
  * Login route
  */
 router.post('/login', trimRequest.all, validate.login, controller.login)
+router.post('/updatewebtoken', trimRequest.all,controller.updateWebToken)
 router.get('/register',trimRequest.all,controller.register)
 router.use('/dashboard',dashboarRouter);
 router.use('/invoice',invoiceRouter);
