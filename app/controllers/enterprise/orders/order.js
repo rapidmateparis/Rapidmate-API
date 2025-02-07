@@ -9,6 +9,7 @@ const fs = require('fs');
 const { jsPDF } = require("jspdf"); // will automatically load the node version
 const doc = new jsPDF();
 
+const invoiceContoller = require("../../admin/invoices/invoice")
 
 exports.getOrderList = async (req,res) =>{
   try{
@@ -879,37 +880,35 @@ exports.planSearch = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
+
 exports.getBillingReport = async (req, res) => {
   try {
     const { enterprise_id, order_type, billing_type, status, start_date, end_date, page = 1, limit = 10 } = req.query;
-
     let filters = [];
     let values = [];
-   
     if (enterprise_id) {
       const id = await utils.getValueById('id', 'rmt_enterprise', 'ext_id', enterprise_id);
-      if(id){
-        filters.push("eo.enterprise_id = ?");
-        values.push(id);
-      }
+      filters.push("eo.enterprise_id = ?");
+      values.push(id);
     }
     if (order_type) {
       const validTypes = { "ontime": 1, "multiple_delivery": 2, "shift_order": 3 };
       if (!validTypes[order_type]) {
-        return res.status(400).json({ success: false, error: "Invalid order_type. Allowed values: ontime, multiple_delivery, shift_order" });
+      
+        return res.status(400).json(utils.buildErrorObject(400, "Invalid order_type. Allowed values: ontime, multiple_delivery, shift_order", 1001));
       }
       filters.push("eo.delivery_type_id = ?");
       values.push(validTypes[order_type]);
     }
     if (billing_type) {
       if (!["pay_later", "shift_slot"].includes(billing_type)) {
-        return res.status(400).json({ success: false, error: "Invalid billing_type. Allowed values: pay_later, shift_slot" });
+        return res.status(400).json(utils.buildErrorObject(400, "Invalid billing_type. Allowed values: pay_later, shift_slot", 1001));
       }
       filters.push("eo.is_pay_later = ?");
       values.push(billing_type === "pay_later" ? 1 : 0);
     }
     if (status) {
-      filters.push("eo.status = ?");
+      filters.push("eo.order_status = ?");
       values.push(status);
     }
     if (start_date) {
@@ -923,8 +922,6 @@ exports.getBillingReport = async (req, res) => {
 
     const whereClause = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
     const offset = (page - 1) * limit;
-
-
     const query = `
     SELECT 
         eo.id AS order_id,
@@ -949,19 +946,17 @@ exports.getBillingReport = async (req, res) => {
         CASE 
             WHEN eo.is_scheduled_order = 1 THEN eo.schedule_date_time
             ELSE eo.order_date
-        END AS scheduled_or_placed_date
-    FROM rmt_enterprise_order eo
-    JOIN rmt_enterprise ent ON eo.enterprise_id = ent.id
-    ${whereClause ? whereClause : ""}
-    ORDER BY eo.order_date DESC
-    LIMIT ${Number(limit) || 10} OFFSET ${Number(offset) || 0};
-`;
-
-
-const valuesArray = [...values]; 
-
-const orders = await fetch(query, valuesArray);
-    const [totalCount] = await fetch(`SELECT COUNT(*) as total FROM rmt_enterprise_order eo ${whereClause};`, [values]);    
+        END AS scheduled_or_placed_date,
+        eo.order_status as status
+      FROM rmt_enterprise_order eo
+      JOIN rmt_enterprise ent ON eo.enterprise_id = ent.id
+      ${whereClause ? whereClause : ""}
+      ORDER BY eo.order_date DESC
+      LIMIT ${Number(limit) || 10} OFFSET ${Number(offset) || 0};
+    `;
+    const valuesArray = [...values]; 
+    const orders = await fetch(query, valuesArray);
+    const [totalCount] = await fetch(`SELECT COUNT(*) as total FROM rmt_enterprise_order eo ${whereClause};`, [...values]);    
     const resData ={ 
       success: true, 
       page: Number(page), 
@@ -969,14 +964,73 @@ const orders = await fetch(query, valuesArray);
       total_orders:  totalCount.total, 
       data: orders 
     };
-    return res
-    .status(200)
-    .json(utils.buildCreateMessage(200, "test", resData));
+    return res.status(200).json(utils.buildCreateMessage(200, "Successfully", resData));
   }catch(error){
-    return res
-      .status(500)
-      .json(utils.buildErrorObject(500, error.message, 1001));
+    return res.status(500).json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
+
+
+const convert = async (req,orders) =>{
+ try {
+     return new Promise(async (resolve, reject) => {
+       let template = fs.readFileSync('./templates/bill.html',"utf8");
+       
+       try {
+         let pdfBuffer = await invoiceContoller.saveCreatePdf(template);
+         return res
+           .status(200)
+           .set({ "content-type": "application/pdf; charset=utf-8" })
+           .send(pdfBuffer);
+       } catch (error) {
+         console.error("Error generating PDF:", error);
+         reject(error);
+       }
+     });
+     } catch (error) {
+       console.log(error);
+     }
+     return null;
+}
+exports.billReportDownload = async (req,res)=>{
+  // const { orderNumbers } = req.body;
+  const orderNumbers='EO20250203131253'
+
+  if (!orderNumbers || orderNumbers.length === 0) {
+    return res.status(400).json(utils.buildErrorObject(400, "No order numbers provided.", 1001));
+  }
+  try {
+    const query = `
+      SELECT 
+        eo.*,
+        ent.first_name AS enterprise_name,
+        CASE 
+            WHEN eo.delivery_type_id = 1 THEN 'Ontime'
+            WHEN eo.delivery_type_id = 2 THEN 'Multiple Delivery'
+            WHEN eo.delivery_type_id = 3 THEN 'Shift Order'
+        END AS order_type,
+        CASE 
+            WHEN eo.is_pay_later = 1 THEN 'Pay Later Billing'
+            ELSE 'Shift Slot Billing'
+        END AS billing_type,
+        eo.amount AS total_order_amount,
+        eo.order_status as status
+      FROM rmt_enterprise_order eo
+      JOIN rmt_enterprise ent ON eo.enterprise_id = ent.id
+      WHERE eo.order_number=?
+      ORDER BY eo.order_date DESC;
+    `;
+    console.log(orderNumbers)
+    const orders = await fetch(query, [orderNumbers]);
+    console.log("order",orders)
+    if (orders.length === 0) {
+      return res.status(400).json(utils.buildErrorObject(400, "No orders found for the given order numbers.", 1001));
+    }
+    return await convert(res,orders);
+
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500, "Unable to download bill", 1001));
+  }
+}
 
 

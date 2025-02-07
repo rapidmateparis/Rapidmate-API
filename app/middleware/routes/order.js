@@ -111,6 +111,12 @@ router.get(
   trimRequest.all,
   controller.getBillingReport
 )
+
+router.get(
+  '/bill/download/:id',
+  trimRequest.all,
+  controller.billReportDownload
+)
 /*
  * Delete item route
  */
