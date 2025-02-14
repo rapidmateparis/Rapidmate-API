@@ -224,4 +224,16 @@ router.post('/getaccesstoken',trimRequest.all,validate.getAccessToken,function (
     });
 });
 
+router.get('/map/code', trimRequest.all, async (req, res) => {
+  
+  try {
+      const mapKey={
+        mapKey:process.env.GOOGLE_MAP_KEY
+      }
+      return res.status(200).json(utils.buildCreateMessage(200,"Retrive mapkey",mapKey))
+  } catch (error) {
+    return res.status(400).json(utils.buildErrorObject(400,"Error fetching data",1001));
+  }
+});
+
 module.exports = router
