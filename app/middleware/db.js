@@ -147,6 +147,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
+      console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
