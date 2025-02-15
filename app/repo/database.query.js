@@ -356,12 +356,12 @@ exports.FETCH_CONSUMER_ADDRESS_BOOK_QUERY = `SELECT * FROM rmt_consumer_address_
 exports.INSERT_CONSUMER_ADDRESS_BOOK_QUERY = `INSERT INTO rmt_consumer_address_book(consumer_id, first_name, last_name, address, email, phone, company_name, comments) VALUES((select id from rmt_consumer where ext_id = ?), ?, ?, ?, ?, ?, ?, ?)`;
 exports.DELETE_CONSUMER_ADDRESS_BOOK_QUERY = `Delete from  rmt_consumer_address_book where id = ?`;
 
-//-------------------------------rmt_consumer_address_book-----------------------------------------------------\
+//-------------------------------rmt_delivery_boy_address_book-----------------------------------------------------\
 exports.FETCH_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `SELECT * FROM rmt_delivery_boy_address_book WHERE is_del=0 and delivery_boy_id = ?`;
 exports.INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `INSERT INTO rmt_delivery_boy_address_book(delivery_boy_id, first_name, last_name, address, email, phone, company_name, comments) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
 exports.DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY = `Delete from  rmt_delivery_boy_address_book where id = ? and delivery_boy_id = ?`;
 
-//-------------------------------rmt_consumer_address_book-----------------------------------------------------\
+//-------------------------------rmt_enterprise_address_book-----------------------------------------------------\
 exports.FETCH_ENTERPRISE_ADDRESS_BOOK_QUERY=`SELECT * FROM rmt_enterprise_address_book WHERE is_del=0 and enterprise_id = (select id from rmt_enterprise where ext_id = ?)`;
 exports.INSERT_ENTERPRISE_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_enterprise_address_book(enterprise_id, first_name, last_name, address, email, phone, company_name, comments) VALUES((select id from rmt_enterprise where ext_id = ?), ?, ?, ?, ?, ?, ?, ?)`;
 exports.DELETE_ENTERPRISE_ADDRESS_BOOK_QUERY=`Delete from  rmt_enterprise_address_book where id = ?`;
@@ -419,6 +419,11 @@ exports.INSERT_DB_BILLING_ADDRESS =
 exports.UPDATE_DB_BILLING_ADDRESS =
   "update rmt_delivery_billing_address set first_name = ?, last_name = ?, address = ?, city_id = ? , state_id = ?, country_id = ?, dni_number = ?, postal_code = ?, account_type=? where id = ?";
 //---------------------------------------------------------------------------------------------------------------\
+
+//-------------------------------rmt_enterprise_billing_address_book-----------------------------------------------------\
+exports.FETCH_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY=`SELECT * FROM rmt_enterprise_billing_address WHERE is_del=0 and enterprise_id = (select id from rmt_enterprise where ext_id = ?)`;
+exports.INSERT_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_enterprise_billing_address(enterprise_id, first_name, last_name, address, phone, country_id, state_id, city_id, postal_code, dni_number) VALUES((select id from rmt_enterprise where ext_id = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+exports.DELETE_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY=`Delete from  rmt_enterprise_billing_address where id = ?`;
 
 exports.transformKeysToLowercase = async (results) => {
   return results.map((row) => {
