@@ -16,7 +16,7 @@ const Notification =require('./app/models/Notification');
 const orderControl =require('./app/controllers/deliveryboy/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
-
+const rateLimit = require('express-rate-limit');
 
 require('log4js').configure({
   appenders: {
@@ -28,6 +28,16 @@ require('log4js').configure({
   }
 });
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per `windowMs`
+  message: { error: "Too many requests, please try again later." },
+  headers: true, // Send rate limit info in headers
+});
+
+app.use(limiter);
+
 const allowedOrigins = [
   'http://localhost:5173', 
   'http://localhost:3000', 
