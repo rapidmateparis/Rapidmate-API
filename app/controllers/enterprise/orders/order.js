@@ -429,12 +429,12 @@ exports.createEnterpriseOrder = async (req, res) => {
   try {
     const requestData = req.body;
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
-     if(vehicleType && requestData.delivery_type_id == 3){
+    if(vehicleType){
       var total_amount = requestData.total_amount;
       requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
       requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
       requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
-     }
+    }
 
     const item = await createEOrders(requestData);
     if (item.id) {
