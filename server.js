@@ -29,14 +29,14 @@ require('log4js').configure({
 });
 const app = express();
 
-const limiter = rateLimit({
+/* const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50, // Limit each IP to 50 requests per `windowMs`
   message: { error: "Too many requests, please try again later." },
   headers: true, // Send rate limit info in headers
 });
 
-app.use(limiter);
+app.use(limiter); */
 
 const allowedOrigins = [
   'http://localhost:5173', 
