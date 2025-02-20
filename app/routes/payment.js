@@ -4,7 +4,7 @@ const paymentController = require('../controllers/payment.stripe');
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-
+const StripeController = require("../middleware/routes/stripe")
 /*
  * payment routes
  */
@@ -80,4 +80,6 @@ router.delete(
   controller.deleteItem
 )
 
+
+router.use("/stripe",StripeController)
 module.exports = router
