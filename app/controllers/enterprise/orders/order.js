@@ -757,11 +757,12 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
   try {
     const order_number = req.query.o;
     var orderInfo = getOrderTypeInfo(order_number);
-    const order = await utils.getValuesById("id, is_del, order_date, order_number, service_type_id", "rmt_enterprise_order", "order_number", order_number);
+    const order = await utils.getValuesById("id, is_del, order_date, order_number, service_type_id, vehicle_type_id", "rmt_enterprise_order", "order_number", order_number);
     if (order) {
       const orderAllocationQuery = "select * from vw_delivery_plan_setup_slots slot where work_type_id in (1,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " + 
-      "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_enterprise_order_allocation where order_id=?) limit 1";
-      const dbData = await fetch(orderAllocationQuery, [order.order_date, order.order_date,order.id])
+      "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_enterprise_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
+      const dbData = await fetch(orderAllocationQuery, [order.order_date, order.order_date,order.id,
+        order.vehicle_type_id])
       if(dbData.length <=0){
         message="Delivery boys are busy. Please try again!!!";
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
