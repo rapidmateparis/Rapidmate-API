@@ -165,6 +165,12 @@ cron.schedule("*/10 * * * * *", function() {
   console.log("Schedule Order : Running..." , new Date());
   orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
 });
+
+cron.schedule("*/5 * * * * *", function() { 
+  console.log("Reallocate Order : Running..." , new Date());
+  orderControl.cronJobRemoveAllocatedDeliveryBoyByOrderNumber();
+});
+
 server.listen(app.get('port'), () => {
   console.log('Server is running on port', app.get('port'));
 });

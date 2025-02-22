@@ -997,11 +997,20 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber = async () => {
   }
 }
 
+exports.cronJobRemoveAllocatedDeliveryBoyByOrderNumber = async () => {
+  try {
+    var responseData = await updateAlloctatedButNotAcceptedOrderList();
+    console.log("Reallocate Order : ", responseData);
+ } catch (error) {
+    console.error(error);
+  }
+}
+
 const scheduleAllocateDeliveryBoyByOrderNumber = async (order_number) => {
   var responseData = {};
   try {
     const order = await utils.getValuesById(
-      "id, is_del, order_date, order_number, service_type_id",
+      "id, is_del, order_date, order_number, service_type_id, vehicle_type_id",
       "rmt_order",
       "order_number",
       order_number
@@ -1009,12 +1018,13 @@ const scheduleAllocateDeliveryBoyByOrderNumber = async (order_number) => {
     if (order) {
       const orderAllocationQuery =
         "select * from vw_delivery_plan_setup_slots slot where work_type_id in (?,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " +
-        "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) limit 1";
+        "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
       const dbData = await fetch(orderAllocationQuery, [
         order.service_type_id,
         order.order_date,
         order.order_date,
         order.id,
+        order.vehicle_type_id
       ]);
       if (dbData.length <= 0) {
         message = "Delivery boys are busy. Please try again!!!";
@@ -1128,7 +1138,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   try {
     const order_number = req.query.o;
     const order = await utils.getValuesById(
-      "id, is_del, order_date, order_number, service_type_id, order_status","rmt_order","order_number", order_number
+      "id, is_del, order_date, order_number, service_type_id, order_status,vehicle_type_id","rmt_order","order_number", order_number
     );
     if (order) {
       if(order.order_status !=='ORDER_PLACED'){
@@ -1137,12 +1147,13 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
       }
       const orderAllocationQuery =
         "select * from vw_delivery_plan_setup_slots slot where work_type_id in (?,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " +
-        "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) limit 1";
+        "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
       const dbData = await fetch(orderAllocationQuery, [
         order.service_type_id,
         order.order_date,
         order.order_date,
         order.id,
+        order.vehicle_type_id
       ]);
       if (dbData.length <= 0) {
         message = "Delivery boys are busy. Please try again!!!";
@@ -2332,6 +2343,15 @@ const getOrderByOrderNumber = async (order_number) => {
 const getScheduleUnallocateOrderList = async () => {
   try {
     return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)<=date(now()) and time(schedule_date_time)<=time(now()) and order_status not in('PAYMENT_FAILED','CANCELLED') limit 5", []);
+  } catch (error) {
+    console.log(error);
+  }
+  return {};
+};
+
+const updateAlloctatedButNotAcceptedOrderList = async () => {
+  try {
+    return await updateQuery("update rmt_order set delivery_boy_id =null where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, order_date, now())>30 and id<> 0", []);
   } catch (error) {
     console.log(error);
   }
