@@ -269,7 +269,7 @@ exports.DRIVER_DOC_TABLE = `INSERT INTO rmt_delivery_boy_document(file_name,path
 //============================= Driver allocate=================
 exports.INSERT_DELIVERY_BOY_ALLOCATE = `INSERT INTO rmt_order_allocation(order_id, delivery_boy_id) values((select id from rmt_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and id = ?))`;
 exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS = `UPDATE rmt_delivery_boy SET is_availability = 0 WHERE id=?`;
-exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER = `UPDATE rmt_order SET order_status = 'ORDER_ALLOCATED',is_delivery_boy_allocated = 1, delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and id = ?) WHERE order_number=?`;
+exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER = `UPDATE rmt_order SET order_status = 'ORDER_ALLOCATED',is_delivery_boy_allocated = 1, delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and id = ?), allocated_on=now() WHERE order_number=?`;
 
 //============================= Driver allocate enterprise=================
 exports.INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE = `INSERT INTO rmt_enterprise_order_allocation(order_id, delivery_boy_id) values((select id from rmt_enterprise_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and id = ?))`;
