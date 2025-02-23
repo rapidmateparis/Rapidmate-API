@@ -422,7 +422,7 @@ exports.UPDATE_DB_BILLING_ADDRESS =
 
 //-------------------------------rmt_enterprise_billing_address_book-----------------------------------------------------\
 exports.FETCH_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY=`SELECT * FROM rmt_enterprise_billing_address WHERE is_del=0 and enterprise_id = (select id from rmt_enterprise where ext_id = ?)`;
-exports.INSERT_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_enterprise_billing_address(enterprise_id, first_name, last_name, address, phone, country_id, state_id, city_id, postal_code, dni_number) VALUES((select id from rmt_enterprise where ext_id = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+exports.INSERT_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY=`INSERT INTO rmt_enterprise_billing_address(enterprise_id, first_name, last_name, address, country_id, state_id, city_id, postal_code, dni_number) VALUES((select id from rmt_enterprise where ext_id = ?), ?, ?, ?, ?, ?, ?, ?, ?)`;
 exports.DELETE_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY=`Delete from  rmt_enterprise_billing_address where id = ?`;
 
 exports.transformKeysToLowercase = async (results) => {

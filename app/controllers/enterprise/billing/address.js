@@ -60,14 +60,6 @@ const updateBillingAddress = async (requestData) => {
       queryCondition += ", last_name = ?";
       queryConditionParam.push(requestData.last_name);
     }
-    if(requestData.email){
-      queryCondition += ", email = ?";
-      queryConditionParam.push(requestData.email);
-    }
-    if(requestData.phone){
-      queryCondition += ", phone = ?";
-      queryConditionParam.push(requestData.phone);
-    }
     if(requestData.city_id){
       queryCondition += ", city_id = ?";
       queryConditionParam.push(requestData.city_id);
