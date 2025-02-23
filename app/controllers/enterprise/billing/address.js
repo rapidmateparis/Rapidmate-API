@@ -36,7 +36,7 @@ exports.updateBillingAddressDetails = async (req, res) => {
 }
 
 const createBillingAddress = async (req) => {
-  let requestParams = [req.enterprise_ext_id, req.first_name, req.last_name, req.address, req.phone, req.country_id, req.state_id, req.city_id, req.postal_code, req.dni_number];
+  let requestParams = [req.enterprise_ext_id, req.first_name, req.last_name, req.address, req.country_id, req.state_id, req.city_id, req.postal_code, req.dni_number];
   console.log(requestParams);
   const executeCreateNewAddress = await insertQuery(INSERT_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY, requestParams);
   console.log(executeCreateNewAddress);
