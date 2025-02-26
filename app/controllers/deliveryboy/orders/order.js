@@ -2351,7 +2351,7 @@ const getScheduleUnallocateOrderList = async () => {
 
 const updateAlloctatedButNotAcceptedOrderList = async () => {
   try {
-    return await updateQuery("update rmt_order set delivery_boy_id =null where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, order_date, now())>30 and id<> 0", []);
+    return await updateQuery("update rmt_order set delivery_boy_id =null where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
   } catch (error) {
     console.log(error);
   }
