@@ -2129,10 +2129,10 @@ exports.viewOrderByOrderNumber = async (req, res) => {
       );
       responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
       if(orderData?.pickup_location_id){
-        responseData.pickup_details = await getLocationInfo(orderData.pickup_location_id);
+        responseData.order.pickup_details = await getLocationInfo(orderData.pickup_location_id);
       }
       if(orderData?.dropoff_location_id){
-        responseData.drop_details = await getLocationInfo(orderData.dropoff_location_id);
+        responseData.order.drop_details = await getLocationInfo(orderData.dropoff_location_id);
       }
       if (returnData) {
         return { data: responseData };
