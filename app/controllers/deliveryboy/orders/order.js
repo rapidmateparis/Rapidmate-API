@@ -1308,6 +1308,19 @@ const getVehicleInfo = async (delivery_boy_id) => {
   }
 };
 
+const getLocationInfo = async (locatinId) => {
+  try {
+    const data = await fetch(
+      "select * from rmt_location where id =? and is_del=0",
+      [locatinId]
+    );
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
 const getDeliveryInfo = async (delivery_boy_id) => {
   try {
     const data = await fetch(
@@ -2115,6 +2128,12 @@ exports.viewOrderByOrderNumber = async (req, res) => {
         orderData.delivery_boy_id
       );
       responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
+      if(orderData?.pickup_location_id){
+        responseData.pickup_details = await getLocationInfo(orderData.pickup_location_id);
+      }
+      if(orderData?.dropoff_location_id){
+        responseData.drop_details = await getLocationInfo(orderData.dropoff_location_id);
+      }
       if (returnData) {
         return { data: responseData };
       }
