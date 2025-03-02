@@ -1140,8 +1140,9 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
     const order = await utils.getValuesById(
       "id, is_del, order_date, order_number, service_type_id, order_status,vehicle_type_id, delivery_boy_id","rmt_order","order_number", order_number
     );
+    console.log("Order - ALlocation Delivery boy allocateDeliveryBoyByOrderNumber : ", order);
     if (order) {
-      if(order.order_status ==='ORDER_PLACED' || order.order_status ==='ORDER_ACCETPTED' || order.order_status ==='ORDER_ALLOCATED'){
+      if(order.order_status ==='ORDER_PLACED' || order.order_status ==='ORDER_ACCEPTED' || order.order_status ==='ORDER_ALLOCATED'){
           if(order.order_status ==='ORDER_PLACED'){
               const orderAllocationQuery =
               "select * from vw_delivery_plan_setup_slots slot where work_type_id in (?,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " +
