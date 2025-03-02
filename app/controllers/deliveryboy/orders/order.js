@@ -1138,131 +1138,154 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   try {
     const order_number = req.query.o;
     const order = await utils.getValuesById(
-      "id, is_del, order_date, order_number, service_type_id, order_status,vehicle_type_id","rmt_order","order_number", order_number
+      "id, is_del, order_date, order_number, service_type_id, order_status,vehicle_type_id, delivery_boy_id","rmt_order","order_number", order_number
     );
     if (order) {
-      if(order.order_status !=='ORDER_PLACED'){
-        message = "Delivery boys are busy. Please try again!!!";
-        return res.status(400).json(utils.buildErrorObject(400, "Order allocation was failed. (Current order status is " + order.order_status + ")", 1001));
-      }
-      const orderAllocationQuery =
-        "select * from vw_delivery_plan_setup_slots slot where work_type_id in (?,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " +
-        "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
-      const dbData = await fetch(orderAllocationQuery, [
-        order.service_type_id,
-        order.order_date,
-        order.order_date,
-        order.id,
-        order.vehicle_type_id
-      ]);
-      if (dbData.length <= 0) {
-        message = "Delivery boys are busy. Please try again!!!";
-        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
-      } else {
-        allocatedDeliveryBoy = dbData[0];
-        responseData.deliveryBoy = allocatedDeliveryBoy;
-        const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
-        const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
-        const allocateDeliveryBoyResult = await insertQuery(
-          INSERT_DELIVERY_BOY_ALLOCATE,
-          [order_number, delivery_boy_id]
-        );
-        console.log(allocateDeliveryBoyResult);
-        if (allocateDeliveryBoyResult.insertId) {
-          const setDeliveryBoy = await updateQuery(
-            UPDATE_SET_DELIVERY_BOY_FOR_ORDER,
-            [delivery_boy_id, order_number]
-          );
-          const updateAllocate = await updateQuery(
-            UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,
-            [delivery_boy_id]
-          );
-          responseData.order = await getOrderInfo(order_number);
-          responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
-          var consumer_ext_id = responseData.order.ext_id;
-          var notifiationConsumerRequest = {
-            title: "Driver allocated!!!Order# : " + order_number,
-            body: {
-              message: "Driver has been allocated successfully for your order",
-              orderNumber: order_number,
-            },
-            payload: {
-              message: "You have been received new order successfully",
-              orderNumber: order_number,
-            },
-            extId: order_number,
-            message: "Driver has been allocated successfully for your order",
-            topic: "",
-            token: "",
-            senderExtId: "",
-            receiverExtId: consumer_ext_id,
-            statusDescription: "",
-            status: "",
-            notifyStatus: "",
-            tokens: "",
-            tokenList: "",
-            actionName: "",
-            path: "",
-            userRole: "CONSUMER",
-            redirect: "ORDER",
-          };
-          notification.createNotificationRequest(
-            notifiationConsumerRequest,
-            false
-          );
-          var notifiationDriverRequest = {
-            title: "New order received!!!Order# : " + order_number,
-            body: {
-              message: "You have been received new order successfully",
-              orderNumber: order_number,
-              orderStatus : "ORDER_ALLOCATED"
-            },
-            payload: {
-              message: "You have been received new order successfully",
-              orderNumber: order_number,
-              orderStatus : "ORDER_ALLOCATED"
-            },
-            extId: order_number,
-            message: "You have been received new order successfully",
-            topic: "",
-            token: "",
-            senderExtId: "",
-            receiverExtId: delivery_boy_ext_id,
-            statusDescription: "",
-            status: "",
-            notifyStatus: "",
-            tokens: "",
-            tokenList: "",
-            actionName: "",
-            path: "",
-            userRole: "DELIVERY_BOY",
-            redirect: "ORDER",
-          };
-          notification.createNotificationRequest(
-            notifiationDriverRequest,
-            true
-          );
-          return res
-            .status(201)
-            .json(
-              utils.buildCreateMessage(
-                201,
-                "Delivery boy has been allocated successfully",
-                responseData
-              )
-            );
-        } else {
-          return res
-            .status(500)
-            .json(
-              utils.buildErrorObject(
-                500,
-                "Unable to allocate driver your order.",
-                1001
-              )
-            );
+      if(order.order_status ==='ORDER_PLACED' || order.order_status ==='ORDER_ACCETPTED' || order.order_status ==='ORDER_ALLOCATED'){
+          if(order.order_status ==='ORDER_PLACED'){
+              const orderAllocationQuery =
+              "select * from vw_delivery_plan_setup_slots slot where work_type_id in (?,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " +
+              "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
+            const dbData = await fetch(orderAllocationQuery, [
+              order.service_type_id,
+              order.order_date,
+              order.order_date,
+              order.id,
+              order.vehicle_type_id
+            ]);
+            if (dbData.length <= 0) {
+              message = "Delivery boys are busy. Please try again!!!";
+              return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+            } else {
+              allocatedDeliveryBoy = dbData[0];
+              responseData.deliveryBoy = allocatedDeliveryBoy;
+              const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
+              const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
+              const allocateDeliveryBoyResult = await insertQuery(
+                INSERT_DELIVERY_BOY_ALLOCATE,
+                [order_number, delivery_boy_id]
+              );
+              console.log(allocateDeliveryBoyResult);
+              if (allocateDeliveryBoyResult.insertId) {
+                const setDeliveryBoy = await updateQuery(
+                  UPDATE_SET_DELIVERY_BOY_FOR_ORDER,
+                  [delivery_boy_id, order_number]
+                );
+                const updateAllocate = await updateQuery(
+                  UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,
+                  [delivery_boy_id]
+                );
+                responseData.order = await getOrderInfo(order_number);
+                responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
+                var consumer_ext_id = responseData.order.ext_id;
+                var notifiationConsumerRequest = {
+                  title: "Driver allocated!!!Order# : " + order_number,
+                  body: {
+                    message: "Driver has been allocated successfully for your order",
+                    orderNumber: order_number,
+                  },
+                  payload: {
+                    message: "You have been received new order successfully",
+                    orderNumber: order_number,
+                  },
+                  extId: order_number,
+                  message: "Driver has been allocated successfully for your order",
+                  topic: "",
+                  token: "",
+                  senderExtId: "",
+                  receiverExtId: consumer_ext_id,
+                  statusDescription: "",
+                  status: "",
+                  notifyStatus: "",
+                  tokens: "",
+                  tokenList: "",
+                  actionName: "",
+                  path: "",
+                  userRole: "CONSUMER",
+                  redirect: "ORDER",
+                };
+                notification.createNotificationRequest(
+                  notifiationConsumerRequest,
+                  false
+                );
+                var notifiationDriverRequest = {
+                  title: "New order received!!!Order# : " + order_number,
+                  body: {
+                    message: "You have been received new order successfully",
+                    orderNumber: order_number,
+                    orderStatus : "ORDER_ALLOCATED"
+                  },
+                  payload: {
+                    message: "You have been received new order successfully",
+                    orderNumber: order_number,
+                    orderStatus : "ORDER_ALLOCATED"
+                  },
+                  extId: order_number,
+                  message: "You have been received new order successfully",
+                  topic: "",
+                  token: "",
+                  senderExtId: "",
+                  receiverExtId: delivery_boy_ext_id,
+                  statusDescription: "",
+                  status: "",
+                  notifyStatus: "",
+                  tokens: "",
+                  tokenList: "",
+                  actionName: "",
+                  path: "",
+                  userRole: "DELIVERY_BOY",
+                  redirect: "ORDER",
+                };
+                notification.createNotificationRequest(
+                  notifiationDriverRequest,
+                  true
+                );
+                const currentOrderStatus = await utils.getValuesById(
+                  "id, is_del, order_date, order_number, service_type_id, order_status,vehicle_type_id","rmt_order","order_number", order_number
+                );
+                if (currentOrderStatus) {
+                  if(currentOrderStatus.order_status ==='ORDER_ACCETPTED'){
+                    return res.status(201).json(utils.buildCreateMessage(201,"Delivery boy has been allocated successfully",responseData));
+                  }
+                  if(currentOrderStatus.order_status ==='ORDER_ALLOCATED'){
+                    return res.status(400).json(utils.buildErrorObject(400, "Waiting for delivery accepting the order", 1001));
+                  }
+                }
+                return res.status(400).json(utils.buildErrorObject(400, "Thanks your patience, We are trying to allocate the driveer. Please wait for the moment", 1001));
+                
+              } else {
+                return res
+                  .status(500)
+                  .json(
+                    utils.buildErrorObject(
+                      500,
+                      "Unable to allocate driver your order.",
+                      1001
+                    )
+                  );
+              }
+            }
+          }else{
+            if(order.order_status ==='ORDER_ACCETPTED'){
+              responseData.order = await getOrderInfo(order_number);
+              responseData.deliveryBoy = getDeliveryInfo(order.delivery_boy_id);
+              responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
+              return res.status(201).json(utils.buildCreateMessage(201,"Delivery boy has been allocated successfully",responseData));
+            }
+            if(order.order_status ==='ORDER_ALLOCATED'){
+              return res.status(400).json(utils.buildErrorObject(400, "Waiting for delivery accepting the order", 1001));
+            }
+            return res.status(400).json(utils.buildErrorObject(400, "Thanks your patience, We are trying to allocate the driveer. Please wait for the moment", 1001));
+          }
+          
+      }else{
+        if (order) {
+          if(order.order_status ==='ORDER_ALLOCATED'){
+            return res.status(400).json(utils.buildErrorObject(400, "Waiting for delivery accepting the order", 1001));
+          }
         }
       }
+      
     } else {
       return res
         .status(400)
@@ -2370,7 +2393,7 @@ const getScheduleUnallocateOrderList = async () => {
 
 const updateAlloctatedButNotAcceptedOrderList = async () => {
   try {
-    return await updateQuery("update rmt_order set delivery_boy_id =null where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
+    return await updateQuery("update rmt_order set delivery_boy_id =null, order_status ='ORDER_PLACED' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
   } catch (error) {
     console.log(error);
   }
