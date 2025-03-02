@@ -1245,7 +1245,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
                   "id, is_del, order_date, order_number, service_type_id, order_status,vehicle_type_id","rmt_order","order_number", order_number
                 );
                 if (currentOrderStatus) {
-                  if(currentOrderStatus.order_status ==='ORDER_ACCETPTED'){
+                  if(currentOrderStatus.order_status ==='ORDER_ACCEPTED'){
                     return res.status(201).json(utils.buildCreateMessage(201,"Delivery boy has been allocated successfully",responseData));
                   }
                   if(currentOrderStatus.order_status ==='ORDER_ALLOCATED'){
@@ -1267,7 +1267,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
               }
             }
           }else{
-            if(order.order_status ==='ORDER_ACCETPTED'){
+            if(order.order_status ==='ORDER_ACCEPTED'){
               responseData.order = await getOrderInfo(order_number);
               responseData.deliveryBoy = getDeliveryInfo(order.delivery_boy_id);
               responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
