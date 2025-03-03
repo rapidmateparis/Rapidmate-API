@@ -290,7 +290,7 @@ exports.updateOrderStatus = async (req, res) => {
     var next_action_status = "Ready pickup";
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
-    var deliveredOTPNumber= "1212";
+    var deliveredOTPNumber= "****";
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
       next_action_status = "Payment Failed";
