@@ -28,12 +28,6 @@ exports.createItem = [
     .not()
     .isEmpty()
     .withMessage("IS_EMPTY"),
-  check("branch_id")
-    .exists()
-    .withMessage("MISSING")
-    .not()
-    .isEmpty()
-    .withMessage("IS_EMPTY"),
   (req, res, next) => {
     validationResult(req, res, next);
   },

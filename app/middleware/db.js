@@ -385,6 +385,7 @@ module.exports = {
         req.consumer_order_title ="Order placed on ";
         req.delivery_boy_order_title = "Order received on ";
     }
+    let otp = Math.floor(1000 + Math.random() * 8999);
     req.is_pay_later=req.is_pay_later ? 1 : 0
     let connections;
     try {
@@ -401,18 +402,18 @@ module.exports = {
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
           order_date, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,
+          pickup_notes,is_scheduled_order,schedule_date_time,
           drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
-        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,
           order_date,pickup_location_id, dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
-          package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
+          package_photo,package_id,otp,distance,total_amount,commission_percentage,commission_amount,
           delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
           drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
         ]
       );
-      console.log("result ---->", result);
       // rmt_enterprise_order_line
       if (delivery_type_id === 2) {
         if (req.branches && req.branches.length > 0) {
@@ -429,6 +430,8 @@ module.exports = {
                 let idx = 1;
                 // Loop through each delivery entry in addAnothers
                 for (const delivery of req.branches) {
+                    let otpLine = Math.floor(1000 + Math.random() * 8999);
+                    var otpLineValue = idx ==1?otp: otpLine;
                     const {
                         line_no,
                         to_latitude,
@@ -470,8 +473,10 @@ module.exports = {
                             drop_mobile,
                             drop_email,
                             drop_notes,
-                            otp,consumer_order_title,delivery_boy_order_title
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?)`,
+                            otp,
+                            consumer_order_title,
+                            delivery_boy_order_title
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                         [
                             idx++,
                             branch_id,
@@ -491,7 +496,10 @@ module.exports = {
                             drop_company_name,
                             drop_mobile,
                             drop_email,
-                            drop_notes,consumer_order_title,delivery_boy_order_title
+                            drop_notes,
+                            otpLineValue,
+                            consumer_order_title,
+                            delivery_boy_order_title
                         ]
                     );
                 }
