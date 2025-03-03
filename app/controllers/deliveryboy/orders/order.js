@@ -1741,11 +1741,10 @@ exports.updateOrderStatus = async (req, res) => {
     var consumer_order_title_notify = "Delivery boy allocated on";
     var delivery_boy_order_title_notify = "OTP verified on";
     var is_show_datetime_in_title = 0;
-    var deliveredOTPNumber= "1212";
+    var deliveredOTPNumber= "****";
     var progressTypeId = "1";
     let extLineNumber = "L#" + responseOrderData.line_no + "-";
-    console.log(responseOrderData);
-    console.log(extLineNumber);
+    let otp = responseOrderData.otp;
     var isEnableMultiOrderOTPUPdateInTheMasterTable = false;
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
@@ -1855,7 +1854,8 @@ exports.updateOrderStatus = async (req, res) => {
             orderNumber: requestData.order_number,
             orderStatus: status,
             progressTypeId : progressTypeId,
-            delivered_otp : deliveredOTPNumber + ""
+            delivered_otp : deliveredOTPNumber + "",
+            otp : otp
           },
           extId: "",
           message: consumer_order_title_notify,
