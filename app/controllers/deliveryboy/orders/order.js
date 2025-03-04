@@ -1809,7 +1809,7 @@ exports.updateOrderStatus = async (req, res) => {
       progressTypeId = "5";
     }
     console.log("OTP - PICKUP", otp);
-    console.log("OTP - DELIVERY", delivered_otp);
+    console.log("OTP - DELIVERY", deliveredOTPNumber);
     var updateStatusQuery = "update " + orderInfo.table + " set consumer_order_title = '" +
     consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" +
     status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
