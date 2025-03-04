@@ -1745,6 +1745,7 @@ exports.updateOrderStatus = async (req, res) => {
     var progressTypeId = "1";
     let extLineNumber = "L#" + responseOrderData.line_no + "-";
     let otp = responseOrderData.otp;
+    
     var isEnableMultiOrderOTPUPdateInTheMasterTable = false;
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
@@ -1807,7 +1808,8 @@ exports.updateOrderStatus = async (req, res) => {
       is_show_datetime_in_title = 1;
       progressTypeId = "5";
     }
-
+    console.log("OTP - PICKUP", otp);
+    console.log("OTP - DELIVERY", delivered_otp);
     var updateStatusQuery = "update " + orderInfo.table + " set consumer_order_title = '" +
     consumer_order_title + "'" + deliveredOtp + ", delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" +
     status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title  
