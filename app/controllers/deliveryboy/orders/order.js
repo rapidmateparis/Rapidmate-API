@@ -1741,7 +1741,7 @@ exports.updateOrderStatus = async (req, res) => {
     var consumer_order_title_notify = "Delivery boy allocated on";
     var delivery_boy_order_title_notify = "OTP verified on";
     var is_show_datetime_in_title = 0;
-    var deliveredOTPNumber= "****";
+    var deliveredOTPNumber=  responseOrderData.delivered_otp || "****" ;
     var progressTypeId = "1";
     let extLineNumber = "L#" + responseOrderData.line_no + "-";
     let otp = responseOrderData.otp;
