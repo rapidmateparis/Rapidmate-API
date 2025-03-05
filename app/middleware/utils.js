@@ -513,6 +513,6 @@ exports.buildJSONResponse=(req = {}, res = {}, isSuccess = false, responseCodeIn
 exports.getRoleFromExtId = (extId) =>{
   return  (extId.includes("E"))?"ENTERPRISE":
           (extId.includes("C"))?"CONSUMER":
-          (extId.includes("D"))?"DELIVERY_bOY":
+          (extId.includes("D"))?"DELIVERY_BOY":
           (extId.includes("A"))?"ADMIN":"ANONYMOUS";
 }

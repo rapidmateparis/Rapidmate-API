@@ -17,12 +17,15 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
             const token = req.headers.authorization || req.headers.Authorization;
             const verified = jwt.verify(token, JWT_SECRET_KEY);
             if (verified) {
-                console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified.ext_id);
+                console.info("TOKEN HAS BEEN VERIFIED AND VALID TOKEN", verified?.ext_id);
                 const extIdValue = verified?.ext_id || "A"+verified?.data?.userId;
                 let role_type = utils.getRoleFromExtId(extIdValue);
                 if(role_type == "ADMIN"){
                   req.query.logged_ext_id = extIdValue;
                   req.query.role_type = role_type;
+                  if(req.params.id){
+                    req.query.ext_id = req.params.id;
+                  }
                 }else{
                   req.query.ext_id = verified.ext_id;
                   req.query.role = role_type;

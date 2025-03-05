@@ -191,7 +191,7 @@ exports.deleteItem = async (req, res) => {
 };
 
 exports.updateItem = async (req, res) => {
-    const extId = req.body.ext_id;
+    const extId = req.query.ext_id;
     const id = await utils.getValueById('id', 'rmt_enterprise', 'ext_id', extId);
     
     if (!id) {

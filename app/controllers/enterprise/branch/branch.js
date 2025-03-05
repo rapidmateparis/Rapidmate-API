@@ -12,7 +12,7 @@ const {FETCH_BRANCH_BY_ID, INSERT_BRANCH_QUERY, UPDATE_BRANCH_QUERY, DELETE_BRAN
  */
 exports.getBranchByEnterpriseId = async (req, res) => {
     try {
-        const ext_id = req.params.ext_id;
+        const ext_id = req.query.ext_id;
         const data = await fetch(FETCH_BRANCH_BY_ENTERPRISEID,[ext_id])
         let message="Items retrieved successfully";
         if(data.length <=0){
@@ -50,16 +50,17 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_BRANCH_QUERY,[req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,req.enterprise_id,id]);
+const updateItem = async (id,req,enterprise_id) => {
+    const registerRes = await updateQuery(UPDATE_BRANCH_QUERY,[req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
     const getId = await utils.isIDGood(id,'id','rmt_enterprise_branch')
+    const enterprise_id=await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
     if(getId){
-      const updatedItem = await updateItem(id, req.body);
+      const updatedItem = await updateItem(id, req.body,enterprise_id);
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
@@ -87,7 +88,7 @@ const createEnterpriseBranch = async (req, enterprise_id) => {
 
 exports.createItem = async (req, res) => {
   try {
-    const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.body.enterprise_ext_id);
+    const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
     console.log(enterprise_id);
     if (enterprise_id) {
       console.log(enterprise_id);

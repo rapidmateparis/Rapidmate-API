@@ -126,7 +126,8 @@ exports.viewJoinRequest = async (req, res) => {
  */
 exports.acceptOrRejectJoinRequest = async (req, res) => {
   try {
-    const { status, role, reason, ext_id } = req.body;
+    const ext_id=req.query.ext_id
+    const { status, role, reason } = req.body;
     let filterValue = "";
     let queryReq = "";
     let columnName = "";

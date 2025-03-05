@@ -30,7 +30,7 @@ exports.getByconsumerExtid = async (req, res) => {
  */
 exports.getByenterpriseExtid = async (req, res) => {
     try {
-      const {id}=req.params
+      const id=req.query.ext_id
       const data = await fetch(FETCH_BILLING_ADDRESS_BYENEXTID,[id])
       let message="address retrieved successfully";
       if(data.length <=0){
@@ -68,13 +68,13 @@ exports.getItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,req) => {
+const updateItem = async (id,req,extId) => {
     let consumer_id=null;
     let enterprise_id=null;
     if(req.role=='CONSUMER'){
-        consumer_id=req.ext_id
+        consumer_id=extId
     }else{
-        enterprise_id=req.ext_id
+        enterprise_id=extId
     }
     const registerRes = await updateQuery(UPDATE_BILLING_ADDRESS,[req.account_type_id,consumer_id,enterprise_id,req.first_name,req.last_name,req.address,req.city_id,req.state_id,req.country_id,req.postal_code,id]);
     return registerRes;
@@ -82,10 +82,11 @@ const updateItem = async (id,req) => {
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
+    const extId=req.query.ext_id;
     const getId = await utils.isIDGood(id,'id','rmt_billing_address')
     
     if(getId){
-      const updatedItem = await updateItem(id, req.body);
+      const updatedItem = await updateItem(id, req.body,extId);
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
@@ -103,13 +104,13 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
+const createItem = async (req,ext_id) => {
     let consumer_id=null;
     let enterprise_id=null;
     if(req.role=='CONSUMER'){
-        consumer_id=req.ext_id
+        consumer_id=ext_id
     }else{
-        enterprise_id=req.ext_id
+        enterprise_id=ext_id
     }
     const registerRes = await insertQuery(INSERT_BILLING_ADDRESS,[req.account_type_id,consumer_id,enterprise_id,req.first_name,req.last_name,req.address,req.city_id,req.state_id,req.country_id,req.postal_code]);
       
@@ -118,7 +119,8 @@ const createItem = async (req) => {
 
 exports.createItem = async (req, res) => {
   try {
-    const item = await createItem(req.body)
+    const ext_id=req.query.ext_id;
+    const item = await createItem(req.body,ext_id)
     if(item.insertId){
     const currentdata=await fetch(FETCH_BILLING_ADDRESS_BYID,[item.insertId])
     return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))

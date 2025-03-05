@@ -51,7 +51,7 @@ exports.getItem = async (req, res) => {
  */
 exports.getSingleItem = async (req, res) => {
   try {
-    const {ext_id} = req.body;
+    const ext_id = req.query.ext_id;
     const data = await fetch(FETCH_VEHICLE_BY_DLID,[ext_id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -65,13 +65,13 @@ exports.getSingleItem = async (req, res) => {
 }
 exports.createItem = async (req, res) => {
   try {
-    const id = await utils.getValueById('id','rmt_delivery_boy','ext_id', req.body.delivery_boy_ext_id);
+    const id = await utils.getValueById('id','rmt_delivery_boy','ext_id', req.query.ext_id);
     if(id){
       const vehicleId = await utils.getValueById('id','rmt_vehicle','delivery_boy_id', id);
       if(vehicleId){
         return res.status(500).json(utils.buildErrorObject(500,'Vehicle exists to this delivery boy',1001));
       }else{
-        const item = await createItem(req.body)
+        const item = await createItem(req.body,req.query.ext_id)
         if(item.insertId){
           const currentdata=await fetch(FETCH_VEHICLE_BY_ID,[item.insertId]);
           return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
@@ -89,10 +89,10 @@ exports.createItem = async (req, res) => {
   }
 }
 
-const createItem = async (req) => {
+const createItem = async (req,ext_id) => {
   try {
 
-    const reqData=[req.delivery_boy_ext_id,req.vehicle_type_id,req.plat_no,req.modal,req.make,req.variant,req.reg_doc,req.driving_license,req.insurance,req.passport];
+    const reqData=[ext_id,req.vehicle_type_id,req.plat_no,req.modal,req.make,req.variant,req.reg_doc,req.driving_license,req.insurance,req.passport];
     const registerRes = await insertQuery(INSERT_VEHICLE_QUERY, reqData);
     console.log(registerRes);
     return registerRes;
@@ -104,7 +104,7 @@ const createItem = async (req) => {
 
 exports.updateItem = async (req, res) => {
   try {
-    const id = await utils.getValueById('id','rmt_delivery_boy','ext_id', req.body.delivery_boy_ext_id);
+    const id = await utils.getValueById('id','rmt_delivery_boy','ext_id', req.query.ext_id);
     if(id){
       var queryCondition = "";
       var queryConditionParam = [];
@@ -227,7 +227,7 @@ exports.getItemByVehicleTypeId = async (req, res) => {
 
 exports.getItemByExtId = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_VEHICLE_BY_EXT_ID,[id])
     console.log(data);
     let message="Items retrieved successfully";
