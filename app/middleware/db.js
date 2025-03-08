@@ -530,6 +530,8 @@ module.exports = {
       next_action_status = "Completed";
       consumer_order_title = "Completed on ";
       delivery_boy_order_title = "Completed on ";
+      var total_slots = (delivery_type_id === 3 )?(req?.slots && req?.slots?.length > 0)? req?.slots?.length : 1 : 1;
+
       await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
         delivery_boy_order_title +
         "', order_status = '" +
@@ -541,9 +543,9 @@ module.exports = {
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
-          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status,amount,total_hours,total_days,total_amount) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING', ?, ?, ?, ?)`,
+          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status,amount,total_hours,total_days,total_amount,total_slots) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING', ?, ?, ?, ?, ?)`,
         [
-          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount, total_hours, total_days, total_amount
+          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount, total_hours, total_days, total_amount, total_slots
         ]
       );
       // rmt_enterprise_order_line
