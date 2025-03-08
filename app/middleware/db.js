@@ -330,7 +330,7 @@ module.exports = {
   },
 
   //Enterprise planning 
-  async persistEnterpriseOrder(req) {
+  async persistEnterpriseOrder(req,enterprise_ext_id) {
     console.info(req);
     if(parseInt(req.is_scheduled_order) == 1){
       req.consumer_order_title ="Scheduled on ";
@@ -345,7 +345,7 @@ module.exports = {
       connections = await pool.getConnection(); // Get a connection from the pool
       await connections.beginTransaction();
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
+        branch_id,delivery_type_id,service_type_id,vehicle_type_id,
         order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,
@@ -376,7 +376,7 @@ module.exports = {
     }
   },
   
-  async persistMultipleDeliveries(req) {
+  async persistMultipleDeliveries(req,enterprise_ext_id) {
     if(parseInt(req.is_scheduled_order) == 1){
       req.consumer_order_title ="Scheduled on ";
       req.delivery_boy_order_title = "Scheduled on ";
@@ -392,7 +392,7 @@ module.exports = {
       connections = await pool.getConnection(); // Get a connection from the pool
       await connections.beginTransaction();
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
+        branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,
         drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
@@ -516,7 +516,7 @@ module.exports = {
     }
   },
 
-  async persistShiftOrder(req) {
+  async persistShiftOrder(req,enterprise_ext_id) {
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
@@ -539,7 +539,7 @@ module.exports = {
         "', next_action_status = '" +
         next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount,total_hours,total_days,total_amount
+        branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount,total_hours,total_days,total_amount
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,

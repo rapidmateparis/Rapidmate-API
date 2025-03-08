@@ -42,7 +42,7 @@ exports.getItems = async (req, res) => {
     const orderNumber = req.query.o || "";
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || "";
-    const pageSize = 10;
+    const pageSize = parseInt(req.query.pagesize) || 10;
     let statusParams = [];
     if (reqStatus == "current") {
       statusParams.push([
@@ -170,7 +170,7 @@ exports.getItem = async (req, res) => {
  */
 exports.getItemByConsumerExtId = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const reqStatus = req.query.status;
     const orderNumber = req.query.o || "";
     let statusParams = [];
@@ -318,7 +318,7 @@ exports.getItemByConsumerExtId = async (req, res) => {
 exports.getItemByDeliveryBoyExtId = async (req, res) => {
   try {
     console.log(req.query);
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const reqStatus = req.query.status;
     const orderNumber = req.query.o || "";
     const orderType = req.query.orderType || "N";
@@ -493,7 +493,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
 
 exports.getItemByDeliveryBoyDashboardByExtId = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const reqStatus = req.query.status;
     const orderType = req.query.orderType || "N";
     let statusParams = [];
@@ -607,8 +607,8 @@ exports.getItemByDeliveryBoyDashboardByExtId = async (req, res) => {
 
 exports.getItemByDeliveryBoyExtIdWithPlan = async (req, res) => {
   try {
+    const delivery_boy_ext_id=req.query.role =="DELIVERY_BOY" ? req.query.ext_id : req.body.delivery_boy_ext_id
     const {
-      delivery_boy_ext_id,
       planning_date,
       planning_from_date,
       planning_to_date,
@@ -658,7 +658,7 @@ exports.getItemByDeliveryBoyExtIdWithPlan = async (req, res) => {
 
 exports.getCalendarDataByDeliveryBoyExtIdWithPlan = async (req, res) => {
   try {
-    const extId = req.params.id;
+    const extId = req.query.role =="DELIVERY_BOY" ? req.query.ext_id : req.body.delivery_boy_ext_id;
     var query =  "select date(order_date) as calData from vw_delivery_boy_plan_list where date(now()) <= date(order_date) and delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) group by order_date";
     var message = "";
     const data = await fetch(query, [extId]);
@@ -757,10 +757,10 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
+const createItem = async (req,consumer_ext_id) => {
   var requestBody = [
     ((req.schedule_date_time)?'NS':'N'),
-    req.consumer_ext_id,
+    consumer_ext_id,
     req.vehicle_type_id,
     req.pickup_location_id,
     req.dropoff_location_id,
@@ -826,6 +826,7 @@ const createItem = async (req) => {
 
 exports.createOrder = async (req, res) => {
   try {
+    const consumer_ext_id=req.query.ext_id
     const requestData = req.body;
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
     console.log(vehicleType);
@@ -844,7 +845,7 @@ exports.createOrder = async (req, res) => {
     requestData.delivery_boy_amount =
       total_amount - parseFloat(requestData.commission_amount);
     console.log(requestData.delivery_boy_amount);
-    const item = await createItem(requestData);
+    const item = await createItem(requestData,consumer_ext_id);
     console.log(item);
     if (item.insertId) {
       const currData = await fetch(FETCH_ORDER_BY_ID, [item.insertId]);
@@ -861,7 +862,7 @@ exports.createOrder = async (req, res) => {
         topic: "",
         token: "",
         senderExtId: "",
-        receiverExtId: requestData.consumer_ext_id,
+        receiverExtId: consumer_ext_id,
         statusDescription: "",
         status: "",
         notifyStatus: "",
@@ -896,6 +897,7 @@ exports.createOrder = async (req, res) => {
 };
 
 exports.allocateDeliveryBoy = async (req, res) => {
+  const consumer_ext_id=req.query.ext_id
   try {
     var requestData = req.body;
     console.log(requestData);
@@ -925,7 +927,7 @@ exports.allocateDeliveryBoy = async (req, res) => {
         topic: "",
         token: "",
         senderExtId: "",
-        receiverExtId: requestData.consumer_ext_id,
+        receiverExtId:consumer_ext_id,
         statusDescription: "",
         status: "",
         notifyStatus: "",
@@ -2565,7 +2567,7 @@ exports.allocateDeliveryBoyToShiftOrder = async (req, res) => {
 
 exports.mySlotDetails = async (req, res) => {
   try {
-    const extId = req.params.extId;
+    const extId = req.query.ext_id;
     const ordernumber = req.params.ordernumber;
     const data = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE order_number = ? and delivery_boy_Id = (select id from rmt_delivery_boy where ext_id = ?)", [ordernumber, extId]);
     const filterdata = await transformKeysToLowercase(data);

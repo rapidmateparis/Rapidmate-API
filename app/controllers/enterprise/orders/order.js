@@ -113,7 +113,7 @@ exports.getOrderList = async (req,res) =>{
 
 exports.getItemByEnterpriseExt = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const orderNumber = req.query.o || "";
     var conditions = "";
     if (orderNumber && orderNumber != "") {
@@ -148,10 +148,11 @@ exports.getItemByEnterpriseExt = async (req, res) => {
 
 exports.searchByFilter = async (req, res) => {
   try {
+      const enterprise_ext_id=req.query.ext_id
       const requestData = req.body;
       var conditionQuery = "";
       var requestArrayData = [];
-      requestArrayData.push(requestData.enterprise_ext_id);
+      requestArrayData.push(enterprise_ext_id);
       if(requestData.order_number){
         requestArrayData.push(requestData.order_number);
         conditionQuery = " and order_number = ?";
@@ -253,7 +254,7 @@ exports.getItemByOrderNumber = async (req, res) => {
  */
 exports.getItemByDeliveryBoyExtId = async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.query.ext_id;
         const data = await fetch(FETCH_ORDER_DELIVERY_BOY_ID,[id]);
         let message = "Items retrieved successfully";
         if (data.length <= 0) {
@@ -427,6 +428,7 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
 
 exports.createEnterpriseOrder = async (req, res) => {
   try {
+    const enterprise_ext_id=req.query.ext_id
     const requestData = req.body;
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
     if(vehicleType){
@@ -435,8 +437,8 @@ exports.createEnterpriseOrder = async (req, res) => {
       requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
       requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
     }
-
-    const item = await createEOrders(requestData);
+    
+    const item = await createEOrders(requestData,enterprise_ext_id);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
       let titleText =(requestData.delivery_type_id==1)?'Your order has been created.':
@@ -454,7 +456,7 @@ exports.createEnterpriseOrder = async (req, res) => {
         topic : "",
         token : "",
         senderExtId : "",
-        receiverExtId : requestData.enterprise_ext_id,
+        receiverExtId : enterprise_ext_id,
         statusDescription : "",
         status : "",
         notifyStatus : "",
@@ -480,12 +482,12 @@ exports.createEnterpriseOrder = async (req, res) => {
   }
 };
 
-const createEOrders = async (req) => {
+const createEOrders = async (req,enterprise_ext_id) => {
   var  executeResult = {};
   switch(req.delivery_type_id){
-    case 1 :  executeResult = await persistEnterpriseOrder(req);  break;
-    case 2 :  executeResult = await persistMultipleDeliveries(req);  break;
-    case 3 :  executeResult = await persistShiftOrder(req);  break;
+    case 1 :  executeResult = await persistEnterpriseOrder(req,enterprise_ext_id);  break;
+    case 2 :  executeResult = await persistMultipleDeliveries(req,enterprise_ext_id);  break;
+    case 3 :  executeResult = await persistShiftOrder(req,enterprise_ext_id);  break;
   }
   return executeResult;
 };
@@ -860,7 +862,8 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
 
 exports.planSearch = async (req, res) => {
   try {
-      const {enterprise_ext_id, plan_date} = req.body
+      const enterprise_ext_id=req.query.ext_id
+      const {plan_date} = req.body
       const data = await fetch(FETCH_ORDER_BY_ORDER_EXT_SEARCH,[enterprise_ext_id, plan_date]);
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
@@ -884,7 +887,8 @@ exports.planSearch = async (req, res) => {
 
 exports.getBillingReport = async (req, res) => {
   try {
-    const { enterprise_id, order_type, billing_type, status, start_date, end_date, page = 1, limit = 10 } = req.query;
+    const enterprise_id =req.query.ext_id
+    const {order_type, billing_type, status, start_date, end_date, page = 1, limit = 10 } = req.query;
     let filters = [];
     let values = [];
     if (enterprise_id) {

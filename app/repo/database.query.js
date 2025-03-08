@@ -296,7 +296,7 @@ exports.DELETE_ACCOUNT = `UPDATE rmt_delivery_boy_account SET is_del=1 WHERE id=
 //admin side
 exports.FETCH_WALLET_ALL = `SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_wallet AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.is_del = 0`;
 exports.FETCH_WALLET_BY_ID = `SELECT wt.*,CONCAT(dbs.first_name, ' ', dbs.last_name) AS deliveryboy_name FROM rmt_delivery_boy_wallet AS wt JOIN rmt_delivery_boy AS dbs ON wt.delivery_boy_id = dbs.id  WHERE wt.id =? AND wt.is_del = 0`;
-exports.INSERT_WALLET = `INSERT INTO rmt_delivery_boy_wallet(delivery_boy_id,balance,currency) VALUES(?,?,?)`;
+exports.INSERT_WALLET = `INSERT INTO rmt_delivery_boy_wallet(delivery_boy_id,balance,currency) VALUES((SELECT id FROM rmt_delivery_boy WHERE ext_id = ?),?,?)`;
 exports.UPDATE_WALLET = `UPDATE rmt_delivery_boy_wallet SET balance=? WHERE id=?`;
 exports.DELETE_WALLET = `UPDATE rmt_delivery_boy_wallet SET is_del=1 WHERE id=?`;
 // deliveryboy side

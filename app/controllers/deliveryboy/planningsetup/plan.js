@@ -98,7 +98,8 @@ exports.getItems = async (req, res) => {
 exports.getItemsByfilter = async (req, res) => {
  
   try {
-    const {from_date,to_date,from_time,to_time,ext_id,day}=req.body;
+    const ext_id=req.query.ext_id;
+    const {from_date,to_date,from_time,to_time,day}=req.body;
     const plannings = await fetch(FETCH_DELIVERY_BOY_PLANNING_SETUP_QUERY, [ext_id])
     let message = "Items retrieved successfully";
     let planninSetupgData;
@@ -183,7 +184,7 @@ exports.getItemsByfilter = async (req, res) => {
  */
 exports.getItemBydeliveryboyid = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id =await utils.getValueById("id","rmt_delivery_boy","ext_id",req.query.ext_id);
 
     const data = await getPlanningWithSlotsByDeliveryBoy(id)
     let message = "Items retrieved successfully";
@@ -198,7 +199,8 @@ exports.getItemBydeliveryboyid = async (req, res) => {
 }
 
 const planningSetupConfig = async (req, res) => {
-  const { is_24x7, is_apply_for_all_days, delivery_boy_ext_id, setup } = req.body
+  const delivery_boy_ext_id= req.query.ext_id;
+  const { is_24x7, is_apply_for_all_days, setup } = req.body
   const [getPlanningId] = await fetch(GET_PLANNING_ID, [delivery_boy_ext_id]);
   var planningID = 0;
   let dbResult;
