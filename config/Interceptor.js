@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 
 var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
+    
     req.trackId = uuidv4(); // generate a new UUID
     if(!( pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || 
           pathValue.includes("resetpassword") || pathValue.includes("lookup") || pathValue.includes("country") ||
@@ -23,8 +24,12 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
                 if(role_type == "ADMIN"){
                   req.query.logged_ext_id = extIdValue;
                   req.query.role_type = role_type;
-                  if(req.params.id){
-                    req.query.ext_id = req.params.id;
+                  var params = pathValue.split("/");
+                  if(params && params.length > 0){
+                    var extId = (params[params.length-1]);
+                    if(extId && extId.length == 14 && (extId.startsWith("C") || extId.startsWith("D") || extId.startsWith("E") || extId.startsWith("A"))){
+                      req.query.ext_id = extId;
+                    }
                   }
                 }else{
                   req.query.ext_id = verified.ext_id;
