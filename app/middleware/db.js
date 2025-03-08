@@ -530,7 +530,7 @@ module.exports = {
       next_action_status = "Completed";
       consumer_order_title = "Completed on ";
       delivery_boy_order_title = "Completed on ";
-      var total_slots = (delivery_type_id === 3 )?(req?.slots && req?.slots?.length > 0)? req?.slots?.length : 1 : 1;
+      var total_slots = (req?.delivery_type_id === 3 )?(req?.slots && req?.slots?.length > 0)? req?.slots?.length : 1 : 1;
 
       await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
         delivery_boy_order_title +
