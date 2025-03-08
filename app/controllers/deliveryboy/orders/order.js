@@ -1947,6 +1947,12 @@ exports.updateShiftOrderStatus = async (req, res) => {
       progressTypeId = "3";
       let shift_completed_on = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
       additionQuery = ",shift_completed_on='" + shift_completed_on + "', total_duration = TIMESTAMPDIFF(HOUR, shift_started_on, '" + shift_completed_on +"'),total_duration_text='" + requestData.total_duration_text + "'";
+      var totalCompletedCount = fetchTotalSlotsCompletedCount(requestData.order_number);
+      if( parseInt(responseOrderData.total_slots) == parseInt(totalCompletedCount+1)){
+        status = "COMPLETED";
+      }else{
+        status = "WORKING_INPROGRESS";
+      }
     }
 
     var updateStatusQuery = "update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "', delivery_boy_order_title = '" + delivery_boy_order_title + "', order_status = '" +
@@ -2454,6 +2460,16 @@ const getOTP = async (order_number) => {
   }
 };
 
+const fetchTotalSlotsCompletedCount = async (order_number) => {
+  try {
+    const data = await fetch("SELECT count(*) as total FROM rmt_enterprise_order_slot where order_status = 'COMPLETED' and  enterprise_order_id = (select id from rmt_enterprise_order where order_number = ?)", [order_number]);
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata?filterdata[0]?.total:0;
+  } catch (error) {
+    return {};
+  }
+};
+
 const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo, line_id = 0) => {
   try {
     let queryCondition = "";
@@ -2461,6 +2477,9 @@ const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo, line_id = 0)
     if(orderInfo.is_multi_order){
         isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = (select enterprise_id from rmt_enterprise_branch where id=branch_id)) as consumer_ext_id,line_no,";
         queryCondition = " and id = " + line_id;
+    }
+    if(isEOrder(orderNumber)){
+      isMOQuery += "total_slots,"
     }
     let getOrderQuery = "select " + isMOQuery + " (select ext_id from rmt_delivery_boy where id = delivery_boy_id) as delivery_boy_ext_id,otp, delivered_otp from " + orderInfo.table + " where order_number =?" + queryCondition;
     console.log(getOrderQuery);
