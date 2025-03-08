@@ -11,7 +11,7 @@ const {FETCH_CONSUMER_ADDRESS_BYEXTID,FETCH_CONSUMER_ADDRESS_BYID,UPDATE_CONSUME
  */
 exports.getItems = async (req, res) => {
   try {
-    const {id}=req.params
+    const id=req.query.ext_id
     const data = await fetch(FETCH_CONSUMER_ADDRESS_BYEXTID,[id])
     let message="address retrieved successfully";
     if(data.length <=0){
@@ -79,16 +79,17 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_CONSUMER_ADDRESS,[req.ext_id,req.location_name,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment]);
+const createItem = async (req,ext_id) => {
+    const registerRes = await insertQuery(INSERT_CONSUMER_ADDRESS,[ext_id,req.location_name,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment]);
     return registerRes;
 }
 
 exports.createItem = async (req, res) => {
   try {
+    const ext_id=req.query.ext_id;
     const doesNameExists =await utils.nameExists(req.body.company_name,'rmt_consumer_address','company_name')
     if (!doesNameExists) {
-      const item = await createItem(req.body)
+      const item = await createItem(req.body,ext_id)
       if(item.insertId){
         const currentdata=await fetch(FETCH_CONSUMER_ADDRESS_BYID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))

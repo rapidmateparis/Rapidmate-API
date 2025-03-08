@@ -12,7 +12,7 @@ const {FETCH_VEHICLE_BY_EXT_ID, FETCH_VEHILCLE_ALL,FETCH_VEHICLE_BY_ID,FETCH_VEH
  */
 exports.getItems = async (req, res) => {
   try {
-    const data = await fetch("select * from rmt_delivery_boy_enterprise_connections dbeconnection join rmt_enterprise enterprise on dbeconnection.enterprise_id=enterprise.id where delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)", [req.params.id])
+    const data = await fetch("select * from rmt_delivery_boy_enterprise_connections dbeconnection join rmt_enterprise enterprise on dbeconnection.enterprise_id=enterprise.id where delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)", [req.query.ext_id])
     let message="Items retrieved successfully";
     if(data.length <=0){
       message="No items found"

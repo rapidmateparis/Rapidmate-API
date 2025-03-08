@@ -50,7 +50,7 @@ exports.getItem = async (req, res) => {
  */
 exports.getBydeliveryBoyExtid = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_WALLET_BY_EXTID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -78,7 +78,7 @@ const getWallentBalance = async (id) => {
 exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
   var responseData = {};
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const durationType = req.query.durationType;
     const orderNumber = req.query.o;
     var additionalQueryConditions ="";
@@ -141,16 +141,18 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_WALLET,[req.delivery_boy_id,req.balance,req.currency]);
+const createItem = async (req,delivery_boy_id) => {
+    const registerRes = await insertQuery(INSERT_WALLET,[delivery_boy_id,req.balance,req.currency]);
     return registerRes;
 }
 
 exports.createItem = async (req, res) => {
   try {
-    const doesNameExists =await utils.nameExists(req.body.delivery_boy_id,'rmt_delivery_boy_wallet','delivery_boy_id')
+    const delivery_boy_id=req.query.ext_id
+    const id=await utils.getValueById("id","rmt_delivery_boy","ext_id",delivery_boy_id)
+    const doesNameExists =await utils.nameExists(id,'rmt_delivery_boy_wallet','delivery_boy_id')
     if (!doesNameExists) {
-      const item = await createItem(req.body)
+      const item = await createItem(req.body,delivery_boy_id)
       if(item.insertId){
         const currentdata=await fetch(FETCH_WALLET_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))

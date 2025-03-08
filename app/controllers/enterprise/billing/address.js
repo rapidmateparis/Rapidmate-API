@@ -5,7 +5,7 @@ const { FETCH_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY, INSERT_ENTERPRISE_BILLING_A
 
 exports.getById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data =await transformKeysToLowercase(await fetch(FETCH_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY,[id]));
     let message="Addresses retrieved successfully";
     if(data.length <=0){
@@ -22,7 +22,8 @@ exports.getById = async (req, res) => {
 exports.updateBillingAddressDetails = async (req, res) => {
   try {
     let id = req.body.id;
-    let executedResult = (id)? await  updateBillingAddress(req.body) : await  createBillingAddress(req.body);
+    const enterprise_ext_id=req.query.ext_id;
+    let executedResult = (id)? await  updateBillingAddress(req.body) : await  createBillingAddress(req.body,enterprise_ext_id);
     if(parseInt(executedResult.insertId)>0 || parseInt(executedResult.affectedRows)>0){
       const response = req.body;
       if(parseInt(executedResult.insertId)>0){
@@ -35,8 +36,8 @@ exports.updateBillingAddressDetails = async (req, res) => {
   }
 }
 
-const createBillingAddress = async (req) => {
-  let requestParams = [req.enterprise_ext_id, req.first_name, req.last_name, req.address, req.country_id, req.state_id, req.city_id, req.postal_code, req.dni_number];
+const createBillingAddress = async (req,enterprise_ext_id) => {
+  let requestParams = [enterprise_ext_id, req.first_name, req.last_name, req.address, req.country_id, req.state_id, req.city_id, req.postal_code, req.dni_number];
   console.log(requestParams);
   const executeCreateNewAddress = await insertQuery(INSERT_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY, requestParams);
   console.log(executeCreateNewAddress);

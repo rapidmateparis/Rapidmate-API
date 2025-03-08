@@ -15,7 +15,7 @@ exports.getItems = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10;
+    const pageSize = req.query.pagesize || 10;
 
     let queryReq = ` WHERE d.is_del=0`;
     if (search.trim()) {
@@ -248,7 +248,7 @@ const updateItem = async (profielUpdateQuery, params) => {
 }
 
 exports.updateItem = async (req, res) => {
-    const extId = req.body.ext_id;
+    const extId = req.query.ext_id;
     const id = await utils.getValueById('id', 'rmt_delivery_boy', 'ext_id', extId);
     
     if (!id) {
@@ -402,7 +402,7 @@ exports.createItem = async (req, res) => {
 }
 
 const deleteItem = async (id) => {
-  const deleteQuery = `DELETE FROM rmt_delivery_boy WHERE ID='${id}'`;
+  const deleteQuery = `DELETE FROM rmt_delivery_boy WHERE id='${id}'`;
   const deleteRes = await runQuery(deleteQuery);
   return deleteRes;
 };
@@ -414,7 +414,8 @@ const deleteItem = async (id) => {
 exports.deleteItem = async (req, res) => {
   try {
     const {id} =req.params
-    const getId = await utils.isIDGood(id,'ID','rmt_delivery_boy')
+    const extId = req.query.ext_id;
+    const getId = await utils.getValueById('id', 'rmt_delivery_boy', 'ext_id', extId);
     if(getId){
       const deletedItem = await deleteItem(getId);
       if(deletedItem.affectedRows > 0) {
@@ -465,7 +466,8 @@ exports.updateLocation = async (req, res) => {
 
 exports.updatePreferance=async (req, res) =>{
     try{
-        const {perefer_id,ext_id}=req.body
+        const ext_id=req.query.ext_id;
+        const {perefer_id}=req.body
         const getId = await utils.isIDGood(ext_id,'ext_id','rmt_delivery_boy')
         if(!getId){
             return res.status(404).json(utils.buildErrorObject(404,'Detail not matched.',1001));
@@ -485,7 +487,7 @@ exports.updatePreferance=async (req, res) =>{
 exports.updateAvailability=async (req, res) =>{
     try{
         const {is_available}=req.body
-        const {id}=req.params
+        const id=req.query.ext_id
         const getId = await utils.isIDGood(id,'ext_id','rmt_delivery_boy')
         if(!getId){
             return res.status(404).json(utils.buildErrorObject(404,'Detail not matched.',1001));
@@ -503,8 +505,8 @@ exports.updateAvailability=async (req, res) =>{
 }
 
 
-const createBillingAddressRequest = async (req) => {
-  const executeCreateStmt = await insertQuery(INSERT_DB_BILLING_ADDRESS,[req.delivery_boy_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
+const createBillingAddressRequest = async (req,delivery_boy_ext_id) => {
+  const executeCreateStmt = await insertQuery(INSERT_DB_BILLING_ADDRESS,[delivery_boy_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
   return executeCreateStmt;
 }
 
@@ -517,6 +519,7 @@ const updateBillingAddressRequest = async (req) => {
 
 exports.createOrUpdateBillingAddress = async (req, res) => {
 try {
+  const delivery_boy_ext_id=req.query.ext_id
   var requestData = req.body;
   var stmtResult = {};
   const data = await fetch("select * from rmt_delivery_billing_address where delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)",[requestData.delivery_boy_ext_id])
@@ -525,7 +528,7 @@ try {
       requestData.id = data[0].id;
       stmtResult = await updateBillingAddressRequest(requestData);
   }else{
-      stmtResult = await createBillingAddressRequest(requestData);
+      stmtResult = await createBillingAddressRequest(requestData,delivery_boy_ext_id);
   }
   console.log(stmtResult);
   if(stmtResult.affectedRows >=1){
@@ -540,7 +543,7 @@ return res.status(400).json(utils.buildErrorObject(400,"Unable to update billing
 
 exports.getBillingAddressDetailsByExtId = async (req, res) => {
 try {
-  const extId = req.params.extId;
+  const extId = req.query.ext_id;
   const data = await fetch("select * from rmt_delivery_billing_address where delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)",[extId])
   let message="Items retrieved successfully";
   if(data.length <=0){

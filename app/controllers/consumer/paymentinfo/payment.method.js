@@ -30,7 +30,7 @@ exports.getItems = async (req, res) => {
  */
 exports.getItem = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_PAYMENTCMETHOD_BY_ID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -50,7 +50,7 @@ exports.getItem = async (req, res) => {
  */
 exports.getConsumerExtid = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_PAYMENTCMETHOD_BY_EXTID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -95,18 +95,19 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const payMethodResult = await insertQuery(INSERT_PAYMENTCMETHOD,[req.consumer_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
+const createItem = async (req,consumer_ext_id) => {
+    const payMethodResult = await insertQuery(INSERT_PAYMENTCMETHOD,[consumer_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
     console.log(payMethodResult);
     return payMethodResult;
 }
 
 exports.createItem = async (req, res) => {
   try {
+    const consumer_ext_id=req.query.ext_id
     const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_consumer_payment_method','card_number')
     console.log(doesNameExists);
     if (!doesNameExists) {
-      const item = await createItem(req.body)
+      const item = await createItem(req.body,consumer_ext_id)
       if(item.insertId){
         const currentdata=await fetch(FETCH_PAYMENTCMETHOD_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))

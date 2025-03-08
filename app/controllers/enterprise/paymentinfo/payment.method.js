@@ -50,7 +50,7 @@ exports.getItem = async (req, res) => {
  */
 exports.getByenterpriseExtid = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_PAYMENTEMETHOD_BY_EXTID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -95,16 +95,17 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_PAYMENTEMETHOD,[req.enterprise_ext,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.is_del]);
+const createItem = async (req,enterprise_ext) => {
+    const registerRes = await insertQuery(INSERT_PAYMENTEMETHOD,[enterprise_ext,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.is_del]);
     return registerRes;
 }
 
 exports.createItem = async (req, res) => {
   try {
+    const enterprise_ext=req.query.ext_id
     const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_enterprise_payment_method','card_number')
     if (!doesNameExists) {
-      const item = await createItem(req.body)
+      const item = await createItem(req.body,enterprise_ext)
       if(item.insertId){
         const currentdata=await fetch(FETCH_PAYMENTEMETHOD_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))

@@ -57,7 +57,7 @@ exports.getItems = async (req, res) => {
  */
 exports.getItem = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_CN_BY_ID,[id])
     const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
@@ -77,7 +77,7 @@ const updateItem = async (profielUpdateQuery, params) => {
 }
 
 exports.updateItem = async (req, res) => {
-    const extId = req.body.ext_id;
+    const extId = req.query.ext_id;
     const id = await utils.getValueById('id', 'rmt_consumer', 'ext_id', extId);
     
     if (!id) {
@@ -233,7 +233,7 @@ exports.deleteItem = async (req, res) => {
 
 exports.getWalletBalanceByExtId = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch("select balance from rmt_consumer_wallet where consumer_id = (select id from rmt_consumer where ext_id = ?)",[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -246,8 +246,8 @@ exports.getWalletBalanceByExtId = async (req, res) => {
   }
 }
 
-const createBillingAddressRequest = async (req) => {
-    const executeCreateStmt = await insertQuery(INSERT_BILLING_ADDRESS,[req.consumer_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
+const createBillingAddressRequest = async (req,consumer_ext_id) => {
+    const executeCreateStmt = await insertQuery(INSERT_BILLING_ADDRESS,[consumer_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
     return executeCreateStmt;
 }
 
@@ -258,6 +258,7 @@ const updateBillingAddressRequest = async (req) => {
 
 exports.createOrUpdateBillingAddress = async (req, res) => {
   try {
+    const consumer_ext_id=req.query.ext_id
     var requestData = req.body;
     var stmtResult = {};
     const data = await fetch("select * from rmt_consumer_billing_address where consumer_id = (select id from rmt_consumer where ext_id = ?)",[requestData.consumer_ext_id])
@@ -265,7 +266,7 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
         requestData.id = data[0].id;
         stmtResult = await updateBillingAddressRequest(requestData);
     }else{
-        stmtResult = await createBillingAddressRequest(requestData);
+        stmtResult = await createBillingAddressRequest(requestData,consumer_ext_id);
     }
     requestData.id = 0;
     if(stmtResult.affectedRows >=1){
@@ -280,7 +281,7 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
 
 exports.getBillingAddressDetailsByExtId = async (req, res) => {
   try {
-    const extId = req.params.extId;
+    const extId = req.query.ext_id;
     const data = await fetch("select * from rmt_consumer_billing_address where consumer_id = (select id from rmt_consumer where ext_id = ?)",[extId])
     let message="Items retrieved successfully";
     if(data.length <=0){
