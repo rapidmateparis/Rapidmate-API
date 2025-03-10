@@ -327,6 +327,8 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     if (reqStatus == "current") {
       statusParams.push([
         "'ORDER_PLACED'",
+        "'ASSIGED'",
+        "'ACCEPTED'",
         "'CONIRMED'",
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
@@ -351,6 +353,8 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     } else {
       statusParams.push([
         "'ORDER_PLACED'",
+        "'ASSIGED'",
+        "'ACCEPTED'",
         "'CONIRMED'",
         "'PAYMENT_COMPLETED'",
         "'ORDER_ALLOCATED'",
@@ -469,7 +473,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
         responseData.map(async (order) => {
           console.log(order);
           const locations = await fetch("SELECT * FROM rmt_enterprise_order_line WHERE order_id = ?", [order.id]);
-          const slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE enterprise_order_id = ? and delivery_boy_Id = (SELECT id FROM rmt_delivery_boy WHERE ext_id = ?) order by slot_date asc, from_time asc", [order.id, id]);
+          const slots = await fetch("SELECT * FROM rmt_enterprise_order_slot WHERE id = ?", [order.slot_id]);
           return {
             ...order,
             slots,
