@@ -327,7 +327,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     if (reqStatus == "current") {
       statusParams.push([
         "'ORDER_PLACED'",
-        "'ASSIGED'",
+        "'ASSIGNED'",
         "'ACCEPTED'",
         "'CONIRMED'",
         "'PAYMENT_COMPLETED'",
@@ -353,7 +353,7 @@ exports.getItemByDeliveryBoyExtId = async (req, res) => {
     } else {
       statusParams.push([
         "'ORDER_PLACED'",
-        "'ASSIGED'",
+        "'ASSIGNED'",
         "'ACCEPTED'",
         "'CONIRMED'",
         "'PAYMENT_COMPLETED'",
@@ -1910,7 +1910,7 @@ exports.updateShiftOrderStatus = async (req, res) => {
     if (!responseOrderData) {
       return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
     }
-    var status = "ASSIGED";
+    var status = "ASSIGNED";
     var isDriverNotify = false;
     var next_action_status = "Start";
     var consumer_order_title = "Shift is not started";
@@ -1928,7 +1928,7 @@ exports.updateShiftOrderStatus = async (req, res) => {
       is_show_datetime_in_title = 1;
       isDriverNotify = true;
     } else if (requestData.status == "Rejected") {
-      status = "ASSIGED";
+      status = "ASSIGNED";
       next_action_status = "Accepted";
     } else if (requestData.status == "Start") {
       status = "WORKING_INPROGRESS";
