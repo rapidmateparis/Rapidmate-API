@@ -1911,6 +1911,7 @@ exports.updateShiftOrderStatus = async (req, res) => {
       return utils.buildJSONResponse(req, res, false, RESPONSE_STATUS.INVALID_ORDER_NUMBER);
     }
     var status = "ASSIGNED";
+    var slot_status = "ASSIGNED";
     var isDriverNotify = false;
     var next_action_status = "Start";
     var consumer_order_title = "Shift is not started";
@@ -1920,6 +1921,7 @@ exports.updateShiftOrderStatus = async (req, res) => {
     var additionQuery = "";
     if (requestData.status == "Accepted") {
       status = "ACCEPTED";
+      slot_status = "ACCEPTED";
       next_action_status = "Start";
       consumer_order_title_notify= "Delivery boy accepted on ";
       delivery_boy_order_title_notify = "You have received on ";
@@ -1929,9 +1931,11 @@ exports.updateShiftOrderStatus = async (req, res) => {
       isDriverNotify = true;
     } else if (requestData.status == "Rejected") {
       status = "ASSIGNED";
+      slot_status = "ASSIGNED";
       next_action_status = "Accepted";
     } else if (requestData.status == "Start") {
       status = "WORKING_INPROGRESS";
+      slot_status = "WORKING_INPROGRESS";
       next_action_status = "End";
       consumer_order_title_notify= "Shift Started";
       delivery_boy_order_title_notify = "Shift Started";
@@ -1946,6 +1950,7 @@ exports.updateShiftOrderStatus = async (req, res) => {
       isDriverNotify = true;
       delivery_boy_order_title_notify = "Shift Ended";
       status = "COMPLETED";
+      slot_status = "COMPLETED";
       next_action_status = "Ended";
       consumer_order_title = "Shift Completed on ";
       delivery_boy_order_title = "Shift Completed on ";
@@ -1965,7 +1970,7 @@ exports.updateShiftOrderStatus = async (req, res) => {
     status + "', next_action_status = '" + next_action_status + "', updated_on = now(), is_show_datetime_in_title = " + is_show_datetime_in_title   + ", updated_by = '" + status + "' where order_number = ?";
     const updateData = await updateQuery(updateStatusQuery,[requestData.order_number]);
     if (updateData) {
-      var updateSupportTableStatusQuery = "update rmt_enterprise_order_slot set next_action_status = '" + next_action_status + "', updated_on = now(), order_status = '" + status  + "', updated_by = '" + status + "'" + additionQuery + " where id = ?";
+      var updateSupportTableStatusQuery = "update rmt_enterprise_order_slot set next_action_status = '" + next_action_status + "', updated_on = now(), order_status = '" + slot_status  + "', updated_by = '" + status + "'" + additionQuery + " where id = ?";
       console.log("updateSupportTableStatusQuery = " + updateSupportTableStatusQuery);
       const updateSupportTableStatus = await updateQuery(updateSupportTableStatusQuery,[requestData.slot_id]);
       console.info("updateSupportTableStatus = " , updateSupportTableStatus);
