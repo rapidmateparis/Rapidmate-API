@@ -60,7 +60,14 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
   })
 );
-
+const mongoDB=async () =>{
+  try {
+    await mongoose.connect('mongodb://localhost:27017/rapidmatemdb')
+  } catch (error) {
+    
+  }
+}
+mongoDB()
 // mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ="UTC";
 //TZ = "Europe/Paris";
