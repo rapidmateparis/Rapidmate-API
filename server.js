@@ -17,7 +17,7 @@ const orderControl =require('./app/controllers/deliveryboy/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
 const rateLimit = require('express-rate-limit');
-
+const logger = require('./config/log').logger;
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -61,7 +61,7 @@ app.use(
   })
 );
 
-mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
+// mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ="UTC";
 //TZ = "Europe/Paris";
 //console.log("Timezone", new Date().toString());
@@ -95,6 +95,10 @@ i18n.configure({
   defaultLocale: 'en',
   objectNotation: true,
   header: 'accept-language'
+});
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url} => Request`, req.body);
+  next(); // Pass control to the next middleware/route
 });
 
 app.use(i18n.init);
