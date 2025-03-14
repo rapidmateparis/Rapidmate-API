@@ -23,7 +23,7 @@ exports.getItems = async (req, res) => {
     const pageSize = req.query.pagesize || 10;
     let queryReq = ` WHERE e.is_del=0`; 
     if (search.trim()) {
-      queryReq += ` AND (e.first_name LIKE ? OR e.last_name LIKE ? OR e.email LIKE ? e.OR phone LIKE ?)`;
+      queryReq += ` AND (e.first_name LIKE ? OR e.last_name LIKE ? OR e.email LIKE ? OR e.phone LIKE ?)`;
     }
     const searchQuery = `%${search}%`;
     const countQuery = `SELECT COUNT(*) AS total FROM rmt_enterprise as e ${queryReq}`;

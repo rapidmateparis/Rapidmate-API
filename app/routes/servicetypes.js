@@ -7,7 +7,11 @@ const trimRequest = require('trim-request')
 /*
  * Service types routes
  */
-
+router.get(
+  '/getall',
+  trimRequest.all,
+  controller.getItems
+)
 /*
  * Get items route
  */

@@ -5,6 +5,43 @@ const {FETCH_VT_ALL,FETCH_VT_BY_ID,INSERT_VT_QUERY,UPDATE_VT_QUERY,DELETE_VT_QUE
 /********************
  * Public functions *
  ********************/
+exports.getVehicleTypes = async (req,res) =>{
+  try {
+      const search = req.query.search || "";
+      const page = parseInt(req.query.page) || 1;
+      const pageSize = parseInt(req.query.pagesize) || 10;
+      let queryReq = ``; 
+      if (search.trim()) {
+        queryReq += ` WHERE (e.vehicle_type LIKE ? OR e.vehicle_type_desc LIKE ? OR e.base_price LIKE ?)`;
+      }
+      const searchQuery = `%${search}%`;
+      const countQuery = `SELECT COUNT(*) AS total FROM rmt_vehicle_type as e ${queryReq}`;
+      const sql = `SELECT * FROM rmt_vehicle_type as e ${queryReq} ORDER BY e.id DESC ${utils.getPagination(page, pageSize)}`;
+  
+      const countResult = await fetch(countQuery,[searchQuery, searchQuery, searchQuery]);
+      const data = await fetch(sql,[searchQuery, searchQuery, searchQuery]);
+  
+      let message = "Items retrieved successfully";
+      if (data.length <= 0) {
+        message = "No items found";
+        return res.status(400).json(utils.buildErrorObject(400, message, 1001));
+      }
+  
+      const totalRecords = countResult[0].total;
+      const resData = {
+        total: totalRecords,
+        page: page,
+        pageSize: pageSize,
+        totalPages: Math.ceil(totalRecords / pageSize),
+        data,
+      };
+  
+      return res.status(200).json(utils.buildCreateMessage(200, message, resData));
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    }
+}
 /**
  * Get items function called by route
  * @param {Object} req - request object

@@ -52,7 +52,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_SERVICE,[req.service_name,req.is_del,id]);
+    const registerRes = await updateQuery(UPDATE_SERVICE,[req.service_name,req.discount,req.is_del,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
