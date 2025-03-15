@@ -564,7 +564,7 @@ module.exports = {
                 // Insert slots for all days
                 slotPromises = days.map(day =>
                   {
-                    var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours) * parseFloat(req.total_days);
+                    var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
                     connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
                   }
                 );
@@ -572,7 +572,7 @@ module.exports = {
                 // Insert provided slots
                 slotPromises = slots.map(slot =>
                   {
-                      var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours) * parseFloat(req.total_days);
+                      var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
                       connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
                   }
                 );
