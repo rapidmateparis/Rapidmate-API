@@ -1,5 +1,6 @@
 const controller = require('../controllers/useronboardmodule/authuser')
 const validate = require('../controllers/useronboardmodule/auth.validate')
+const commonController = require("../controllers/common/common")
 const express = require('express')
 const utils =require('../middleware/utils');
 const router = express.Router()
@@ -224,16 +225,7 @@ router.post('/getaccesstoken',trimRequest.all,validate.getAccessToken,function (
     });
 });
 
-router.get('/map/code', trimRequest.all, async (req, res) => {
-  
-  try {
-      const mapKey={
-        mapKey:process.env.GOOGLE_MAP_KEY
-      }
-      return res.status(200).json(utils.buildCreateMessage(200,"Retrive mapkey",mapKey))
-  } catch (error) {
-    return res.status(400).json(utils.buildErrorObject(400,"Error fetching data",1001));
-  }
-});
+router.get('/map/code', trimRequest.all,commonController.getMapKey);
+router.get('/directions', trimRequest.all,commonController.getDirectionDistanceandTime);
 
 module.exports = router
