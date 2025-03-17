@@ -97,8 +97,13 @@ i18n.configure({
   header: 'accept-language'
 });
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.url} => Request`, req.body);
-  next(); // Pass control to the next middleware/route
+  const pathValue = req.path;
+  if(!pathValue.includes("login")){
+    logger.info(`${req.method} ${req.url} => Request`, req.body);
+    next(); // Pass control to the next middleware/route
+  }else{
+    next();
+  }
 });
 
 app.use(i18n.init);
