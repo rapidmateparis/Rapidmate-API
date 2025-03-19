@@ -57,6 +57,11 @@ exports.handleError = (res, err) => {
     },
   })
 }
+
+exports.isEOrder = (orderNumber) =>{
+  return (orderNumber.includes("E"));
+}
+
 /**
  * Builds error object
  * @param {number} code - error code
