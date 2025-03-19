@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,insertQuery,fetch,updateQuery} = require('../../../middleware/db')
-const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID } = require('../../../repo/database.query')
+const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_ORDER_QUERY, INSERT_PAYMENT_EORDER_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID } = require('../../../repo/database.query')
 const { v4: uuidv4 } = require("uuid");
 
 /********************
@@ -134,11 +134,11 @@ exports.updateItemBystatus = async (req, res) => {
 const createItem = async (req) => {
     const paymentRefNumber = uuidv4();
     var order_type = req.order_type || 1;
-    const registerRes = await insertQuery(INSERT_PAYMENT_QUERY,[req.amount, req.order_number, paymentRefNumber, order_type]);
+    const registerRes = await insertQuery(((utils.isEOrder(req.order_number))? INSERT_PAYMENT_EORDER_QUERY: INSERT_PAYMENT_ORDER_QUERY ),[req.amount, req.order_number, paymentRefNumber, order_type]);
     console.log(registerRes);
     return registerRes;
 }
-exports.createItem = async (req, res) => {
+exports.createPayment = async (req, res) => {
   try {
     const item = await createItem(req.body)
     if(item.insertId){
