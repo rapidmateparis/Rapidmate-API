@@ -1139,6 +1139,15 @@ const scheduleAllocateDeliveryBoyByOrderNumber = async (order_number) => {
   console.log(title, message);
 }
 
+exports.cronJobCheckPaymentStatusByOrderNumber = async () => {
+  try {
+    var responseData = await checkAndUpdatePaymentStatusByOrderNumber();
+    console.log("Check Payment status  : ", responseData);
+ } catch (error) {
+    console.error(error);
+  }
+}
+
 exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
   var responseData = {};
   try {
@@ -2414,6 +2423,15 @@ const getScheduleUnallocateOrderList = async () => {
 const updateAlloctatedButNotAcceptedOrderList = async () => {
   try {
     return await updateQuery("update rmt_order set delivery_boy_id =null, order_status ='ORDER_PLACED' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
+  } catch (error) {
+    console.log(error);
+  }
+  return {};
+};
+
+const checkAndUpdatePaymentStatusByOrderNumber = async () => {
+  try {
+    return await updateQuery("update rmt_order set order_status ='PAYMENT_FAILED' where is_del = 0 and order_status ='ORDER_PLACED' and TIMESTAMPDIFF(MINUTE, order_date, now())>2 and id<> 0", []);
   } catch (error) {
     console.log(error);
   }

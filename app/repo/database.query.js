@@ -146,6 +146,9 @@ exports.INSERT_PAYMENT_EORDER_QUERY = `INSERT INTO rmt_payment(amount, order_id,
 exports.UPDATE_PAYMENT_QUERY = `UPDATE rmt_payment SET payment_status=? WHERE ref_id=?`;
 exports.DELETE_PAYMENT_QUERY = `UPDATE rmt_payment SET is_del=1 WHERE PAYMENT_ID=?`;
 exports.UPDATE_PAYMENT_BY_STATUS = `UPDATE rmt_payment SET PAYMENT_STATUS=? WHERE PAYMENT_ID=?`;
+
+exports.UPDATE_PAYMENT_STATUS_ORDER = `UPDATE rmt_order SET payment_on=now() WHERE order_number=?`;
+exports.UPDATE_PAYMENT_STATUS_EORDER = `UPDATE rmt_enterprise_order SET payment_on=now() WHERE order_number=?`;
 //--------------------check driver---------------------------
 exports.FETCH_DRIVER_AVAILABLE = `SELECT id, name, latitude, longitude, active, allocated, service_type, slot_status,
       (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance
