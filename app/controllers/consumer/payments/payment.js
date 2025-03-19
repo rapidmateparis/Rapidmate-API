@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,insertQuery,fetch,updateQuery} = require('../../../middleware/db')
-const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_ORDER_QUERY, INSERT_PAYMENT_EORDER_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID } = require('../../../repo/database.query')
+const { FETCH_PAYMENT_QUERY, transformKeysToLowercase, FETCH_PAYMENT_BY_ID, UPDATE_PAYMENT_QUERY, INSERT_PAYMENT_ORDER_QUERY, INSERT_PAYMENT_EORDER_QUERY, DELETE_PAYMENT_QUERY,UPDATE_PAYMENT_BY_STATUS, FETCH_PAYMENT_BY_USERID ,  UPDATE_PAYMENT_STATUS_ORDER, UPDATE_PAYMENT_STATUS_EORDER} = require('../../../repo/database.query')
 const { v4: uuidv4 } = require("uuid");
 
 /********************
@@ -142,6 +142,7 @@ exports.createPayment = async (req, res) => {
   try {
     const item = await createItem(req.body)
     if(item.insertId){
+      const registerRes = await updateQuery((utils.isEOrder(req.body.order_number))?UPDATE_PAYMENT_STATUS_EORDER:UPDATE_PAYMENT_STATUS_ORDER,[req.body.order_number]);
       const currData=await transformKeysToLowercase(await fetch(FETCH_PAYMENT_BY_ID,[item.insertId]));
       return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currData))
     }else{

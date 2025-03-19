@@ -180,6 +180,12 @@ cron.schedule("*/5 * * * * *", function() {
   orderControl.cronJobRemoveAllocatedDeliveryBoyByOrderNumber();
 });
 
+cron.schedule("*/5 * * * * *", function() { 
+  console.log("Check Payment status : Running..." , new Date());
+  orderControl.cronJobCheckPaymentStatusByOrderNumber();
+});
+
+
 server.listen(app.get('port'), () => {
   console.log('Server is running on port', app.get('port'));
 });
