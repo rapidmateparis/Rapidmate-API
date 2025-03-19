@@ -2431,7 +2431,8 @@ const updateAlloctatedButNotAcceptedOrderList = async () => {
 
 const checkAndUpdatePaymentStatusByOrderNumber = async () => {
   try {
-    return await updateQuery("update rmt_order set order_status ='PAYMENT_FAILED' where is_del = 0 and order_status ='ORDER_PLACED' and TIMESTAMPDIFF(MINUTE, order_date, now())>2 and id<> 0", []);
+    
+    return await updateQuery("update rmt_order set updated_on = now(), order_status ='PAYMENT_FAILED', next_action_status = 'Payment Failed', consumer_order_title = 'Payment failed on ', is_show_datetime_in_title = 1 where is_del = 0 and order_status ='ORDER_PLACED' and TIMESTAMPDIFF(SECOND, order_date, now())>=100 and id<> 0", []);
   } catch (error) {
     console.log(error);
   }
