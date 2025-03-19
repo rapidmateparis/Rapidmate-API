@@ -803,7 +803,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
                 topic : "",
                 token : "",
                 senderExtId : "",
-                receiverExtId : consumer_ext_id,
+                receiverExtId : req.query.ext_id,
                 statusDescription : "",
                 status : "",
                 notifyStatus : "",
@@ -845,7 +845,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
               }
               notification.createNotificationRequest(notifiationDriverRequest, true);
               const currentOrderStatus = await utils.getValuesById(
-                               "id, is_del, order_date, order_number, order_status,vehicle_type_id","rmt_enterprise_order","order_number", order_number
+                               "id, is_del, order_date, order_number, order_status, vehicle_type_id","rmt_enterprise_order","order_number", order_number
                              );
                 if (currentOrderStatus) {
                   if(currentOrderStatus.order_status ==='ORDER_ACCEPTED'){
@@ -888,10 +888,9 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
           }
         }
       }
-      } else {
-      return res
-        .status(400)
-        .json(utils.buildErrorObject(400, "Invalid Order number", 1001));
+    } 
+    else {
+      return res.status(400).json(utils.buildErrorObject(400, "Invalid Order number", 1001));
     }
   } catch (error) {
     console.log(error);
@@ -899,6 +898,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
       .status(500)
       .json(utils.buildErrorObject(500,"Unable to allocate driver your order.", 1001));
   }
+  return res.status(400).json(utils.buildErrorObject(400, "Invalid Order number", 1001));
 };
 
 exports.planSearch = async (req, res) => {
