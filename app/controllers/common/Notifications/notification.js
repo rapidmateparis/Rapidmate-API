@@ -293,6 +293,7 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
       return false;
     }
     if(isSendFCMNotify){
+      console.log("Eligible to send notify Final Block");
       const messages = {
         notification: {
           title: title,
@@ -301,7 +302,10 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
         data: payload,
         token: token,
       };
-      admin.messaging().send(messages).then((response) => {return true;}).catch((error) => {console.log("Error sending message:", error);return false});
+      admin.messaging().send(messages).then((response) => {
+        console.log("FCM Success : ", response);
+        return true;
+      }).catch((error) => {console.log("FCM: Error ", error);return false});
     }else{
       console.log('not send ')
     }
@@ -314,6 +318,7 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
 
 exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
   try {
+    console.log(req);
     const {title, body, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
     const bodyContent = typeof bodydata === 'object' ? JSON.stringify(bodydata) : (typeof body === 'object' ? JSON.stringify(body) : body || '');
     const insertData = {
@@ -348,6 +353,7 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
     console.log("receiverExtId = " , receiverExtId);
     console.log("isNofitificationEnabledStatus = " , isNofitificationEnabledStatus);
     if(isSendFCMNotify && isNofitificationEnabledStatus){
+       console.log("Eligible to send notify");
        const objId=savedNotification._id
        const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
     }
