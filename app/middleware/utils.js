@@ -62,6 +62,18 @@ exports.isEOrder = (orderNumber) =>{
   return (orderNumber.includes("E"));
 }
 
+exports.fetchTableNameByOrderNumber = (orderNumber) =>{
+  var table = "rmt_order";
+  if(orderNumber.includes("EM")){
+    table = "rmt_enterprise_order_line";
+  }else if(orderNumber.includes("ES")){
+      table = "rmt_enterprise_order_slot";
+  }else if(orderNumber.includes("E")){
+      table = "rmt_enterprise_order";
+  }
+  return table;
+}
+
 /**
  * Builds error object
  * @param {number} code - error code
