@@ -901,6 +901,19 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
   return res.status(400).json(utils.buildErrorObject(400, "Invalid Order number", 1001));
 };
 
+const getDeliveryInfo = async (delivery_boy_id) => {
+  try {
+    const data = await fetch(
+      "select id,ext_id,username,first_name,last_name,email,phone,role_id,city_id,state_id,country_id,address,vehicle_id,company_name, work_type_id,profile_pic,is_active,is_availability,latitude,longitude,is_work_type,language_id from rmt_delivery_boy where id =? and is_del=0",
+      [delivery_boy_id]
+    );
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
 exports.planSearch = async (req, res) => {
   try {
       const enterprise_ext_id=req.query.ext_id
