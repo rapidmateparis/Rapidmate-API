@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header, .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header img {
+            width: 100px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .details {
+            margin-bottom: 20px;
+        }
+        .details p {
+            margin: 5px 0;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .table th {
+            background: #f5f5f5;
+        }
+        .summary {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .summary td {
+            padding: 8px;
+        }
+        .total {
+            font-weight: bold;
+            background: #f5f5f5;
+        }
+        .payment {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .payment p {
+            margin: 5px 0;
+        }
+        .penalty {
+            font-size: 12px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="invoice-container">
+    <!-- Invoice Header -->
+    <div class="header">
+        <img src="logo.png" alt="Logo">
+        <div>
+            <h2>Facture</h2>
+            <p><strong>Numéro :</strong> F-2024-2023250</p>
+            <p><strong>Date d’émission :</strong> 13 nov. 2024</p>
+            <p><strong>Date d’échéance :</strong> 19 nov. 2024</p>
+            <p><strong>Type de vente :</strong> Prestations de services</p>
+        </div>
+    </div>
+
+    <!-- Sender & Client Details -->
+    <div class="details">
+        <p><strong>Émetteur :</strong> AJS GROUP</p>
+        <p>8 AVENUE DANIELLE CASANOVA</p>
+        <p>95210 SAINT-GRATIEN - France</p>
+        <p>Email : contact@ajs-borne.cm</p>
+
+        <p><strong>Client :</strong> S.A.R.L SGZ</p>
+        <p>69 RUE MAURICE THOREZ</p>
+        <p>92000 NANTERRE - France</p>
+        <p><strong>N° de TVA :</strong> FR10929245223</p>
+    </div>
+
+    <!-- Product Details -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Produits</th>
+                <th>Qté</th>
+                <th>Prix u. HT</th>
+                <th>TVA (%)</th>
+                <th>Total HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Mise à disposition des livreurs</td>
+                <td>1 unité</td>
+                <td>427,60 €</td>
+                <td>20%</td>
+                <td>427,60 €</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Tax Details -->
+    <h3>Détails TVA</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Taux</th>
+                <th>Montant TVA</th>
+                <th>Base HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>20%</td>
+                <td>85,52 €</td>
+                <td>427,60 €</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Summary -->
+    <h3>Récapitulatif</h3>
+    <table class="summary">
+        <tr>
+            <td><strong>Total HT :</strong></td>
+            <td>427,60 €</td>
+        </tr>
+        <tr>
+            <td><strong>Total TVA :</strong></td>
+            <td>85,52 €</td>
+        </tr>
+        <tr class="total">
+            <td><strong>Total TTC :</strong></td>
+            <td>513,12 €</td>
+        </tr>
+    </table>
+
+    <!-- Payment Details -->
+    <div class="payment">
+        <p><strong>Paiement</strong></p>
+        <p><strong>Moyen de paiement :</strong> Virement</p>
+        <p><strong>Établissement :</strong> BNP PARIBAS</p>
+        <p><strong>IBAN :</strong> FR76300004105270001019982977</p>
+        <p><strong>BIC :</strong> BNPAPFRPXXX</p>
+        <p><strong>Référence :</strong> PLXZAYBFHEXZZ</p>
+        <p>Merci d’inclure la référence dans le libellé de votre virement pour que votre paiement soit correctement identifié.</p>
+    </div>
+
+    <!-- Late Payment Penalties -->
+    <p class="penalty"><small>Pénalités de retard : trois fois le taux annuel d’intérêt légal en vigueur calculé depuis la date d’échéance jusqu’à complet paiement du prix.</small></p>
+    <p class="penalty"><small>Indemnité forfaitaire pour frais de recouvrement en cas de retard de paiement : 40 €</small></p>
+</div>
+
+</body>
+</html>

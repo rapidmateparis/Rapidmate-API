@@ -9,7 +9,7 @@ const {
   transformKeysToLowercase,
   UPDATE_DELIVERY_BOY_STATUS,
   UPDATE_ENTERPRISE_STATUS,
-} = require("../../../db/database.query");
+} = require("../../../repo/database.query");
 const DELIVERY_BOY = "DELIVERY_BOY";
 const CONSUMER = "CONSUMER";
 const ENTERPRISE = "ENTERPRISE";
@@ -126,7 +126,8 @@ exports.viewJoinRequest = async (req, res) => {
  */
 exports.acceptOrRejectJoinRequest = async (req, res) => {
   try {
-    const { status, role, reason, ext_id } = req.body;
+    const ext_id=req.query.ext_id
+    const { status, role, reason } = req.body;
     let filterValue = "";
     let queryReq = "";
     let columnName = "";

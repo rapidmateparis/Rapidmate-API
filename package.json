@@ -35,6 +35,7 @@
     "express": "^4.17.1",
     "express-expeditious": "^4.0.0",
     "express-interceptor": "^1.2.0",
+    "express-rate-limit": "^7.5.0",
     "express-validator": "^6.4.0",
     "fcm-node": "^1.3.0",
     "firebase-admin": "^12.0.0",
@@ -47,6 +48,7 @@
     "jspdf": "^2.5.1",
     "log4js": "^6.9.1",
     "moment": "^2.29.4",
+    "moment-timezone": "^0.5.46",
     "mongoose": "^5.9.6",
     "mongoose-paginate-v2": "^1.3.7",
     "morgan": "^1.10.0",
@@ -62,13 +64,15 @@
     "phantomjs-prebuilt": "^2.1.16",
     "puppeteer": "^23.3.0",
     "razorpay": "^2.9.2",
+    "redis": "^4.7.0",
     "remark-cli": "^12.0.1",
     "request-ip": "^3.3.0",
     "socket.io": "^4.7.5",
     "stripe": "^17.4.0",
     "trim-request": "^1.0.6",
     "uuid": "^7.0.3",
-    "validator": "^13.0.0"
+    "validator": "^13.0.0",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",

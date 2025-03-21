@@ -6,7 +6,7 @@ const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
 const { runQuery ,fetch} = require('../middleware/db')
-const { FETCH_DRIVER_AVAILABLE } = require('../db/database.query')
+const { FETCH_DRIVER_AVAILABLE } = require('../repo/database.query')
 const accountRouter =require('../middleware/routes/account')
 const paymentRouter =require('../middleware/routes/deliveryboypaymethod')
 const walletRouter =require('../middleware/routes/wallet')
@@ -75,6 +75,12 @@ router.get(
   controller.getItem
 )
 
+router.get(
+  '/available/list',
+    trimRequest.all,
+    controller.availableDeliveryList
+)
+
 /*
  * Update item route
  */
@@ -95,9 +101,20 @@ router.put(
   controller.updateAvailability 
 )
 
-/*
- * Delete item route
- */
+router.post(
+  '/billing/address/update',
+  trimRequest.all,
+  validate.ValidateBillingAddressRequest,
+  controller.createOrUpdateBillingAddress
+)
+
+router.get(
+  '/billing/address/get/:extId',
+  trimRequest.all,
+  validate.validateExtId,
+  controller.getBillingAddressDetailsByExtId
+)
+
 router.delete(
   '/:id',
   trimRequest.all,

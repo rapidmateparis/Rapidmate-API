@@ -7,7 +7,11 @@ const trimRequest = require('trim-request')
 /*
  * vehicle types routes
  */
-
+router.get(
+  '/getall',
+  trimRequest.all,
+  controller.getVehicles
+)
 /*
  * Get items route
  */

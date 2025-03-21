@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const {FETCH_ACCOUNT_ALL, FETCH_ACCOUNT_BY_ID, FETCH_ACCOUNT_BY_EXTID, UPDATE_ACCOUNT, INSERT_ACCOUNT, DELETE_ACCOUNT} =require('../../../db/database.query')
+const {FETCH_ACCOUNT_ALL, FETCH_ACCOUNT_BY_ID, FETCH_ACCOUNT_BY_EXTID, UPDATE_ACCOUNT, INSERT_ACCOUNT, DELETE_ACCOUNT} =require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/
@@ -50,7 +50,7 @@ exports.getItem = async (req, res) => {
  */
 exports.getBydeliveryBoyExtid = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_ACCOUNT_BY_EXTID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -96,16 +96,18 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_ACCOUNT,[req.delivery_boy_extid,req.account_number,req.bank_name,req.ifsc,req.address,req.currency]);
+const createItem = async (req,delivery_boy_extid) => {
+    const registerRes = await insertQuery(INSERT_ACCOUNT,[delivery_boy_extid,req.account_number,req.bank_name,req.ifsc,req.address,req.currency]);
     return registerRes;
 }
 
 exports.createItem = async (req, res) => {
+  const delivery_boy_extid=req.query.ext_id;
   try {
     const doesNameExists =await utils.nameExists(req.body.account_number,'rmt_delivery_boy_account','account_number')
     if (!doesNameExists) {
-      const item = await createItem(req.body)
+      
+      const item = await createItem(req.body,delivery_boy_extid)
       if(item.insertId){
         const currentdata=await fetch(FETCH_ACCOUNT_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))

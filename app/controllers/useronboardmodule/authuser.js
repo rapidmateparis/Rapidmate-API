@@ -23,7 +23,7 @@ var poolData =
     ClientId :  ClientId// sempercon2 client id here
 };
 const jwt = require('jsonwebtoken');
-const JWT_SECRET_KEY = "R@M1DM@T3$2024APP";
+var JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 const jwtVerifier = CognitoJwtVerifier.create({
     userPoolId: userPoolId,
@@ -33,25 +33,17 @@ const jwtVerifier = CognitoJwtVerifier.create({
     includeRawJwtInErrors: true
 });
 
-
 function createUser(userInfo) {
-  return new Promise(resolve => {
+    var phone = userInfo["phoneNumber"];
+    userInfo["phone_code"] = (phone.includes("+"))?"":"+33";
+    return new Promise(resolve => {
 
         logger.info("createUser called");
-
         var UserAttributes = [
-            {
-                Name: 'name', Value: userInfo["userName"]
-            },
-            {
-                Name: 'email', Value: userInfo["userName"]
-            },
-            {
-                Name: 'phone_number', Value: userInfo["phoneNumber"]
-            },
-            {
-                Name: 'custom:userrole', Value: userInfo["userrole"]
-            },
+            { Name: 'name', Value: userInfo["userName"]},
+            { Name: 'email', Value: userInfo["userName"]},
+            { Name: 'phone_number', Value: userInfo["phone_code"] + userInfo["phoneNumber"]},
+            { Name: 'custom:userrole', Value: userInfo["userrole"]},
             { Name: 'custom:first_name', Value: userInfo["firstName"] },
             { Name: 'custom:last_name', Value: userInfo["lastName"] },
             { Name: 'custom:company_name', Value: userInfo["companyName"] },
@@ -66,18 +58,13 @@ function createUser(userInfo) {
             { Name: 'custom:country', Value: userInfo["country"] },
             { Name: 'custom:siret_no', Value: userInfo["siretNo"] }
         ]
-
-
         var params =
         {
             UserPoolId: userPoolId, // Your user pool id here
             Username: userInfo["userName"],
-            DesiredDeliveryMediums:
-            [ "EMAIL"],
-            //TemporaryPassword: 'Password_1',
+            DesiredDeliveryMediums:[ "EMAIL"],
             UserAttributes: UserAttributes
         };
-
         var cognitoidentityserviceprovider  = new AWS.CognitoIdentityServiceProvider({region:cognito_region,
           accessKeyId: cognito_accessKeyId,
           secretAccessKey: cognito_secretAccessKey,
@@ -102,15 +89,16 @@ function createUser(userInfo) {
 }
 
 async function signup(userInfo) {
-    console.log(process.env.PROD_FLAG);
+    var phone = userInfo["phoneNumber"];
+    userInfo["phone_code"] = (phone.includes("+"))?"":"+33";
     if(process.env.PROD_FLAG == "true"){
         try {
             logger.info("selfSignUp called");
-        
+            
             const UserAttributes = [
               { Name: 'name', Value: userInfo["userName"] },
               { Name: 'email', Value: userInfo["email"] },
-              { Name: 'phone_number', Value: userInfo["phoneNumber"] }
+              { Name: 'phone_number', Value: userInfo["phone_code"] + userInfo["phoneNumber"] }
               // Add other attributes as needed
             ];
         
@@ -145,22 +133,19 @@ async function signup(userInfo) {
             logger.info(data);
             logger.info("selfSignUp completion");
         
-            let externalId = new Date().getTime();
+            let makeRoleExtId = new Date().getTime();
             if (userInfo['userrole'] === CONSUMER_ROLE) {
-              makeRoleExtId = "C" + externalId;
               const item = await createItem(userInfo, "rmt_consumer",makeRoleExtId);
             } else if (userInfo['userrole'] === DELEIVERY_BOY_ROLE) {
-              makeRoleExtId = "D"+  externalId;
               const item = await createItem(userInfo, "rmt_delivery_boy",makeRoleExtId);
             } else if (userInfo['userrole'] === ENTERPRISE_ROLE) {
-              makeRoleExtId = "E" + externalId;
               const item = await createItem(userInfo, "rmt_enterprise",makeRoleExtId);
             } else if (userInfo['userrole'] === ADMIN_ROLE) {
-              makeRoleExtId = "A" + externalId;
               const item = await createItem(userInfo, "rmt_admin_user",makeRoleExtId);
             } 
-            const token = jwt.sign(makeRoleExtId, JWT_SECRET_KEY);
-            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'], rapid_token : token, ...data };
+            let userProfile = await getUserProfile(userInfo["userName"]);
+            const token = jwt.sign(userProfile[0].ext_id, JWT_SECRET_KEY);
+            return {  user_profile : userProfile, extId: userProfile[0].ext_id, role:userInfo['userrole'], rapid_token : token, ...data };
         
           } catch (err) {
             logger.error('selfSignUp error');
@@ -172,22 +157,19 @@ async function signup(userInfo) {
         if(userData && userData.length>0){
            return null;
         }else{
-            let externalId = new Date().getTime();
+            let makeRoleExtId = new Date().getTime();
             if (userInfo['userrole'] === CONSUMER_ROLE) {
-              makeRoleExtId = "C" + externalId;
               const item = await createItem(userInfo, "rmt_consumer",makeRoleExtId);
             } else if (userInfo['userrole'] === DELEIVERY_BOY_ROLE) {
-              makeRoleExtId = "D"+  externalId;
               const item = await createItem(userInfo, "rmt_delivery_boy",makeRoleExtId);
             } else if (userInfo['userrole'] === ENTERPRISE_ROLE) {
-              makeRoleExtId = "E" + externalId;
               const item = await createItem(userInfo, "rmt_enterprise",makeRoleExtId);
             } else if (userInfo['userrole'] === ADMIN_ROLE) {
-              makeRoleExtId = "A" + externalId;
               const item = await createItem(userInfo, "rmt_admin_user",makeRoleExtId);
             } 
-            const token = jwt.sign(makeRoleExtId, JWT_SECRET_KEY);
-            return {  user_profile : await getUserProfile(userInfo["userName"]), extId: makeRoleExtId,role:userInfo['userrole'],  rapid_token : token,
+            let userProfile = await getUserProfile(userInfo["userName"]);
+            const token = jwt.sign(userProfile[0].ext_id, JWT_SECRET_KEY);
+            return {user_profile : userProfile, extId: userProfile[0].ext_id, role:userInfo['userrole'],  rapid_token : token,
                 UserConfirmed: false,
                 CodeDeliveryDetails: {
                     Destination: "y***@a***",
@@ -207,16 +189,16 @@ async function createItem(userinfo,tablename,extIds){
     const password= await bcrypt.hash(userinfo['password'], 10);
     // password = userinfo['password'];
     if(tablename=='rmt_consumer'){
-      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,EMAIL_VERIFICATION,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['token']}',123456)`;
+      registerQuery = `INSERT INTO rmt_consumer(EXT_ID,USERNAME,PHONE,EMAIL,is_email_verified,PASSWORD,COUNTRY_ID,TERM_COND1,FIRST_NAME,LAST_NAME,token,verification_code,phone_code) VALUES('C${extIds}','${userinfo['userName']}','${userinfo['phoneNumber']}','${userinfo['email']}','0','${password}','${userinfo['country']}','1','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`;
     }
     if(tablename=='rmt_delivery_boy'){
-        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,EMAIL_VERIFICATION,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['token']}',123456)`;
+        registerQuery = `INSERT INTO rmt_delivery_boy(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,token,verification_code,phone_code) VALUES('D${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`;
     }
     if(tablename=='rmt_enterprise'){
-        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id,token,verification_code,deliveryMonthHours) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}','${userinfo['token']}',123456,'${userinfo['deliveryMonthHours']}')`;
+        registerQuery = `INSERT INTO rmt_enterprise(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,is_email_verified,PHONE,PASSWORD,CITY_ID,STATE_ID,COUNTRY_ID,SIRET_NO,TERM_COND1,TERM_COND2,DESCRIPTION,company_name,industry_type_id,token,verification_code,deliveryMonthHours,phone_code) VALUES('E${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','0','${userinfo['phoneNumber']}','${password}','${userinfo['city']}','${userinfo['state']}','${userinfo['country']}','${userinfo['siretNo']}','${userinfo['termone']}','${userinfo['termtwo']}','${userinfo['description']}','${userinfo['companyName']}','${userinfo['industryId']}','${userinfo['token']}',123456,'${userinfo['deliveryMonthHours']}','${userinfo['phone_code']}')`;
     }
     if(tablename=='rmt_admin_user'){
-        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code) VALUES('${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',123456)`; //(LPAD(FLOOR(RAND() * 999999.99),6,  '0')
+        registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code,phone_code) VALUES('A${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`; //(LPAD(FLOOR(RAND() * 999999.99),6,  '0')
     }
     // console.log("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);
@@ -464,7 +446,11 @@ async function loginResponseData(resolve, reject, result, userInfo) {
         }
         const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
         profileData[0].token = token;
-        const rapid_token = jwt.sign(username, JWT_SECRET_KEY);
+        const tokenKey = {
+            ext_id : profileData[0].ext_id,
+            dt : new Date()
+        };
+        const rapid_token = jwt.sign(tokenKey, JWT_SECRET_KEY);
         resolve({
             token:result.accessToken.jwtToken,
             refreshtoken:result.refreshToken.token,

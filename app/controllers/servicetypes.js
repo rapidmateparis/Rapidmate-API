@@ -1,7 +1,7 @@
 const utils = require('../middleware/utils')
 const db = require('../middleware/db')
 const { runQuery,updateQuery,fetch,insertQuery} = require('../middleware/db')
-const { FETCH_ALL_SERVICE, FETCH_SERVICE_BYID, UPDATE_SERVICE, INSERT_SERVICE, DELETE_SERVICE } = require('../db/database.query')
+const { FETCH_ALL_SERVICE, FETCH_SERVICE_BYID, UPDATE_SERVICE, INSERT_SERVICE, DELETE_SERVICE } = require('../repo/database.query')
 
 
 /********************
@@ -52,7 +52,7 @@ exports.getItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_SERVICE,[req.service_name,req.is_del,id]);
+    const registerRes = await updateQuery(UPDATE_SERVICE,[req.service_name,req.discount,req.is_del,id]);
     return registerRes;
 }
 exports.updateItem = async (req, res) => {

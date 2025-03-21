@@ -1,6 +1,6 @@
 const pool = require('../../config/database')
-const {GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY,INSERT_SLOTS_QUERY,} = require('../db/planning.query')
-const {INSERT_SHIFT_SLOTS_QUERY} = require('../db/enterprise.order')
+const {GET_ALL_PLANNING_WITH_SLOTS_QUERY, GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY,INSERT_SLOTS_QUERY,} = require('../repo/planning.query')
+const {INSERT_SHIFT_SLOTS_QUERY} = require('../repo/enterprise.order')
 const moment = require("moment");
 /**
  * Builds sorting
@@ -147,6 +147,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
+      console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
@@ -154,6 +155,7 @@ module.exports = {
   
   async updateQuery(query,param=[]) {
     try {
+      console.log(query);
       return await pool
         .execute(query,param)
         .then(([rows, fields]) => {
@@ -164,6 +166,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
+      console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
@@ -327,30 +330,40 @@ module.exports = {
   },
 
   //Enterprise planning 
-  async persistEnterpriseOrder(req) {
+  async persistEnterpriseOrder(req,enterprise_ext_id) {
     console.info(req);
-    let connections;
-    try {
+    if(parseInt(req.is_scheduled_order) == 1){
+      req.consumer_order_title ="Scheduled on ";
+      req.delivery_boy_order_title = "Scheduled on ";
+      req.schedule_date_time = req.order_date;
+    }else{
+      req.consumer_order_title ="Order placed on ";
+      req.delivery_boy_order_title = "Order received on ";
+   }
+   req.is_pay_later=req.is_pay_later ? 1 : 0
+   try {
       connections = await pool.getConnection(); // Get a connection from the pool
       await connections.beginTransaction();
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
-        pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
+        branch_id,delivery_type_id,service_type_id,vehicle_type_id,
+        order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
-        delivery_boy_amount
+        delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,
+        drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
 
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
-          order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
-          pickup_date, pickup_time, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes
-        ) VALUES (concat('E',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?)`,
+          order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id, order_date,pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
-          enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
+          enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
-          delivery_boy_amount,pickup_notes
+          delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
         ]
       );
       await connections.commit(); // Commit the transaction
@@ -363,33 +376,44 @@ module.exports = {
     }
   },
   
-  async persistMultipleDeliveries(req) {
-    console.log("result ---->", req);
+  async persistMultipleDeliveries(req,enterprise_ext_id) {
+    if(parseInt(req.is_scheduled_order) == 1){
+      req.consumer_order_title ="Scheduled on ";
+      req.delivery_boy_order_title = "Scheduled on ";
+      req.schedule_date_time = req.order_date;
+      }else{
+        req.consumer_order_title ="Order placed on ";
+        req.delivery_boy_order_title = "Order received on ";
+    }
+    let otp = Math.floor(1000 + Math.random() * 8999);
+    req.is_pay_later=req.is_pay_later ? 1 : 0
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
       await connections.beginTransaction();
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,
-        pickup_date,pickup_time,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
+        branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
-        delivery_boy_amount
+        delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,
+        drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
 
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id,
-          pickup_date, pickup_time, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
-          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes
-        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?)`,
+          order_date, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
+          repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,
+          pickup_notes,is_scheduled_order,schedule_date_time,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
-          enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,pickup_date,pickup_time,
-          pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
-          package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
-          delivery_boy_amount,pickup_notes
+          enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,
+          order_date,pickup_location_id, dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
+          package_photo,package_id,otp,distance,total_amount,commission_percentage,commission_amount,
+          delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
         ]
       );
-      console.log("result ---->", result);
       // rmt_enterprise_order_line
       if (delivery_type_id === 2) {
         if (req.branches && req.branches.length > 0) {
@@ -403,47 +427,79 @@ module.exports = {
     
             if (getOrderNumberResult.length > 0) {
                 const { order_number } = getOrderNumberResult[0];
-    
+                let idx = 1;
                 // Loop through each delivery entry in addAnothers
                 for (const delivery of req.branches) {
+                    let otpLine = Math.floor(1000 + Math.random() * 8999);
+                    var otpLineValue = idx ==1?otp: otpLine;
                     const {
+                        line_no,
                         to_latitude,
                         to_longitude,
                         dropoff_location,
+                        destinationDescription,
                         delivery_date,
                         delivery_start_time,
                         delivery_end_time,
                         total_hours,
-                        distance
+                        distance,
+                        drop_first_name,
+                        drop_last_name,
+                        drop_company_name,
+                        drop_mobile,
+                        drop_email,
+                        drop_notes,consumer_order_title,delivery_boy_order_title
                     } = delivery;
     
                     // Insert the data into rmt_enterprise_order_line
                     await connections.query(
                         `INSERT INTO rmt_enterprise_order_line (
+                            line_no,
                             branch_id,
                             order_id,
                             order_number,
                             to_latitude,
                             to_longitude,
                             dropoff_location,
+                            destination_description,
                             delivery_date,
                             delivery_start_time,
                             delivery_end_time,
                             total_hours,
-                            distance
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            distance,
+                            drop_first_name,
+                            drop_last_name,
+                            drop_company_name,
+                            drop_mobile,
+                            drop_email,
+                            drop_notes,
+                            otp,
+                            consumer_order_title,
+                            delivery_boy_order_title
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                         [
+                            idx++,
                             branch_id,
                             orderId,
                             order_number,
                             to_latitude,
                             to_longitude,
                             dropoff_location,
+                            destinationDescription,
                             delivery_date,
                             delivery_start_time,
                             delivery_end_time,
                             total_hours,
-                            distance
+                            distance,
+                            drop_first_name,
+                            drop_last_name,
+                            drop_company_name,
+                            drop_mobile,
+                            drop_email,
+                            drop_notes,
+                            otpLineValue,
+                            consumer_order_title,
+                            delivery_boy_order_title
                         ]
                     );
                 }
@@ -460,7 +516,7 @@ module.exports = {
     }
   },
 
-  async persistShiftOrder(req) {
+  async persistShiftOrder(req,enterprise_ext_id) {
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
@@ -472,8 +528,10 @@ module.exports = {
       deliveredOnFormat = deliveredOnFormat.replace("#", "at");
       status = "COMPLETED";
       next_action_status = "Completed";
-      consumer_order_title = "Completed on " + deliveredOnFormat;
-      delivery_boy_order_title = "Completed on" + deliveredOnFormat;
+      consumer_order_title = "Completed on ";
+      delivery_boy_order_title = "Completed on ";
+      var total_slots = (req?.delivery_type_id === 3 )?(req?.slots && req?.slots?.length > 0)? req?.slots?.length : 1 : 1;
+
       await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
         delivery_boy_order_title +
         "', order_status = '" +
@@ -481,13 +539,13 @@ module.exports = {
         "', next_action_status = '" +
         next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);
       const {
-        enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days
+        branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount,total_hours,total_days,total_amount
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (order_number,enterprise_id, branch_id,delivery_type_id, service_type_id, vehicle_type_id,
-          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING')`,
+          shift_from_date, shift_tp_date, is_same_slot_all_days,order_status,amount,total_hours,total_days,total_amount,total_slots) VALUES (concat('ES',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?,'REQUEST_PENDING', ?, ?, ?, ?, ?)`,
         [
-          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days
+          enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount, total_hours, total_days, total_amount, total_slots
         ]
       );
       // rmt_enterprise_order_line
@@ -505,12 +563,18 @@ module.exports = {
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
                 slotPromises = days.map(day =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time])
+                  {
+                    var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
+                    connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
+                  }
                 );
               } else if (slots && slots.length > 0) {
                 // Insert provided slots
                 slotPromises = slots.map(slot =>
-                  connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time])
+                  {
+                      var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
+                      connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
+                  }
                 );
               } else {
                 throw new Error('No slots provided');

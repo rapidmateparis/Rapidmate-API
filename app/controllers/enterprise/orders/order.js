@@ -1,18 +1,119 @@
 const utils = require("../../../middleware/utils");
 const { persistShiftOrder, fetch, persistMultipleDeliveries, updateQuery, persistEnterpriseOrder,insertEnterpriseShiftOrder } = require("../../../middleware/db");
-const { FETCH_SLOTS_BY_SHIFT_ID,FETCH_ORDER_BY_ORDER_EXT_SEARCH, transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../../db/enterprise.order");
+const { FETCH_SLOTS_BY_SHIFT_ID,FETCH_ORDER_BY_ORDER_EXT_SEARCH, transformKeysToLowercase, FETCH_ORDER_BY_ORDER_NUMBER,UPDATE_ENTERPRISE_ORDER_BY_STATUS,DELETE_ORDER_QUERY,FETCH_ORDER_BY_ID,FETCH_ORDER_BY_ORDER_EXT,FETCH_ORDER_DELIVERY_BOY_ID,UPDATE_DELIVERY_UPDATE_ID,UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS} = require("../../../repo/enterprise.order");
 const notification = require("../../../controllers/common/Notifications/notification");
 const { insertQuery } = require("../../../middleware/db");
-const { UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE} = require("../../../db/database.query");
+const { UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE, UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS, INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE,UPDATE_SET_DELIVERY_BOY_FOR_MULTI_ORDER_ENTERPRISE} = require("../../../repo/database.query");
 const moment = require("moment");
 const fs = require('fs');
 const { jsPDF } = require("jspdf"); // will automatically load the node version
 const doc = new jsPDF();
 
+const invoiceContoller = require("../../admin/invoices/invoice")
+
+exports.getOrderList = async (req,res) =>{
+  try{
+    const orderNumber = req.query.o || "";
+    const pageSize = parseInt(req.query.pagesize) || 10;
+    const orderType=req.query.ordertype;
+    const reqStatus=req.query.status || "current";
+    const page =parseInt(req.query.page) || 1;
+    let statusParams = [];
+    let conditions = "";
+    if (reqStatus == "current") {
+      statusParams.push([
+        "'ORDER_PLACED'",
+        "'CONIRMED'",
+        "'PAYMENT_COMPLETED'",
+        "'ORDER_ALLOCATED'",
+        "'ORDER_ACCEPTED'",
+        "'ON_THE_WAY_PICKUP'",
+        "'ON_THE_WAY_DROP_OFF'",
+        "'REACHED'",
+        "'OTP_VERIFIED'",
+        "'DELIVERED_OTP_VERIFIED'",
+        "'REQUEST_PENDING'",
+        "'MULTI_ORDER_GOING_ON'"
+
+      ]);
+    } else if (reqStatus == "past" || orderType=='past') {
+      
+      statusParams.push([
+        "'PAYMENT_FAILED'",
+        "'ORDER_REJECTED'",
+        "'COMPLETED'",
+        "'CANCELLED'",
+      ]);
+    } else {
+      statusParams.push([
+        "'ORDER_PLACED'",
+        "'CONIRMED'",
+        "'PAYMENT_COMPLETED'",
+        "'ORDER_ALLOCATED'",
+        "'PAYMENT_FAILED'",
+        "'ORDER_ACCEPTED'",
+        "'ORDER_REJECTED'",
+        "'ON_THE_WAY_PICKUP'",
+        "'PICKUP_COMPLETED'",
+        "'REACHED'",
+        "'OTP_VERIFIED'",
+        "'ON_THE_WAY_DROP_OFF'",
+        "'COMPLETED'",
+        "'CANCELLED'",
+        "'DELIVERED_OTP_VERIFIED'",
+        "'MULTI_ORDER_GOING_ON'",
+        "'REQUEST_PENDING'"
+      ]);
+    }
+    let delivery_type_id=1
+    if(orderType=='multipleorder'){
+      delivery_type_id=2;
+    }else if(orderType=='shift'){
+      delivery_type_id=3;
+    }else if (orderType=='past'){
+      delivery_type_id=0;
+    }else{
+      delivery_type_id=1
+    }
+
+    if (orderNumber && orderNumber != "") {
+      conditions = " AND e.order_number like '%" + orderNumber + "%' ";
+    }
+    if(delivery_type_id){
+      conditions = " AND e.delivery_type_id="+delivery_type_id+" " ;
+    }
+    let queryForCount = ``;
+    if (orderNumber.trim()) {
+      queryForCount += ` and (order_number LIKE ?)`;
+    }
+    if(delivery_type_id){
+      queryForCount = " AND delivery_type_id="+delivery_type_id+" " ;
+    }
+    const query = `SELECT e.*,dt.delivery_type,CONCAT(d.first_name, ' ', d.last_name) AS delivery_boy_name,en.ext_id,d.ext_id as deliveryboyId,CONCAT(en.first_name, ' ', en.last_name) AS enterprise_name,s.service_type as service_name,s.hour_amount FROM rmt_enterprise_order as e LEFT JOIN rmt_enterprise_delivery_type as dt ON  e.delivery_type_id=dt.id LEFT JOIN rmt_enterprise en ON e.enterprise_id=en.id LEFT JOIN rmt_enterprise_service_type AS s ON e.service_type_id = s.id LEFT JOIN rmt_delivery_boy AS d ON e.delivery_boy_id = d.id WHERE e.is_del=0 ${conditions} ORDER BY e.created_on DESC ${utils.getPagination(req.query.page, req.query.size)}`;
+    const countQuery = `SELECT COUNT(*) AS total FROM rmt_enterprise_order WHERE order_status IN(${statusParams}) ${queryForCount}`;
+    const countResult = await fetch(countQuery);
+    const totalRecords = countResult[0].total;
+    const filterdata = await fetch(query);
+    const resData = {
+      total: totalRecords,
+      page: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(totalRecords / pageSize),
+      data: filterdata,
+    };
+    return res
+    .status(200)
+    .json(utils.buildCreateMessage(200, "test", resData));
+  }catch(error){
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, error.message, 1001));
+  }
+}
 
 exports.getItemByEnterpriseExt = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const orderNumber = req.query.o || "";
     var conditions = "";
     if (orderNumber && orderNumber != "") {
@@ -47,10 +148,11 @@ exports.getItemByEnterpriseExt = async (req, res) => {
 
 exports.searchByFilter = async (req, res) => {
   try {
+      const enterprise_ext_id=req.query.ext_id
       const requestData = req.body;
       var conditionQuery = "";
       var requestArrayData = [];
-      requestArrayData.push(requestData.enterprise_ext_id);
+      requestArrayData.push(enterprise_ext_id);
       if(requestData.order_number){
         requestArrayData.push(requestData.order_number);
         conditionQuery = " and order_number = ?";
@@ -152,7 +254,7 @@ exports.getItemByOrderNumber = async (req, res) => {
  */
 exports.getItemByDeliveryBoyExtId = async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.query.ext_id;
         const data = await fetch(FETCH_ORDER_DELIVERY_BOY_ID,[id]);
         let message = "Items retrieved successfully";
         if (data.length <= 0) {
@@ -189,11 +291,11 @@ exports.updateOrderStatus = async (req, res) => {
     var next_action_status = "Ready pickup";
     var consumer_order_title = "Delivery boy allocated on";
     var delivery_boy_order_title = "OTP verified on";
-    var deliveredOTPNumber= "1212";
+    var deliveredOTPNumber= "****";
     if (requestData.status == "Payment Failed") {
       status = "PAYMENT_FAILED";
       next_action_status = "Payment Failed";
-      consumer_order_title = "Payment failed on " + deliveredOnFormat;
+      consumer_order_title = "Payment failed on ";
       delivery_boy_order_title = "Waiting for allocation";
     } else if (requestData.status == "Ready to pickup") {
       status = "ON_THE_WAY_PICKUP";
@@ -225,15 +327,14 @@ exports.updateOrderStatus = async (req, res) => {
       var deliveredOn = new Date();
       deliveredOtp = ", delivered_on = '" + deliveredOnDBFormat + "'";
       if(requestData.status == "Mask as completed"){
-        consumer_order_title = "Completed on " + deliveredOnFormat;
-        delivery_boy_order_title = "Completed on" + deliveredOnFormat;
+        consumer_order_title = "Completed on ";
+        delivery_boy_order_title = "Completed on ";
       }else{
-        consumer_order_title = "Delivered on " + deliveredOnFormat;
-        delivery_boy_order_title = "Delivered on" + deliveredOnFormat;
+        consumer_order_title = "Delivered on ";
+        delivery_boy_order_title = "Delivered on ";
       }
      
     }
-    console.log("Delivered On " + deliveredOn);
     const updateData = await updateQuery(
       "update rmt_enterprise_order set consumer_order_title = '" +
         consumer_order_title +
@@ -245,7 +346,7 @@ exports.updateOrderStatus = async (req, res) => {
         status +
         "', next_action_status = '" +
         next_action_status +
-        "' where order_number = ?",
+        "', updated_on = now(), updated_by = '" + status + "' where order_number = ?",
       [requestData.order_number]
     );
     console.log(updateData);
@@ -324,74 +425,38 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
         return res.status(500).json(utils.buildErrorObject(500,'Unable to update an Order number', 1001));
       }
 }
-/**
- * Create item function called by route
- * @param {Object} req - request object
- * @param {Object} res - response object
- */
-const createItem = async (req) => {
-  console.info(req.delivery_type_id);
-  var  executeResult = {};
-  switch(req.delivery_type_id){
-    case 1 :  console.info(req.delivery_type_id);
-            executeResult = await persistEnterpriseOrder(req);  
-            break;
-    case 2 : console.info(req.delivery_type_id);
-            executeResult = await persistMultipleDeliveries(req);  
-            break;
-    case 3 : console.info(req.delivery_type_id);
-             executeResult = await persistShiftOrder(req);  
-             break;
-  }
-  console.log(executeResult);
-  return executeResult;
-};
 
-exports.createItem = async (req, res) => {
+exports.createEnterpriseOrder = async (req, res) => {
   try {
+    const enterprise_ext_id=req.query.ext_id
     const requestData = req.body;
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
-    console.log(vehicleType);
-
-    if(requestData.delivery_type_id !== 3){
+    if(vehicleType){
       var total_amount = requestData.total_amount;
-      console.log(requestData);
-      
       requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
       requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
-      console.log(requestData.commission_amount.toFixed(2));
-  
       requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
-      console.log(requestData.delivery_boy_amount);
-      console.log(requestData);
     }
-
     
-   
-    const item = await createItem(requestData);
+    const item = await createEOrders(requestData,enterprise_ext_id);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
-      let titleText='Your order has been created.';
-      if(requestData.delivery_type_id==1){
-        titleText='Your order has been created.'
-      }else if(requestData.delivery_type_id==2){
-        titleText='Your multiple order delivery has been created.'
-      }else if(requestData.delivery_type_id==3){
-        titleText='Your shift order has been created.'
-      }
+      let titleText =(requestData.delivery_type_id==1)?'Your order has been created.':
+                  (requestData.delivery_type_id==2)?'Your Orders have been created.':
+                  (requestData.delivery_type_id==3)?'Your shift order has been created successfully. Delivery boy will be allocated.':"Invalid delivery type";
       var notifiationRequest = {
         title : titleText,
         body: {},
         payload: {
-          message :  "Your booking has been confirmed successfully.",
+          message :  titleText,
           orderNumber : currData[0].order_number
         },
         extId: currData[0].order_number,
-        message : "Your booking has been confirmed successfully", 
+        message : titleText, 
         topic : "",
         token : "",
         senderExtId : "",
-        receiverExtId : requestData.enterprise_ext_id,
+        receiverExtId : enterprise_ext_id,
         statusDescription : "",
         status : "",
         notifyStatus : "",
@@ -416,6 +481,17 @@ exports.createItem = async (req, res) => {
       .json(utils.buildErrorObject(500,'Unable to create an order', 1001));
   }
 };
+
+const createEOrders = async (req,enterprise_ext_id) => {
+  var  executeResult = {};
+  switch(req.delivery_type_id){
+    case 1 :  executeResult = await persistEnterpriseOrder(req,enterprise_ext_id);  break;
+    case 2 :  executeResult = await persistMultipleDeliveries(req,enterprise_ext_id);  break;
+    case 3 :  executeResult = await persistShiftOrder(req,enterprise_ext_id);  break;
+  }
+  return executeResult;
+};
+
 
 const getVehicleTypeInfo = async (vehicle_type_id) => {
   try {
@@ -494,15 +570,12 @@ exports.updateOrderlineStatus = async (req, res) => {
   }
 };
 
-
-const deleteItem = async (id, cancel_reason_id, cancel_reason) => {
-  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, [
-    cancel_reason_id,
-    cancel_reason,
-    id,
-  ]);
+const deleteItem = async (cancelParams) => {
+  const deleteRes = await updateQuery(DELETE_ORDER_QUERY, cancelParams);
+  console.log(deleteRes);
   return deleteRes;
 };
+
 /**
  * Delete item function called by route
  * @param {Object} req - request object
@@ -518,35 +591,37 @@ exports.cancelOrder = async (req, res) => {
       order_number
     );
     if (order) {
-      if (parseInt(order.is_del) == 1) {
-        return res
-          .status(200)
-          .json(utils.buildUpdatemessage(200, "Order was already cancelled"));
+     if (order.order_status === "CANCELLED") {
+          return res
+            .status(400)
+            .json(utils.buildErrorObject(400, "Order was already cancelled", 1001));
       }
-      const deletedItem = await deleteItem(
-        order.id,
-        cancel_reason_id,
-        cancel_reason
-      );
+      if (order.order_status === "COMPLETED") {
+              return res
+                .status(400)
+                .json(utils.buildErrorObject(400, "Order was already completed", 1001));
+      }
+      var cancelParams = [cancel_reason_id, cancel_reason, "Cancelled On " , "Cancelled On " , order.id];
+      const deletedItem = await deleteItem(cancelParams);
       if (deletedItem.affectedRows > 0) {
-        return res
-          .status(200)
-          .json(
-            utils.buildUpdatemessage(
-              200,
-              "Order has been cancelled successfully"
-            )
-          );
-      } else {
-        return res
-          .status(500)
-          .json(
-            utils.buildErrorObject(
-              500,
-              "Unable to cancel an order. Please contact customer care",
-              1001
-            )
-          );
+          return res
+            .status(200)
+            .json(
+              utils.buildUpdatemessage(
+                200,
+                "Order has been cancelled successfully"
+              )
+            );
+        } else {
+          return res
+            .status(400)
+            .json(
+              utils.buildErrorObject(
+                400,
+                "Unable to cancel an order. Please contact customer care",
+                1001
+              )
+            );
       }
     }
     return res
@@ -573,7 +648,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     returnData = req.query.show ? true : false;
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = "SELECT o.*,dt.delivery_type,l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile,c.profile_pic as consumer_pic, c.ext_id AS consumer_ext,s.service_name,b.branch_name,b.address as b_address,b.city as b_city,b.state as b_state,b.country as b_country,b.postal_code as b_postal_code,b.latitude as b_latitude,b.longitude as b_longitude FROM rmt_enterprise_order AS o LEFT JOIN rmt_service AS s ON o.service_type_id = s.id LEFT JOIN rmt_enterprise_delivery_type as dt ON  o.delivery_type_id=dt.id LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id LEFT JOIN rmt_enterprise_branch as b ON o.branch_id=b.id WHERE o.is_del = 0 AND o.order_number = ?";
+    const orderAllocationQuery = "SELECT o.*,dt.delivery_type,l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile,c.profile_pic as consumer_pic, c.ext_id AS consumer_ext,s.service_type as service_name,s.hour_amount,b.branch_name,b.address as b_address,b.city as b_city,b.state as b_state,b.country as b_country,b.postal_code as b_postal_code,b.latitude as b_latitude,b.longitude as b_longitude FROM rmt_enterprise_order AS o LEFT JOIN rmt_enterprise_service_type AS s ON o.service_type_id = s.id LEFT JOIN rmt_enterprise_delivery_type as dt ON  o.delivery_type_id=dt.id LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id LEFT JOIN rmt_enterprise_branch as b ON o.branch_id=b.id WHERE o.is_del = 0 AND o.order_number = ?";
     const dbData = await fetch(orderAllocationQuery, [order_number]);
     if (dbData.length <= 0) {
       if (returnData) {
@@ -667,95 +742,154 @@ const getDeliveryBoyInfo = async (delivery_boy_id) => {
   }
 };
 
+
+const getOrderTypeInfo = (orderNumber) =>{
+  var orderInfo = { table : "rmt_order", consumerTable : "rmt_consumer", consumerKey : "consumer_id", orderAllocation : "rmt_order_allocation" , is_multi_order : false};
+  if(orderNumber.includes("EM")){
+    orderInfo = { table : "rmt_enterprise_order_line", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation" , is_multi_order : true};
+  }else if(orderNumber.includes("E")){
+    orderInfo = { table : "rmt_enterprise_order", consumerTable : "rmt_enterprise", consumerKey : "enterprise_id", orderAllocation : "rmt_enterprise_order_allocation"  , is_multi_order : false};
+  }
+  return orderInfo;
+}
+
+
 exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
   var responseData = {};
   try {
     const order_number = req.query.o;
-    const order = await utils.getValuesById("id, is_del, order_date, order_number, service_type_id", "rmt_enterprise_order", "order_number", order_number);
+    var orderInfo = getOrderTypeInfo(order_number);
+    const order = await utils.getValuesById("id, is_del, order_date, order_number, order_status,vehicle_type_id, delivery_boy_id, vehicle_type_id", "rmt_enterprise_order", "order_number", order_number);
+    console.log("Order - ALlocation Delivery boy allocateDeliveryBoyByOrderNumber : ", order);
     if (order) {
-      const orderAllocationQuery = "select * from vw_delivery_plan_setup_slots slot where work_type_id in (1,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " + 
-      "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_enterprise_order_allocation where order_id=?) limit 1";
-      const dbData = await fetch(orderAllocationQuery, [order.order_date, order.order_date,order.id])
-      if(dbData.length <=0){
-        message="Delivery boys are busy. Please try again!!!";
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+      if(order.order_status ==='ORDER_PLACED' || order.order_status ==='ORDER_ACCEPTED' || order.order_status ==='ORDER_ALLOCATED'){
+        if(order.order_status ==='ORDER_PLACED'){
+          const orderAllocationQuery = "select * from vw_delivery_plan_setup_slots slot where work_type_id in (1,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " + 
+          "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_enterprise_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
+          const dbData = await fetch(orderAllocationQuery, [order.order_date, order.order_date,order.id,order.vehicle_type_id])
+          if(dbData.length <=0){
+            message="Delivery boys are busy. Please try again!!!";
+            return res.status(400).json(utils.buildErrorObject(400,message,1001));
+          }else{
+            const allocatedDeliveryBoy = dbData[0];
+            responseData.deliveryBoy = allocatedDeliveryBoy;
+            const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
+            const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
+            const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, [order_number, delivery_boy_id]);
+            if (allocateDeliveryBoyResult.insertId) {
+              const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
+              console.log(setDeliveryBoy);
+              if(orderInfo.is_multi_order){
+                const updateOrderLineDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_MULTI_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
+                console.log(updateOrderLineDeliveryBoy);
+              }
+              const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_id]);
+              console.log(updateAllocate);
+              responseData.order = await getOrderInfo(order_number);
+              responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.delivery_boy_id);
+              var consumer_ext_id = responseData.order.ext_id;
+              var notifiationConsumerRequest = {
+                title : "Driver allocated!!!Order# : " + order_number ,
+                body: {
+                  message :  "Driver has been allocated successfully for your order",
+                  orderNumber : order_number
+                },
+                payload: {
+                  message :  "You have been received new order successfully",
+                  orderNumber : order_number
+                },
+                extId: order_number,
+                message : "Driver has been allocated successfully for your order", 
+                topic : "",
+                token : "",
+                senderExtId : "",
+                receiverExtId : req.query.ext_id,
+                statusDescription : "",
+                status : "",
+                notifyStatus : "",
+                tokens : "",
+                tokenList : "",
+                actionName : "",
+                path : "",
+                userRole : "ENTERPRISE",
+                redirect : "ORDER"
+              }
+              notification.createNotificationRequest(notifiationConsumerRequest);
+              var notifiationDriverRequest = {
+                title : "New order received!!!Order# : " + order_number ,
+                body: {
+                    message :  "You have been received new order successfully",
+                    orderNumber : order_number,
+                    orderStatus : "ORDER_ALLOCATED"
+                },
+                payload: {
+                    message :  "You have been received new order successfully",
+                    orderNumber : order_number,
+                    orderStatus : "ORDER_ALLOCATED"
+                },
+                extId: order_number,
+                message : "You have been received new order successfully", 
+                topic : "",
+                token : "",
+                senderExtId : "",
+                receiverExtId : delivery_boy_ext_id,
+                statusDescription : "",
+                status : "",
+                notifyStatus : "",
+                tokens : "",
+                tokenList : "",
+                actionName : "",
+                path : "",
+                userRole : "DELIVERY_BOY",
+                redirect : "ORDER"
+              }
+              notification.createNotificationRequest(notifiationDriverRequest, true);
+              const currentOrderStatus = await utils.getValuesById(
+                               "id, is_del, order_date, order_number, order_status, vehicle_type_id","rmt_enterprise_order","order_number", order_number
+                             );
+                if (currentOrderStatus) {
+                  if(currentOrderStatus.order_status ==='ORDER_ACCEPTED'){
+                    return res.status(201).json(utils.buildCreateMessage(201,"Delivery boy has been allocated successfully",responseData));
+                  }
+                  if(currentOrderStatus.order_status ==='ORDER_ALLOCATED'){
+                    return res.status(400).json(utils.buildErrorObject(400, "Waiting for delivery accepting the order", 1001));
+                  }
+                }
+                return res.status(400).json(utils.buildErrorObject(400, "Thanks your patience, We are trying to allocate the driveer. Please wait for the moment", 1001));
+                
+              } else {
+                return res
+                  .status(500)
+                  .json(
+                    utils.buildErrorObject(
+                      500,
+                      "Unable to allocate driver your order.",
+                      1001
+                    )
+                  );
+              }
+            }
+          }else{
+            if(order.order_status ==='ORDER_ACCEPTED'){
+              responseData.order = await getOrderInfo(order_number);
+              responseData.deliveryBoy = await getDeliveryInfo(order.delivery_boy_id);
+              responseData.vehicle = await getVehicleInfo(order.delivery_boy_id);
+              return res.status(201).json(utils.buildCreateMessage(201,"Delivery boy has been allocated successfully",responseData));
+            }
+            if(order.order_status ==='ORDER_ALLOCATED'){
+              return res.status(400).json(utils.buildErrorObject(400, "Waiting for delivery accepting the order", 1001));
+            }
+            return res.status(400).json(utils.buildErrorObject(400, "Thanks your patience, We are trying to allocate the driveer. Please wait for the moment", 1001));
+          }
       }else{
-        const allocatedDeliveryBoy = dbData[0];
-        responseData.deliveryBoy = allocatedDeliveryBoy;
-        const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
-        const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
-        const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, [order_number, delivery_boy_id]);
-        console.log(allocateDeliveryBoyResult);
-        if (allocateDeliveryBoyResult.insertId) {
-          const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
-          console.log(setDeliveryBoy);
-          const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_id]);
-          console.log(updateAllocate);
-          responseData.order = await getOrderInfo(order_number);
-          responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.id);
-          var consumer_ext_id = responseData.order.ext_id;
-          var notifiationConsumerRequest = {
-            title : "Driver allocated!!!Order# : " + order_number ,
-            body: {
-              message :  "Driver has been allocated successfully for your order",
-              orderNumber : order_number
-            },
-            payload: {
-              message :  "You have been received new order successfully",
-              orderNumber : order_number
-            },
-            extId: order_number,
-            message : "Driver has been allocated successfully for your order", 
-            topic : "",
-            token : "",
-            senderExtId : "",
-            receiverExtId : consumer_ext_id,
-            statusDescription : "",
-            status : "",
-            notifyStatus : "",
-            tokens : "",
-            tokenList : "",
-            actionName : "",
-            path : "",
-            userRole : "ENTERPRISE",
-            redirect : "ORDER"
+        if (order) {
+          if(order.order_status ==='ORDER_ALLOCATED'){
+            return res.status(400).json(utils.buildErrorObject(400, "Waiting for delivery accepting the order", 1001));
           }
-          notification.createNotificationRequest(notifiationConsumerRequest);
-          var notifiationDriverRequest = {
-            title : "New order received!!!Order# : " + order_number ,
-            body: {
-               message :  "You have been received new order successfully",
-               orderNumber : order_number
-            },
-            payload: {
-              message :  "You have been received new order successfully",
-              orderNumber : order_number
-            },
-            extId: order_number,
-            message : "You have been received new order successfully", 
-            topic : "",
-            token : "",
-            senderExtId : "",
-            receiverExtId : delivery_boy_ext_id,
-            statusDescription : "",
-            status : "",
-            notifyStatus : "",
-            tokens : "",
-            tokenList : "",
-            actionName : "",
-            path : "",
-            userRole : "DELIVERY_BOY",
-            redirect : "ORDER"
-          }
-          notification.createNotificationRequest(notifiationDriverRequest, true);
-          return res.status(201).json(utils.buildCreateMessage(201, "Delivery boy has been allocated successfully", responseData));
-        } else {
-          return res
-            .status(500)
-            .json(utils.buildErrorObject(500, "Unable to allocate driver your order.", 1001));
         }
       }
-    }else{
+    } 
+    else {
       return res.status(400).json(utils.buildErrorObject(400, "Invalid Order number", 1001));
     }
   } catch (error) {
@@ -764,11 +898,26 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
       .status(500)
       .json(utils.buildErrorObject(500,"Unable to allocate driver your order.", 1001));
   }
+  return res.status(400).json(utils.buildErrorObject(400, "Invalid Order number", 1001));
 };
 
-exports.search = async (req, res) => {
+const getDeliveryInfo = async (delivery_boy_id) => {
   try {
-      const {enterprise_ext_id, plan_date} = req.body
+    const data = await fetch(
+      "select id,ext_id,username,first_name,last_name,email,phone,role_id,city_id,state_id,country_id,address,vehicle_id,company_name, work_type_id,profile_pic,is_active,is_availability,latitude,longitude,is_work_type,language_id from rmt_delivery_boy where id =? and is_del=0",
+      [delivery_boy_id]
+    );
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata[0];
+  } catch (error) {
+    return {};
+  }
+};
+
+exports.planSearch = async (req, res) => {
+  try {
+      const enterprise_ext_id=req.query.ext_id
+      const {plan_date} = req.body
       const data = await fetch(FETCH_ORDER_BY_ORDER_EXT_SEARCH,[enterprise_ext_id, plan_date]);
       let message = "Items retrieved successfully";
       if (data.length <= 0) {
@@ -789,3 +938,158 @@ exports.search = async (req, res) => {
     return res.status(500).json(utils.buildErrorObject(500,error.message, 1001));
   }
 };
+
+exports.getBillingReport = async (req, res) => {
+  try {
+    const enterprise_id =req.query.ext_id
+    const {order_type, billing_type, status, start_date, end_date, page = 1, limit = 10 } = req.query;
+    let filters = [];
+    let values = [];
+    if (enterprise_id) {
+      const id = await utils.getValueById('id', 'rmt_enterprise', 'ext_id', enterprise_id);
+      filters.push("eo.enterprise_id = ?");
+      values.push(id);
+    }
+    if (order_type) {
+      const validTypes = { "ontime": 1, "multiple_delivery": 2, "shift_order": 3 };
+      if (!validTypes[order_type]) {
+      
+        return res.status(400).json(utils.buildErrorObject(400, "Invalid order_type. Allowed values: ontime, multiple_delivery, shift_order", 1001));
+      }
+      filters.push("eo.delivery_type_id = ?");
+      values.push(validTypes[order_type]);
+    }
+    if (billing_type) {
+      if (!["pay_later", "shift_slot"].includes(billing_type)) {
+        return res.status(400).json(utils.buildErrorObject(400, "Invalid billing_type. Allowed values: pay_later, shift_slot", 1001));
+      }
+      filters.push("eo.is_pay_later = ?");
+      values.push(billing_type === "pay_later" ? 1 : 0);
+    }
+    if (status) {
+      filters.push("eo.order_status = ?");
+      values.push(status);
+    }
+    if (start_date) {
+      filters.push("DATE(eo.order_date) >= ?");
+      values.push(start_date);
+    }
+    if (end_date) {
+      filters.push("DATE(eo.order_date) <= ?");
+      values.push(end_date);
+    }
+
+    const whereClause = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+    const offset = (page - 1) * limit;
+    const query = `
+    SELECT 
+        eo.id AS order_id,
+        eo.order_number,
+        ent.first_name AS enterprise_name,
+        ent.email AS enterprise_email,
+        ent.phone AS enterprise_phone,
+        eo.order_date,
+        CASE 
+            WHEN eo.delivery_type_id = 1 THEN 'Ontime'
+            WHEN eo.delivery_type_id = 2 THEN 'Multiple Delivery'
+            WHEN eo.delivery_type_id = 3 THEN 'Shift Order'
+        END AS order_type,
+        eo.amount AS total_order_amount,
+        eo.commission_amount,
+        eo.delivery_boy_amount,
+        CASE 
+            WHEN eo.is_pay_later = 1 THEN 'Pay Later Billing'
+            ELSE 'Shift Slot Billing'
+        END AS billing_type,
+        eo.is_scheduled_order,
+        CASE 
+            WHEN eo.is_scheduled_order = 1 THEN eo.schedule_date_time
+            ELSE eo.order_date
+        END AS scheduled_or_placed_date,
+        eo.order_status as status
+      FROM rmt_enterprise_order eo
+      JOIN rmt_enterprise ent ON eo.enterprise_id = ent.id
+      ${whereClause ? whereClause : ""}
+      ORDER BY eo.order_date DESC
+      LIMIT ${Number(limit) || 10} OFFSET ${Number(offset) || 0};
+    `;
+    const valuesArray = [...values]; 
+    const orders = await fetch(query, valuesArray);
+    const [totalCount] = await fetch(`SELECT COUNT(*) as total FROM rmt_enterprise_order eo ${whereClause};`, [...values]);    
+    const resData ={ 
+      success: true, 
+      page: Number(page), 
+      limit: Number(limit), 
+      total_orders:  totalCount.total, 
+      data: orders 
+    };
+    return res.status(200).json(utils.buildCreateMessage(200, "Successfully", resData));
+  }catch(error){
+    return res.status(500).json(utils.buildErrorObject(500, error.message, 1001));
+  }
+};
+
+
+const convert = async (req,orders) =>{
+ try {
+     return new Promise(async (resolve, reject) => {
+       let template = fs.readFileSync('./templates/bill.html',"utf8");
+       
+       try {
+         let pdfBuffer = await invoiceContoller.saveCreatePdf(template);
+         return res
+           .status(200)
+           .set({ "content-type": "application/pdf; charset=utf-8" })
+           .send(pdfBuffer);
+       } catch (error) {
+         console.error("Error generating PDF:", error);
+         reject(error);
+       }
+     });
+     } catch (error) {
+       console.log(error);
+     }
+     return null;
+}
+exports.billReportDownload = async (req,res)=>{
+  // const { orderNumbers } = req.body;
+  const orderNumbers='EO20250203131253'
+
+  if (!orderNumbers || orderNumbers.length === 0) {
+    return res.status(400).json(utils.buildErrorObject(400, "No order numbers provided.", 1001));
+  }
+  try {
+    const query = `
+      SELECT 
+        eo.*,
+        ent.first_name AS enterprise_name,
+        CASE 
+            WHEN eo.delivery_type_id = 1 THEN 'Ontime'
+            WHEN eo.delivery_type_id = 2 THEN 'Multiple Delivery'
+            WHEN eo.delivery_type_id = 3 THEN 'Shift Order'
+        END AS order_type,
+        CASE 
+            WHEN eo.is_pay_later = 1 THEN 'Pay Later Billing'
+            ELSE 'Shift Slot Billing'
+        END AS billing_type,
+        eo.amount AS total_order_amount,
+        eo.order_status as status
+      FROM rmt_enterprise_order eo
+      JOIN rmt_enterprise ent ON eo.enterprise_id = ent.id
+      WHERE eo.order_number=?
+      ORDER BY eo.order_date DESC;
+    `;
+    console.log(orderNumbers)
+    const orders = await fetch(query, [orderNumbers]);
+    console.log("order",orders)
+    if (orders.length === 0) {
+      return res.status(400).json(utils.buildErrorObject(400, "No orders found for the given order numbers.", 1001));
+    }
+    return await convert(res,orders);
+
+  } catch (error) {
+    return res.status(500).json(utils.buildErrorObject(500, "Unable to download bill", 1001));
+  }
+}
+
+

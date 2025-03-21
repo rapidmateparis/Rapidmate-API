@@ -1,4 +1,4 @@
-const { UPDATE_ORDER_REQUEST_STATUS, FETCH_ORDER_BY_ID, transformKeysToLowercase } = require('../db/database.query');
+const { UPDATE_ORDER_REQUEST_STATUS, FETCH_ORDER_BY_ID, transformKeysToLowercase } = require('../repo/database.query');
 const utils = require('../middleware/utils')
 const DriverBoy = require('../models/Driveryboy')
 const { updateQuery, runQuery, fetch } = require('../middleware/db')

@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const { FETCH_PAYMENTCARD_ALL, FETCH_PAYMENTCARD_BY_ID, FETCH_PAYMENTCARD_BY_EXTID, UPDATE_PAYMENTCARD, INSERT_PAYMENTCARD, DELETE_PAYMENTCARD } =require('../../../db/database.query')
+const { FETCH_PAYMENTCARD_ALL, FETCH_PAYMENTCARD_BY_ID, FETCH_PAYMENTCARD_BY_EXTID, UPDATE_PAYMENTCARD, INSERT_PAYMENTCARD, DELETE_PAYMENTCARD } =require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/
@@ -50,7 +50,7 @@ exports.getItem = async (req, res) => {
  */
 exports.getBydeliveryBoyExtid = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_PAYMENTCARD_BY_EXTID,[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -95,16 +95,17 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_PAYMENTCARD,[req.delivery_boy_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
+const createItem = async (req,delivery_boy_ext_id) => {
+    const registerRes = await insertQuery(INSERT_PAYMENTCARD,[delivery_boy_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
     return registerRes;
 }
 
 exports.createItem = async (req, res) => {
+  const delivery_boy_ext_id= req.query.ext_id;
   try {
     const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_delivery_boy_payment_method','card_number')
     if (!doesNameExists) {
-      const item = await createItem(req.body)
+      const item = await createItem(req.body,delivery_boy_ext_id)
       if(item.insertId){
         const currentdata=await fetch(FETCH_PAYMENTCARD_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))

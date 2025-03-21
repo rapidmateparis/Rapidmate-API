@@ -1,7 +1,7 @@
 const utils = require('../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
 const auth = require('../middleware/auth')
-const { FETCH_TRACK_ORDER, FETCH_TRACK_ORDER_BYID, UPDATE_TRACK_ORDER, INSERT_TRACK_ORDER, FETCH_TRACK_ORDER_BYORDERNUMBER, DELETE_TRACK_ORDER } = require('../db/database.query')
+const { FETCH_TRACK_ORDER, FETCH_TRACK_ORDER_BYID, UPDATE_TRACK_ORDER, INSERT_TRACK_ORDER, FETCH_TRACK_ORDER_BYORDERNUMBER, DELETE_TRACK_ORDER } = require('../repo/database.query')
 
 /********************
  * Public functions *
