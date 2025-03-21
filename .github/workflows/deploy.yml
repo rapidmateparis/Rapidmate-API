@@ -20,4 +20,4 @@ jobs:
       
       - name: Deploy to Server
         run: |
-          ssh -i "rapidmate-web-server.pem" ubuntu@ec2-16-171-224-246.eu-north-1.compute.amazonaws.com "sudo && ./deploy.sh"
+          ssh -i "rapidmate-web-server.pem" ubuntu@ec2-16-171-224-246.eu-north-1.compute.amazonaws.com "sudo su && ./deploy.sh"
