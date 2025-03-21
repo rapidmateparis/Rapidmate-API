@@ -1284,7 +1284,7 @@ exports.allocateDeliveryBoyByOrderNumber = async (req, res) => {
           }else{
             if(order.order_status ==='ORDER_ACCEPTED'){
               responseData.order = await getOrderInfo(order_number);
-              responseData.deliveryBoy = getDeliveryInfo(order.delivery_boy_id);
+              responseData.deliveryBoy = await getDeliveryInfo(order.delivery_boy_id);
               responseData.vehicle = await getVehicleInfo(order.delivery_boy_id);
               return res.status(201).json(utils.buildCreateMessage(201,"Delivery boy has been allocated successfully",responseData));
             }
