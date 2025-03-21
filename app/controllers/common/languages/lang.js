@@ -1,4 +1,4 @@
-const { INSERT_LANG, UPDATE_LANG, FETCH_ALL_LANG, FETCH_LANG_BYID, DELETE_LANG, INSERT_USER_LANG, FETCH_USER_LANGBYID, FETCH_LANG_BYCONSUMEREXT, FETCH_LANG_BYDELIVERBOYEXT, FETCH_LANG_BYENTERPRISEEXT, UPDATE_USER_LANG, DELETE_USER_LANG } = require('../../../db/database.query');
+const { INSERT_LANG, UPDATE_LANG, FETCH_ALL_LANG, FETCH_LANG_BYID, DELETE_LANG, INSERT_USER_LANG, FETCH_USER_LANGBYID, FETCH_LANG_BYCONSUMEREXT, FETCH_LANG_BYDELIVERBOYEXT, FETCH_LANG_BYENTERPRISEEXT, UPDATE_USER_LANG, DELETE_USER_LANG } = require('../../../repo/database.query');
 const { insertQuery, updateQuery, runQuery, fetch } = require('../../../middleware/db');
 const utils= require('../../../middleware/utils')
 
@@ -138,23 +138,24 @@ exports.deleteItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createUserLang = async (req) => {
+const createUserLang = async (req,ext_id) => {
     let consumer_id=null;
     let delivery_boy_id=null;
     let enterprise_id=null;
     if(req.role=='CONSUMER'){
-        consumer_id=req.ext_id
+        consumer_id=ext_id
     }else if(req.role=='DELIVERY_BOY'){
-        delivery_boy_id=req.ext_id
+        delivery_boy_id=ext_id
     }else if(req.role=='ENTERPRISE'){
-        enterprise_id=req.ext_id
+        enterprise_id=ext_id
     }
     const registerRes = await insertQuery(INSERT_USER_LANG,[consumer_id,delivery_boy_id,enterprise_id,req.lang_id]);
     return registerRes;
 }
 exports.createUserLang = async (req, res) => {
   try {
-    const item = await createUserLang(req.body)
+    const ext_id=req.query.ext_id;
+    const item = await createUserLang(req.body,ext_id)
     if(item.insertId){
         const currentdata=await fetch(FETCH_USER_LANGBYID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
@@ -171,16 +172,16 @@ exports.createUserLang = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateUserLang = async (id,req) => {
+const updateUserLang = async (id,req,ext_id) => {
     let consumer_id=null;
     let delivery_boy_id=null;
     let enterprise_id=null;
     if(req.role=='CONSUMER'){
-        consumer_id=req.ext_id
+        consumer_id=ext_id
     }else if(req.role=='DELIVERY_BOY'){
-        delivery_boy_id=req.ext_id
+        delivery_boy_id=ext_id
     }else if(req.role=='ENTERPRISE'){
-        enterprise_id=req.ext_id
+        enterprise_id=ext_id
     }
     const registerRes = await updateQuery(UPDATE_USER_LANG,[consumer_id,delivery_boy_id,enterprise_id,req.lang_id,id]);
     return registerRes;
@@ -189,9 +190,10 @@ const updateUserLang = async (id,req) => {
 exports.updateUserLang = async (req, res) => {
   try {
     const { id } = req.params;
+    const ext_id = req.query.ext_id
     const getId = await utils.isIDGood(id,'id','rmt_user_languages')
     if(getId){
-      const updatedItem = await updateUserLang(id, req.body);
+      const updatedItem = await updateUserLang(id, req.body,ext_id);
       if (updatedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {

@@ -112,3 +112,31 @@ exports.updateAvailability=[
       validationResult(req, res, next)
   }
 ]
+
+exports.ValidateBillingAddressRequest = [
+  check('delivery_boy_ext_id').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('first_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('last_name').exists().withMessage('MISSING').not().isEmpty().withMessage('IS_EMPTY'),
+  check('address').exists().withMessage('MISSING'),
+  check('city_id').exists().withMessage('MISSING').isInt().withMessage('Invalid type value'),
+  check('state_id').exists().withMessage('MISSING').isInt().withMessage('Invalid type value'),
+  check('country_id').exists().withMessage('MISSING').isInt().withMessage('Invalid type value'),
+  check('dni_number').exists().withMessage('MISSING'),
+  check('postal_code').exists().withMessage('MISSING'),
+(req, res, next) => {
+  validationResult(req, res, next)
+}
+]
+
+exports.validateExtId = [
+  check('extId')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]
+

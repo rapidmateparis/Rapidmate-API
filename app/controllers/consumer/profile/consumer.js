@@ -1,7 +1,7 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
 const auth = require('../../../middleware/auth')
-const { FETCH_CN_QUERY, transformKeysToLowercase, FETCH_CN_BY_ID, UPDATE_CN_QUERY, INSERT_CN_QUERY, DELETE_CN_QUERY , INSERT_BILLING_ADDRESS, UPDATE_BILLING_ADDRESS} = require('../../../db/database.query')
+const { FETCH_CN_QUERY, transformKeysToLowercase, FETCH_CN_BY_ID, UPDATE_CN_QUERY, INSERT_CN_QUERY, DELETE_CN_QUERY , INSERT_BILLING_ADDRESS, UPDATE_BILLING_ADDRESS} = require('../../../repo/database.query')
 
 /********************
  * Public functions *
@@ -57,7 +57,7 @@ exports.getItems = async (req, res) => {
  */
 exports.getItem = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch(FETCH_CN_BY_ID,[id])
     const filterdata=await transformKeysToLowercase(data)
     let message="Items retrieved successfully";
@@ -72,62 +72,82 @@ exports.getItem = async (req, res) => {
 }
 
 const updateItem = async (profielUpdateQuery, params) => {
-  console.log(profielUpdateQuery);
-  console.log(params);
   const updateConsumerProfile = await updateQuery(profielUpdateQuery, params);
-  console.log(updateConsumerProfile);
   return updateConsumerProfile;
 }
+
 exports.updateItem = async (req, res) => {
-  try {
-    const extId = req.body.ext_id;
+    const extId = req.query.ext_id;
     const id = await utils.getValueById('id', 'rmt_consumer', 'ext_id', extId);
     
     if (!id) {
       return res.status(400).json(utils.buildErrorObject(400, 'Invalid Delivery boy', 1001));
     }
-    const { ext_id, ...requestBody } = req.body;
-    const validFields = [
-      'first_name', 'last_name', 'phone', 'profile_pic','country_id','token', 'language_id',
-      'enable_push_notification', 'enable_email_notification'
-    ];
-    const updates = [];
-    const queryParams = [];
-    // Loop over fields and add to query if they are present in the request
-    validFields.forEach(field => {
-      if (requestBody[field] !== undefined) {
-        updates.push(`${field} = ?`);
-        queryParams.push(requestBody[field]);
+    try {
+      const requestData = req.body;
+      var queryCondition = "";
+      var queryConditionParam = [];
+      if(requestData.first_name){
+        queryCondition += ", first_name = ?";
+        queryConditionParam.push(requestData.first_name);
       }
-    });
-    if (!updates.length) {
-      return res.status(400).json(utils.buildErrorObject(400, 'No valid fields provided for update', 1002));
+      if(requestData.last_name){
+         queryCondition += ", last_name = ?";
+         queryConditionParam.push(requestData.last_name);
+      }
+      if(requestData.email){
+        queryCondition += ", email = ?";
+        queryConditionParam.push(requestData.email);
+      }
+      if(requestData.phone){
+        queryCondition += ", phone = ?";
+        queryConditionParam.push(requestData.phone);
+      }
+      if(requestData.profile_pic){
+        queryCondition += ", profile_pic = ?";
+        queryConditionParam.push(requestData.profile_pic);
+      }
+      if(isNumber(requestData.enable_push_notification)){
+        queryCondition += ", enable_push_notification = ?";
+        queryConditionParam.push(requestData.enable_push_notification);
+      }
+      if(isNumber(requestData.enable_email_notification)){
+        queryCondition += ", enable_email_notification = ?";
+        queryConditionParam.push(requestData.enable_email_notification);
+      }
+      if(requestData.language_id){
+        queryCondition += ", language_id = ?";
+        queryConditionParam.push(requestData.language_id);
+      }
+      queryConditionParam.push(id);
+      var updateQueryStr = "update rmt_consumer set is_del = 0 " + queryCondition + " where id = ?";
+      const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
+      if(executeResult) {
+        return res.status(200).json(utils.buildCreateMessageContent(200,'Record Updated Successfully'))
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later.',1001));
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
     }
-
-    // Build the update query
-    const updateQuery = `
-      UPDATE rmt_consumer
-      SET is_del = 0, ${updates.join(', ')}
-      WHERE ext_id = ?
-    `;
-
-    // Add `ext_id` as the final parameter for the query
-    queryParams.push(extId);
-
-    // Execute the update query
-    const executeResult = await updateItem(updateQuery, queryParams);
-
-    if (executeResult.affectedRows > 0) {
-      return res.status(200).json(utils.buildUpdatemessage(200, 'Record Updated Successfully'));
-    } else {
-      return res.status(500).json(utils.buildErrorObject(500, 'Unable to update the delivery boy profile', 1001));
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
   }
-};
+  
+  const isNumber = (value, acceptScientificNotation) =>{
+    if(true !== acceptScientificNotation){
+        return /^-{0,1}\d+(\.\d+)?$/.test(value);
+    }
 
+    if (true === Array.isArray(value)) {
+        return false;
+    }
+    return !isNaN(parseInt(value, 10));
+  }
+
+  const udpateAddressStatement = async (updateQueryStr, params) => {
+    const executeResult = await updateQuery(updateQueryStr, params);
+    return executeResult;
+  }
 
 /**
  * Create item function called by route
@@ -213,7 +233,7 @@ exports.deleteItem = async (req, res) => {
 
 exports.getWalletBalanceByExtId = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data = await fetch("select balance from rmt_consumer_wallet where consumer_id = (select id from rmt_consumer where ext_id = ?)",[id])
     let message="Items retrieved successfully";
     if(data.length <=0){
@@ -226,8 +246,8 @@ exports.getWalletBalanceByExtId = async (req, res) => {
   }
 }
 
-const createBillingAddressRequest = async (req) => {
-    const executeCreateStmt = await insertQuery(INSERT_BILLING_ADDRESS,[req.consumer_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
+const createBillingAddressRequest = async (req,consumer_ext_id) => {
+    const executeCreateStmt = await insertQuery(INSERT_BILLING_ADDRESS,[consumer_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
     return executeCreateStmt;
 }
 
@@ -238,6 +258,7 @@ const updateBillingAddressRequest = async (req) => {
 
 exports.createOrUpdateBillingAddress = async (req, res) => {
   try {
+    const consumer_ext_id=req.query.ext_id
     var requestData = req.body;
     var stmtResult = {};
     const data = await fetch("select * from rmt_consumer_billing_address where consumer_id = (select id from rmt_consumer where ext_id = ?)",[requestData.consumer_ext_id])
@@ -245,7 +266,7 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
         requestData.id = data[0].id;
         stmtResult = await updateBillingAddressRequest(requestData);
     }else{
-        stmtResult = await createBillingAddressRequest(requestData);
+        stmtResult = await createBillingAddressRequest(requestData,consumer_ext_id);
     }
     requestData.id = 0;
     if(stmtResult.affectedRows >=1){
@@ -260,7 +281,7 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
 
 exports.getBillingAddressDetailsByExtId = async (req, res) => {
   try {
-    const extId = req.params.extId;
+    const extId = req.query.ext_id;
     const data = await fetch("select * from rmt_consumer_billing_address where consumer_id = (select id from rmt_consumer where ext_id = ?)",[extId])
     let message="Items retrieved successfully";
     if(data.length <=0){

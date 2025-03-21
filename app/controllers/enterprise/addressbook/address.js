@@ -1,11 +1,11 @@
 const utils = require('../../../middleware/utils')
 const { insertQuery,fetch, updateQuery, executeQuery} = require('../../../middleware/db')
-const { FETCH_ENTERPRISE_ADDRESS_BOOK_QUERY, INSERT_ENTERPRISE_ADDRESS_BOOK_QUERY, DELETE_ENTERPRISE_ADDRESS_BOOK_QUERY, transformKeysToLowercase,} = require('../../../db/database.query')
+const { FETCH_ENTERPRISE_ADDRESS_BOOK_QUERY, INSERT_ENTERPRISE_ADDRESS_BOOK_QUERY, DELETE_ENTERPRISE_ADDRESS_BOOK_QUERY, transformKeysToLowercase, FETCH_ENTERPRISE_ADDRESS_BYID,} = require('../../../repo/database.query')
 
 
 exports.getById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data =await transformKeysToLowercase(await fetch(FETCH_ENTERPRISE_ADDRESS_BOOK_QUERY,[id]));
     let message="Addresses retrieved successfully";
     if(data.length <=0){
@@ -21,7 +21,8 @@ exports.getById = async (req, res) => {
 
 exports.createAddressBook = async (req, res) => {
   try {
-    const executedResult = await createNewAddress(req.body)
+    const enterprise_ext_id= req.query.ext_id;
+    const executedResult = await createNewAddress(req.body,enterprise_ext_id)
     if(executedResult.insertId){
       const response = req.body;
       response.id = executedResult.insertId;
@@ -37,18 +38,19 @@ exports.createAddressBook = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const updateItem = async (id,req) => {
-    const registerRes = await updateQuery(UPDATE_ENTERPRISE_ADDRESS,[req.enterprise_ext,req.address,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment,id]);
+const updateItem = async (id,req,enterprise_ext) => {
+    const registerRes = await updateQuery(UPDATE_ENTERPRISE_ADDRESS,[enterprise_ext,req.address,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment,id]);
     console.log(registerRes)
     return registerRes;
 }
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
+    const enterprise_ext=req.query.ext_id;
     const getId = await utils.isIDGood(id,'id','rmt_enterprise_address_book')
     console.log(getId)
     if(getId){
-      const updatedItem = await updateItem(id, req.body);
+      const updatedItem = await updateItem(id, req.body,enterprise_ext);
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
@@ -66,16 +68,17 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createItem = async (req) => {
-    const registerRes = await insertQuery(INSERT_ENTERPRISE_ADDRESS,[req.enterprise_ext,req.address,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment]);
+const createItem = async (req,enterprise_ext) => {
+    const registerRes = await insertQuery(INSERT_ENTERPRISE_ADDRESS,[enterprise_ext,req.address,req.first_name,req.last_name,req.email,req.mobile,req.company_name,req.comment]);
     return registerRes;
 }
 
 exports.createItem = async (req, res) => {
   try {
+    const enterprise_ext= req.query.ext_id;
     const doesNameExists =await utils.nameExists(req.body.company_name,'rmt_enterprise_address','company_name')
     if (!doesNameExists) {
-      const item = await createItem(req.body)
+      const item = await createItem(req.body,enterprise_ext)
       if(item.insertId){
         const currentdata=await fetch(FETCH_ENTERPRISE_ADDRESS_BYID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
@@ -90,8 +93,8 @@ exports.createItem = async (req, res) => {
   }
 }
 
-const createNewAddress = async (req) => {
-  const executeCreateNewAddress = await insertQuery(INSERT_ENTERPRISE_ADDRESS_BOOK_QUERY,[req.enterprise_ext_id, req.first_name, req.last_name, req.address, req.email, req.phone, req.company_name, req.comments]);
+const createNewAddress = async (req,enterprise_ext_id) => {
+  const executeCreateNewAddress = await insertQuery(INSERT_ENTERPRISE_ADDRESS_BOOK_QUERY,[enterprise_ext_id, req.first_name, req.last_name, req.address, req.email, req.phone, req.company_name, req.comments]);
   console.log(executeCreateNewAddress);
   return executeCreateNewAddress;
 }

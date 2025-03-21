@@ -1,4 +1,5 @@
 const controller = require('../controllers/deliveryboy/orders/order')
+const assignerController = require("../controllers/admin/shiftAssigner")
 const validate = require('../controllers/deliveryboy/orders/order.validate')
 const express = require('express')
 const router = express.Router()
@@ -55,6 +56,20 @@ router.put(
   validate.otpVerify,
   controller.deliveredOtpVerifiy
 )
+
+router.put(
+  '/shift/deliveryboy/allocate',
+  trimRequest.all,
+  validate.allocateDeliveryBoyToShiftOrder,
+  controller.allocateDeliveryBoyToShiftOrder
+)
+
+router.put(
+  '/shift/multiple/deliveryboy/allocate',
+  trimRequest.all,
+  assignerController.deliveryBoyAssigner
+)
+
 /*
  * Get item route
  */
@@ -142,6 +157,13 @@ router.put(
   controller.updateOrderStatus
 )
 
+router.put(
+  '/update/shift/status',
+  trimRequest.all,
+  validate.updateShiftOrderStatus,
+  controller.updateShiftOrderStatus
+)
+
 router.get(
    '/view/:ordernumber',
     trimRequest.all,
@@ -179,5 +201,10 @@ router.get(
   controller.otpDetails
 )
 
+router.get(
+  '/deliveryboy/myslots/:extId/:ordernumber',
+  trimRequest.all,
+  controller.mySlotDetails
+)
 
 module.exports = router

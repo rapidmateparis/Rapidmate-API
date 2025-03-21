@@ -20,26 +20,18 @@ const upload = async (req, res) => {
     await uploadFile(req, res);
    
     if (req.file == undefined) {
-      return res.status(400).send({ error: "unable to upload", id : null });
+      return res.status(400).json(utils.buildErrorObject(400, "unable to upload", 1001));
     }
     const refNo = uuidv4().replaceAll("-","");
     const persist = "INSERT INTO rmt_document(file_name, path, ref_no) VALUES('" + req.file.originalname + "','" + uploadDirectory + "', '" + refNo + "')";
     const persistRes = await runQuery(persist);
-    res.status(200).send({
-        id: refNo , error: null
-    });
+    res.status(200).send({ id: refNo , error: null });
   } catch (err) {
     console.log(err);
-
     if (err.code == "LIMIT_FILE_SIZE") {
-      return res.status(500).send({
-        message: "File size cannot be larger than 2MB!",
-      });
+      return res.status(500).json(utils.buildErrorObject(500, "File size cannot be larger than 1MB", 1001));
     }
-
-    res.status(500).send({
-      message: `Could not upload the file: ${req.file.originalname}. ${err}`,
-    });
+    return res.status(500).json(utils.buildErrorObject(500, "Could not upload the file:", 1001));
   }
 };
 
@@ -68,7 +60,6 @@ const getListFiles = (req, res) => {
 };
 
 const download = async (req, res) => {
-  console.log(req.params.name);
   try {
     const data =await runQuery("select * from rmt_document where ref_no = '" + req.params.name + "'");
     let message="Items retrieved successfully";
@@ -76,11 +67,9 @@ const download = async (req, res) => {
         message="File not found";
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
-    res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
+    return res.download(process.env.BASE_RESOURCE_DIR + data[0].path + data[0].file_name, data[0].file_name, (err) => {
         if (err) {
-          res.status(500).send({
-            message: "Could not download the file. " + err,
-          });
+          return res.status(500).send({message: "Could not download the file. " + err,});
         }
     });
   } catch (error) {

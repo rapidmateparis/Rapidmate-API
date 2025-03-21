@@ -1,6 +1,6 @@
 const utils = require('../../middleware/utils')
 const { runQuery} = require('../../middleware/db');
-const { FETCH_INDUSTRY_QUERY} = require('../../db/database.query');
+const { FETCH_INDUSTRY_QUERY} = require('../../repo/database.query');
 
 
 /********************

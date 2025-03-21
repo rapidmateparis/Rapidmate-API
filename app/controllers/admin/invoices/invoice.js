@@ -10,7 +10,7 @@ const {
 const AuthController = require("../../../controllers/useronboardmodule/authuser");
 const {
   transformKeysToLowercase,
-} = require("../../../db/database.query");
+} = require("../../../repo/database.query");
 const fs = require("fs");
 const pdf = require("html-pdf");
 const path = require("path");
@@ -39,7 +39,13 @@ const options = {
     return null;
   };
 
-  const getTemplate ={
+  const loadLocalTemplates ={
+    'deliveryboy': 'D:/templates/deliveryboy.html',
+    'consumer': 'D:/templates/consumer.html',
+    'enterprise': 'D:/templates/enterprise.html',
+  }
+
+  const prodTemplates ={
     'deliveryboy': '/home/ubuntu/source/QA/templates/deliveryboy.html',
     'consumer': '/home/ubuntu/source/QA/templates/consumer.html',
     'enterprise': '/home/ubuntu/source/QA/templates/enterprise.html',
@@ -47,7 +53,7 @@ const options = {
   const convert = async (res, order,role,locale) => {
     try {
     return new Promise(async (resolve, reject) => {
-      let template = fs.readFileSync(getTemplate[role],"utf8");
+      let template = fs.readFileSync(prodTemplates[role],"utf8");
       const translations = translate.getTranslate(role,locale,order)
       Object.entries(translations).forEach(([key, value]) => {
         template = template.replace(`{{${key}}}`, value);

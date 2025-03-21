@@ -16,13 +16,8 @@ const Notification =require('./app/models/Notification');
 const orderControl =require('./app/controllers/deliveryboy/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
-
-const corsOptions = {
-  origin: '*',
-  methods: 'GET,POST,PUT, DELETE', // Allow only these methods
-  allowedHeaders: ['Content-Type', 'rapid_token', 'Rapid_token'] // Allow only these headers
-};
-
+const rateLimit = require('express-rate-limit');
+const logger = require('./config/log').logger;
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -33,13 +28,47 @@ require('log4js').configure({
   }
 });
 const app = express();
-//app.use(cors(corsOptions));
+
+/* const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per `windowMs`
+  message: { error: "Too many requests, please try again later." },
+  headers: true, // Send rate limit info in headers
+});
+
+app.use(limiter); */
+
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'http://localhost:3000', 
+  'https://rapidmate.fr',
+  'https://admin.rapidmate.fr',
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g., mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
+  })
+);
+
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
-TZ = "Asia/Calcutta";
-console.log("Timezone", new Date().toString());
+TZ="UTC";
+//TZ = "Europe/Paris";
+//console.log("Timezone", new Date().toString());
 const server = http.createServer(app);
 const io = socketIo(server);
-//app.use(httpRequestResponseInterceptor);
+
+app.use(httpRequestResponseInterceptor);
 app.set('port', process.env.PORT || 3004);
 app.set('io', io);
 
@@ -65,10 +94,20 @@ i18n.configure({
   directory: `${__dirname}/locales`,
   defaultLocale: 'en',
   objectNotation: true,
+  header: 'accept-language'
 });
+app.use((req, res, next) => {
+  const pathValue = req.path;
+  if(!pathValue.includes("login")){
+    logger.info(`${req.method} ${req.url} => Request`, req.body);
+    next(); // Pass control to the next middleware/route
+  }else{
+    next();
+  }
+});
+
 app.use(i18n.init);
 
-app.use(cors({origin: '*',}));
 app.use(passport.initialize());
 app.use(compression());
 app.use(helmet());
@@ -129,18 +168,26 @@ const softDeleteOldNotifications = async () => {
   }
 };
 
-cron.schedule('59 23 * * *', () => {
-  softDeleteOldNotifications();
-});
+cron.schedule('59 23 * * *', () => { softDeleteOldNotifications(); });
 
-cron.schedule("*/10 * * * * *", function() {
+cron.schedule("*/10 * * * * *", function() { 
   console.log("Schedule Order : Running..." , new Date());
   orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
 });
-server.listen(app.get('port'), () => {
-  console.log('Server is running on port', app.get('port'));
+
+cron.schedule("*/5 * * * * *", function() { 
+  console.log("Reallocate Order : Running..." , new Date());
+  orderControl.cronJobRemoveAllocatedDeliveryBoyByOrderNumber();
+});
+
+cron.schedule("*/5 * * * * *", function() { 
+  console.log("Check Payment status : Running..." , new Date());
+  orderControl.cronJobCheckPaymentStatusByOrderNumber();
 });
 
 
+server.listen(app.get('port'), () => {
+  console.log('Server is running on port', app.get('port'));
+});
 
 module.exports = app;

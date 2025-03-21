@@ -82,20 +82,23 @@ const getTranslate = (role, locale,order) => {
       payment: i18n.__("payment"),
       queries: i18n.__("queries"),
       visit: i18n.__("visit"),
+      invoiceNumber:order?.order_number,
       orderNumber:order?.order_number,
       orderAmount:order?.amount?.toFixed(2) || 0.00,
       orderAmountT:order?.amount?.toFixed(2) || 0.00,
       distance:order?.distance?.toFixed(2) || 0.00,
-      pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country + "-" + order?.pickup_location_postal_code,
-      dropoffAddressLoc: order?.dropoff_location_address + order?.dropoff_location_city + order?.dropoff_location_state + order?.dropoff_location_country + "-" + order?.dropoff_location_postal_code,
+      pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country,
+      dropoffAddressLoc: order?.dropoff_location_address + order?.dropoff_location_city + order?.dropoff_location_state + order?.dropoff_location_country,
       vehicleType:order?.vehicle_type || 'N/A',
+      consumerName:order?.consumer_name || 'N/A',
+      consumerEmail:order?.consumer_email || 'N/A',
+      consumerPhone:order?.consumer_mobile || 'N/A',
       deliveryBoyName:order?.delivery_boy_name || 'N/A',
       createdOn:order?.created_on,
       companyName:order?.company_name || 'N/A',
       discount : order?.discount?.toFixed(2) || 0.00,
+      taxValue : order?.tax?.toFixed(2) || 0.00,
       deliveryAmount : order?.delivery_boy_amount || 0.00
-
-
     };
   } else if (role == "enterprise") {
     return {
@@ -114,6 +117,7 @@ const getTranslate = (role, locale,order) => {
       payment: i18n.__("payment"),
       queries: i18n.__("queries"),
       visit: i18n.__("visit"),
+      invoiceNumber:order?.order_number,
       orderNumber:order?.order_number,
       orderAmount:order?.amount?.toFixed(2) || 0.00,
       orderAmountT:order?.amount?.toFixed(2) || 0.00,
@@ -125,9 +129,14 @@ const getTranslate = (role, locale,order) => {
       createdOn:order?.created_on,
       companyName:order?.company_name || 'N/A',
       discount : order?.discount?.toFixed(2) || 0.00,
-      deliveryAmount : order?.delivery_boy_amount || 0.00
-
-
+      deliveryAmount : order?.delivery_boy_amount || 0.00,
+      consumerName:order?.consumer_name || 'N/A',
+      consumerEmail:order?.consumer_email || 'N/A',
+      consumerPhone:order?.consumer_mobile || 'N/A',
+      deliveryBoyName:order?.delivery_boy_name || 'N/A',
+      createdOn:order?.created_on,
+      taxValue : order?.tax?.toFixed(2) || 0.00,
+      payment_on : order?.payment_on || ""
     };
   } else {
     return {
@@ -149,18 +158,19 @@ const getTranslate = (role, locale,order) => {
       orderAmount:order?.amount?.toFixed(2) || 0.00,
       orderAmountT:order?.amount?.toFixed(2) || 0.00,
       distance:order?.distance?.toFixed(2) || 0.00,
-      pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country + "-" + order?.pickup_location_postal_code,
-      dropoffAddressLoc: order?.dropoff_location_address + order?.dropoff_location_city + order?.dropoff_location_state + order?.dropoff_location_country + "-" + order?.dropoff_location_postal_code,
+      pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country,
+      dropoffAddressLoc: order?.dropoff_location_address + order?.dropoff_location_city + order?.dropoff_location_state + order?.dropoff_location_country,
       vehicleType:order?.vehicle_type || 'N/A',
       consumerName:order?.consumer_name || 'N/A',
       consumerEmail:order?.consumer_email || 'N/A',
-      consumerPhone:order?.consumer_phone || 'N/A',
+      consumerPhone:order?.consumer_mobile || 'N/A',
       deliveryBoyName:order?.delivery_boy_name || 'N/A',
       createdOn:order?.created_on,
       companyName:order?.company_name || 'N/A',
       discount : order?.discount?.toFixed(2) || 0.00,
-      deliveryAmount : order?.delivery_boy_amount || 0.00
-
+      taxValue : order?.tax?.toFixed(2) || 0.00,
+      deliveryAmount : order?.delivery_boy_amount || 0.00,
+     
     };
   }
 };

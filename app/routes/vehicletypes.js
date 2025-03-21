@@ -7,6 +7,13 @@ const trimRequest = require('trim-request')
 /*
  * vehicle types routes
  */
+router.get(
+  '/getall',
+  //   requireAuth,
+  //   AuthController.roleAuthorization(['admin']),
+  trimRequest.all,
+  controller.getVehicleTypes
+)
 
 /*
  * Get items route
@@ -86,6 +93,12 @@ router.get(
   trimRequest.all,
   validate.priceList,
   controller.getPriceListByDistance
+)
+
+router.get(
+  '/tax/list',
+  trimRequest.all,
+  controller.taxList
 )
 
 module.exports = router

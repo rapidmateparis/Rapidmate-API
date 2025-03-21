@@ -1,5 +1,6 @@
 const controller = require('../controllers/useronboardmodule/authuser')
 const validate = require('../controllers/useronboardmodule/auth.validate')
+const commonController = require("../controllers/common/common")
 const express = require('express')
 const utils =require('../middleware/utils');
 const router = express.Router()
@@ -223,5 +224,8 @@ router.post('/getaccesstoken',trimRequest.all,validate.getAccessToken,function (
       return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
     });
 });
+
+router.get('/map/code', trimRequest.all,commonController.getMapKey);
+router.get('/directions', trimRequest.all,commonController.getDirectionDistanceandTime);
 
 module.exports = router

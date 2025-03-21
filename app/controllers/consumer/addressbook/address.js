@@ -1,11 +1,11 @@
 const utils = require('../../../middleware/utils')
 const { insertQuery,fetch, executeQuery, updateQuery} = require('../../../middleware/db')
-const { FETCH_CONSUMER_ADDRESS_BOOK_QUERY, transformKeysToLowercase, INSERT_CONSUMER_ADDRESS_BOOK_QUERY, DELETE_CONSUMER_ADDRESS_BOOK_QUERY} = require('../../../db/database.query')
+const { FETCH_CONSUMER_ADDRESS_BOOK_QUERY, transformKeysToLowercase, INSERT_CONSUMER_ADDRESS_BOOK_QUERY, DELETE_CONSUMER_ADDRESS_BOOK_QUERY} = require('../../../repo/database.query')
 
 
 exports.getById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.ext_id;
     const data =await transformKeysToLowercase(await fetch(FETCH_CONSUMER_ADDRESS_BOOK_QUERY,[id]));
     let message="Addresses retrieved successfully";
     if(data.length <=0){
@@ -20,7 +20,8 @@ exports.getById = async (req, res) => {
 
 exports.createAddressBook = async (req, res) => {
   try {
-    const executedResult = await createNewAddress(req.body)
+    const consumer_ext_id=req.query.ext_id
+    const executedResult = await createNewAddress(req.body,consumer_ext_id)
     if(executedResult.insertId){
       const response = req.body;
       response.id = executedResult.insertId;
@@ -33,8 +34,8 @@ exports.createAddressBook = async (req, res) => {
   }
 }
 
-const createNewAddress = async (req) => {
-  const executeCreateNewAddress = await insertQuery(INSERT_CONSUMER_ADDRESS_BOOK_QUERY,[req.consumer_ext_id, req.first_name, req.last_name, req.address, req.email, req.phone, req.company_name, req.comments]);
+const createNewAddress = async (req,consumer_ext_id) => {
+  const executeCreateNewAddress = await insertQuery(INSERT_CONSUMER_ADDRESS_BOOK_QUERY,[consumer_ext_id, req.first_name, req.last_name, req.address, req.email, req.phone, req.company_name, req.comments]);
   console.log(executeCreateNewAddress);
   return executeCreateNewAddress;
 }
@@ -75,6 +76,7 @@ exports.updateAddressBook = async (req, res) => {
     queryConditionParam.push(requestData.id);
     var updateQueryStr = "update rmt_consumer_address_book set is_del = 0 " + queryCondition + " where id = ?";
     const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
+
     if(executeResult) {
       return res.status(200).json(utils.buildCreateMessage(200,'Record Updated Successfully'))
     }else{

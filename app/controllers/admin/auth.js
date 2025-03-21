@@ -9,7 +9,7 @@ const auth = require("../../middleware/auth");
 const { runQuery } = require("../../middleware/db");
 const HOURS_TO_BLOCK = 2;
 const LOGIN_ATTEMPTS = 5;
-
+const JWT_SECRET_KEY=process.env.JWT_SECRET_KEY
 /*********************
  * Private functions *
  *********************/
@@ -22,19 +22,16 @@ const generateToken = (user) => {
   // Gets expiration time
   const expiration =
     Math.floor(Date.now() / 1000) + 60 * process.env.JWT_EXPIRATION_IN_MINUTES;
-
   // returns signed and encrypted token
-  return auth.encrypt(
-    jwt.sign(
-      {
-        data: {
-          userId: user._id,
-        },
-        exp: expiration,
+  return jwt.sign(
+    {
+      data: {
+        userId: user._id,
       },
-      process.env.JWT_SECRET
-    )
-  );
+      exp: expiration,
+    },
+    JWT_SECRET_KEY
+  )
 };
 
 /**
@@ -55,6 +52,7 @@ const setUserInfo = async (req) => {
     email: req.email,
     role: role?.name,
     verified: req.verified,
+    webToken: req?.webToken || '',
   };
   // Adds verification for testing purposes
   if (process.env.NODE_ENV !== "production") {
@@ -180,7 +178,7 @@ const findUser = async (email) => {
   return new Promise((resolve, reject) => {
     User.findOne(
       { email },
-      "password loginAttempts blockExpires username firstName lastName email role verified verification",
+      "password loginAttempts blockExpires username firstName lastName email role verified verification webToken",
       (err, item) => {
         utils.itemNotFound(err, item, reject, "USER_DOES_NOT_EXIST");
         resolve(item);
@@ -284,7 +282,7 @@ const checkPermissions = async (data, next) => {
 const getUserIdFromToken = async (token) => {
   return new Promise((resolve, reject) => {
     // Decrypts, verifies and decode token
-    jwt.verify(auth.decrypt(token), process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token,JWT_SECRET_KEY, (err, decoded) => {
       if (err) {
         reject(utils.buildErrObject(409, "BAD_TOKEN"));
       }
@@ -316,9 +314,7 @@ exports.login = async (req, res) => {
       // all ok, register access and return token
       user.loginAttempts = 0;
       await saveLoginAttemptsToDB(user);
-      return res
-        .status(200)
-        .json(await saveUserAccessAndReturnToken(req, user));
+      return res.status(200).json(await saveUserAccessAndReturnToken(req, user));
     }
   } catch (error) {
     utils.handleError(res, error);
@@ -434,6 +430,31 @@ exports.register = async (req, res) => {
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ message: "Error during registration", error: error.message });
+  }
+};
+
+
+exports.updateWebToken = async (req, res) => {
+  try {
+    const { email, webToken } = req.body; // Get email and new webToken from request body
+
+    if (!email || !webToken) {
+      return res.status(400).json({ message: "Email and webToken are required." });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.webToken = webToken; // Update webToken
+    await user.save();
+
+    res.status(200).json({    message: "Web token updated successfully!", user });
+  } catch (error) {
+    console.error("Error updating web token:", error);
+    res.status(500).json({ message: "Error updating web token", error: error.message });
   }
 };
 

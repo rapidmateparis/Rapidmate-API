@@ -1,24 +1,15 @@
 {
-  "registration": {
-    "SUBJECT": "Verify your email at myProject",
-    "MESSAGE": "<p>Hello %s.</p> <p>Welcome! To verify your email, please click in this link:</p> <p>%s/verify/%s</p> <p>Thank you.</p>"
-  },
-  "forgotPassword": {
-    "SUBJECT": "Password recovery at myProject",
-    "MESSAGE": "<p>To recover the password for user: %s</p> <p>click the following link:</p> <p>%s/reset/%s</p> <p>If this was a mistake, you can ignore this message.</p> <p>Thank you.</p>"
-  },
-  "testmail":{
-    "SUBJECT":"This mail verify for testing.",
-    "MESSAGE":"<p>Hello %s.</p> <p>Welcome! To rapidmate</p> <p>Thank you.</p>"
-  },
-  "invoice_title": "Driver trip invoice",
-  "pickup_address": "Pickup address",
-  "dropoff_address": "Drop-off address",
-  "bill_details": "Bill details",
-  "delivery_fare": "Delivery fare",
-  "tax": "Tax",
-  "total": "Total",
-  "payment": "Payment",
-  "queries": "Visit support for this ride",
-  "visit":"Have queries?"
+	"3000": "The server is busy!!! please try again sometime or reach administrator!!!",
+	"3001": "Invalid Order Number",
+	"3002": "Unable to update the order status",
+	"invoice_title": "invoice_title",
+	"pickup_address": "pickup_address",
+	"dropoff_address": "dropoff_address",
+	"bill_details": "bill_details",
+	"delivery_fare": "delivery_fare",
+	"tax": "tax",
+	"total": "total",
+	"payment": "payment",
+	"queries": "queries",
+	"visit": "visit"
 }

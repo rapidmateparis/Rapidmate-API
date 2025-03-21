@@ -7,7 +7,11 @@ const trimRequest = require('trim-request')
 /*
  * job routes
  */
-
+router.get(
+  '/list',
+  trimRequest.all,
+  controller.getOrderList
+)
 
 /*
  * Create new item route
@@ -16,7 +20,7 @@ router.post(
   '/',
   trimRequest.all,
   validate.createItem,
-  controller.createItem
+  controller.createEnterpriseOrder
 )
 
 /*
@@ -99,9 +103,20 @@ router.get(
 router.post(
   '/plan/search',
   trimRequest.all,
-  controller.search
+  controller.planSearch
 )
 
+router.get(
+  '/reports/billing',
+  trimRequest.all,
+  controller.getBillingReport
+)
+
+router.get(
+  '/bill/download/:id',
+  trimRequest.all,
+  controller.billReportDownload
+)
 /*
  * Delete item route
  */

@@ -1,6 +1,6 @@
 const utils = require('../../../middleware/utils')
 const {fetch,insertQuery,updateQuery} = require('../../../middleware/db')
-const {FETCH_MANAGE_ADS_BY_EXT_ID, FETCH_MANAGE_ADS_BY_ID, UPDATE_MANAGE_ADS, INSERT_MANAGE_ADS, DELETE_MANAGE_ADS,FETCH_MANAGE_ADS_BY_ADSID} = require('../../../db/database.query')
+const {FETCH_MANAGE_ADS_BY_EXT_ID, FETCH_MANAGE_ADS_BY_ID, UPDATE_MANAGE_ADS, INSERT_MANAGE_ADS, DELETE_MANAGE_ADS,FETCH_MANAGE_ADS_BY_ADSID} = require('../../../repo/database.query')
 /********************
  * Public functions *
  ********************/
@@ -12,7 +12,7 @@ const {FETCH_MANAGE_ADS_BY_EXT_ID, FETCH_MANAGE_ADS_BY_ID, UPDATE_MANAGE_ADS, IN
  */
 exports.getByEnterpriseId = async (req, res) => {
     try {
-        const ext_id = req.params.ext_id;
+        const ext_id = req.query.ext_id;
         const data = await fetch(FETCH_MANAGE_ADS_BY_EXT_ID,[ext_id])
         let message="Items retrieved successfully";
         if(data.length <=0){
@@ -85,7 +85,7 @@ const createEnterpriseAds = async (req, enterprise_id,icon,photo) => {
 
 exports.createItem = async (req, res) => {
   try {
-    const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.body.enterprise_ext_id);
+    const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
     const icon='';
     const photo='';
     if (enterprise_id) {

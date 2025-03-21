@@ -1,7 +1,7 @@
 const utils = require('../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../middleware/db')
 const auth = require('../middleware/auth')
-const { FETCH_TRAN_QUERY, transformKeysToLowercase, FETCH_TRAN_BY_ID, UPDATE_TRAN_QUERY, INSERT_TRAN_QUERY, DELETE_TRAN_QUERY, FETCH_TRAN_BY_USERID } = require('../db/database.query')
+const { FETCH_TRAN_QUERY, transformKeysToLowercase, FETCH_TRAN_BY_ID, UPDATE_TRAN_QUERY, INSERT_TRAN_QUERY, DELETE_TRAN_QUERY, FETCH_TRAN_BY_USERID } = require('../repo/database.query')
 
 /********************
  * Public functions *

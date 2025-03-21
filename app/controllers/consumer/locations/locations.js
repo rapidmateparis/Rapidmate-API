@@ -1,5 +1,5 @@
 const utils = require('../../../middleware/utils')
-const { runQuery } = require('../../../middleware/db')
+const { runQuery, insertQuery } = require('../../../middleware/db')
 
 /********************
  * Public functions *
@@ -37,7 +37,8 @@ exports.getItem = async (req, res) => {
     let message="Location retrieved successfully";
     if(data.length <=0){
         message="No location found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+        //return res.status(400).json(utils.buildErrorObject(400,message,1001));
+        return res.status(200).json(utils.buildCreateMessage(200,message,[]))
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
@@ -85,8 +86,9 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const createItem = async (req) => {
-    const registerQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES (now(),'${req.address}','${req.city}','${req.state}','${req.country}','${req.latitude}','${req.longitude}')`;
-    const registerRes = await runQuery(registerQuery);
+    const registerQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES (now(),?,?,?,?,?,?)`;
+    var params = [req.address,req.city, req.state,req.country,req.latitude,req.longitude];
+    const registerRes = await insertQuery(registerQuery, params);
     return registerRes;
 }
 exports.createItem = async (req, res) => {
@@ -101,6 +103,10 @@ exports.createItem = async (req, res) => {
   } catch (error) {
     return res.status(500).json(utils.buildErrorObject(500,'Unable to create location. Please try again later.',1001));
   }
+}
+
+function FormatString(sentence) {
+  return sentence.match(/[a-z]|[0-9]|-|\s/gi).join('')
 }
 
 const deleteItem = async (id) => {

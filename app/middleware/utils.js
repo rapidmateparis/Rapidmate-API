@@ -57,6 +57,23 @@ exports.handleError = (res, err) => {
     },
   })
 }
+
+exports.isEOrder = (orderNumber) =>{
+  return (orderNumber.includes("E"));
+}
+
+exports.fetchTableNameByOrderNumber = (orderNumber) =>{
+  var table = "rmt_order";
+  if(orderNumber.includes("EM")){
+    table = "rmt_enterprise_order_line";
+  }else if(orderNumber.includes("ES")){
+      table = "rmt_enterprise_order_slot";
+  }else if(orderNumber.includes("E")){
+      table = "rmt_enterprise_order";
+  }
+  return table;
+}
+
 /**
  * Builds error object
  * @param {number} code - error code
@@ -182,7 +199,7 @@ exports.buildCreateMessage=(code,message,data)=>{
   }];
 }
 
-exports.buildCreateMessage=(code,message,data)=>{
+exports.buildCreateMessageContent=(code,message)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
   return [{
@@ -190,7 +207,9 @@ exports.buildCreateMessage=(code,message,data)=>{
       "_httpsStatus": "OK",
       "_httpsStatusCode": code,
       "_responedOn": timestamp,
-      "_response": data,
+      "_response": {
+        message : message
+      },
       "_trackId": trackId
   }];
 }
@@ -487,3 +506,30 @@ exports.getPagination = (page, size) => {
   }
 };
 
+exports.buildJSONResponse=(req = {}, res = {}, isSuccess = false, responseCodeInfo, data = null)=>{
+  var success;
+  var error = {};
+  console.log(responseCodeInfo.CODE);
+  if(!isSuccess){
+    error = {"code": responseCodeInfo.CODE, "message": res.__(responseCodeInfo.CODE) };
+  }else{
+    success = (data) ? data :res.__(responseCodeInfo.CODE);
+  }
+  let response = [{
+    "_success": false,
+    "_httpsStatus": responseCodeInfo.STATUS,
+    "_httpsStatusCode": responseCodeInfo.STATUS_CODE,
+    "_responedOn": Date.now(),
+    "_response": data,
+    "_errors": error,
+    "_trackId": req.trackId
+  }];
+  return res.status(responseCodeInfo.STATUS_CODE).json(response);
+}
+
+exports.getRoleFromExtId = (extId) =>{
+  return  (extId.includes("E"))?"ENTERPRISE":
+          (extId.includes("C"))?"CONSUMER":
+          (extId.includes("D"))?"DELIVERY_BOY":
+          (extId.includes("A"))?"ADMIN":"ANONYMOUS";
+}
