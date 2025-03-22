@@ -38,8 +38,8 @@ exports.getVehicleTypes = async (req,res) =>{
   
       return res.status(200).json(utils.buildCreateMessage(200, message, resData));
     } catch (error) {
-      console.log(error);
-      return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+      //console.log((error);
+      return res.status(500).json(utils.buildErrorMessage(500, "Something went wrong", 1001));
     }
 }
 /**
@@ -57,7 +57,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -78,7 +78,7 @@ exports.getItem = async (req, res) => {
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
     console.info(error);
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
   }
 }
 
@@ -169,13 +169,13 @@ exports.updateItem = async (req, res) => {
       if(executeResult) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update the vehicle details',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update the vehicle details',1001));
       }
     }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Invalid vehicle',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Invalid vehicle',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 /**
@@ -196,13 +196,13 @@ exports.createItem = async (req, res) => {
         const currentData = await fetch(FETCH_VT_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentData))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Vehicle Type already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 const deleteItem = async (id) => {
@@ -223,12 +223,12 @@ exports.deleteItem = async (req, res) => {
         if (deletedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
         } else {
-          return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+          return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
         }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -289,7 +289,7 @@ exports.calculateAmount= async (req,res)=>{
   const amount=parseFloat(getamount.toFixed(2))
 
   if(amount <=0){
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
   }
 
   return res.status(200).json(utils.buildCreateMessage(200,"Calculate distance :",{distance:km,amount:amount}))
@@ -325,7 +325,7 @@ function priceCalculation(vehicleTypedata, distance) {
         } else {
           vehicleType.total_price = vehicleType.truck_price;
         }
-        console.log(vehicleType);
+        //console.log((vehicleType);
         responseData.push({
           vehicle_type_id: vehicleType.vehicle_type_id,
           vehicle_type: vehicleType.vehicle_type,
@@ -341,7 +341,7 @@ exports.taxList = async (req, res) => {
   try {
     responseData = await fetch("select `value` as tax_value from rmt_config where group_name = ? and `key` = ?", ["TAX", "TAX"])
   } catch (error) {
-    console.log(error);
+    //console.log((error);
   }
   return res.status(200).json(utils.buildResponse(200, responseData))
 }
@@ -362,6 +362,6 @@ exports.updatedeleteOrrestroys = async (req,res) =>{
       return res.status(400).json(utils.buildErrorObject(500,'Something went wrong.',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }

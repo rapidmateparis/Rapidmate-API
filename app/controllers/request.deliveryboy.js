@@ -69,7 +69,7 @@ exports.requestOrder = async (req, res) => {
         notifyDriver(io,orderId, driversInfo, 0,requests);
       return res.status(200).json(utils.buildCreateMessage(200, 'Drivers found successfully', driversInfo));
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+        return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
     }
 };
 
@@ -96,11 +96,11 @@ exports.requestAccept = async (req, res) => {
             io.emit('requestAccepted', currData);
             return res.status(200).json(utils.buildCreateMessage(200, 'Drivers found successfully', currData));
         }else{
-            return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+            return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
         }
         
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+        return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
     }
 };
 
@@ -124,11 +124,11 @@ exports.requestCompleted = async (req, res) => {
             await deliveryboy.save();
             return res.status(200).json(utils.buildUpdatemessage(200,'order delivered!'));
         }else{
-            return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+            return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
         }
         
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+        return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
     }
 };
 
@@ -144,6 +144,6 @@ exports.requestRejected = async (req, res) => {
         io.to(deliveryboyId).emit('requestRejected', { orderId });
         return res.status(400).json(utils.buildErrorObject(400,'Request rejected successfully',1001));
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong', 1001));
+        return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
     }
 };

@@ -200,7 +200,7 @@ async function createItem(userinfo,tablename,extIds){
     if(tablename=='rmt_admin_user'){
         registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code,phone_code) VALUES('A${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`; //(LPAD(FLOOR(RAND() * 999999.99),6,  '0')
     }
-    // console.log("queery "+registerQuery)
+    // //console.log(("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);
     return registerRes;
 }
@@ -275,7 +275,7 @@ async function login(userInfo) {
                     Pool : userPool
                 };
                 var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-                console.log("=> "+cognitoUser)
+                //console.log(("=> "+cognitoUser)
                 cognitoUser.authenticateUser(authenticationDetails,
                 {
                     newPasswordRequired: function (userAttributes, requiredAttributes)
@@ -321,7 +321,7 @@ async function login(userInfo) {
                         logger.info("onSuccess");
                         logger.info(result);
                         username = userInfo["userName"];
-                        console.log(username);
+                        //console.log((username);
                         loginResponseData(resolve, reject, result, userInfo);
                         // resolve(result);
                     },

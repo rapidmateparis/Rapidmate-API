@@ -24,6 +24,6 @@ exports.getdashboardData = async (req,res) =>{
 
     return res.status(200).json(utils.buildCreateMessage(200,'dashboard',[dashboardData]))
  }catch(error){
-    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+    return res.status(500).json(utils.buildErrorMessage(500,error.message,1001));
  }
 }

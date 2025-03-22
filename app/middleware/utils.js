@@ -4,6 +4,7 @@ const { validationResult } = require('express-validator')
 const moment = require('moment');
 const { runQuery,updateQuery, fetch} = require('./db');
 const AWS = require('aws-sdk');
+const logger = require('./../../config/log').logger;
 
 const { v4: uuidv4 } = require('uuid');
 // const { uploadVideo } = require('../controllers/users');
@@ -13,6 +14,7 @@ AWS.config.update({
   region: process.env.AWS_REGION
 });
 const s3 = new AWS.S3();
+
 
 const options = {
   format: 'A4', base: __dirname,
@@ -47,7 +49,7 @@ exports.generateOTP = () => {
 exports.handleError = (res, err) => {
   // Prints error in console
   if (process.env.NODE_ENV === 'development') {
-    // console.log(" Deveopment Error: ", err)
+    // //console.log((" Deveopment Error: ", err)
   }
   // Sends error to user
   res.status(err?.code || 400).json({
@@ -117,9 +119,31 @@ exports.getCountry = (req) =>
  * @param {string} message - error text
  * @param {number} trcode - translate code
  */
-exports.buildErrorObject=(code,message,trcode)=>{
+exports.buildErrorObject=(code, error, message, trcode)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
+  logger.error(error)
+  return [{
+    "_success": false,
+    "_httpsStatus": "BAD_REQUEST",
+    "_httpsStatusCode": code,
+    "_responedOn": timestamp,
+    "_errors": {
+        "code": trcode,
+        "message": message,
+        "target": {
+            "code": code,
+            "message": "Invalid"
+        }
+    },
+    "_trackId": trackId
+  }];
+}
+
+exports.buildErrorMessage=(code, message, trcode)=>{
+  const timestamp = Date.now(); // current timestamp in milliseconds
+  const trackId = uuidv4(); // generate a new UUID
+  logger.error(message)
   return [{
     "_success": false,
     "_httpsStatus": "BAD_REQUEST",
@@ -144,6 +168,9 @@ exports.buildErrorObject=(code,message,trcode)=>{
 exports.buildResponseMessageContent=(statusCode, status, errorCode, message)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
+  logger.error({
+    message : message
+  });
   return [{
     "_success": false,
     "_httpsStatus": status,
@@ -171,6 +198,9 @@ exports.buildResponseMessageContent=(statusCode, status, errorCode, message)=>{
 exports.buildUpdatemessage=(code,message)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
+  logger.info({
+    message : message
+  });
   return [{
           "_success": true,
           "_httpsStatus": "OK",
@@ -189,6 +219,10 @@ exports.buildUpdatemessage=(code,message)=>{
 exports.buildCreateMessage=(code,message,data)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
+  logger.info({
+    message : message,
+    response : data
+  });
   return [{
       "_success": true,
       "_httpsStatus": "OK",
@@ -202,6 +236,9 @@ exports.buildCreateMessage=(code,message,data)=>{
 exports.buildCreateMessageContent=(code,message)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
+  logger.info({
+    message : message
+  });
   return [{
       "_success": true,
       "_httpsStatus": "OK",
@@ -218,6 +255,9 @@ exports.buildCreateMessageContent=(code,message)=>{
 exports.buildResponse = (code, data)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
+  logger.info({
+    response : data
+  });
   return [{
       "_success": true,
       "_httpsStatus": "OK",
@@ -280,7 +320,7 @@ exports.uploadFileToS3 = async (req, $filename, file = null) => {
     let uploadRes = await s3.upload(params).promise();
     uploadingRes.status = 'success';
     uploadingRes.data = uploadRes;
-    //console.log('uploadingRes : ', uploadingRes);
+    ////console.log(('uploadingRes : ', uploadingRes);
     return uploadingRes;
   } catch (error) {
     // console.error('An error occurred S3:', error);
@@ -506,14 +546,23 @@ exports.getPagination = (page, size) => {
   }
 };
 
-exports.buildJSONResponse=(req = {}, res = {}, isSuccess = false, responseCodeInfo, data = null)=>{
+exports.buildJSONResponse=(req = {}, res = {}, isSuccess = false, responseCodeInfo, data = null, errorObject = null)=>{
   var success;
   var error = {};
-  console.log(responseCodeInfo.CODE);
   if(!isSuccess){
     error = {"code": responseCodeInfo.CODE, "message": res.__(responseCodeInfo.CODE) };
+    errorData = {
+      error : errorObject,
+      systemError : error,
+      tid : req.trackId
+    }
+    logger.error(errorData);
   }else{
     success = (data) ? data :res.__(responseCodeInfo.CODE);
+    logger.info({
+      data : data,
+      tid : req.trackId
+    });
   }
   let response = [{
     "_success": false,
