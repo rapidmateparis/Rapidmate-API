@@ -21,7 +21,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch payment. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch payment. Please try again later.',1001));
   }
 }
 
@@ -41,7 +41,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch payment. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch payment. Please try again later.',1001));
   }
 }
 
@@ -61,7 +61,7 @@ exports.getItemByuser = async (req, res) => {
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch payment. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to fetch payment. Please try again later.',1001));
     }
   }
 /**
@@ -71,7 +71,7 @@ exports.getItemByuser = async (req, res) => {
  */
 const updateItem = async (req) => {
     const execuateUpdatePayment = await updateQuery(UPDATE_PAYMENT_QUERY,[req.status, req.ref_id]);
-    console.log(execuateUpdatePayment);
+    //console.log((execuateUpdatePayment);
     return execuateUpdatePayment;
 }
 
@@ -79,19 +79,19 @@ exports.updateItem = async (req, res) => {
   try {
     const paymentRequest = req.body;
     const isValidateData = await utils.isIDGood(paymentRequest.ref_id,'ref_id','rmt_payment')
-    console.log(isValidateData);
+    //console.log((isValidateData);
     if(isValidateData){
       const updatedPayment = await updateItem(paymentRequest);
       if (updatedPayment.affectedRows >0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Payment has been updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Payment failed',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Payment failed',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Invalid payment ref id',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Invalid payment ref id',1001));
   } catch (error) {
     console.error(error);
-    return res.status(500).json(utils.buildErrorObject(500,'Payment failed',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Payment failed',1001));
   }
     
 }
@@ -102,7 +102,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItemBystatus = async (id,status) => {
-    console.log(id)
+    //console.log((id)
     const registerRes = await updateQuery(UPDATE_PAYMENT_BY_STATUS,[status,id]);
     return registerRes;
 }
@@ -117,12 +117,12 @@ exports.updateItemBystatus = async (req, res) => {
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to udpate payment status. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to udpate payment status. Please try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Payment not found. Please provide detail and try again later.',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Payment not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to update status. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to update status. Please try again later.',1001));
   }
     
 }
@@ -135,7 +135,7 @@ const createItem = async (req) => {
     const paymentRefNumber = uuidv4();
     var order_type = req.order_type || 1;
     const registerRes = await insertQuery(((utils.isEOrder(req.order_number))? INSERT_PAYMENT_EORDER_QUERY: INSERT_PAYMENT_ORDER_QUERY ),[req.amount, req.order_number, paymentRefNumber, order_type]);
-    console.log(registerRes);
+    //console.log((registerRes);
     return registerRes;
 }
 exports.createPayment = async (req, res) => {
@@ -146,10 +146,10 @@ exports.createPayment = async (req, res) => {
       const currData=await transformKeysToLowercase(await fetch(FETCH_PAYMENT_BY_ID,[item.insertId]));
       return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currData))
     }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to create payment. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to create payment. Please try again later.',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create payment. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create payment. Please try again later.',1001));
   }
 }
 
@@ -171,11 +171,11 @@ exports.deleteItem = async (req, res) => {
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to delete payment. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete payment. Please try again later.',1001));
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Payment not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to delete payment. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to delete payment. Please try again later.',1001));
   }
 }

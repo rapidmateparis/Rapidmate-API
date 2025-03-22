@@ -79,7 +79,7 @@ ${utils.getPagination(page, pageSize)}`;
         .json(utils.buildCreateMessage(200, message, resData));
     }
   } catch (error) {
-    console.log(error);
+    //console.log((error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
@@ -159,7 +159,7 @@ exports.acceptOrRejectJoinRequest = async (req, res) => {
         reason,
         ext_id,
       ]);
-      console.log("error ", updatedItem);
+      //console.log(("error ", updatedItem);
       if (updatedItem.affectedRows > 0) {
         return res
           .status(200)
@@ -175,7 +175,7 @@ exports.acceptOrRejectJoinRequest = async (req, res) => {
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
   } catch (error) {
-    console.log(error);
+    //console.log((error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));

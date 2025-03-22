@@ -29,14 +29,14 @@ require('log4js').configure({
 });
 const app = express();
 
-/* const limiter = rateLimit({
+const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Limit each IP to 50 requests per `windowMs`
+  max: 100, // Limit each IP to 50 requests per `windowMs`
   message: { error: "Too many requests, please try again later." },
   headers: true, // Send rate limit info in headers
 });
 
-app.use(limiter); */
+app.use(limiter); 
 
 const allowedOrigins = [
   'http://localhost:5173', 
@@ -64,7 +64,7 @@ app.use(
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ="UTC";
 //TZ = "Europe/Paris";
-//console.log("Timezone", new Date().toString());
+////console.log(("Timezone", new Date().toString());
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -99,7 +99,12 @@ i18n.configure({
 app.use((req, res, next) => {
   const pathValue = req.path;
   if(!pathValue.includes("login")){
-    logger.info(`${req.method} ${req.url} => Request`, req.body);
+    requestData = {
+      method : req.method,
+      api :  req.url,
+      data : req.body
+    };
+    logger.info(requestData);
     next(); // Pass control to the next middleware/route
   }else{
     next();
@@ -118,11 +123,11 @@ app.set('view engine', 'html');
 app.use('/api', require('./app/routes'));
 
 io.on('connection', (socket) => {
-  console.log('A user connected', socket.id);
+  //console.log(('A user connected', socket.id);
 
   socket.on('join', (driverId) => {
     socket.join(driverId);
-    console.log(`Driver ${driverId} joined room ${driverId}`);
+    //console.log((`Driver ${driverId} joined room ${driverId}`);
   });
 
   socket.on('update-latlng',async (data)=>{
@@ -148,7 +153,7 @@ io.on('connection', (socket) => {
     io.emit('send-location',{order_number,latitude,longitute})
   })
   socket.on('disconnect', () => {
-    console.log('User disconnected', socket.id);
+    //console.log(('User disconnected', socket.id);
   });
 });
 // set cron for automatic delete notification at 23:59 pm
@@ -161,33 +166,32 @@ const softDeleteOldNotifications = async () => {
       { createdAt: { $lt: oneWeekAgo }, is_del: false },
       { $set: { is_del: true } }
     );
-
-    console.log(`${result.modifiedCount} notifications soft-deleted.`);
+    logger.info({message : `${result.modifiedCount} notifications soft-deleted.`})
   } catch (err) {
-    console.error('Error soft-deleting old notifications:', err);
+    logger.error({message : "Error soft-deleting old notifications", error : err})
   }
 };
 
 cron.schedule('59 23 * * *', () => { softDeleteOldNotifications(); });
 
 cron.schedule("*/10 * * * * *", function() { 
-  console.log("Schedule Order : Running..." , new Date());
+  logger.info({message : "Schedule Order : Running...", data : new Date()})
   orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
 });
 
 cron.schedule("*/5 * * * * *", function() { 
-  console.log("Reallocate Order : Running..." , new Date());
+  logger.info({message : "Reallocate Order : Running...", data : new Date()})
   orderControl.cronJobRemoveAllocatedDeliveryBoyByOrderNumber();
 });
 
 cron.schedule("*/5 * * * * *", function() { 
-  console.log("Check Payment status : Running..." , new Date());
+  logger.info({message : "Check Payment status : Running...", data : new Date()})
   orderControl.cronJobCheckPaymentStatusByOrderNumber();
 });
 
 
 server.listen(app.get('port'), () => {
-  console.log('Server is running on port', app.get('port'));
+  logger.info({message : "Server is running on port", port : app.get('port')})
 });
 
 module.exports = app;

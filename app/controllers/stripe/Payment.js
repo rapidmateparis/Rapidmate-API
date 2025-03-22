@@ -10,7 +10,7 @@ exports.saveCard = async (req, res) => {
         await stripe.customers.update(customerId, {invoice_settings: { default_payment_method: paymentMethodId }});
         return res.status(200).json(utils.buildUpdatemessage(200,'Card saved successfully!'));
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,"Unable to save card. Try next time.",1001));
+        return res.status(500).json(utils.buildErrorMessage(500,"Unable to save card. Try next time.",1001));
     }
 };
 
@@ -28,7 +28,7 @@ exports.payProceed = async (req,res)=>{
   
        return res.status(200).json(utils.buildCreateMessage(200,'Payment Successfully',{paymentIntent}))
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+        return res.status(500).json(utils.buildErrorMessage(500,error.message,1001));
     }
 }
 
@@ -38,7 +38,7 @@ exports.cardLists = async (req,res) =>{
         const paymentMethods = await stripe.paymentMethods.list({ customer: customerId, type: "card" });
         return res.status(200).json(utils.buildCreateMessage(200,'Payment Successfully',paymentMethods.data))
       } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+        return res.status(500).json(utils.buildErrorMessage(500,error.message,1001));
       }
 }
 
@@ -49,7 +49,7 @@ exports.removeCard = async (req,res)=>{
         await stripe.paymentMethods.detach(paymentMethodId);
         return res.status(200).json(utils.buildUpdatemessage(200,'Card removed successfully!'));
       } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+        return res.status(500).json(utils.buildErrorMessage(500,error.message,1001));
       }
 }
 
@@ -88,7 +88,7 @@ exports.createCustomer = async (req,res)=>{
       }
       return res.status(200).json(utils.buildCreateMessage(200,"Data retrieved.",data))
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+        return res.status(500).json(utils.buildErrorMessage(500,error.message,1001));
     }
 }
 

@@ -21,7 +21,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -41,7 +41,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch rating. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch rating. Please try again later.',1001));
   }
 }
 
@@ -63,7 +63,7 @@ exports.getRatingBycustomer = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch rating. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch rating. Please try again later.',1001));
   }
 }
 
@@ -84,7 +84,7 @@ exports.updateItem = async (req, res) => {
         }
         return res.status(200).json(utils.buildUpdatemessage(200,"Rating updated successfully"))
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update the rating. Please try again later',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update the rating. Please try again later',1001));
     }
 }
 /**
@@ -98,7 +98,7 @@ const createItem = async (req) => {
     const consumer_id =await utils.getValueById("id", "rmt_consumer", 'ext_id',consumer_ext);
     const order_id =await utils.getValueById("id", "rmt_order", 'order_number',order_number);
 
-    // console.log("order "+ order_id+" " +consumer_id)
+    // //console.log(("order "+ order_id+" " +consumer_id)
     if (!order_id || !consumer_id) {
       return false;
     }
@@ -109,7 +109,7 @@ const createItem = async (req) => {
       comment
     }
 
-    // console.log(insertData)
+    // //console.log((insertData)
     const rating = new Rating(insertData);
     const savedRating = await rating.save();
     if(!savedRating){
@@ -124,11 +124,11 @@ exports.createItem = async (req, res) => {
     if(item){
       return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',item))
     }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to create rating. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to create rating. Please try again later.',1001));
     }
    
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create rating. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create rating. Please try again later.',1001));
   }
 }
 
@@ -145,7 +145,7 @@ exports.deleteItem = async (req, res) => {
       }
       return res.status(200).json(utils.buildUpdatemessage(200,"Rating deleted successfully"))
   } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to delete rating. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete rating. Please try again later.',1001));
   }
 }
 
@@ -164,7 +164,7 @@ exports.getDeletedRating = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch rating. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch rating. Please try again later.',1001));
   }
 }
 
@@ -181,6 +181,6 @@ exports.deleteRestore = async (req, res) => {
       }
       return res.status(200).json(utils.buildUpdatemessage(200,"Rating restored successfully"))
   } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to restring rating. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to restring rating. Please try again later.',1001));
   }
 }
