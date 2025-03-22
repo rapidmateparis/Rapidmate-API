@@ -24,13 +24,13 @@ exports.createItem = async (req, res) => {
         const currentdata=await fetch(FETCH_LANG_BYID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to create language. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to create language. Please try again later.',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Language  already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create language. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create language. Please try again later.',1001));
   }
 }
 
@@ -53,12 +53,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update state. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update state. Please try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Languages not found. Please provide detail and try again later.',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Languages not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to update state. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to update state. Please try again later.',1001));
   }  
 }
 
@@ -77,7 +77,7 @@ exports.getItems = async (req, res) => {
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unble to fetch languages. Please try again later.',1001));
     }
 }
 
@@ -97,7 +97,7 @@ exports.getItem = async (req, res) => {
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch language. please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to fetch language. please try again later.',1001));
     }
 }
 
@@ -119,12 +119,12 @@ exports.deleteItem = async (req, res) => {
         if (deletedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
         } else {
-          return res.status(500).json(utils.buildErrorObject(500,'Unable to delete language. Please try again later.',1001));
+          return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete language. Please try again later.',1001));
         }
       }
       return res.status(400).json(utils.buildErrorObject(400,'Language not found. Please provide detail and try again later.',1001));
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to delete language. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete language. Please try again later.',1001));
     }
 }
 
@@ -160,10 +160,10 @@ exports.createUserLang = async (req, res) => {
         const currentdata=await fetch(FETCH_USER_LANGBYID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
     }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to create language. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to create language. Please try again later.',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create language. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create language. Please try again later.',1001));
   }
 }
 
@@ -197,12 +197,12 @@ exports.updateUserLang = async (req, res) => {
       if (updatedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update language. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update language. Please try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Languages not found. Please provide detail and try again later.',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Languages not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to update language. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to update language. Please try again later.',1001));
   }  
 }
 
@@ -222,7 +222,7 @@ exports.getByconsumerExt = async (req, res) => {
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unble to fetch languages. Please try again later.',1001));
     }
 }
 
@@ -242,7 +242,7 @@ exports.getBydeliveryboyExt = async (req, res) => {
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unble to fetch languages. Please try again later.',1001));
     }
 }
 
@@ -255,7 +255,7 @@ exports.getByenterpriseExt = async (req, res) => {
     try {
        const {id}=req.params
       const data = await fetch(FETCH_LANG_BYENTERPRISEEXT,[id])
-      console.log(data)
+      //console.log((data)
       let message="Languages retrieved successfully";
       if(data.length <=0){
           message="No languages found"
@@ -263,7 +263,7 @@ exports.getByenterpriseExt = async (req, res) => {
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch languages. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unble to fetch languages. Please try again later.',1001));
     }
 }
 
@@ -285,11 +285,11 @@ exports.deleteuserItem = async (req, res) => {
         if (deletedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
         } else {
-          return res.status(500).json(utils.buildErrorObject(500,'Unable to delete language. Please try again later.',1001));
+          return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete language. Please try again later.',1001));
         }
       }
       return res.status(400).json(utils.buildErrorObject(400,'Language not found. Please provide detail and try again later.',1001));
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to delete language. Please try again later.',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete language. Please try again later.',1001));
     }
 }

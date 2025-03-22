@@ -21,7 +21,7 @@ exports.getBranchByEnterpriseId = async (req, res) => {
         }
         return res.status(200).json(utils.buildCreateMessage(200,message,data))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+      return res.status(500).json(utils.buildErrorMessage(500,error.message,1001));
     }
 }
 
@@ -41,7 +41,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, error.message,1001));
   }
 }
 
@@ -64,12 +64,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }
     return res.status(404).json(utils.buildErrorObject(404,'Data not found for update.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, error.message,1001));
   }
     
 }
@@ -80,30 +80,30 @@ exports.updateItem = async (req, res) => {
  */
 const createEnterpriseBranch = async (req, enterprise_id) => {
     const params = [req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id];
-    console.log(params);
+    //console.log((params);
     const executeBranch = await insertQuery(INSERT_BRANCH_QUERY,[req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id]);
-    console.log(executeBranch);
+    //console.log((executeBranch);
     return executeBranch;
 }
 
 exports.createItem = async (req, res) => {
   try {
     const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
-    console.log(enterprise_id);
+    //console.log((enterprise_id);
     if (enterprise_id) {
-      console.log(enterprise_id);
+      //console.log((enterprise_id);
       const item = await createEnterpriseBranch(req.body, enterprise_id);
       if(item.insertId){
         const currentdata=await fetch(FETCH_BRANCH_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Unable to create  exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, error.message,1001));
   }
 }
 
@@ -125,11 +125,11 @@ exports.deleteItem = async (req, res) => {
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, error.message,1001));
   }
 }

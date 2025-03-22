@@ -9,20 +9,10 @@ const pool = mysql
     user: process.env.DB_USER,
     password: process.env.DB_PWD,
     database: process.env.DB_NAME,
-    connectTimeout: 10000,
-    timezone: 'Z'
-  })
-  .promise();
-// Test the connection pool
-// (async () => {
-//   try {
-//     const connection = await pool.getConnection();
-//     console.log('Connection established successfully.');
-//     connection.release();
-//   } catch (err) {
-//     console.error('Error getting connection from pool:', err.message);
-//     console.error('Error stack:', err.stack);
-//   }
-// })();
+    connectTimeout: 100,
+    timezone: 'Z',
+    waitForConnections: true,   
+    queueLimit: 0
+  }).promise();
 
 module.exports = pool

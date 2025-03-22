@@ -45,8 +45,8 @@ exports.getItems = async (req, res) => {
 
     return res.status(200).json(utils.buildCreateMessage(200, message, resData));
   } catch (error) {
-    console.log(error);
-    return res.status(500).json(utils.buildErrorObject(500, "Something went wrong", 1001));
+    //console.log((error);
+    return res.status(500).json(utils.buildErrorMessage(500, "Something went wrong", 1001));
   }
 }
 
@@ -67,7 +67,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,filterdata))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -125,11 +125,11 @@ exports.updateItem = async (req, res) => {
       if(executeResult) {
         return res.status(200).json(utils.buildCreateMessageContent(200,'Record Updated Successfully'))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later.',1001));
       }
     } catch (error) {
-      console.log(error);
-      return res.status(500).json(utils.buildErrorObject(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
+      //console.log((error);
+      return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
     }
   }
   
@@ -167,7 +167,7 @@ exports.createItem = async (req, res) => {
       
       let autaar='';
       let filename='';
-      // console.log(req.body)
+      // //console.log((req.body)
       if(req.body.insurance != '') {
         filename ='insurance_'+Date.now()+'.jpg';
         insurance = await utils.uploadFileToS3bucket(req,filename);
@@ -194,13 +194,13 @@ exports.createItem = async (req, res) => {
         const filterdata=await transformKeysToLowercase(currData)
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',filterdata))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Email already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -222,12 +222,12 @@ exports.deleteItem = async (req, res) => {
       if(deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -242,7 +242,7 @@ exports.getWalletBalanceByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch wallent balance',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch wallent balance',1001));
   }
 }
 
@@ -273,7 +273,7 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
       return res.status(200).json(utils.buildResponse(200,requestData));
     }
   } catch (error) {
-    console.log(error);
+    //console.log((error);
   }
   return res.status(400).json(utils.buildErrorObject(400,"Unable to update billing address",1001));
 }
@@ -290,6 +290,6 @@ exports.getBillingAddressDetailsByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch billing address',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch billing address',1001));
   }
 }

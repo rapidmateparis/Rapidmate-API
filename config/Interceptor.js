@@ -51,7 +51,7 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
       },
       // Appends a paragraph at the end of the response body
       intercept: function(body, send) {
-        console.log("Content-Type", body);
+        //console.log(("Content-Type", body);
         send($document.html());
       }
     };
