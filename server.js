@@ -175,23 +175,23 @@ const softDeleteOldNotifications = async () => {
 cron.schedule('59 23 * * *', () => { softDeleteOldNotifications(); });
 
 cron.schedule("*/10 * * * * *", function() { 
-  logger.info({message : "Schedule Order : Running...", data : new Date()})
+  logger.warn({message : "Schedule Order : Running...", data : new Date()})
   orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
 });
 
 cron.schedule("*/5 * * * * *", function() { 
-  logger.info({message : "Reallocate Order : Running...", data : new Date()})
+  logger.warn({message : "Reallocate Order : Running...", data : new Date()})
   orderControl.cronJobRemoveAllocatedDeliveryBoyByOrderNumber();
 });
 
 cron.schedule("*/5 * * * * *", function() { 
-  logger.info({message : "Check Payment status : Running...", data : new Date()})
+  logger.warn({message : "Check Payment status : Running...", data : new Date()})
   orderControl.cronJobCheckPaymentStatusByOrderNumber();
 });
 
 
 server.listen(app.get('port'), () => {
-  logger.info({message : "Server is running on port", port : app.get('port')})
+  logger.warn({message : "Server is running on port", port : app.get('port')})
 });
 
 module.exports = app;
