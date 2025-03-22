@@ -69,7 +69,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
           });
         }else{
           controller.login(req.body.info).then(user => {
-            console.log("data 000000", user);
+            //console.log(("data 000000", user);
             if(user == null){
               return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
             }else{
@@ -103,7 +103,7 @@ router.post('/logout',trimRequest.all,validate.logout, trimRequest.all,
         });
       }else{
         controller.logout(req.body.info).then(user => {
-          console.log("data 000000", user);
+          //console.log(("data 000000", user);
           if(user == null){
             return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
           }else{

@@ -7,7 +7,7 @@ exports.lookupService = async (req, res) => {
   var responseData = {};
   try {
     if(!lookupCache.has("lookupData")){
-      console.log("NO_CACHE");
+      //console.log(("NO_CACHE");
       const vehicleTypeData = await fetch("select id,vehicle_type,vehicle_type_desc from rmt_vehicle_type");
       const workTypeData = await fetch("select id,work_type,work_type_desc from rmt_work_type");
       const serviceData = await fetch("select id,service_name, discount from rmt_service");
@@ -28,12 +28,12 @@ exports.lookupService = async (req, res) => {
       responseData.paymentMethodTypeService = paymentMethodTypeServiceData;
       lookupCache.set( "lookupData", responseData );
     }else{
-      console.log("CACHE");
+      //console.log(("CACHE");
       responseData = lookupCache.get("lookupData");
     }
     return res.status(200).json(utils.buildResponse(200, responseData))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch data. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch data. Please try again later.',1001));
   }
 }
 

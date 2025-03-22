@@ -34,7 +34,7 @@ const options = {
         });
       });
     } catch (error) {
-      console.log(error);
+      //console.log((error);
     }
     return null;
   };
@@ -70,7 +70,7 @@ const options = {
       }
     });
     } catch (error) {
-      console.log(error);
+      //console.log((error);
     }
     return null;
   };
@@ -96,14 +96,14 @@ const options = {
           }
           return res.status(404).json(utils.buildErrorObject(404, "Invalid Order number", 1001));
         } else {
-          return res.status(500).json(utils.buildErrorObject(500, "Invalid Order number or role", 1001));
+          return res.status(500).json(utils.buildErrorMessage(500, "Invalid Order number or role", 1001));
         }
       }else{
-        return res.status(500).json(utils.buildErrorObject(500, "Please provide valid and complete details", 1001));
+        return res.status(500).json(utils.buildErrorMessage(500, "Please provide valid and complete details", 1001));
       }
       
     } catch (err) {
-      console.log(err);
-      return res.status(500).json(utils.buildErrorObject(500, "Unable to download invoice", 1001));
+      //console.log((err);
+      return res.status(500).json(utils.buildErrorMessage(500, "Unable to download invoice", 1001));
     }
   };
