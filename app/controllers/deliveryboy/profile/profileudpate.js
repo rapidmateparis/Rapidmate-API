@@ -506,13 +506,13 @@ exports.updateAvailability=async (req, res) =>{
 
 
 const createBillingAddressRequest = async (req,delivery_boy_ext_id) => {
-  const executeCreateStmt = await insertQuery(INSERT_DB_BILLING_ADDRESS,[delivery_boy_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
+  const executeCreateStmt = await insertQuery(INSERT_DB_BILLING_ADDRESS,[delivery_boy_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code]);
   return executeCreateStmt;
 }
 
 const updateBillingAddressRequest = async (req) => {
   //console.log((req);
-  const executeUpdateStmt = await updateQuery(UPDATE_DB_BILLING_ADDRESS,[req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type, req.id]);
+  const executeUpdateStmt = await updateQuery(UPDATE_DB_BILLING_ADDRESS,[req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.id]);
   //console.log((executeUpdateStmt);
   return executeUpdateStmt;
 }
