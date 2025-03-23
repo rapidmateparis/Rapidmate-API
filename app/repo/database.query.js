@@ -192,8 +192,8 @@ exports.UPDATE_REFUND_STATUS = `UPDATE rmt_refund SET status=? WHERE id=?`;
 exports.FETCH_BRANCH_QUERY = `SELECT * FROM rmt_enterprise_branch WHERE is_del=0`;
 exports.FETCH_BRANCH_BY_ID = `SELECT * FROM rmt_enterprise_branch WHERE is_del=0 AND id=?`;
 exports.FETCH_BRANCH_BY_ENTERPRISEID = `SELECT * FROM rmt_enterprise_branch WHERE is_del=0 and enterprise_id=(select id from rmt_enterprise where ext_id = ?)`;
-exports.INSERT_BRANCH_QUERY = `INSERT INTO rmt_enterprise_branch(branch_name,address,city,state,postal_code,country,latitude,longitude,enterprise_id) VALUES(?,?,?,?,?,?,?,?,?)`;
-exports.UPDATE_BRANCH_QUERY = `UPDATE rmt_enterprise_branch SET branch_name=?,address=?,city=?,state=?,postal_code=?,country=?,latitude=?,longitude=?,enterprise_id=? WHERE id=?`;
+exports.INSERT_BRANCH_QUERY = `INSERT INTO rmt_enterprise_branch(branch_name,address,city_id,state_id,postal_code,country_id,latitude,longitude,enterprise_id) VALUES(?,?,?,?,?,?,?,?,?)`;
+exports.UPDATE_BRANCH_QUERY = `UPDATE rmt_enterprise_branch SET branch_name=?,address=?,city_id=?,state_id=?,postal_code=?,country_id=?,latitude=?,longitude=?,enterprise_id=? WHERE id=?`;
 exports.DELETE_BRANCH_QUERY = `UPDATE rmt_enterprise_branch SET is_del=1 WHERE id=?`;
 //----------------------------------rmt_industry_type-----------------------------------------------------------------------------------------
 exports.FETCH_INDUSTRY_QUERY = `SELECT * FROM rmt_industry_type WHERE is_del=0`;
