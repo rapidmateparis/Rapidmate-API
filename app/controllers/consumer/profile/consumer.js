@@ -247,12 +247,12 @@ exports.getWalletBalanceByExtId = async (req, res) => {
 }
 
 const createBillingAddressRequest = async (req,consumer_ext_id) => {
-    const executeCreateStmt = await insertQuery(INSERT_BILLING_ADDRESS,[consumer_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
+    const executeCreateStmt = await insertQuery(INSERT_BILLING_ADDRESS,[consumer_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code]);
     return executeCreateStmt;
 }
 
 const updateBillingAddressRequest = async (req) => {
-  const executeUpdateStmt = await updateQuery(UPDATE_BILLING_ADDRESS,[req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type, req.id]);
+  const executeUpdateStmt = await updateQuery(UPDATE_BILLING_ADDRESS,[req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.id]);
   return executeUpdateStmt;
 }
 
