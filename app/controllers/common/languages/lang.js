@@ -30,7 +30,7 @@ exports.createItem = async (req, res) => {
       return res.status(400).json(utils.buildErrorObject(400,'Language  already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create language. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to create language. Please try again later.',1001));
   }
 }
 
@@ -58,7 +58,7 @@ exports.updateItem = async (req, res) => {
     }
     return res.status(500).json(utils.buildErrorMessage(500,'Languages not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to update state. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to update state. Please try again later.',1001));
   }  
 }
 
@@ -163,7 +163,7 @@ exports.createUserLang = async (req, res) => {
         return res.status(500).json(utils.buildErrorMessage(500,'Unable to create language. Please try again later.',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create language. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to create language. Please try again later.',1001));
   }
 }
 
@@ -202,7 +202,7 @@ exports.updateUserLang = async (req, res) => {
     }
     return res.status(500).json(utils.buildErrorMessage(500,'Languages not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to update language. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to update language. Please try again later.',1001));
   }  
 }
 

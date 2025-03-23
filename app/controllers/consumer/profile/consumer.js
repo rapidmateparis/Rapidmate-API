@@ -67,7 +67,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,filterdata))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -200,7 +200,7 @@ exports.createItem = async (req, res) => {
       return res.status(400).json(utils.buildErrorObject(400,'Email already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -227,7 +227,7 @@ exports.deleteItem = async (req, res) => {
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -242,7 +242,7 @@ exports.getWalletBalanceByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch wallent balance',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch wallent balance',1001));
   }
 }
 
@@ -290,6 +290,6 @@ exports.getBillingAddressDetailsByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch billing address',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch billing address',1001));
   }
 }

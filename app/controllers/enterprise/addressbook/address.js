@@ -14,7 +14,7 @@ exports.getById = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch addresses. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch addresses. Please try again later.',1001));
   }
 }
 
@@ -29,7 +29,7 @@ exports.createAddressBook = async (req, res) => {
       return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully', response))
     }
   }catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create address. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to create address. Please try again later.',1001));
   }
 }
 
@@ -59,7 +59,7 @@ exports.updateItem = async (req, res) => {
     }
     return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, error.message,1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, error.message,1001));
   }
     
 }
@@ -89,7 +89,7 @@ exports.createItem = async (req, res) => {
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to create address. Please try again later.',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to create address. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to create address. Please try again later.',1001));
   }
 }
 

@@ -935,7 +935,7 @@ exports.planSearch = async (req, res) => {
       );
       return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, error.message, 1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, error.message, 1001));
   }
 };
 
@@ -1088,7 +1088,7 @@ exports.billReportDownload = async (req,res)=>{
     return await convert(res,orders);
 
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error,  "Unable to download bill", 1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  "Unable to download bill", 1001));
   }
 }
 

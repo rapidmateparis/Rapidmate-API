@@ -119,7 +119,7 @@ exports.getCountry = (req) =>
  * @param {string} message - error text
  * @param {number} trcode - translate code
  */
-exports.buildErrorObject=(code, error, message, trcode)=>{
+exports.buildErrorObjectForLog=(code, error, message, trcode)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
   logger.error(error)
@@ -139,6 +139,27 @@ exports.buildErrorObject=(code, error, message, trcode)=>{
     "_trackId": trackId
   }];
 }
+
+exports.buildErrorObject=(code, message, trcode)=>{
+  const timestamp = Date.now(); // current timestamp in milliseconds
+  const trackId = uuidv4(); // generate a new UUID
+  return [{
+    "_success": false,
+    "_httpsStatus": "BAD_REQUEST",
+    "_httpsStatusCode": code,
+    "_responedOn": timestamp,
+    "_errors": {
+        "code": trcode,
+        "message": message,
+        "target": {
+            "code": code,
+            "message": "Invalid"
+        }
+    },
+    "_trackId": trackId
+  }];
+}
+
 
 exports.buildErrorMessage=(code, message, trcode)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds

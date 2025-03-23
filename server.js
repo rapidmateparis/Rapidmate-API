@@ -68,7 +68,7 @@ TZ="UTC";
 const server = http.createServer(app);
 const io = socketIo(server);
 
-app.use(httpRequestResponseInterceptor);
+//app.use(httpRequestResponseInterceptor);
 app.set('port', process.env.PORT || 3004);
 app.set('io', io);
 
