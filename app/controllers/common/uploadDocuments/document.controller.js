@@ -73,7 +73,7 @@ const download = async (req, res) => {
         }
     });
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
  
 };
@@ -90,7 +90,7 @@ const downloadByContent = async (req, res) => {
         }
     });
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
  
 };

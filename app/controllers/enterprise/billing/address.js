@@ -14,7 +14,7 @@ exports.getById = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch addresses. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch addresses. Please try again later.',1001));
   }
 }
 
@@ -32,7 +32,7 @@ exports.updateBillingAddressDetails = async (req, res) => {
       return res.status(200).json(utils.buildCreateMessage(200,'Billing addrress updated Successfully', response))
     }
   }catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to update billing address. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to update billing address. Please try again later.',1001));
   }
 }
 

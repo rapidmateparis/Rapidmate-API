@@ -37,23 +37,22 @@ exports.getJoinRequest = async (req, res) => {
       queryReq = ` WHERE is_active=${isActiveValue}`;
     }
     const countQuery = `SELECT COUNT(*) AS total FROM vw_rmt_user  WHERE is_active=${isActiveValue}`;
-    const sql = `
-    SELECT u.ext_id, u.first_name, u.last_name, u.email, u.phone, u.profile_pic, u.role, 
+    const sql = `SELECT u.ext_id, u.first_name, u.last_name, u.email, u.phone, u.profile_pic, u.role, 
        u.work_type_id, u.company_name, u.industry_type_id, u.is_active,d.reason as dreason,e.reason as ereason, 
        CASE 
            WHEN u.is_active = 1 THEN 'Active' 
            WHEN u.is_active = 2 THEN 'Rejected' 
            WHEN u.is_active = 0 THEN 'Pending' 
            ELSE 'Pending' 
-       END AS status, 
-       COALESCE(d.created_on, e.created_on, c.created_on) AS created_on 
-FROM vw_rmt_user u 
-LEFT JOIN rmt_delivery_boy d ON u.ext_id = d.ext_id COLLATE utf8mb4_unicode_ci AND u.role = 'DELIVERY_BOY' COLLATE utf8mb4_unicode_ci 
-LEFT JOIN rmt_enterprise e ON u.ext_id = e.ext_id COLLATE utf8mb4_unicode_ci AND u.role = 'ENTERPRISE' COLLATE utf8mb4_unicode_ci 
-LEFT JOIN rmt_consumer c ON u.ext_id = c.ext_id COLLATE utf8mb4_unicode_ci AND u.role = 'CONSUMER' COLLATE utf8mb4_unicode_ci 
-WHERE u.is_active =${isActiveValue} 
-ORDER BY COALESCE(d.created_on, e.created_on, c.created_on) DESC 
-${utils.getPagination(page, pageSize)}`;
+                  END AS status, 
+                  COALESCE(d.created_on, e.created_on, c.created_on) AS created_on 
+            FROM vw_rmt_user u 
+            LEFT JOIN rmt_delivery_boy d ON u.ext_id = d.ext_id COLLATE utf8mb4_unicode_ci AND u.role = 'DELIVERY_BOY' COLLATE utf8mb4_unicode_ci 
+            LEFT JOIN rmt_enterprise e ON u.ext_id = e.ext_id COLLATE utf8mb4_unicode_ci AND u.role = 'ENTERPRISE' COLLATE utf8mb4_unicode_ci 
+            LEFT JOIN rmt_consumer c ON u.ext_id = c.ext_id COLLATE utf8mb4_unicode_ci AND u.role = 'CONSUMER' COLLATE utf8mb4_unicode_ci 
+            WHERE u.is_active =${isActiveValue} 
+            ORDER BY COALESCE(d.created_on, e.created_on, c.created_on) DESC 
+    ${utils.getPagination(page, pageSize)}`;
 
     const countResult = await fetch(countQuery);
     const data = await fetch(sql);
@@ -65,6 +64,8 @@ ${utils.getPagination(page, pageSize)}`;
       message = "No items found";
       return res.status(400).json(utils.buildErrorObject(400, message, 1001));
     } else {
+      console.log(data);
+      console.log(countResult);
       filterdata = await transformKeysToLowercase(data);
       const totalRecords = countResult[0].total;
       const resData = {
@@ -79,7 +80,7 @@ ${utils.getPagination(page, pageSize)}`;
         .json(utils.buildCreateMessage(200, message, resData));
     }
   } catch (error) {
-    //console.log((error);
+    console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Something went wrong", 1001));
