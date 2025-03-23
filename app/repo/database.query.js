@@ -349,8 +349,8 @@ exports.FETCH_BILLING_ADDRESS = `SELECT * FROM rmt_billing_address WHERE is_del=
 exports.FETCH_BILLING_ADDRESS_BYID = `SELECT * FROM rmt_billing_address WHERE is_del=0 AND id=?`;
 exports.FETCH_BILLING_ADDRESS_BYCNEXTID = `SELECT * FROM rmt_billing_address WHERE is_del=0 AND consumer_id=(select id from rmt_consumer where ext_id =?)`;
 exports.FETCH_BILLING_ADDRESS_BYENEXTID = `SELECT * FROM rmt_billing_address WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id =?)`;
-exports.INSERT_BILLING_ADDRESS = `INSERT INTO rmt_billing_address(account_type_id,consumer_id,enterprise_id,first_name,last_name,address,city_id,state_id,country_id,postal_code,account_type) VALUES(?,(select id from rmt_consumer where ext_id =?),(select id from rmt_enterprise where ext_id =?),?,?,?,?,?,?,?,?)`;
-exports.UPDATE_BILLING_ADDRESS = `UPDATE rmt_billing_address SET account_type_id=?,consumer_id=(select id from rmt_consumer where ext_id =?),enterprise_id=(select id from rmt_enterprise where ext_id =?),first_name=?,last_name=?,address=?,city_id=?,state_id=?,country_id=?,postal_code=?,account_type=? WHERE id=?`;
+exports.INSERT_BILLING_ADDRESS = `INSERT INTO rmt_billing_address(account_type_id,consumer_id,enterprise_id,first_name,last_name,address,city_id,state_id,country_id,postal_code) VALUES(?,(select id from rmt_consumer where ext_id =?),(select id from rmt_enterprise where ext_id =?),?,?,?,?,?,?,?)`;
+exports.UPDATE_BILLING_ADDRESS = `UPDATE rmt_billing_address SET account_type_id=?,consumer_id=(select id from rmt_consumer where ext_id =?),enterprise_id=(select id from rmt_enterprise where ext_id =?),first_name=?,last_name=?,address=?,city_id=?,state_id=?,country_id=?,postal_code=? WHERE id=?`;
 exports.DELETE_BILLING_ADDRESS =
   "UPDATE rmt_billing_address SET is_del=1 WHERE id=?";
 //convert toLowerCase
