@@ -194,7 +194,7 @@ exports.getItemBydeliveryboyid = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error,  'Something went wrong', 1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Something went wrong', 1001));
   }
 }
 
@@ -313,7 +313,7 @@ exports.createItem = async (req, res) => {
     var resStatus = await planningSetupConfig(req, res);
     return res.status(200).json(utils.buildUpdatemessage(200, "Setup has been updated successfully."));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error,  'Unable to setup', 1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to setup', 1001));
   }
 }
 
