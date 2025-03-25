@@ -57,7 +57,7 @@ const updateItem = async (id,req) => {
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    //console.log((" => "+id)
+    //console.log(" => "+id)
     const getId = await utils.isIDGood(id,'id','rmt_consumer_address')
     
     if(getId){

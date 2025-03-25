@@ -38,7 +38,7 @@ exports.getVehicles = async (req,res) =>{
   
       return res.status(200).json(utils.buildCreateMessage(200, message, resData));
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return res.status(500).json(utils.buildErrorMessage(500, "Something went wrong", 1001));
     }
 }
@@ -131,10 +131,10 @@ const createItem = async (req,ext_id) => {
 
     const reqData=[ext_id,req.vehicle_type_id,req.plat_no,req.modal,req.make,req.variant,req.reg_doc,req.driving_license,req.insurance,req.passport];
     const registerRes = await insertQuery(INSERT_VEHICLE_QUERY, reqData);
-    //console.log((registerRes);
+    //console.log(registerRes);
     return registerRes;
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return null;
 }
@@ -199,17 +199,17 @@ exports.updateItem = async (req, res) => {
       return res.status(500).json(utils.buildErrorMessage(500,'Invalid vehicle',1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to update vehicle. Please try again',1001));
   }
 }
 
 
 const updateItem = async (updateQueryCmd, params) => {
-  //console.log((updateQueryCmd);
-  //console.log((params);
+  //console.log(updateQueryCmd);
+  //console.log(params);
   const updateVehicle = await updateQuery(updateQueryCmd, params);
-  //console.log((updateVehicle);
+  //console.log(updateVehicle);
   return updateVehicle;
 }
 
@@ -266,7 +266,7 @@ exports.getItemByExtId = async (req, res) => {
   try {
     const id = req.query.ext_id;
     const data = await fetch(FETCH_VEHICLE_BY_EXT_ID,[id])
-    //console.log((data);
+    //console.log(data);
     let message="Items retrieved successfully";
     if(data.length <=0){
         message="No items found"

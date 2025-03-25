@@ -78,7 +78,7 @@ module.exports = {
           resolve({})
         }
       } catch (err) {
-        //console.log((' err', err)
+        //console.log(' err', err)
       }
     })
   },
@@ -102,43 +102,43 @@ module.exports = {
 
   async fetch(query, param = []) {
     try {
-      // //console.log((query, param);
+      // //console.log(query, param);
       return await pool
         .execute(query, param)
         .then(([rows, fields]) => {
           return rows
         })
         .catch((err) => {
-          //console.log((err);
+          //console.log(err);
           return err
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
     }
   },
 
   async executeQuery(query, param = []) {
     try {
-      //console.log((query, param);
+      //console.log(query, param);
       return await pool
         .execute(query, param)
         .then(([rows, fields]) => {
           return rows
         })
         .catch((err) => {
-          //console.log((err);
+          //console.log(err);
           return err
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
     }
   },
 
   async insertQuery(query,param=[]) {
     try {
-      // //console.log((query,param)
+      // //console.log(query,param)
       return await pool.execute(query, param).then(([rows, fields]) => {
           return rows
         })
@@ -147,7 +147,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
@@ -155,7 +155,7 @@ module.exports = {
   
   async updateQuery(query,param=[]) {
     try {
-      //console.log((query);
+      //console.log(query);
       return await pool
         .execute(query,param)
         .then(([rows, fields]) => {
@@ -166,7 +166,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
@@ -180,7 +180,7 @@ module.exports = {
       arySlotValues = [];
   
       slots.forEach(async slot => {
-        //console.log(("Time", slot);
+        //console.log("Time", slot);
         slot.times.forEach(timeData => {
          arySlotValues.push({
               planningSetupId : planningSetupId,
@@ -193,7 +193,7 @@ module.exports = {
           }
         );
       });
-      //console.log(("arySlotValues", arySlotValues);
+      //console.log("arySlotValues", arySlotValues);
       let mapSlots = arySlotValues.map(slot => [
         slot.planningSetupId,
         slot.day,
@@ -203,12 +203,12 @@ module.exports = {
         slot.planning_date
       ]
       );
-      //console.log(("mapSlots", mapSlots);
+      //console.log("mapSlots", mapSlots);
       await connection.query(INSERT_SLOTS_QUERY, [mapSlots]);
       await connection.commit();
       return planningSetupId;
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       await connection.rollback();
       throw error;
     } finally {
@@ -221,7 +221,7 @@ module.exports = {
     try {
       const [rows] = await connection.execute(GET_ALL_PLANNING_WITH_SLOTS_QUERY);
 
-      //console.log(('Query result:', rows); // Debug: Output raw rows
+      //console.log('Query result:', rows); // Debug: Output raw rows
 
       // Create a map to store planning records and their associated slots
       const planningMap = new Map();
@@ -259,7 +259,7 @@ module.exports = {
 
       // Convert the map to an array of planning records
       const result = Array.from(planningMap.values());
-      //console.log(('Processed result:', result); // Debug: Output processed result
+      //console.log('Processed result:', result); // Debug: Output processed result
 
       return result;
     } catch (error) {
@@ -280,7 +280,7 @@ module.exports = {
     try {
       const [rows] = await connection.execute(GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY, [deliveryBoyId]);
 
-      //console.log(('Query result:', rows); // Debug: Output raw rows
+      //console.log('Query result:', rows); // Debug: Output raw rows
 
       // Create a map to store planning records and their associated slots
       const planningMap = new Map();
@@ -318,7 +318,7 @@ module.exports = {
 
       // Convert the map to an array of planning records
       const result = Array.from(planningMap.values());
-      //console.log(('Processed result:', result); // Debug: Output processed result
+      //console.log('Processed result:', result); // Debug: Output processed result
 
       return result;
     } catch (error) {
@@ -551,10 +551,10 @@ module.exports = {
       // rmt_enterprise_order_line
       if (delivery_type_id === 3 ) { // && req.is_eligible
         if (req.slots && req.slots.length > 0) {
-          //console.log((result.insertId);
+          //console.log(result.insertId);
           if (result) {
               const enterpriseOrderId = result.insertId;
-              //console.log((enterpriseOrderId);
+              //console.log(enterpriseOrderId);
               await connections.query('update rmt_enterprise_order_slot set is_del = 1 WHERE branch_id = ?', [req.branch_id]);
              
               let slotPromises = [];

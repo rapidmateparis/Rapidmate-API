@@ -70,7 +70,7 @@ const getWallentBalance = async (id) => {
       return data[0].balance;
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return 0.0;
 }

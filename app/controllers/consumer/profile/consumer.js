@@ -45,7 +45,7 @@ exports.getItems = async (req, res) => {
 
     return res.status(200).json(utils.buildCreateMessage(200, message, resData));
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500, "Something went wrong", 1001));
   }
 }
@@ -128,7 +128,7 @@ exports.updateItem = async (req, res) => {
         return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later.',1001));
       }
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
     }
   }
@@ -167,7 +167,7 @@ exports.createItem = async (req, res) => {
       
       let autaar='';
       let filename='';
-      // //console.log((req.body)
+      // //console.log(req.body)
       if(req.body.insurance != '') {
         filename ='insurance_'+Date.now()+'.jpg';
         insurance = await utils.uploadFileToS3bucket(req,filename);
@@ -273,7 +273,7 @@ exports.createOrUpdateBillingAddress = async (req, res) => {
       return res.status(200).json(utils.buildResponse(200,requestData));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return res.status(400).json(utils.buildErrorObject(400,"Unable to update billing address",1001));
 }

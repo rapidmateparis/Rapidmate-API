@@ -49,7 +49,7 @@ exports.generateOTP = () => {
 exports.handleError = (res, err) => {
   // Prints error in console
   if (process.env.NODE_ENV === 'development') {
-    // //console.log((" Deveopment Error: ", err)
+    // //console.log(" Deveopment Error: ", err)
   }
   // Sends error to user
   res.status(err?.code || 400).json({
@@ -341,7 +341,7 @@ exports.uploadFileToS3 = async (req, $filename, file = null) => {
     let uploadRes = await s3.upload(params).promise();
     uploadingRes.status = 'success';
     uploadingRes.data = uploadRes;
-    ////console.log(('uploadingRes : ', uploadingRes);
+    ////console.log('uploadingRes : ', uploadingRes);
     return uploadingRes;
   } catch (error) {
     // console.error('An error occurred S3:', error);

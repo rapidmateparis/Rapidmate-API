@@ -21,11 +21,11 @@ exports.getItems = async (req, res) => {
     } else {
       id = plannings[0].id;
       delivery_boy_id = plannings[0].delivery_boy_id;
-      //console.log((id)
+      //console.log(id)
       requestParam = [delivery_boy_id, req.query.year, req.query.month, req.query.week];
-      //console.log((requestParam);
+      //console.log(requestParam);
       planninSetupgData = await fetch(FETCH_DELIVERY_BOY_PLANNING_SETUP_SLOT_QUERY, requestParam);
-      //console.log((planninSetupgData);
+      //console.log(planninSetupgData);
     }
     var responseSetupDataSet = [];
     planningData = plannings[0];
@@ -54,7 +54,7 @@ exports.getItems = async (req, res) => {
           if (!firstData) {
             responseSetupData.slots.push(slotData);
           }
-          //console.log((data);
+          //console.log(data);
           times = [];
           currentDay = data.day;
           planningDate = data.planning_date;
@@ -85,7 +85,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, responseData))
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
   }
 }
@@ -115,7 +115,7 @@ exports.getItemsByfilter = async (req, res) => {
         from=from_date+ ' ' +from_time;
         to=to_date+' '+to_time;
       }
-      //console.log(("deliveryboy id "+delivery_boy_id)
+      //console.log("deliveryboy id "+delivery_boy_id)
       const fetchquery=await buildFetchDeliveryBoyPlanningSetupSlotQueryFilter(from,to,day)
       planninSetupgData = await fetch(fetchquery,[delivery_boy_id]);
     }
@@ -173,7 +173,7 @@ exports.getItemsByfilter = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, responseData))
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong', 1001));
   }
 }
@@ -219,29 +219,29 @@ const planningSetupConfig = async (req, res) => {
     const [dbDataSet] = await fetch(GET_PLANNING_SETUP_ID_YMW, [planningID, setup.year, setup.month, setup.week]);
     dbPlanSetupId = (dbDataSet) ? dbDataSet.id : undefined;
   }
-  //console.log((dbPlanSetupId);
+  //console.log(dbPlanSetupId);
   if(dbPlanSetupId){
     const deletedSetupSlotItem = await deleteSetupSlotItem(dbPlanSetupId);
     const deletedSetupItem = await deleteSetupItem(dbPlanSetupId);
   }
   
   if(parseInt(is_24x7) == 0){
-    //console.log(("Enter");
+    //console.log("Enter");
     var resStatus = false;
     if (planningID) {
-      //console.log(("Block 0", setup);
+      //console.log("Block 0", setup);
       if (setup) {
           dbSetupData = await createSetup(planningID, setup);
-          //console.log((dbSetupData);
+          //console.log(dbSetupData);
           planningSetupID = dbSetupData.insertId;
           slotsData = [];
-          //console.log(("Block 2", is_apply_for_all_days)
+          //console.log("Block 2", is_apply_for_all_days)
           if(parseInt(is_apply_for_all_days) == 0){
             slotsData = setup.slots;
           }else{
             var newDayData = setup.slots[0];
             var totalDays = getTotalDays(setup.month);
-            //console.log(("Total Days", totalDays);
+            //console.log("Total Days", totalDays);
             if(totalDays){
               for (var day = 1; day <= totalDays; day++) {
                 slotsData.push({ day: day, times: newDayData.times, selected: true , planning_date : newDayData.planning_date});
@@ -273,14 +273,14 @@ function getTotalDays(month) {
   var lessDays = currentWeekDay == 0 ? 6 : currentWeekDay;
   var startDate = new Date(new Date(dt).setDate(dt.getDate() - lessDays));
   var stopDate = new Date(new Date(startDate).setDate(startDate.getDate() + 6));
-  //console.log(("startDate", startDate);
-  //console.log(("stopDate", stopDate);
+  //console.log("startDate", startDate);
+  //console.log("stopDate", stopDate);
   var dateArray = new Array();
   var currentDate = startDate;
   var idx =0;
   while (currentDate <= stopDate) {
     monthCheck = moment(currentDate).format("M");
-    //console.log(("monthCheck", monthCheck);
+    //console.log("monthCheck", monthCheck);
     dateArray.push(new Date (currentDate));
     currentDate = currentDate.addDays(1);
     if(parseInt(month) == parseInt(monthCheck)){
@@ -291,15 +291,15 @@ function getTotalDays(month) {
 }
 
 const createItem = async (is_24x7, is_apply_for_all_days, delivery_boy_id) => {
-  //console.log((delivery_boy_id);
+  //console.log(delivery_boy_id);
   const registerRes = await insertQuery(INSERT_PLANNING_QUERY, [is_24x7, is_apply_for_all_days, delivery_boy_id]);
-  //console.log((registerRes);
+  //console.log(registerRes);
   return registerRes;
 }
 
 const createSetup = async (planningId, setupData) => {
   const resCreateSetup = await insertQuery(INSERT_PLANNING_SETUP_QUERY, [planningId, setupData.year, setupData.month, setupData.week]);
-  //console.log((resCreateSetup);
+  //console.log(resCreateSetup);
   return resCreateSetup;
 }
 

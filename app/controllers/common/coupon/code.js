@@ -83,7 +83,7 @@ exports.GetPromoDetails = async (req, res) => {
       }
       const {promo_code,is_percent,percentage,amount,is_used,valid_from,valid_to}=data
       const currentDate = new Date();
-      //console.log((currentDate)
+      //console.log(currentDate)
       /*if(is_used){
         message="Coupon already used."
         return res.status(400).json(utils.buildErrorObject(400,message,1001));
@@ -110,7 +110,7 @@ exports.GetPromoDetails = async (req, res) => {
       }
       return res.status(200).json(utils.buildCreateMessage(200,message,[response]))
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to fetch promo code. Please try again later.',1001));
     }
 }

@@ -38,7 +38,7 @@ exports.getVehicleTypes = async (req,res) =>{
   
       return res.status(200).json(utils.buildCreateMessage(200, message, resData));
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return res.status(500).json(utils.buildErrorMessage(500, "Something went wrong", 1001));
     }
 }
@@ -325,7 +325,7 @@ function priceCalculation(vehicleTypedata, distance) {
         } else {
           vehicleType.total_price = vehicleType.truck_price;
         }
-        //console.log((vehicleType);
+        //console.log(vehicleType);
         responseData.push({
           vehicle_type_id: vehicleType.vehicle_type_id,
           vehicle_type: vehicleType.vehicle_type,
@@ -341,7 +341,7 @@ exports.taxList = async (req, res) => {
   try {
     responseData = await fetch("select `value` as tax_value from rmt_config where group_name = ? and `key` = ?", ["TAX", "TAX"])
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return res.status(200).json(utils.buildResponse(200, responseData))
 }

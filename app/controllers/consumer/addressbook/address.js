@@ -35,7 +35,7 @@ exports.createAddressBook = async (req, res) => {
 
 const createNewAddress = async (req,consumer_ext_id) => {
   const executeCreateNewAddress = await insertQuery(INSERT_CONSUMER_ADDRESS_BOOK_QUERY,[consumer_ext_id, req.first_name, req.last_name, req.address, req.email, req.phone, req.company_name, req.comments]);
-  //console.log((executeCreateNewAddress);
+  //console.log(executeCreateNewAddress);
   return executeCreateNewAddress;
 }
 
@@ -82,7 +82,7 @@ exports.updateAddressBook = async (req, res) => {
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later.',1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later.',1001));
   }
 }
@@ -101,7 +101,7 @@ exports.deleteAddressBook = async (req, res) => {
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete address. Please try again later.',1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete address. Please try again later.',1001));
   }
 }

@@ -98,7 +98,7 @@ const createItem = async (req) => {
     const consumer_id =await utils.getValueById("id", "rmt_consumer", 'ext_id',consumer_ext);
     const order_id =await utils.getValueById("id", "rmt_order", 'order_number',order_number);
 
-    // //console.log(("order "+ order_id+" " +consumer_id)
+    // //console.log("order "+ order_id+" " +consumer_id)
     if (!order_id || !consumer_id) {
       return false;
     }
@@ -109,7 +109,7 @@ const createItem = async (req) => {
       comment
     }
 
-    // //console.log((insertData)
+    // //console.log(insertData)
     const rating = new Rating(insertData);
     const savedRating = await rating.save();
     if(!savedRating){
