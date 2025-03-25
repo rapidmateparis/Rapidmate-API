@@ -10,7 +10,7 @@ if(driverId){
     socket.emit('join', driverId);
     // Listen for new requests
     socket.on('newRequest', (request) => {
-    //console.log(('New request received:', request);
+    //console.log('New request received:', request);
     // Simulate driver decision (accept or reject)
     setTimeout(() => {
         // Simulate rejection
@@ -27,7 +27,7 @@ if(driverId){
     })
     .then(response => response.json())
     .then(data => {
-        //console.log((data.message);
+        //console.log(data.message);
     })
     .catch(error => {
         console.error('Error:', error);
@@ -36,7 +36,7 @@ if(driverId){
 
     // Listen for request acceptance
     socket.on('requestAccepted', (request) => {
-    //console.log(('Request accepted:', request);
+    //console.log('Request accepted:', request);
     });
 }
 
@@ -58,4 +58,4 @@ if(driverId){
 
 // const distance = haversineDistance(pickupLocation[1], pickupLocation[0], driverLocation[1], driverLocation[0]);
 
-// //console.log((`Distance: ${distance} km`);
+// //console.log(`Distance: ${distance} km`);

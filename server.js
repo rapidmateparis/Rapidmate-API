@@ -64,7 +64,7 @@ app.use(
 mongoose.connect('mongodb://localhost:27017/rapidmatemdb', { useNewUrlParser: true, useUnifiedTopology: true });
 TZ="UTC";
 //TZ = "Europe/Paris";
-////console.log(("Timezone", new Date().toString());
+////console.log("Timezone", new Date().toString());
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -123,11 +123,11 @@ app.set('view engine', 'html');
 app.use('/api', require('./app/routes'));
 
 io.on('connection', (socket) => {
-  //console.log(('A user connected', socket.id);
+  //console.log('A user connected', socket.id);
 
   socket.on('join', (driverId) => {
     socket.join(driverId);
-    //console.log((`Driver ${driverId} joined room ${driverId}`);
+    //console.log(`Driver ${driverId} joined room ${driverId}`);
   });
 
   socket.on('update-latlng',async (data)=>{
@@ -153,7 +153,7 @@ io.on('connection', (socket) => {
     io.emit('send-location',{order_number,latitude,longitute})
   })
   socket.on('disconnect', () => {
-    //console.log(('User disconnected', socket.id);
+    //console.log('User disconnected', socket.id);
   });
 });
 // set cron for automatic delete notification at 23:59 pm

@@ -207,7 +207,7 @@ exports.searchByFilter = async (req, res) => {
    // }
     
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,error.message, 1001));
   }
 };
@@ -219,7 +219,7 @@ exports.searchByFilter = async (req, res) => {
 exports.getItemByOrderNumber = async (req, res) => {
     try {
       //const isAuththorized = await AuthController.isAuthorized(req.headers.authorization);
-      ////console.log((isAuththorized)
+      ////console.log(isAuththorized)
       //if(isAuththorized.status==200){
         const id = req.params.id;
         const data = await fetch(FETCH_ORDER_BY_ORDER_NUMBER,[id]);
@@ -319,7 +319,7 @@ exports.updateOrderStatus = async (req, res) => {
       delivery_boy_order_title = "Going drop location";
       deliveredOTPNumber = Math.floor(1000 + Math.random() * 8999);
       deliveredOtp = ", delivered_otp = '" + deliveredOTPNumber + "'";
-      //console.log(("deliveredOTPNumber = " + deliveredOTPNumber);
+      //console.log("deliveredOTPNumber = " + deliveredOTPNumber);
       isDeliveredOtpGenerated = true;
     } else if (requestData.status == "Mark as delivered" || requestData.status == "Mask as completed") {
       status = "COMPLETED";
@@ -349,7 +349,7 @@ exports.updateOrderStatus = async (req, res) => {
         "', updated_on = now(), updated_by = '" + status + "' where order_number = ?",
       [requestData.order_number]
     );
-    //console.log((updateData);
+    //console.log(updateData);
     if (updateData) {
       if (isDeliveredOtpGenerated) {
         var notifiationRequest = {
@@ -395,7 +395,7 @@ exports.updateOrderStatus = async (req, res) => {
         );
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500, "Unable to order status", 1001));
@@ -413,7 +413,7 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
         const getId = await utils.isIDGood(id, "id", "rmt_enterprise_order");
         if (getId) {
           const updatedItem = await updateAssigndeliveryboy(id,delivery_boy_id);
-          //console.log((updatedItem)
+          //console.log(updatedItem)
           if (updatedItem.affectedRows >0) {
             return res.status(200).json(utils.buildUpdatemessage(200, "Record Updated Successfully"));
           } else {
@@ -475,7 +475,7 @@ exports.createEnterpriseOrder = async (req, res) => {
         .json(utils.buildErrorObject(500, "Unable to create an order", 1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500,'Unable to create an order', 1001));
@@ -498,7 +498,7 @@ const getVehicleTypeInfo = async (vehicle_type_id) => {
     const data = await fetch("select * from rmt_vehicle_type where id =?", [vehicle_type_id]);
     return data[0];
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to fetch vehicle info.',1001));
   }
 };
@@ -526,7 +526,7 @@ exports.createShiftItem = async (req, res) => {
         .json(utils.buildErrorObject(500, "Something went wrong", 1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500,'Unable to create shift', 1001));
@@ -572,7 +572,7 @@ exports.updateOrderlineStatus = async (req, res) => {
 
 const deleteItem = async (cancelParams) => {
   const deleteRes = await updateQuery(DELETE_ORDER_QUERY, cancelParams);
-  //console.log((deleteRes);
+  //console.log(deleteRes);
   return deleteRes;
 };
 
@@ -628,7 +628,7 @@ exports.cancelOrder = async (req, res) => {
       .status(400)
       .json(utils.buildErrorObject(400, "Invalid Order number", 1001));
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(
@@ -648,7 +648,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
   try {
     returnData = req.query.show ? true : false;
     const order_number = req.params.ordernumber;
-    const orderAllocationQuery = "SELECT o.*,dt.delivery_type,l.location_name AS pickup_location_name, l.address AS pickup_location_address, l.city AS pickup_location_city, l.state AS pickup_location_state, l.country AS pickup_location_country, l.postal_code AS pickup_location_postal_code, l.latitude, l.longitude, dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude, CONCAT(c.first_name, ' ', c.last_name) AS consumer_name, c.email AS consumer_email, c.phone AS consumer_mobile,c.profile_pic as consumer_pic, c.ext_id AS consumer_ext,s.service_type as service_name,s.hour_amount,b.branch_name,b.address as b_address,b.city as b_city,b.state as b_state,b.country as b_country,b.postal_code as b_postal_code,b.latitude as b_latitude,b.longitude as b_longitude FROM rmt_enterprise_order AS o LEFT JOIN rmt_enterprise_service_type AS s ON o.service_type_id = s.id LEFT JOIN rmt_enterprise_delivery_type as dt ON  o.delivery_type_id=dt.id LEFT JOIN rmt_location AS l ON o.pickup_location = l.id LEFT JOIN rmt_location AS dl ON o.dropoff_location = dl.id LEFT JOIN rmt_enterprise AS c ON o.enterprise_id = c.id LEFT JOIN rmt_enterprise_branch as b ON o.branch_id=b.id WHERE o.is_del = 0 AND o.order_number = ?";
+    const orderAllocationQuery = "select * from vw_enterprise_view_order WHERE order_number = ?";
     const dbData = await fetch(orderAllocationQuery, [order_number]);
     if (dbData.length <= 0) {
       if (returnData) {
@@ -698,11 +698,11 @@ exports.viewOrderByOrderNumber = async (req, res) => {
 const getOrderInfo = async (orderNumber) => {
   try {
     const data = await fetch("select * from rmt_enterprise_order where order_number =? and is_del=0", [orderNumber]);
-    //console.log((data)
+    //console.log(data)
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
   } catch (error) {
-    //console.log((error)
+    //console.log(error)
     return {};
   }
 };
@@ -710,11 +710,11 @@ const getOrderInfo = async (orderNumber) => {
 const getOrderLineInfo = async (orderNumber) => {
   try {
     const data = await fetch("select l.*,dl.location_name AS dropoff_location_name, dl.address AS dropoff_location_address, dl.city AS dropoff_location_city, dl.state AS dropoff_location_state, dl.country AS dropoff_location_country, dl.postal_code AS dropoff_location_postal_code, dl.latitude AS dlatitude, dl.longitude AS dlongitude from rmt_enterprise_order_line as l LEFT JOIN rmt_location as dl ON l.dropoff_location=dl.id where l.order_number =? and l.is_del=0", [orderNumber]);
-    //console.log((data)
+    //console.log(data)
     const filterdata=await transformKeysToLowercase(data);
     return filterdata;
   } catch (error) {
-    //console.log((error)
+    //console.log(error)
     return {};
   }
 };
@@ -723,7 +723,7 @@ const getVehicleInfo = async (delivery_boy_id) => {
   try {
     const data = await fetch("select id,delivery_boy_id,vehicle_type_id,plat_no,modal,make,variant,reg_doc,driving_license,insurance from rmt_vehicle where delivery_boy_id =? and is_del=0", [delivery_boy_id]);
     const filterdata=await transformKeysToLowercase(data);
-    //console.log((filterdata)
+    //console.log(filterdata)
     return filterdata[0];
   } catch (error) {
     return {};
@@ -735,7 +735,7 @@ const getDeliveryBoyInfo = async (delivery_boy_id) => {
   try {
     const data = await fetch("select id,ext_id,username,first_name,last_name,email,phone,role_id,city_id,state_id,country_id,address,vehicle_id,company_name, work_type_id,profile_pic,is_active,is_availability,latitude,longitude,is_work_type,language_id from rmt_delivery_boy where id =? and is_del=0", [delivery_boy_id]);
     const filterdata=await transformKeysToLowercase(data);
-    //console.log((filterdata)
+    //console.log(filterdata)
     return filterdata[0];
   } catch (error) {
     return {};
@@ -760,7 +760,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
     const order_number = req.query.o;
     var orderInfo = getOrderTypeInfo(order_number);
     const order = await utils.getValuesById("id, is_del, order_date, order_number, order_status,vehicle_type_id, delivery_boy_id, vehicle_type_id", "rmt_enterprise_order", "order_number", order_number);
-    //console.log(("Order - ALlocation Delivery boy allocateDeliveryBoyByOrderNumber : ", order);
+    //console.log("Order - ALlocation Delivery boy allocateDeliveryBoyByOrderNumber : ", order);
     if (order) {
       if(order.order_status ==='ORDER_PLACED' || order.order_status ==='ORDER_ACCEPTED' || order.order_status ==='ORDER_ALLOCATED'){
         if(order.order_status ==='ORDER_PLACED'){
@@ -778,13 +778,13 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
             const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, [order_number, delivery_boy_id]);
             if (allocateDeliveryBoyResult.insertId) {
               const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
-              //console.log((setDeliveryBoy);
+              //console.log(setDeliveryBoy);
               if(orderInfo.is_multi_order){
                 const updateOrderLineDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_MULTI_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
-                //console.log((updateOrderLineDeliveryBoy);
+                //console.log(updateOrderLineDeliveryBoy);
               }
               const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_id]);
-              //console.log((updateAllocate);
+              //console.log(updateAllocate);
               responseData.order = await getOrderInfo(order_number);
               responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.delivery_boy_id);
               var consumer_ext_id = responseData.order.ext_id;
@@ -893,7 +893,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
       return res.status(400).json(utils.buildErrorObject(400, "Invalid Order number", 1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(utils.buildErrorObject(500,"Unable to allocate driver your order.", 1001));
@@ -1047,7 +1047,7 @@ const convert = async (req,orders) =>{
        }
      });
      } catch (error) {
-       //console.log((error);
+       //console.log(error);
      }
      return null;
 }
@@ -1079,9 +1079,9 @@ exports.billReportDownload = async (req,res)=>{
       WHERE eo.order_number=?
       ORDER BY eo.order_date DESC;
     `;
-    //console.log((orderNumbers)
+    //console.log(orderNumbers)
     const orders = await fetch(query, [orderNumbers]);
-    //console.log(("order",orders)
+    //console.log("order",orders)
     if (orders.length === 0) {
       return res.status(400).json(utils.buildErrorObject(400, "No orders found for the given order numbers.", 1001));
     }

@@ -17,7 +17,7 @@ exports.getById = async (req, res) => {
     }
     return res.status(400).json(utils.buildErrorObject(400,message,1001));
   } catch (error) {
-    //console.log((error)
+    //console.log(error)
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to fetch addresses. Please try again later.',1001));
   }
 }
@@ -41,7 +41,7 @@ exports.createAddressBook = async (req, res) => {
 
 const createNewAddress = async (req, deliveryBoyId) => {
   const executeCreateNewAddress = await insertQuery(INSERT_DELIVERY_BOY_ADDRESS_BOOK_QUERY,[deliveryBoyId, req.first_name, req.last_name, req.address, req.email, req.phone, req.company_name, req.comments]);
-  //console.log((executeCreateNewAddress);
+  //console.log(executeCreateNewAddress);
   return executeCreateNewAddress;
 }
 
@@ -95,7 +95,7 @@ exports.updateAddressBook = async (req, res) => {
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later.',1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later.',1001));
   }
 }
@@ -112,14 +112,14 @@ exports.deleteAddressBook = async (req, res) => {
       return res.status(499).json(utils.buildErrorObject(400,'Invalid request',1001));
     }
     const executedResult = await executeQuery(DELETE_DELIVERY_BOY_ADDRESS_BOOK_QUERY, [req.params.id, deliveryBoy.id])
-    //console.log((executedResult);
+    //console.log(executedResult);
     if(parseInt(executedResult.insertId) > 0){
       return res.status(200).json(utils.buildUpdatemessage(200,'Record deleted Successfully'))
     }else{
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete address. Please try again later.',1001));
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete address. Please try again later.',1001));
   }
 }
