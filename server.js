@@ -36,7 +36,7 @@ const limiter = rateLimit({
   headers: true, // Send rate limit info in headers
 });
 
-app.use(limiter); 
+//app.use(limiter); 
 
 const allowedOrigins = [
   'http://localhost:5173', 
