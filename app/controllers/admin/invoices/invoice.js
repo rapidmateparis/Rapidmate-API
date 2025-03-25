@@ -103,7 +103,7 @@ const options = {
       }
       
     } catch (err) {
-      //console.log((err);
+      console.log(err);
       return res.status(500).json(utils.buildErrorMessage(500, "Unable to download invoice", 1001));
     }
   };
