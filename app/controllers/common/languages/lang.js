@@ -255,7 +255,7 @@ exports.getByenterpriseExt = async (req, res) => {
     try {
        const {id}=req.params
       const data = await fetch(FETCH_LANG_BYENTERPRISEEXT,[id])
-      //console.log((data)
+      //console.log(data)
       let message="Languages retrieved successfully";
       if(data.length <=0){
           message="No languages found"

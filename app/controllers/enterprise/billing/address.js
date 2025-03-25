@@ -38,9 +38,9 @@ exports.updateBillingAddressDetails = async (req, res) => {
 
 const createBillingAddress = async (req,enterprise_ext_id) => {
   let requestParams = [enterprise_ext_id, req.first_name, req.last_name, req.address, req.country_id, req.state_id, req.city_id, req.postal_code, req.dni_number];
-  //console.log((requestParams);
+  //console.log(requestParams);
   const executeCreateNewAddress = await insertQuery(INSERT_ENTERPRISE_BILLING_ADDRESS_BOOK_QUERY, requestParams);
-  //console.log((executeCreateNewAddress);
+  //console.log(executeCreateNewAddress);
   return executeCreateNewAddress;
 }
 
@@ -84,10 +84,10 @@ const updateBillingAddress = async (requestData) => {
     queryConditionParam.push(requestData.id);
     var updateQueryStr = "update rmt_enterprise_billing_address set is_del = 0 " + queryCondition + " where id = ?";
     const executeResult = await udpateAddressStatement(updateQueryStr, queryConditionParam);
-    //console.log((executeResult);
+    //console.log(executeResult);
     return executeResult;
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return null;
 }

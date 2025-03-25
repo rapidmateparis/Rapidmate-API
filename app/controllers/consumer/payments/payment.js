@@ -71,7 +71,7 @@ exports.getItemByuser = async (req, res) => {
  */
 const updateItem = async (req) => {
     const execuateUpdatePayment = await updateQuery(UPDATE_PAYMENT_QUERY,[req.status, req.ref_id]);
-    //console.log((execuateUpdatePayment);
+    //console.log(execuateUpdatePayment);
     return execuateUpdatePayment;
 }
 
@@ -79,7 +79,7 @@ exports.updateItem = async (req, res) => {
   try {
     const paymentRequest = req.body;
     const isValidateData = await utils.isIDGood(paymentRequest.ref_id,'ref_id','rmt_payment')
-    //console.log((isValidateData);
+    //console.log(isValidateData);
     if(isValidateData){
       const updatedPayment = await updateItem(paymentRequest);
       if (updatedPayment.affectedRows >0) {
@@ -102,7 +102,7 @@ exports.updateItem = async (req, res) => {
  * @param {Object} res - response object
  */
 const updateItemBystatus = async (id,status) => {
-    //console.log((id)
+    //console.log(id)
     const registerRes = await updateQuery(UPDATE_PAYMENT_BY_STATUS,[status,id]);
     return registerRes;
 }
@@ -135,7 +135,7 @@ const createItem = async (req) => {
     const paymentRefNumber = uuidv4();
     var order_type = req.order_type || 1;
     const registerRes = await insertQuery(((utils.isEOrder(req.order_number))? INSERT_PAYMENT_EORDER_QUERY: INSERT_PAYMENT_ORDER_QUERY ),[req.amount, req.order_number, paymentRefNumber, order_type]);
-    //console.log((registerRes);
+    //console.log(registerRes);
     return registerRes;
 }
 exports.createPayment = async (req, res) => {

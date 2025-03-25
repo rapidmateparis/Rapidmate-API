@@ -97,7 +97,7 @@ exports.updateItem = async (req, res) => {
  */
 const createItem = async (req,consumer_ext_id) => {
     const payMethodResult = await insertQuery(INSERT_PAYMENTCMETHOD,[consumer_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
-    //console.log((payMethodResult);
+    //console.log(payMethodResult);
     return payMethodResult;
 }
 
@@ -105,7 +105,7 @@ exports.createItem = async (req, res) => {
   try {
     const consumer_ext_id=req.query.ext_id
     const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_consumer_payment_method','card_number')
-    //console.log((doesNameExists);
+    //console.log(doesNameExists);
     if (!doesNameExists) {
       const item = await createItem(req.body,consumer_ext_id)
       if(item.insertId){
