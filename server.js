@@ -194,4 +194,14 @@ server.listen(app.get('port'), () => {
   logger.warn({message : "Server is running on port", port : app.get('port')})
 });
 
+app.use((err, req, res, next) => {
+  console.error(err); // Log the original error
+
+  // Send a custom error response
+  res.status(500).json({
+    message: 'A network request failed. Please try again later.',
+    error: err.message, // Include the original error message for debugging purposes
+  });
+});
+
 module.exports = app;
