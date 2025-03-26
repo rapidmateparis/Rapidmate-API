@@ -278,7 +278,7 @@ exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER = `UPDATE rmt_order SET order_status =
 //============================= Driver allocate enterprise=================
 exports.INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE = `INSERT INTO rmt_enterprise_order_allocation(order_id, delivery_boy_id) values((select id from rmt_enterprise_order where order_number = ?), (select id from rmt_delivery_boy where is_availability = 1 and id = ?))`;
 exports.UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS_ENTERPRISE = `UPDATE rmt_delivery_boy SET is_availability = 0 WHERE ext_id=?`;
-exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE = "UPDATE rmt_enterprise_order SET order_status = 'ORDER_ALLOCATED',is_delivery_boy_allocated = 1, delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and id = ?) WHERE order_number=?";
+exports.UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE = "UPDATE rmt_enterprise_order SET order_status = 'ORDER_ALLOCATED',is_delivery_boy_allocated = 1, delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and id = ?), allocated_on=now() WHERE order_number=?";
 exports.UPDATE_SET_DELIVERY_BOY_FOR_MULTI_ORDER_ENTERPRISE = "UPDATE rmt_enterprise_order_line SET order_status = 'ORDER_ALLOCATED',is_delivery_boy_allocated = 1, delivery_boy_id = (select id from rmt_delivery_boy where is_availability = 1 and id = ?) WHERE order_number=?";
 exports.INSERT_DELIVERY_BOY_ENTERPRISE_CONNECTIONS = `INSERT INTO rmt_delivery_boy_enterprise_connections(enterprise_id, delivery_boy_id) values((select id from rmt_enterprise where ext_id = ?), (select id from rmt_delivery_boy where ext_id = ?))`;
 
