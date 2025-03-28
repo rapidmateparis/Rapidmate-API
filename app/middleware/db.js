@@ -568,8 +568,8 @@ module.exports = {
                     req.amount = Math.abs(req.amount);
                     slot.total_hours = Math.abs(slot.total_hours);
                     var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
-                    let commission_percentage = parseFloat(vehicleData.commission_percentage);
-                    let commission_amount = total_amount_calc * (parseFloat(vehicleData.commission_percentage) / 100);
+                    let commission_percentage = parseFloat(vehicleData.enterprise_commission_percentage);
+                    let commission_amount = total_amount_calc * (parseFloat(vehicleData.enterprise_commission_percentage) / 100);
                     let delivery_boy_amount = total_amount_calc - parseFloat(requestData.commission_amount);
                     connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount, slot.total_hours, slot.total_days, total_amount_calc, delivery_boy_amount, commission_percentage, commission_amount])
                   }
@@ -581,8 +581,8 @@ module.exports = {
                       req.amount = Math.abs(req.amount);
                       slot.total_hours = Math.abs(slot.total_hours);
                       var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
-                      let commission_percentage = parseFloat(vehicleData.commission_percentage);
-                      let commission_amount = total_amount_calc * (parseFloat(vehicleData.commission_percentage) / 100);
+                      let commission_percentage = parseFloat(vehicleData.enterprise_commission_percentage);
+                      let commission_amount = total_amount_calc * (parseFloat(vehicleData.enterprise_commission_percentage) / 100);
                       let delivery_boy_amount = total_amount_calc - parseFloat(requestData.commission_amount);
                       connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,delivery_boy_amount, commission_percentage, commission_amount])
                   }
