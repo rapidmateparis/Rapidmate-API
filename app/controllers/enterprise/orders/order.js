@@ -444,6 +444,7 @@ exports.createEnterpriseOrder = async (req, res) => {
     }
     
     const item = await createEOrders(requestData, enterprise_ext_id);
+    console.log(item);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
       let titleText =(requestData.delivery_type_id==1)?'Your order has been created.':
