@@ -430,15 +430,20 @@ exports.createEnterpriseOrder = async (req, res) => {
   try {
     const enterprise_ext_id=req.query.ext_id
     const requestData = req.body;
+    console.log(requestData);
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
+    console.log(vehicleType);
     if(vehicleType){
+      requestData.vehicleType = vehicleType;
       var total_amount = requestData.total_amount;
       requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
       requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
       requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+    }else{
+      return res.status(500).json(utils.buildErrorObject(500, "No services for this vehicle", 1001));
     }
     
-    const item = await createEOrders(requestData,enterprise_ext_id);
+    const item = await createEOrders(requestData, enterprise_ext_id);
     if (item.id) {
       const currData=await fetch(FETCH_ORDER_BY_ID,[item.id])
       let titleText =(requestData.delivery_type_id==1)?'Your order has been created.':
@@ -482,12 +487,12 @@ exports.createEnterpriseOrder = async (req, res) => {
   }
 };
 
-const createEOrders = async (req,enterprise_ext_id) => {
+const createEOrders = async (req, enterprise_ext_id) => {
   var  executeResult = {};
   switch(req.delivery_type_id){
     case 1 :  executeResult = await persistEnterpriseOrder(req,enterprise_ext_id);  break;
     case 2 :  executeResult = await persistMultipleDeliveries(req,enterprise_ext_id);  break;
-    case 3 :  executeResult = await persistShiftOrder(req,enterprise_ext_id);  break;
+    case 3 :  executeResult = await persistShiftOrder(req, enterprise_ext_id);  break;
   }
   return executeResult;
 };
