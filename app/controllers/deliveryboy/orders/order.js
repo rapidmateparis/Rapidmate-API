@@ -994,7 +994,7 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber = async () => {
     logger.warn({message : "Unallocated Orders : ", data : responseData});
     if (responseData) {
         responseData.forEach(order => {
-          logger.warn({message : "Allocated Started on " +  new Date(), order : order_number});
+          logger.warn({message : "Allocated Started on " +  new Date(), order : order.order_number});
           scheduleAllocateDeliveryBoyByOrderNumber(order.order_number);
         })
     }

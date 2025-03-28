@@ -516,7 +516,7 @@ module.exports = {
     }
   },
 
-  async persistShiftOrder(req,enterprise_ext_id) {
+  async persistShiftOrder(req, enterprise_ext_id) {
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
@@ -548,6 +548,7 @@ module.exports = {
           enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount, total_hours, total_days, total_amount, total_slots
         ]
       );
+      var vehicleData = req.vehicleType;
       // rmt_enterprise_order_line
       if (delivery_type_id === 3 ) { // && req.is_eligible
         if (req.slots && req.slots.length > 0) {
@@ -564,16 +565,26 @@ module.exports = {
                 // Insert slots for all days
                 slotPromises = days.map(day =>
                   {
+                    req.amount = Math.abs(req.amount);
+                    slot.total_hours = Math.abs(slot.total_hours);
                     var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
-                    connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
+                    let commission_percentage = parseFloat(vehicleData.commission_percentage);
+                    let commission_amount = total_amount_calc * (parseFloat(vehicleData.commission_percentage) / 100);
+                    let delivery_boy_amount = total_amount_calc - parseFloat(requestData.commission_amount);
+                    connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount, slot.total_hours, slot.total_days, total_amount_calc, delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
               } else if (slots && slots.length > 0) {
                 // Insert provided slots
                 slotPromises = slots.map(slot =>
                   {
+                      req.amount = Math.abs(req.amount);
+                      slot.total_hours = Math.abs(slot.total_hours);
                       var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
-                      connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
+                      let commission_percentage = parseFloat(vehicleData.commission_percentage);
+                      let commission_amount = total_amount_calc * (parseFloat(vehicleData.commission_percentage) / 100);
+                      let delivery_boy_amount = total_amount_calc - parseFloat(requestData.commission_amount);
+                      connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
               } else {
