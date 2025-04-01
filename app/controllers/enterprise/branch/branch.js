@@ -90,12 +90,13 @@ const createEnterpriseBranch = async (req, enterprise_id, location_id) => {
 exports.createItem = async (req, res) => {
   try {
     const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
+    const reqData = req.body;
     if (enterprise_id) {
       const locationQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES (now(),?,?,?,?,?,?)`;
-      var params = [req.address,req.city, req.state,req.country,req.latitude,req.longitude];
+      var params = [reqData.address,reqData.city, reqData.state,rereqDataq.country,reqData.latitude,reqData.longitude];
       const locationResponse = await insertQuery(locationQuery, params);
       if(locationResponse){
-        const item = await createEnterpriseBranch(req.body, enterprise_id, locationResponse.insertId);
+        const item = await createEnterpriseBranch(reqData, enterprise_id, locationResponse.insertId);
         if(item.insertId){
           const currentdata=await fetch(FETCH_BRANCH_BY_ID,[item.insertId])
           return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
