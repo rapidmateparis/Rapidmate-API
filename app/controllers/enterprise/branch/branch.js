@@ -57,11 +57,15 @@ const updateItem = async (id,req,enterprise_id) => {
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const getId = await utils.isIDGood(id,'id','rmt_enterprise_branch')
+    const branchLocationId = await utils.isIDGood(id,'location_id','rmt_enterprise_branch')
     const enterprise_id=await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
-    if(getId){
-      const updatedItem = await updateItem(id, req.body,enterprise_id);
+    const reqData = req.body;
+    if(branchLocationId){
+      const updatedItem = await updateItem(id, reqData, enterprise_id);
       if (updatedItem.affectedRows >0) {
+          const registerQuery = `UPDATE rmt_location SET LOCATION_TYPE='${reqData.location_type}',LOCATION_NAME='${reqData.location_name}',ADDRESS='${reqData.address}',CITY='${reqData.city}',STATE='${reqData.state}',COUNTRY='${reqData.country}',LATITUDE='${reqData.latitude}',LONGITUDE='${reqData.longitude}',IS_DEL='${reqData.is_del}' WHERE ID ='${branchLocationId}'`;
+          const registerRes = await runQuery(registerQuery);
+          console.log(registerRes);
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
         return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
@@ -78,27 +82,30 @@ exports.updateItem = async (req, res) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const createEnterpriseBranch = async (req, enterprise_id) => {
-    const params = [req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id];
-    //console.log(params);
-    const executeBranch = await insertQuery(INSERT_BRANCH_QUERY,[req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id]);
-    //console.log(executeBranch);
+const createEnterpriseBranch = async (req, enterprise_id, location_id) => {
+    const executeBranch = await insertQuery(INSERT_BRANCH_QUERY,[req.branch_name,req.address,req.city,req.state,req.postal_code,req.country,req.latitude,req.longitude,enterprise_id, location_id]);
     return executeBranch;
 }
 
 exports.createItem = async (req, res) => {
   try {
     const enterprise_id =await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
-    //console.log(enterprise_id);
     if (enterprise_id) {
-      //console.log(enterprise_id);
-      const item = await createEnterpriseBranch(req.body, enterprise_id);
-      if(item.insertId){
-        const currentdata=await fetch(FETCH_BRANCH_BY_ID,[item.insertId])
-        return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
-      }else{
+      const locationQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES (now(),?,?,?,?,?,?)`;
+      var params = [req.address,req.city, req.state,req.country,req.latitude,req.longitude];
+      const locationResponse = await insertQuery(locationQuery, params);
+      if(locationResponse){
+        const item = await createEnterpriseBranch(req.body, enterprise_id, locationResponse.insertId);
+        if(item.insertId){
+          const currentdata=await fetch(FETCH_BRANCH_BY_ID,[item.insertId])
+          return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
+        }else{
+          return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
+        }
+      } else{
         return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
+      
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Unable to create  exists',1001));
     }
