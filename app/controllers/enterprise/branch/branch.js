@@ -93,7 +93,7 @@ exports.createItem = async (req, res) => {
     const reqData = req.body;
     if (enterprise_id) {
       const locationQuery = `INSERT INTO rmt_location (LOCATION_NAME,ADDRESS,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE) VALUES (now(),?,?,?,?,?,?)`;
-      var params = [reqData.address,reqData.city, reqData.state,rereqDataq.country,reqData.latitude,reqData.longitude];
+      var params = [reqData.address,reqData.city, reqData.state,reqData.country,reqData.latitude,reqData.longitude];
       const locationResponse = await insertQuery(locationQuery, params);
       if(locationResponse){
         const item = await createEnterpriseBranch(reqData, enterprise_id, locationResponse.insertId);

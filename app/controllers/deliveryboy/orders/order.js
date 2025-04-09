@@ -2421,10 +2421,10 @@ const getScheduleUnallocateOrderList = async () => {
 
 const updateAlloctatedButNotAcceptedOrderList = async () => {
   try {
-    await updateQuery("update rmt_order set delivery_boy_id =null, order_status ='ORDER_PLACED' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
-    await updateQuery("update rmt_enterprise_order set delivery_boy_id =null, order_status ='ORDER_PLACED' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
-    await updateQuery("update rmt_enterprise_order_line set delivery_boy_id =null, order_status ='ORDER_PLACED' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
-    await updateQuery("update rmt_enterprise_order_slot set delivery_boy_id =null, order_status ='ORDER_PLACED' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
+    await updateQuery("update rmt_order set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
+    await updateQuery("update rmt_enterprise_order set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
+    await updateQuery("update rmt_enterprise_order_line set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
+    await updateQuery("update rmt_enterprise_order_slot set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>30 and id<> 0", []);
   } catch (error) {
     //console.log(error);
   }
@@ -2433,8 +2433,8 @@ const updateAlloctatedButNotAcceptedOrderList = async () => {
 
 const checkAndUpdatePaymentStatusByOrderNumber = async () => {
   try {
-    await updateQuery("update rmt_order set updated_on = now(), order_status ='PAYMENT_FAILED', next_action_status = 'Payment Failed', consumer_order_title = 'Payment failed on ', is_show_datetime_in_title = 1 where is_del = 0 and order_status ='ORDER_PLACED' and TIMESTAMPDIFF(SECOND, order_date, now())>=300 and payment_on is null and id<> 0", []);
-    await updateQuery("update rmt_enterprise_order set updated_on = now(), order_status ='PAYMENT_FAILED', next_action_status = 'Payment Failed', consumer_order_title = 'Payment failed on ', is_show_datetime_in_title = 1 where is_del = 0 and order_status ='ORDER_PLACED' and TIMESTAMPDIFF(SECOND, order_date, now())>=300 and payment_on is null and id<> 0", []);
+    await updateQuery("update rmt_order set updated_on = now(), order_status ='PAYMENT_FAILED', next_action_status = 'Payment Failed', consumer_order_title = 'Payment failed on ', is_show_datetime_in_title = 1, updated_by='checkAndUpdatePaymentStatusByOrderNumber' where is_del = 0 and order_status ='ORDER_PLACED' and TIMESTAMPDIFF(SECOND, created_on, now())>=300 and payment_on is null and id<> 0", []);
+    await updateQuery("update rmt_enterprise_order set updated_on = now(), order_status ='PAYMENT_FAILED', next_action_status = 'Payment Failed', consumer_order_title = 'Payment failed on ', is_show_datetime_in_title = 1, updated_by='checkAndUpdatePaymentStatusByOrderNumber' where is_del = 0 and order_status ='ORDER_PLACED' and TIMESTAMPDIFF(SECOND, created_on, now())>=360 and payment_on is null and id<> 0", []);
   } catch (error) {
     //console.log(error);
   }
