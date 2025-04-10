@@ -1,13 +1,12 @@
 const utils = require('../../../middleware/utils')
 const {fetch } = require('../../../middleware/db');
-const NodeCache = require( "node-cache" );
-const lookupCache = new NodeCache();
+const redisClient = require('../../../../config/cacheClient');
 
 exports.lookupService = async (req, res) => {
-  var responseData = {};
+  let responseData = await redisClient.get("RC_LOOKUP_DATA");
   try {
-    if(!lookupCache.has("lookupData")){
-      //console.log("NO_CACHE");
+    if(!responseData){
+      responseData = {};
       const vehicleTypeData = await fetch("select id,vehicle_type,vehicle_type_desc from rmt_vehicle_type");
       const workTypeData = await fetch("select id,work_type,work_type_desc from rmt_work_type");
       const serviceData = await fetch("select id,service_name, discount from rmt_service");
@@ -26,13 +25,13 @@ exports.lookupService = async (req, res) => {
       responseData.enterpriseServiceType = enterpriseServiceTypeData;
       responseData.languageService = languageServiceData;
       responseData.paymentMethodTypeService = paymentMethodTypeServiceData;
-      lookupCache.set( "lookupData", responseData );
+      await redisClient.setEx("RC_LOOKUP_DATA", 86400, JSON.stringify(responseData)); 
     }else{
-      //console.log("CACHE");
-      responseData = lookupCache.get("lookupData");
+      responseData = JSON.parse(responseData);
     }
     return res.status(200).json(utils.buildResponse(200, responseData))
   } catch (error) {
+    console.log(error);
     return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch data. Please try again later.',1001));
   }
 }

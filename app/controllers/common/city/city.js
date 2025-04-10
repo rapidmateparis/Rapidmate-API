@@ -1,6 +1,7 @@
 const utils = require('../../../middleware/utils');
 const { runQuery, fetch, insertQuery, updateQuery } = require('../../../middleware/db');
 const { FETCH_CITY_ALL, FETCH_CITY_BY_ID, INSERT_CITY_QUERY, UPDATE_CITY_QUERY, DELETE_CITY_QUERY, FETCH_CITY_BY_STATEID } = require('../../../repo/database.query');
+const redisClient = require('../../../../config/cacheClient');
 
 /********************
  * Public functions *
@@ -13,13 +14,21 @@ const { FETCH_CITY_ALL, FETCH_CITY_BY_ID, INSERT_CITY_QUERY, UPDATE_CITY_QUERY, 
  */
 exports.getItems = async (req, res) => {
   try {
-    const data = await runQuery(FETCH_CITY_ALL);
+    const cachedUser = await redisClient.get("RC_CITY");
     let message = "Cities retrieved successfully.";
-    if (data.length <= 0) {
-      message = "No cities found.";
-      return res.status(404).json(utils.buildErrorObject(404, message, 1001));
+    let responseData;
+    if(cachedUser){
+      responseData = JSON.parse(cachedUser);
+    }else{
+      responseData = await runQuery(FETCH_CITY_ALL);
+    
+      if (responseData.length <= 0) {
+        message = "No cities found.";
+        return res.status(404).json(utils.buildErrorObject(404, message, 1001));
+      }
+      await redisClient.setEx("RC_CITY", 86400, JSON.stringify(responseData));
     }
-    return res.status(200).json(utils.buildCreateMessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, responseData));
   } catch (error) {
     return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to fetch cities. Please try again later.', 1002));
   }
