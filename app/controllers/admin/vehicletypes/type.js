@@ -1,6 +1,7 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery, updateQuery } = require('../../../middleware/db')
 const {FETCH_VT_ALL,FETCH_VT_BY_ID,INSERT_VT_QUERY,UPDATE_VT_QUERY,DELETE_VT_QUERY}=require("../../../repo/database.query")
+const redisClient = require('../../../../config/cacheClient');
 
 /********************
  * Public functions *
@@ -49,13 +50,20 @@ exports.getVehicleTypes = async (req,res) =>{
  */
 exports.getItems = async (req, res) => {
   try {
-    const data = await runQuery(FETCH_VT_ALL);
-    let message="Items retrieved successfully";
-    if(data.length <=0){
-        message="No items found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    const cachedData = await redisClient.get("RC_VEHICLE_TYPE");
+    let responseData;
+    if(cachedData){
+      responseData = JSON.parse(cachedData);
+    }else{
+      responseData = await runQuery(FETCH_VT_ALL);
+      let message="Items retrieved successfully";
+      if(responseData.length <=0){
+          message="No items found"
+          return res.status(400).json(utils.buildErrorObject(400,message,1001));
+      }
+      await redisClient.setEx("RC_VEHICLE_TYPE", 86400, JSON.stringify(responseData)); 
     }
-    return res.status(200).json(utils.buildCreateMessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200,message,responseData))
   } catch (error) {
     return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
