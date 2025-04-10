@@ -18,6 +18,8 @@ const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/mi
 const httpRequestResponseInterceptor =require('./config/Interceptor');
 const rateLimit = require('express-rate-limit');
 const logger = require('./config/log').logger;
+const redisClient = require('./config/cacheClient')
+
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -202,6 +204,15 @@ app.use((err, req, res, next) => {
     message: 'A network request failed. Please try again later.',
     error: err.message, // Include the original error message for debugging purposes
   });
+});
+
+app.get('/health', async (req, res) => {
+  try {
+    await redisClient.ping();
+    res.send('Redis is healthy ✅');
+  } catch (err) {
+    res.status(500).send('Redis not reachable ❌');
+  }
 });
 
 module.exports = app;
