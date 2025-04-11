@@ -83,16 +83,16 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
     const orderNumber = req.query.o;
     var additionalQueryConditions ="";
     if(durationType == 'today'){
-      additionalQueryConditions = " and date(trans.created_on) = date(now()) ";
+      additionalQueryConditions = " and date(created_on) = date(now()) ";
     }else if (durationType == 'week') {
-      additionalQueryConditions = " and week(trans.created_on) = week(now()) and year(trans.created_on) = year(now()) ";
+      additionalQueryConditions = " and week(created_on) = week(now()) and year(created_on) = year(now()) ";
     }else if(durationType == 'month'){
-      additionalQueryConditions = " and month(trans.created_on) = month(now()) ";
+      additionalQueryConditions = " and month(created_on) = month(now()) ";
     }else if(durationType == 'year'){
-      additionalQueryConditions = " and year(trans.created_on) = year(now()) ";
+      additionalQueryConditions = " and year(created_on) = year(now()) ";
     }
     if(orderNumber){
-      additionalQueryConditions += " and ord.order_number ='" + orderNumber + "' ";
+      additionalQueryConditions += " and order_number ='" + orderNumber + "' ";
     }
     const balance = await getWallentBalance(id);
     var data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
