@@ -15,11 +15,12 @@ exports.getItems = async (req, res) => {
   try {
     const cachedUser = await redisClient.get("RC_STATE");
     let responseData;
+    let message="States retrieved successfully";
     if(cachedUser){
       responseData = JSON.parse(cachedUser);
     }else{
       responseData = await runQuery(FETCH_STATE_QUERY)
-      let message="States retrieved successfully";
+     
       if(responseData.length <=0){
           message="No states found"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));

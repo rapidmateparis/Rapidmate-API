@@ -52,11 +52,11 @@ exports.getItems = async (req, res) => {
   try {
     const cachedData = await redisClient.get("RC_VEHICLE_TYPE");
     let responseData;
+    let message="Items retrieved successfully";
     if(cachedData){
       responseData = JSON.parse(cachedData);
     }else{
       responseData = await runQuery(FETCH_VT_ALL);
-      let message="Items retrieved successfully";
       if(responseData.length <=0){
           message="No items found"
           return res.status(400).json(utils.buildErrorObject(400,message,1001));
