@@ -307,7 +307,7 @@ exports.DELETE_WALLET = `UPDATE rmt_delivery_boy_wallet SET is_del=1 WHERE id=?`
 exports.FETCH_WALLET_BY_EXTID =
   "SELECT wt.balance as balance FROM rmt_delivery_boy_wallet wt where wt.delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)";
 exports.FETCH_TRANSACTIONS_BY_EXTID =
-  "select trans.amount, ord.order_number, ord.order_date from rmt_delivery_boy_transaction trans join rmt_order ord on trans.order_id = ord.id where trans.delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)";
+  "select amount, order_number, order_date from vw_transaction_details where delivery_boy_id =(select id from rmt_delivery_boy where ext_id = ?)";
 
 //===================================================Payment card=============================================================
 //deliveryboy
