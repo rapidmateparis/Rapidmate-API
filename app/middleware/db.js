@@ -561,6 +561,10 @@ module.exports = {
               let slotPromises = [];
               const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
               const slots =  req.slots;
+              let serviceTypeId = parseInt(req.service_type_id);
+              if(serviceTypeId === 3 || serviceTypeId === 4){
+                req.amount = req.serviceType.hour_amount;
+              }
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
                 slotPromises = days.map(day =>
