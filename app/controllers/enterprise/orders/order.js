@@ -430,18 +430,32 @@ exports.createEnterpriseOrder = async (req, res) => {
   try {
     const enterprise_ext_id=req.query.ext_id
     const requestData = req.body;
-    console.log(requestData);
-    const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
-    console.log(vehicleType);
-    if(vehicleType){
-      requestData.vehicleType = vehicleType;
-      var total_amount = requestData.total_amount;
-      requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
-      requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
-      requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+    let serviceTypeId = parseInt(requestData.service_type_id);
+    const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id || 8 );
+    if(serviceTypeId === 3 || serviceTypeId === 4){
+      const serviceType = await getEnterpriseServiceTypeInfo(serviceTypeId);
+      if(serviceType){
+        requestData.vehicleType = vehicleType;
+        requestData.serviceType = serviceType;
+        var total_amount = requestData.total_amount;
+        requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
+        requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
+        requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500, "No services for this vehicle", 1001));
+      }
     }else{
-      return res.status(500).json(utils.buildErrorObject(500, "No services for this vehicle", 1001));
+      if(vehicleType){
+        requestData.vehicleType = vehicleType;
+        var total_amount = requestData.total_amount;
+        requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
+        requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
+        requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+      }else{
+        return res.status(500).json(utils.buildErrorObject(500, "No services for this vehicle", 1001));
+      }
     }
+    
     
     const item = await createEOrders(requestData, enterprise_ext_id);
     console.log(item);
@@ -504,10 +518,21 @@ const getVehicleTypeInfo = async (vehicle_type_id) => {
     const data = await fetch("select * from rmt_vehicle_type where id =?", [vehicle_type_id]);
     return data[0];
   } catch (error) {
-    //console.log(error);
+    console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Unable to fetch vehicle info.',1001));
   }
 };
+
+const getEnterpriseServiceTypeInfo = async (service_type_id) => {
+  try {
+    const data = await fetch("select * from rmt_enterprise_service_type where id =?", [vehicle_type_id]);
+    return data[0];
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(utils.buildErrorMessage(500,'Unable to fetch vehicle info.',1001));
+  }
+};
+
 /**
  * Create shift order function called by route
  * @param {Object} req - request object
