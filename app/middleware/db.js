@@ -562,6 +562,7 @@ module.exports = {
               const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
               const slots =  req.slots;
               let serviceTypeId = parseInt(req.service_type_id);
+              console.log(req.serviceType);
               if(serviceTypeId === 3 || serviceTypeId === 4){
                 req.amount = req.serviceType.hour_amount;
               }
