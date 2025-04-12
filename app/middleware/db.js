@@ -556,27 +556,33 @@ module.exports = {
           if (result) {
               const enterpriseOrderId = result.insertId;
               //console.log(enterpriseOrderId);
-              await connections.query('update rmt_enterprise_order_slot set is_del = 1 WHERE branch_id = ?', [req.branch_id]);
+              ///await connections.query('update rmt_enterprise_order_slot set is_del = 1 WHERE branch_id = ?', [req.branch_id]);
              
               let slotPromises = [];
               const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
               const slots =  req.slots;
-              let serviceTypeId = parseInt(req.service_type_id);
-              console.log(req.serviceType);
+              var total_slot_hours = 0;
+              var total_slot_amount = 0.0;
+              let serviceTypeId = parseInt(req.serviceType.id);
               if(serviceTypeId === 3 || serviceTypeId === 4){
                 req.amount = req.serviceType.hour_amount;
               }
+              consloe.log("-------------------Slots--------------");
+              consloe.log(slots);
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
+                var slotsSameDay = slots[0];
                 slotPromises = days.map(day =>
                   {
                     req.amount = Math.abs(req.amount);
-                    slot.total_hours = Math.abs(slot.total_hours);
-                    var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
+                    slotsSameDay.total_hours = Math.abs(slotsSameDay.total_hours);
+                    total_slot_hours =  total_slot_hours + slotsSameDay.total_hours; 
+                    var total_amount_calc = parseFloat(req.amount) * parseFloat(slotsSameDay.total_hours);
+                    total_slot_amount =  total_slot_amount + total_amount_calc;
                     let commission_percentage = parseFloat(vehicleData.enterprise_commission_percentage);
                     let commission_amount = total_amount_calc * (parseFloat(vehicleData.enterprise_commission_percentage) / 100);
                     let delivery_boy_amount = total_amount_calc - parseFloat(commission_amount);
-                    connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount, slot.total_hours, slot.total_days, total_amount_calc, delivery_boy_amount, commission_percentage, commission_amount])
+                    connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount, slotsSameDay.total_hours, slotsSameDay.total_days, total_amount_calc, delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
               } else if (slots && slots.length > 0) {
@@ -585,13 +591,17 @@ module.exports = {
                   {
                       req.amount = Math.abs(req.amount);
                       slot.total_hours = Math.abs(slot.total_hours);
+                      total_slot_hours =  total_slot_hours + slot.total_hours; 
                       var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
+                      total_slot_amount =  total_slot_amount + total_amount_calc;
                       let commission_percentage = parseFloat(vehicleData.enterprise_commission_percentage);
                       let commission_amount = total_amount_calc * (parseFloat(vehicleData.enterprise_commission_percentage) / 100);
                       let delivery_boy_amount = total_amount_calc - parseFloat(commission_amount);
                       connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
+                await connections.query("update rmt_enterprise_order set total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, total_slot_hours, enterpriseOrderId]);
+
               } else {
                 throw new Error('No slots provided');
               }
