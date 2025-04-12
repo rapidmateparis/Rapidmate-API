@@ -525,7 +525,7 @@ const getVehicleTypeInfo = async (vehicle_type_id) => {
 
 const getEnterpriseServiceTypeInfo = async (service_type_id) => {
   try {
-    const data = await fetch("select * from rmt_enterprise_service_type where id =?", [vehicle_type_id]);
+    const data = await fetch("select * from rmt_enterprise_service_type where id =?", [service_type_id]);
     return data[0];
   } catch (error) {
     console.log(error);
