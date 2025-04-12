@@ -429,7 +429,7 @@ exports.updateAssigndeliveryboy=async (req,res)=>{
 exports.createEnterpriseOrder = async (req, res) => {
   try {
     const enterprise_ext_id=req.query.ext_id
-    const requestData = req.body;
+    var requestData = req.body;
     let serviceTypeId = parseInt(requestData.service_type_id);
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id || 8 );
     if(serviceTypeId === 3 || serviceTypeId === 4){
@@ -437,10 +437,9 @@ exports.createEnterpriseOrder = async (req, res) => {
       if(serviceType){
         requestData.vehicleType = vehicleType;
         requestData.serviceType = serviceType;
-        var total_amount = requestData.total_amount;
-        requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
-        requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
-        requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+        var amount = serviceType.hour_amount;
+        requestData.amount = parseFloat(amount);
+        requestData.total_amount = parseFloat(amount);
       }else{
         return res.status(500).json(utils.buildErrorObject(500, "No services for this vehicle", 1001));
       }
