@@ -14,6 +14,7 @@ const socketIo = require('socket.io');
 const mongoose = require('mongoose');
 const Notification =require('./app/models/Notification');
 const orderControl =require('./app/controllers/deliveryboy/orders/order')
+const eOrderControl =require('./app/controllers/enterprise/orders/order')
 const { updateDeliveryboyLatlng, addLatlng, addOrderLatlng } = require('./app/middleware/utils');
 const httpRequestResponseInterceptor =require('./config/Interceptor');
 const rateLimit = require('express-rate-limit');
@@ -179,6 +180,11 @@ cron.schedule('59 23 * * *', () => { softDeleteOldNotifications(); });
 cron.schedule("*/10 * * * * *", function() { 
   logger.warn({message : "Schedule Order : Running...", data : new Date()})
   orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
+});
+
+cron.schedule("*/10 * * * * *", function() { 
+  logger.warn({message : "Schedule E-Order : Running...", data : new Date()})
+  eOrderControl.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber();
 });
 
 cron.schedule("*/5 * * * * *", function() { 
