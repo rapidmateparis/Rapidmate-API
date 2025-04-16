@@ -1127,7 +1127,7 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
     var responseData = await getScheduleUnallocateOrderList();
     if (responseData) {
         responseData.forEach(order => {
-          logger.warn({message : "Allocated Started on " +  new Date(), order : order.order_number});
+          console.log({message : "Allocated Started on " +  new Date(), order : order.order_number});
           scheduleAllocateDeliveryBoyByEOrderNumber(order.order_number);
         })
     }
@@ -1138,18 +1138,19 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
 
 const getScheduleUnallocateOrderList = async () => {
   try {
-    return await fetch("select order_number from rmt_enterprise_order where delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)<=date(now()) and time(AddTime(schedule_date_time, '00:10:00'))<=time(now()) and order_status not in('PAYMENT_FAILED','CANCELLED') limit 5", []);
+    return await fetch("select order_number from rmt_enterprise_order where delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and time(schedule_date_time)<=time(AddTime(now(), '00:10:00')) and order_status ='ORDER_PLACED' and schedule_order_allocate_retry_count<=3 limit 5", []);
   } catch (error) {
     //console.log(error);
   }
   return {};
 };
 
-exports.scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
+const scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
   var responseData = {};
+  var message ="";
   try {
     var orderInfo = getOrderTypeInfo(order_number);
-    const order = await utils.getValuesById("id, is_del, order_date, order_number, order_status,vehicle_type_id, delivery_boy_id, vehicle_type_id", "rmt_enterprise_order", "order_number", order_number);
+    const order = await utils.getValuesById("id, is_del, order_date, order_number, order_status,vehicle_type_id, delivery_boy_id, vehicle_type_id, schedule_order_allocate_retry_count", "rmt_enterprise_order", "order_number", order_number);
     //console.log("Order - ALlocation Delivery boy allocateDeliveryBoyByOrderNumber : ", order);
     if (order) {
       if(order.order_status ==='ORDER_PLACED' || order.order_status ==='ORDER_ACCEPTED' || order.order_status ==='ORDER_ALLOCATED'){
@@ -1158,7 +1159,11 @@ exports.scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
           "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_enterprise_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
           const dbData = await fetch(orderAllocationQuery, [order.order_date, order.order_date,order.id,order.vehicle_type_id])
           if(dbData.length <=0){
-            message="Delivery boys are busy. Please try again!!!";
+            console.log("EO schedule_order_allocate_retry_count : Exists = " + order.schedule_order_allocate_retry_count);
+            const updateRetryCount  = await updateQuery("update rmt_enterprise_order set schedule_order_allocate_retry_count = schedule_order_allocate_retry_count + 1 where order_number = ?",[order_number]);
+            console.log(updateRetryCount);
+            console.log("EO schedule_order_allocate_retry_count : New = " + order.schedule_order_allocate_retry_count );
+            message = "Delivery boys are busy. Please try again!!!";
             title = "Error";
           }else{
             const allocatedDeliveryBoy = dbData[0];
