@@ -2416,19 +2416,20 @@ const getOrderByOrderNumber = async (order_number) => {
 
 const getScheduleUnallocateOrderList = async () => {
   try {
-    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and time(schedule_date_time)<=time(AddTime(now(), '00:10:00')) and order_status ='ORDER_PLACED' and schedule_order_allocate_retry_count<=3 limit 5", []);
+    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and order_status ='ORDER_PLACED' and payment_on is not null and schedule_order_allocate_retry_count<=3 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and time(schedule_date_time)<=time(AddTime(now(), '00:10:00')) limit 5", []);
   } catch (error) {
     //console.log(error);
   }
   return {};
 };
 
+//UABNAO - TRIGGER INTEGRATED
 const updateAlloctatedButNotAcceptedOrderList = async () => {
   try {
-    await updateQuery("update rmt_order set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
-    await updateQuery("update rmt_enterprise_order set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
-    await updateQuery("update rmt_enterprise_order_line set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
-    await updateQuery("update rmt_enterprise_order_slot set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='updateAlloctatedButNotAcceptedOrderList' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
+    await updateQuery("update rmt_order set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='UABNAO'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
+    await updateQuery("update rmt_enterprise_order set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='UABNAO'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
+    await updateQuery("update rmt_enterprise_order_line set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='UABNAO'  where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
+    await updateQuery("update rmt_enterprise_order_slot set delivery_boy_id =null, order_status ='ORDER_PLACED',updated_on = now(),updated_by='UABNAO' where is_del = 0 and order_status ='ORDER_ALLOCATED' and TIMESTAMPDIFF(SECOND, allocated_on, now())>60 and id<> 0", []);
   } catch (error) {
     //console.log(error);
   }
