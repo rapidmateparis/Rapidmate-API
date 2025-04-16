@@ -727,7 +727,7 @@ exports.viewOrderByOrderNumber = async (req, res) => {
 
 const getOrderInfo = async (orderNumber) => {
   try {
-    const data = await fetch("select * from rmt_enterprise_order where order_number =? and is_del=0", [orderNumber]);
+    const data = await fetch("select eorder.*, euser.ext_id as ext_id from rmt_enterprise_order eorder join rmt_enterprise euser on eorder.enterprise_id = euser.id where eorder.order_number =? and eorder.is_del=0", [orderNumber]);
     //console.log(data)
     const filterdata=await transformKeysToLowercase(data);
     return filterdata[0];
@@ -1138,7 +1138,7 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
 
 const getScheduleUnallocateOrderList = async () => {
   try {
-    return await fetch("select order_number from rmt_enterprise_order where delivery_boy_id is null and is_del = 0 and order_status ='ORDER_PLACED' and payment_on is not null and schedule_order_allocate_retry_count<=3 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and time(schedule_date_time)<=time(AddTime(now(), '00:10:00')) limit 5", []);
+    return await fetch("select order_number from rmt_enterprise_order where delivery_boy_id is null and is_del = 0 and order_status ='ORDER_PLACED' and payment_on is not null and schedule_order_allocate_retry_count<=3 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and time(schedule_date_time)<=time(AddTime(now(), '00:05:00')) limit 5", []);
   } catch (error) {
     //console.log(error);
   }
@@ -1198,7 +1198,7 @@ const scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
                 topic : "",
                 token : "",
                 senderExtId : "",
-                receiverExtId : req.query.ext_id,
+                receiverExtId : responseData.order.ext_id,
                 statusDescription : "",
                 status : "",
                 notifyStatus : "",
