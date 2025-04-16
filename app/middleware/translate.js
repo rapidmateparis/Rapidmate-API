@@ -17,7 +17,7 @@ const consumerImg = fs.readFileSync(
   path.join(__dirname, `../../default/invoice/Consumer.jpg`),
   "base64"
 );
-const deliveryboy = {
+/*const deliveryboy = {
   imageUrl: `data:image/png;base64,${logoBase64}`,
   timeImg: `data:image/png;base64,${timeImg}`,
   vanImg: `data:image/png;base64,${vanImg}`,
@@ -63,7 +63,7 @@ const enterprise = {
   payment: i18n.__("payment"),
   queries: i18n.__("queries"),
 };
-
+*/
 const getTranslate = (role, locale,order) => {
   i18n.setLocale(locale);
   if (role == "deliveryboy") {
