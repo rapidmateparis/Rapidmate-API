@@ -1125,7 +1125,6 @@ exports.billReportDownload = async (req,res)=>{
 exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
   try {
     var responseData = await getScheduleUnallocateOrderList();
-    logger.warn({message : "Unallocated Orders : ", data : responseData});
     if (responseData) {
         responseData.forEach(order => {
           logger.warn({message : "Allocated Started on " +  new Date(), order : order.order_number});
@@ -1133,7 +1132,7 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
         })
     }
   } catch (error) {
-    logger.warn({message : "Error Allocated" , error : error});
+    console.log({message : "Error Allocated" , error : error});
   }
 }
 
