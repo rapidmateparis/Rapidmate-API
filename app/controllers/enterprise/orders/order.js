@@ -1122,4 +1122,169 @@ exports.billReportDownload = async (req,res)=>{
   }
 }
 
+exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
+  try {
+    var responseData = await getScheduleUnallocateOrderList();
+    if (responseData) {
+        responseData.forEach(order => {
+          logger.warn({message : "Allocated Started on " +  new Date(), order : order.order_number});
+          scheduleAllocateDeliveryBoyByEOrderNumber(order.order_number);
+        })
+    }
+  } catch (error) {
+    console.log({message : "Error Allocated" , error : error});
+  }
+}
+
+const getScheduleUnallocateOrderList = async () => {
+  try {
+    return await fetch("select order_number from rmt_enterprise_order where delivery_boy_id is null and is_del = 0 and schedule_date_time is not null and date(schedule_date_time)<=date(now()) and time(AddTime(schedule_date_time, '00:10:00'))<=time(now()) and order_status not in('PAYMENT_FAILED','CANCELLED') limit 5", []);
+  } catch (error) {
+    //console.log(error);
+  }
+  return {};
+};
+
+exports.scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
+  var responseData = {};
+  try {
+    var orderInfo = getOrderTypeInfo(order_number);
+    const order = await utils.getValuesById("id, is_del, order_date, order_number, order_status,vehicle_type_id, delivery_boy_id, vehicle_type_id", "rmt_enterprise_order", "order_number", order_number);
+    //console.log("Order - ALlocation Delivery boy allocateDeliveryBoyByOrderNumber : ", order);
+    if (order) {
+      if(order.order_status ==='ORDER_PLACED' || order.order_status ==='ORDER_ACCEPTED' || order.order_status ==='ORDER_ALLOCATED'){
+        if(order.order_status ==='ORDER_PLACED'){
+          const orderAllocationQuery = "select * from vw_delivery_plan_setup_slots slot where work_type_id in (1,3) and (is_24x7=1 or (is_apply_for_all_days =1 and  " + 
+          "date(planning_date)<> date(?) and TIME(?) between from_time and to_time)) and delivery_boy_id not in (select delivery_boy_Id from rmt_enterprise_order_allocation where order_id=?) and vehicle_type_id=? limit 1";
+          const dbData = await fetch(orderAllocationQuery, [order.order_date, order.order_date,order.id,order.vehicle_type_id])
+          if(dbData.length <=0){
+            message="Delivery boys are busy. Please try again!!!";
+            title = "Error";
+          }else{
+            const allocatedDeliveryBoy = dbData[0];
+            responseData.deliveryBoy = allocatedDeliveryBoy;
+            const delivery_boy_id = allocatedDeliveryBoy.delivery_boy_id;
+            const delivery_boy_ext_id = allocatedDeliveryBoy.delivery_boy_ext_id;
+            const allocateDeliveryBoyResult = await insertQuery(INSERT_DELIVERY_BOY_ALLOCATE_ENTERPRISE, [order_number, delivery_boy_id]);
+            if (allocateDeliveryBoyResult.insertId) {
+              const setDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
+              //console.log(setDeliveryBoy);
+              if(orderInfo.is_multi_order){
+                const updateOrderLineDeliveryBoy  = await updateQuery(UPDATE_SET_DELIVERY_BOY_FOR_MULTI_ORDER_ENTERPRISE,[delivery_boy_id, order_number]);
+                //console.log(updateOrderLineDeliveryBoy);
+              }
+              const updateAllocate = await updateQuery(UPDATE_DELIVERY_BOY_AVAILABILITY_STATUS,[delivery_boy_id]);
+              //console.log(updateAllocate);
+              responseData.order = await getOrderInfo(order_number);
+              responseData.vehicle = await getVehicleInfo(allocatedDeliveryBoy.delivery_boy_id);
+              var consumer_ext_id = responseData.order.ext_id;
+              var notifiationConsumerRequest = {
+                title : "Driver allocated!!!Order# : " + order_number ,
+                body: {
+                  message :  "Driver has been allocated successfully for your order",
+                  orderNumber : order_number
+                },
+                payload: {
+                  message :  "You have been received new order successfully",
+                  orderNumber : order_number
+                },
+                extId: order_number,
+                message : "Driver has been allocated successfully for your order", 
+                topic : "",
+                token : "",
+                senderExtId : "",
+                receiverExtId : req.query.ext_id,
+                statusDescription : "",
+                status : "",
+                notifyStatus : "",
+                tokens : "",
+                tokenList : "",
+                actionName : "",
+                path : "",
+                userRole : "ENTERPRISE",
+                redirect : "ORDER"
+              }
+              notification.createNotificationRequest(notifiationConsumerRequest);
+              var notifiationDriverRequest = {
+                title : "New order received!!!Order# : " + order_number ,
+                body: {
+                    message :  "You have been received new order successfully",
+                    orderNumber : order_number,
+                    orderStatus : "ORDER_ALLOCATED"
+                },
+                payload: {
+                    message :  "You have been received new order successfully",
+                    orderNumber : order_number,
+                    orderStatus : "ORDER_ALLOCATED"
+                },
+                extId: order_number,
+                message : "You have been received new order successfully", 
+                topic : "",
+                token : "",
+                senderExtId : "",
+                receiverExtId : delivery_boy_ext_id,
+                statusDescription : "",
+                status : "",
+                notifyStatus : "",
+                tokens : "",
+                tokenList : "",
+                actionName : "",
+                path : "",
+                userRole : "DELIVERY_BOY",
+                redirect : "ORDER"
+              }
+              notification.createNotificationRequest(notifiationDriverRequest, true);
+              const currentOrderStatus = await utils.getValuesById(
+                               "id, is_del, order_date, order_number, order_status, vehicle_type_id","rmt_enterprise_order","order_number", order_number
+                             );
+                if (currentOrderStatus) {
+                  if(currentOrderStatus.order_status ==='ORDER_ACCEPTED'){
+                    message = "Delivery boy has been allocated successfully " + order_number;
+                    title = "Success";
+                  }
+                  if(currentOrderStatus.order_status ==='ORDER_ALLOCATED'){
+                    message = "Unable to allocate driver your order." + order_number;
+                    title = "Error";
+                  }
+                }else{
+                  message = "Thanks your patience, We are trying to allocate the driveer. Please wait for the moment" + order_number;
+                  title = "Error";
+                }
+              } else {
+                message = "issue with Order number" + order_number;
+                title = "Error";
+              }
+            }
+          }else{
+            if(order.order_status ==='ORDER_ACCEPTED'){
+              message = "Delivery boy has been allocated successfully " + order_number;
+                    title = "Success";
+            }
+            if(order.order_status ==='ORDER_ALLOCATED'){
+              message = "Waiting for delivery accepting the order" + order_number;
+              title = "Error";
+            } else {
+              message = "issue with Order number" + order_number;
+              title = "Error";
+            }
+          }
+      }else{
+        if (order) {
+          if(order.order_status ==='ORDER_ALLOCATED'){
+            message = "Waiting for delivery accepting the order" + order_number;
+            title = "Error";
+          }
+        }
+      }
+    } 
+    else {
+      message = "issue with Order number" + order_number;
+      title = "Error";
+    }
+  } catch (error) {
+    message = "Unable to allocate driver your order" + order_number;
+    title = "Error";
+  }
+  return message;
+};
 

@@ -563,7 +563,7 @@ module.exports = {
               const slots =  req.slots;
               var total_slot_hours = 0;
               var total_slot_amount = 0.0;
-              let serviceTypeId = parseInt(req.serviceType.id);
+              let serviceTypeId = parseInt(req.serviceType?.id || 0);
               if(serviceTypeId === 3 || serviceTypeId === 4){
                 req.amount = req.serviceType.hour_amount;
               }
