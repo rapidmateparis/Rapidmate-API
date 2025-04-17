@@ -567,8 +567,6 @@ module.exports = {
               if(serviceTypeId === 3 || serviceTypeId === 4){
                 req.amount = req.serviceType.hour_amount;
               }
-              consloe.log("-------------------Slots--------------");
-              consloe.log(slots);
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
                 var slotsSameDay = slots[0];
