@@ -9,4 +9,11 @@ router.get(
   versionController.getVersions
 )
 
+router.put(
+  '/',
+  trimRequest.all,
+  versionController.updateVersion
+)
+
+
 module.exports = router
