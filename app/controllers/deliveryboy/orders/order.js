@@ -2416,7 +2416,7 @@ const getOrderByOrderNumber = async (order_number) => {
 
 const getScheduleUnallocateOrderList = async () => {
   try {
-    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and order_status ='ORDER_PLACED' and payment_on is not null and schedule_order_allocate_retry_count<=3 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and time(schedule_date_time)<=time(AddTime(now(), '00:05:00')) limit 5", []);
+    return await fetch("select order_number from rmt_order where service_type_id =1 and delivery_boy_id is null and is_del = 0 and order_status ='ORDER_PLACED' and payment_on is not null and schedule_order_allocate_retry_count<=3 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and (time(schedule_date_time) between time(now()) and time(AddTime(now(), '00:15:00'))) limit 5", []);
   } catch (error) {
     //console.log(error);
   }
