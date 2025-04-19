@@ -1,5 +1,5 @@
 const utils = require('../../../middleware/utils')
-const {fetch,insertQuery,updateQuery} = require('../../../middleware/db')
+const {fetch,insertQuery,updateQuery, runQuery} = require('../../../middleware/db')
 const {FETCH_BRANCH_BY_ID, INSERT_BRANCH_QUERY, UPDATE_BRANCH_QUERY, DELETE_BRANCH_QUERY, FETCH_BRANCH_BY_ENTERPRISEID } = require('../../../repo/database.query')
 /********************
  * Public functions *
@@ -57,7 +57,7 @@ const updateItem = async (id,req,enterprise_id) => {
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const branchLocationId = await utils.isIDGood(id,'location_id','rmt_enterprise_branch')
+    const branchLocationId = await utils.getValueById('location_id','rmt_enterprise_branch', 'id', id);
     const enterprise_id=await utils.getValueById("id", "rmt_enterprise", 'ext_id', req.query.ext_id);
     const reqData = req.body;
     if(branchLocationId){
