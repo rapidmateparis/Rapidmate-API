@@ -98,7 +98,9 @@ const getTranslate = (role, locale,order) => {
       companyName:order?.company_name || 'N/A',
       discount : order?.discount?.toFixed(2) || 0.00,
       taxValue : order?.tax?.toFixed(2) || 0.00,
-      deliveryAmount : order?.delivery_boy_amount || 0.00
+      deliveryAmount : order?.delivery_boy_amount?.toFixed(2) || 0.00,
+      commission_percentage : order?.commission_percentage || 0.00,
+      commission_amount : order?.commission_amount?.toFixed(2) || 0.00
     };
   } else if (role == "enterprise") {
     return {
@@ -136,7 +138,9 @@ const getTranslate = (role, locale,order) => {
       deliveryBoyName:order?.delivery_boy_name || 'N/A',
       createdOn:order?.created_on,
       taxValue : order?.tax?.toFixed(2) || 0.00,
-      payment_on : order?.payment_on || ""
+      payment_on : order?.payment_on || "",
+      order_fare:order?.order_amount?.toFixed(2) || 0.00,
+      tax_amount : (((order?.order_amount || 0.00) * (order?.tax || 0.00) )/100)?.toFixed(2) || 0.00,
     };
   } else {
     return {
