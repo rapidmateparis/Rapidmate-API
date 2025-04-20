@@ -634,6 +634,11 @@ exports.cancelOrder = async (req, res) => {
       var cancelParams = [cancel_reason_id, cancel_reason, "Cancelled On " , "Cancelled On " , order.id];
       const deletedItem = await deleteItem(cancelParams);
       if (deletedItem.affectedRows > 0) {
+        let tableName = utils.cancelRequestTable(order_number);
+        if(tableName){
+          const deleteResQuery = await updateQuery("UPDATE " + tableName + " SET delivery_boy_id = null, order_status = 'CANCELLED', updated_on = now() WHERE order_number=?" , [order_number]);
+          console.log(deleteResQuery);
+        }
           return res
             .status(200)
             .json(

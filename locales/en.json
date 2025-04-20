@@ -4,7 +4,7 @@
 	"3002": "Unable to update the order status",
 	"invoice_title": "Invoice Title",
 	"pickup_address": "Pickup Address",
-	"dropoff_address": "Dropoff Address",
+	"dropoff_address": "Drop Address",
 	"bill_details": "Bill Details",
 	"delivery_fare": "Delivery Fare",
 	"tax": "Tax",

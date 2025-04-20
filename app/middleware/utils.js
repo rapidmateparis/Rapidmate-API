@@ -76,6 +76,16 @@ exports.fetchTableNameByOrderNumber = (orderNumber) =>{
   return table;
 }
 
+exports.cancelRequestTable = (orderNumber) =>{
+  var table;
+  if(orderNumber.includes("EM")){
+    table = "rmt_enterprise_order_line";
+  }else if(orderNumber.includes("ES")){
+      table = "rmt_enterprise_order_slot";
+  }
+  return table;
+}
+
 /**
  * Builds error object
  * @param {number} code - error code

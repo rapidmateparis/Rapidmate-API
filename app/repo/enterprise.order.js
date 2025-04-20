@@ -4,7 +4,7 @@ exports.UPDATE_ENTERPRISE_ORDER_LINE_BY_STATUS=`UPDATE rmt_enterprise_order_line
 exports.FETCH_ORDER_QUERY=`select * from rmt_enterprise_order WHERE is_del=0 ORDER BY created_on DESC`;
 exports.FETCH_ORDER_BY_ID=`select * from rmt_enterprise_order WHERE is_del=0 AND id=?`
 exports.FETCH_ORDER_BY_ORDER_NUMBER=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND order_number=?`
-exports.DELETE_ORDER_QUERY = `UPDATE rmt_enterprise_order SET is_enable_cancel_request=0, cancelled_on = now(), order_status = 'CANCELLED', cancel_reason_id =?, cancel_reason = ?,consumer_order_title = ?, delivery_boy_order_title = ?,is_show_datetime_in_title=1, updated_on = now() WHERE id=?`;
+exports.DELETE_ORDER_QUERY = `UPDATE rmt_enterprise_order SET delivery_boy_id = null, is_enable_cancel_request=0, cancelled_on = now(), order_status = 'CANCELLED', cancel_reason_id =?, cancel_reason = ?,consumer_order_title = ?, delivery_boy_order_title = ?,is_show_datetime_in_title=1, updated_on = now() WHERE id=?`;
 exports.FETCH_ORDER_BY_ORDER_EXT=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) ORDER BY created_on DESC`
 exports.FETCH_ORDER_DELIVERY_BOY_ID=`SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?) ORDER BY created_on DESC`
 exports.UPDATE_DELIVERY_UPDATE_ID=`UPDATE rmt_enterprise_order SET delivery_boy_id=(select id from rmt_delivery_boy where ext_id=?), order_status='ASSIGNED',next_action_status='Ready to Start',delivery_boy_order_title='New Job assigned!!!',consumer_order_title='Request accepted' WHERE id=?`;
