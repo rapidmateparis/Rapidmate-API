@@ -156,7 +156,7 @@ const getTranslate = (role, locale,order) => {
       visit: i18n.__("visit"),
       orderNumber:order?.order_number,
       orderAmount:order?.amount?.toFixed(2) || 0.00,
-      orderAmountT:order?.amount?.toFixed(2) || 0.00,
+      total_amount:order?.amount?.toFixed(2) || 0.00,
       distance:order?.distance?.toFixed(2) || 0.00,
       pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country,
       dropoffAddressLoc: order?.dropoff_location_address + order?.dropoff_location_city + order?.dropoff_location_state + order?.dropoff_location_country,
@@ -170,7 +170,9 @@ const getTranslate = (role, locale,order) => {
       discount : order?.discount?.toFixed(2) || 0.00,
       taxValue : order?.tax?.toFixed(2) || 0.00,
       deliveryAmount : order?.delivery_boy_amount || 0.00,
-     
+      order_fare:order?.order_amount?.toFixed(2) || 0.00,
+      tax_amount : (((order?.order_amount || 0.00) * (order?.tax || 0.00) )/100)?.toFixed(2) || 0.00,
+      discount_amount : (((order?.order_amount || 0.00) * (order?.discount || 0.00) )/100)?.toFixed(2) || 0.00,
     };
   }
 };
