@@ -561,8 +561,12 @@ module.exports = {
               var total_slot_hours = 0;
               var total_slot_amount = 0.0;
               let serviceTypeId = parseInt(req.serviceType?.id || 0);
+              let commissionPercentage = 0;
               if(serviceTypeId === 3 || serviceTypeId === 4){
                 req.amount = req.serviceType.hour_amount;
+                commissionPercentage = req.serviceType.commission_percentage;
+              }else{
+                commissionPercentage = vehicleData.enterprise_commission_percentage;
               }
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
@@ -574,8 +578,8 @@ module.exports = {
                     total_slot_hours =  total_slot_hours + slotsSameDay.total_hours; 
                     var total_amount_calc = parseFloat(req.amount) * parseFloat(slotsSameDay.total_hours);
                     total_slot_amount =  total_slot_amount + total_amount_calc;
-                    let commission_percentage = parseFloat(vehicleData.enterprise_commission_percentage);
-                    let commission_amount = total_amount_calc * (parseFloat(vehicleData.enterprise_commission_percentage) / 100);
+                    let commission_percentage = parseFloat(commissionPercentage);
+                    let commission_amount = total_amount_calc * (parseFloat(commissionPercentage) / 100);
                     let delivery_boy_amount = total_amount_calc - parseFloat(commission_amount);
                     connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount, slotsSameDay.total_hours, slotsSameDay.total_days, total_amount_calc, delivery_boy_amount, commission_percentage, commission_amount])
                   }
@@ -589,8 +593,8 @@ module.exports = {
                       total_slot_hours =  total_slot_hours + slot.total_hours; 
                       var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
                       total_slot_amount =  total_slot_amount + total_amount_calc;
-                      let commission_percentage = parseFloat(vehicleData.enterprise_commission_percentage);
-                      let commission_amount = total_amount_calc * (parseFloat(vehicleData.enterprise_commission_percentage) / 100);
+                      let commission_percentage = parseFloat(commissionPercentage);
+                      let commission_amount = total_amount_calc * (parseFloat(commissionPercentage) / 100);
                       let delivery_boy_amount = total_amount_calc - parseFloat(commission_amount);
                       connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,delivery_boy_amount, commission_percentage, commission_amount])
                   }
