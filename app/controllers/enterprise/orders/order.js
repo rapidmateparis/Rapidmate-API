@@ -446,10 +446,10 @@ exports.createEnterpriseOrder = async (req, res) => {
     }else{
       if(vehicleType){
         requestData.vehicleType = vehicleType;
-        var total_amount = requestData.total_amount;
+        var order_amount = requestData.order_amount;
         requestData.commission_percentage = parseFloat(vehicleType.commission_percentage);
-        requestData.commission_amount = total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
-        requestData.delivery_boy_amount = total_amount - parseFloat(requestData.commission_amount);
+        requestData.commission_amount = order_amount * (parseFloat(vehicleType.commission_percentage) / 100);
+        requestData.delivery_boy_amount = order_amount - parseFloat(requestData.commission_amount);
       }else{
         return res.status(500).json(utils.buildErrorObject(500, "No services for this vehicle", 1001));
       }

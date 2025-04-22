@@ -349,21 +349,21 @@ module.exports = {
         order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,
-        drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
 
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id, order_date,pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
           repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
-          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
-        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
+        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
           delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
-          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
         ]
       );
       await connections.commit(); // Commit the transaction
@@ -395,7 +395,7 @@ module.exports = {
         branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,
-        drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
 
       } = req; 
       const [result] = await connections.query(
@@ -404,14 +404,14 @@ module.exports = {
           order_date, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
           repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,
           pickup_notes,is_scheduled_order,schedule_date_time,
-          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
-        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
+        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,
           order_date,pickup_location_id, dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,otp,distance,total_amount,commission_percentage,commission_amount,
           delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
-          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
         ]
       );
       // rmt_enterprise_order_line
@@ -598,8 +598,10 @@ module.exports = {
                       connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
-                await connections.query("update rmt_enterprise_order set total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, total_slot_hours, enterpriseOrderId]);
-
+                if(!req.total_amount){
+                  total_slot_amount = (total_slot_amount + ((total_slot_amount * 20) / 100)).toFixed(2);
+                  await connections.query("update rmt_enterprise_order set total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, total_slot_hours, enterpriseOrderId]);
+                }
               } else {
                 throw new Error('No slots provided');
               }

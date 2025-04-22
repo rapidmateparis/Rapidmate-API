@@ -53,7 +53,7 @@ router.delete(
   '/:id',
   trimRequest.all,
   validate.deleteItem,
-  controller.deleteItem
+  controller.deleteBranch
 )
 
 module.exports = router
