@@ -124,7 +124,7 @@ const deleteItem = async (id) => {
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-exports.deleteItem = async (req, res) => {
+exports.deleteBranch = async (req, res) => {
   try {
     const {id} =req.params
     const getId = await utils.isIDGood(id,'id','rmt_enterprise_branch')
