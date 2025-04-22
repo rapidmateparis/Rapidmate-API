@@ -555,9 +555,6 @@ module.exports = {
           //console.log(result.insertId);
           if (result) {
               const enterpriseOrderId = result.insertId;
-              //console.log(enterpriseOrderId);
-              ///await connections.query('update rmt_enterprise_order_slot set is_del = 1 WHERE branch_id = ?', [req.branch_id]);
-             
               let slotPromises = [];
               const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
               const slots =  req.slots;
@@ -598,16 +595,13 @@ module.exports = {
                       connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
-                if(!req.total_amount){
-                  tax_amount = ((total_slot_amount * 20) / 100).toFixed(2);
-                  total_amount_with_tax = (total_slot_amount + ((total_slot_amount * 20) / 100)).toFixed(2);
-                  await connections.query("update rmt_enterprise_order set order_amount = ?, tax =?, total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, tax_amount, total_amount_with_tax, total_slot_hours, enterpriseOrderId]);
-                }
               } else {
                 throw new Error('No slots provided');
               }
-          
-              const data=await Promise.all(slotPromises);
+              tax_amount = ((total_slot_amount * 20) / 100).toFixed(2);
+              total_amount_with_tax = (total_slot_amount + ((total_slot_amount * 20) / 100)).toFixed(2);
+              await connections.query("update rmt_enterprise_order set order_amount = ?, tax =?, total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, tax_amount, total_amount_with_tax, total_slot_hours, enterpriseOrderId]);
+              const data = await Promise.all(slotPromises);
           }
         }
       }
