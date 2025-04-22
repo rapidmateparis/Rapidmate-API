@@ -532,12 +532,12 @@ module.exports = {
       delivery_boy_order_title = "Completed on ";
       var total_slots = (req?.delivery_type_id === 3 )?(req?.slots && req?.slots?.length > 0)? req?.slots?.length : 1 : 1;
 
-      await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
+      /*await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
         delivery_boy_order_title +
         "', order_status = '" +
         status +
         "', next_action_status = '" +
-        next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);
+        next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);*/
       const {
         branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount,total_hours,total_days,total_amount
       } = req; 
