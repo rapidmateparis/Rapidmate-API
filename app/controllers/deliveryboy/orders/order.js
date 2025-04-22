@@ -835,7 +835,7 @@ exports.createOrder = async (req, res) => {
     const vehicleType = await getVehicleTypeInfo(requestData.vehicle_type_id);
     //console.log(vehicleType);
 
-    var total_amount = requestData.total_amount;
+    var order_amount = requestData.order_amount;
     //console.log(requestData);
 
     requestData.commission_percentage = parseFloat(
@@ -843,11 +843,11 @@ exports.createOrder = async (req, res) => {
     );
     //console.log(requestData.commission_percentage);
     requestData.commission_amount =
-      total_amount * (parseFloat(vehicleType.commission_percentage) / 100);
+      order_amount * (parseFloat(vehicleType.commission_percentage) / 100);
     //console.log(requestData.commission_amount.toFixed(2));
 
     requestData.delivery_boy_amount =
-      total_amount - parseFloat(requestData.commission_amount);
+      order_amount - parseFloat(requestData.commission_amount);
     //console.log(requestData.delivery_boy_amount);
     const item = await createItem(requestData,consumer_ext_id);
     //console.log(item);
