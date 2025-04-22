@@ -599,8 +599,9 @@ module.exports = {
                   }
                 );
                 if(!req.total_amount){
-                  total_slot_amount = (total_slot_amount + ((total_slot_amount * 20) / 100)).toFixed(2);
-                  await connections.query("update rmt_enterprise_order set total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, total_slot_hours, enterpriseOrderId]);
+                  tax_amount = ((total_slot_amount * 20) / 100).toFixed(2);
+                  total_amount_with_tax = (total_slot_amount + ((total_slot_amount * 20) / 100)).toFixed(2);
+                  await connections.query("update rmt_enterprise_order set order_amount = ?, tax =?, total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, tax_amount, total_amount_with_tax, total_slot_hours, enterpriseOrderId]);
                 }
               } else {
                 throw new Error('No slots provided');
