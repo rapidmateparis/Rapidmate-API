@@ -1143,7 +1143,7 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
 
 const getScheduleUnallocateOrderList = async () => {
   try {
-    return await fetch("select order_number from rmt_enterprise_order where delivery_boy_id is null and is_del = 0 and order_status ='ORDER_PLACED' and payment_on is not null and schedule_order_allocate_retry_count<=3 and schedule_date_time is not null and date(schedule_date_time)=date(now()) and time(schedule_date_time) <= time(STR_TO_DATE('235959', '%H%i%s')) limit 5", []);
+    return await fetch("select order_number from rmt_enterprise_order where delivery_boy_id is null and is_del = 0 and order_status ='ORDER_PLACED' and payment_on is not null and schedule_order_allocate_retry_count<=3 and schedule_date_time is not null and TIMESTAMPDIFF(minute, now(), schedule_date_time)<=3 limit 5", []);
   } catch (error) {
     //console.log(error);
   }
