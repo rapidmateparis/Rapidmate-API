@@ -84,7 +84,7 @@ const getTranslate = (role, locale,order) => {
       visit: i18n.__("visit"),
       invoiceNumber:order?.order_number,
       orderNumber:order?.order_number,
-      orderAmount:order?.amount?.toFixed(2) || 0.00,
+      orderAmount:order?.order_amount?.toFixed(2) || 0.00,
       orderAmountT:order?.amount?.toFixed(2) || 0.00,
       distance:order?.distance?.toFixed(2) || 0.00,
       pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country,
