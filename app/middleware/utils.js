@@ -473,7 +473,7 @@ exports.getValueById=async (value, tableName, conditionParam, conditionValue)=>{
 }
 
 exports.getValuesById=async (value, tableName, conditionParam, conditionValue)=>{
-  let query = `SELECT ${value} FROM ${tableName} WHERE ${conditionParam} = ?`;
+  let query = `SELECT ${value} FROM ${tableName} WHERE is_del=0 and ${conditionParam} = ?`;
   let queryRes = await fetch(query, [conditionValue]);
   if (queryRes.length > 0) {
     return queryRes[0];
