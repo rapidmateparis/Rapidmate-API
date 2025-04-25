@@ -696,14 +696,15 @@ exports.viewOrderByOrderNumber = async (req, res) => {
       var orderData = dbData[0];
       
       responseData.order = orderData;
-      responseData.deliveryBoy = await getDeliveryBoyInfo(
-        orderData.delivery_boy_id
-      );
       responseData.vehicle = await getVehicleInfo(orderData.delivery_boy_id);
       responseData.orderLines = await getOrderLineInfo(order_number);
       if(orderData?.delivery_type_id==3){
         const slots = await fetch(FETCH_SLOTS_BY_SHIFT_ID, [orderData.id]);
         responseData.slots=slots
+      }else{
+        responseData.deliveryBoy = await getDeliveryBoyInfo(
+          orderData.delivery_boy_id
+        );
       }
       if (returnData) {
         return { data: responseData };
