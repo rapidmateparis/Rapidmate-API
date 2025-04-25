@@ -249,6 +249,7 @@ exports.FETCH_BRANCH_FOR_DASH = `
     LEFT JOIN 
         rmt_enterprise_order_slot os ON b.id = os.branch_id
     WHERE 
+        b.is_del =0 and 
         b.enterprise_id = (
             SELECT id 
             FROM rmt_enterprise 

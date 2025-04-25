@@ -2512,7 +2512,7 @@ const getOrderDetailsByOrderNumber = async (orderNumber, orderInfo, line_id = 0)
     let queryCondition = "";
     var isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = " + orderInfo.consumerKey + ") as consumer_ext_id,";
     if(orderInfo.is_multi_order){
-        isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = (select enterprise_id from rmt_enterprise_branch where id=branch_id)) as consumer_ext_id,line_no,";
+        isMOQuery = "(select ext_id from " + orderInfo.consumerTable + " where id = (select enterprise_id from rmt_enterprise_branch where id=branch_id and is_del = 0)) as consumer_ext_id,line_no,";
         queryCondition = " and id = " + line_id;
     }
     if(isEOrder(orderNumber)){
