@@ -72,7 +72,7 @@ exports.dashboardItem = async (req, res) => {
     const weekData = await fetch("select week_short_name as month, ifnull(total, 0) as count from rmt_week ms left outer join " + 
       "(select enterprise_id, weekday, sum(total) total from vm_booked_overview_chart where " + 
       "enterprise_id =(select id from rmt_enterprise where ext_id =?) " + conditionQuery + ") wcount on ms.week_id=wcount.weekday", [id]);
-    const branchOverviewData = await fetch("select * from rmt_enterprise_branch branch left join vm_dashboard_branch_overview dbo on branch.id = dbo.branch_id where branch.enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
+    const branchOverviewData = await fetch("select * from rmt_enterprise_branch branch left join vm_dashboard_branch_overview dbo on branch.id = dbo.branch_id where branch.is_del=0 and branch.enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
     //console.log("overviewData");
     //console.log(overviewData);
     if(!overviewData){
