@@ -1151,6 +1151,25 @@ const getScheduleUnallocateOrderList = async () => {
   return {};
 };
 
+
+exports.currenDateTimeInDatabase = async () => {
+  try {
+    var responseData = await currenDateTimeInDatabaseData();
+    console.log({message : "App Server DT : " +  new Date(), database : responseData});
+  } catch (error) {
+    console.log({message : "Error Allocated" , error : error});
+  }
+}
+
+const currenDateTimeInDatabaseData = async () => {
+  try {
+    return await fetch("select now() as DB Server DT", []);
+  } catch (error) {
+    console.log(error);
+  }
+  return {};
+};
+
 const scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
   var responseData = {};
   var message ="";
