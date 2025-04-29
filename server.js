@@ -197,6 +197,7 @@ cron.schedule("*/5 * * * * *", function() {
   orderControl.cronJobCheckPaymentStatusByOrderNumber();
 });
 
+eOrderControl.currenDateTimeInDatabase();
 
 server.listen(app.get('port'), () => {
   logger.warn({message : "Server is running on port", port : app.get('port')})
