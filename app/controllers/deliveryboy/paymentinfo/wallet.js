@@ -92,7 +92,7 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
       additionalQueryConditions = " and year(created_on) = year(now()) ";
     }
     if(orderNumber){
-      additionalQueryConditions += " and order_number ='" + orderNumber + "' ";
+      additionalQueryConditions += " and order_number like '%" + orderNumber + "%' ";
     }
     const balance = await getWallentBalance(id);
     var data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])

@@ -1163,7 +1163,7 @@ exports.currenDateTimeInDatabase = async () => {
 
 const currenDateTimeInDatabaseData = async () => {
   try {
-    return await fetch("select now() as DB Server DT", []);
+    return await fetch("select now() as DBServerDT", []);
   } catch (error) {
     console.log(error);
   }
