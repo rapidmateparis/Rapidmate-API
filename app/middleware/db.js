@@ -332,10 +332,11 @@ module.exports = {
   //Enterprise planning 
   async persistEnterpriseOrder(req,enterprise_ext_id) {
     console.info(req);
-    if(parseInt(req.is_scheduled_order) == 1){
+    if(parseInt(req.is_scheduled_order) == 1 || req.schedule_date_time){
       req.consumer_order_title ="Scheduled on ";
       req.delivery_boy_order_title = "Scheduled on ";
-      req.schedule_date_time = req.order_date;
+      req.order_date = req.schedule_date_time;
+      req.is_scheduled_order = 1;
     }else{
       req.consumer_order_title ="Order placed on ";
       req.delivery_boy_order_title = "Order received on ";
@@ -377,11 +378,12 @@ module.exports = {
   },
   
   async persistMultipleDeliveries(req,enterprise_ext_id) {
-    if(parseInt(req.is_scheduled_order) == 1){
-      req.consumer_order_title ="Scheduled on ";
-      req.delivery_boy_order_title = "Scheduled on ";
-      req.schedule_date_time = req.order_date;
-      }else{
+    if(parseInt(req.is_scheduled_order) == 1 || req.schedule_date_time){
+        req.consumer_order_title ="Scheduled on ";
+        req.delivery_boy_order_title = "Scheduled on ";
+        req.order_date = req.schedule_date_time;
+        req.is_scheduled_order = 1;
+    }else{
         req.consumer_order_title ="Order placed on ";
         req.delivery_boy_order_title = "Order received on ";
     }
