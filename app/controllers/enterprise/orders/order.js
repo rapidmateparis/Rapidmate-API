@@ -154,8 +154,8 @@ exports.searchByFilter = async (req, res) => {
       var requestArrayData = [];
       requestArrayData.push(enterprise_ext_id);
       if(requestData.order_number){
-        requestArrayData.push(requestData.order_number);
-        conditionQuery = " and order_number = ?";
+        //requestArrayData.push(requestData.order_number);
+        conditionQuery = " and order_number like '%" + requestData.order_number + "%'";
       }
       if(requestData.from_date && requestData.to_date){
         requestArrayData.push(requestData.from_date);
@@ -169,18 +169,18 @@ exports.searchByFilter = async (req, res) => {
       if(requestData.tab_id){
         if(requestData.tab_id==1){ // OneTime/ 
           requestArrayData.push(1);
-          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED')";
+          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED','PAYMENT_FAILED')";
         }else if(requestData.tab_id==2){ // Multiple
           requestArrayData.push(2);
-          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED')";
+          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED','PAYMENT_FAILED')";
         }else if(requestData.tab_id==3){ // Shift
           requestArrayData.push(3);
-          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED')";
+          conditionQuery += " and delivery_type_id in (?) and order_status not in ('COMPLETED','CANCELLED','PAYMENT_FAILED')";
         } else{// past
           requestArrayData.push(1);
           requestArrayData.push(2);
           requestArrayData.push(3);
-          conditionQuery += " and delivery_type_id in (?,?,?) and order_status in ('COMPLETED','CANCELLED')";
+          conditionQuery += " and delivery_type_id in (?,?,?) and order_status in ('COMPLETED','CANCELLED','PAYMENT_FAILED')";
         }
       }
       var query = "SELECT * FROM rmt_enterprise_order WHERE is_del=0 AND enterprise_id=(select id from rmt_enterprise where ext_id=?) " + conditionQuery + " ORDER BY created_on DESC";
