@@ -207,4 +207,9 @@ router.get(
   controller.mySlotDetails
 )
 
+router.get(
+  '/delivery/otp/:ordernumber',
+  trimRequest.all,
+  controller.deliveryOTP
+)
 module.exports = router
