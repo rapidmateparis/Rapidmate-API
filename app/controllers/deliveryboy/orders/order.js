@@ -2620,3 +2620,45 @@ exports.mySlotDetails = async (req, res) => {
       .json(utils.buildErrorObject(500, error.message, 1001));
   }
 };
+
+
+exports.deliveryOTP = async (req, res) => {
+  try {
+    var orderNumber = req.params.ordernumber;
+    var responseData = await getDelieryOTP(orderNumber, req.query.ext_id, req.query.line);
+    if (responseData) {
+      return res.status(202).json(utils.buildResponse(202, responseData));
+    } else {
+      return res
+        .status(500)
+        .json(utils.buildErrorObject(500, "Invalid Order number", 1001));
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(utils.buildErrorObject(500, "Unable to get OTP", 1001));
+  }
+};
+
+const getDelieryOTP = async (orderNumber, extId, line) => {
+  try {
+    let deliveyAry = [];
+    deliveyAry.push(orderNumber);
+    deliveyAry.push(extId);
+    var deliveryQuery = "select delivered_otp from rmt_order where order_number = ? and consumer_id = (select id from rmt_enterprise where ext_id = ?)";
+    if(orderNumber.includes("EM")){
+      deliveryQuery = "select delivered_otp, line from rmt_enterprise_order_line where order_id = (select id from rmt_enterprise_order where order_number = ? and enterprise_id = (select id from rmt_enterprise where ext_id = ?)) and line = ?";
+        if(line){
+          deliveyAry.push(line);
+        }
+    }else if(orderNumber.includes("E")){
+      deliveryQuery = "select delivered_otp from rmt_enterprise_order where order_number = ?  and enterprise_id = (select id from rmt_enterprise where ext_id = ?)";
+    }
+    const data = await fetch(deliveryQuery, deliveyAry);
+    const filterdata = await transformKeysToLowercase(data);
+    return filterdata
+  } catch (error) {
+    return {};
+  }
+};
