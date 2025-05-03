@@ -2646,7 +2646,7 @@ const getDelieryOTP = async (orderNumber, extId, line) => {
     let deliveyAry = [];
     deliveyAry.push(orderNumber);
     deliveyAry.push(extId);
-    var deliveryQuery = "select delivered_otp from rmt_order where order_number = ? and consumer_id = (select id from rmt_enterprise where ext_id = ?)";
+    var deliveryQuery = "select delivered_otp from rmt_order where order_number = ? and consumer_id = (select id from rmt_consumer where ext_id = ?)";
     if(orderNumber.includes("EM")){
       deliveryQuery = "select delivered_otp, line from rmt_enterprise_order_line where order_id = (select id from rmt_enterprise_order where order_number = ? and enterprise_id = (select id from rmt_enterprise where ext_id = ?)) and line = ?";
         if(line){
