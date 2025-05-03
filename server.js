@@ -20,7 +20,6 @@ const httpRequestResponseInterceptor =require('./config/Interceptor');
 const rateLimit = require('express-rate-limit');
 const logger = require('./config/log').logger;
 const redisClient = require('./config/cacheClient')
-const connectDB = require('./config/db');
 
 require('log4js').configure({
   appenders: {
@@ -65,7 +64,6 @@ app.use(
   })
 );
 
-connectDB();
 TZ="UTC";
 //TZ = "Europe/Paris";
 ////console.log("Timezone", new Date().toString());
