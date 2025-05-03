@@ -2650,7 +2650,7 @@ const getDelieryOTP = async (orderNumber, extId, line) => {
     if(orderNumber.includes("EM")){
       deliveryQuery = "select delivered_otp, line_no from rmt_enterprise_order_line where order_id = (select id from rmt_enterprise_order where order_number = ? and enterprise_id = (select id from rmt_enterprise where ext_id = ?))";
         if(line){
-          deliveryQuery = " and line_no = ?";
+          deliveryQuery += " and line_no = ?";
           deliveyAry.push(line);
         }
     }else if(orderNumber.includes("E")){
