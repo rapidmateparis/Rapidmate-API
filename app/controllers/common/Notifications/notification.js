@@ -343,26 +343,22 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
       redirect
     };
   
+    var isNofitificationEnabledStatus = await isNofitificationEnabled(receiverExtId);
+    if(isSendFCMNotify && isNofitificationEnabledStatus){
+       //const objId=savedNotification._id
+       const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
+       console.log(savedNotification);
+    }
     const notification = new Notification(insertData);
     const savedNotification = await notification.save();
     const responseUpdateCount = await updateNotifyCount(receiverExtId);
-    //console.log(savedNotification);
+    console.log(savedNotification)
     if (!savedNotification) {
       return false;
     }
-    var isNofitificationEnabledStatus = await isNofitificationEnabled(receiverExtId);
-    //console.log("isSendFCMNotify = " , isSendFCMNotify);
-    //console.log("receiverExtId = " , receiverExtId);
-    //console.log("isNofitificationEnabledStatus = " , isNofitificationEnabledStatus);
-    if(isSendFCMNotify && isNofitificationEnabledStatus){
-       //console.log("Eligible to send notify");
-       const objId=savedNotification._id
-       const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-    }
     return savedNotification;
-   
   } catch (error) {
-      //console.log(error);
+      console.log(error);
       return null;
   }
 };
