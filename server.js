@@ -20,7 +20,7 @@ const httpRequestResponseInterceptor =require('./config/Interceptor');
 const rateLimit = require('express-rate-limit');
 const logger = require('./config/log').logger;
 const redisClient = require('./config/cacheClient')
-
+const connectDB = require('./config/db')
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -65,7 +65,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // ✅ Handle preflight
 // ===== ✅ CORS FIX END =====
-
+connectDB()
 TZ="UTC";
 //TZ = "Europe/Paris";
 ////console.log("Timezone", new Date().toString());
