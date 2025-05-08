@@ -225,6 +225,27 @@ router.post('/getaccesstoken',trimRequest.all,validate.getAccessToken,function (
     });
 });
 
+router.post('/delete/account',trimRequest.all,validate.deleteAccount, function (req, res, next) {
+  if(req.body.info) {
+      logger.info('/delete/account request', req.body.info)
+  }
+  else {
+      logger.error('/delete/account Status 400 Invalid request format')
+      return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
+  }
+
+  controller.deleteCognitoUser(req.body.info).then(user => {
+      if(user == null){
+        return res.status(400).json(utils.buildErrorObject(400,'Invalid verification code',1001));
+      }
+      logger.info('/delete/account response',user)
+      return res.status(200).json(utils.buildCreateMessage(200,"User account has been deleted successfully",user))
+  }).catch(error => {
+      logger.error('Error in /delete/account', error);  // Log the error
+      return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
+  });
+});
+
 router.get('/map/code', trimRequest.all,commonController.getMapKey);
 router.get('/directions', trimRequest.all,commonController.getDirectionDistanceandTime);
 

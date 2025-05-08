@@ -839,27 +839,34 @@ function deleteCognitoUser(userInfo) {
 
         cognitoidentityserviceprovider.adminDeleteUser(params, function (err, data) {
             var body = {};
-
             if (err) {
                 logger.error(err.message);
                 body["error"] = { "message": err.message };
                 resolve(body)
             } else {
                 logger.info(data);
-                resolve(deleteUserDataInDB(userInfo["userName"], userInfo["role"]));
+                resolve(deleteUserDataInDB(userInfo["userName"], userInfo["extId"]));
             }
         });
     });
 }
 
-function deleteUserDataInDB(email, userRole){
-    return new Promise(resolve => {
-        var body = {};
-        var tablename = "dashboard_users";
-
-        logger.info("userrole " + userRole);
-
-    });
+async function deleteUserDataInDB(userName, extId){
+    let tableName = "";
+    if(extId.includes("D")){
+        tableName = "rmt_delivery_boy";
+    }else  if(extId.includes("C")){
+        tableName = "rmt_consumer";
+    }else  if(extId.includes("E")){
+        tableName = "rmt_enterprise";
+    }else  if(extId.includes("A")){
+        tableName = "rmt_admin_user";
+    }
+    const updateTokenToProfile = await updateQuery("update " + tableName + " set is_del = 1, deleted_on = now(), token = '', logout_on=now(), is_active=0, updated_on = now(), updated_by = ? where username = ?", [extId, userName]);
+    return  { success : {
+                message : (updateTokenToProfile && parseInt(updateTokenToProfile.affectedRows)>0?"Account has been deleted" : "Unable to delete account")
+                }
+            } 
 }
 
 function disableCognitoUser(userInfo) {
