@@ -179,22 +179,22 @@ const softDeleteOldNotifications = async () => {
 cron.schedule('59 23 * * *', () => { softDeleteOldNotifications(); });
 
 cron.schedule("*/30 * * * * *", function() { 
-  logger.warn({message : "Schedule Order : Running...", data : new Date()})
+  //logger.warn({message : "Schedule Order : Running...", data : new Date()})
   orderControl.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber();
 });
 
 cron.schedule("*/30 * * * * *", function() { 
-  logger.warn({message : "Schedule E-Order : Running...", data : new Date()})
+  //logger.warn({message : "Schedule E-Order : Running...", data : new Date()})
   eOrderControl.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber();
 });
 
 cron.schedule("*/5 * * * * *", function() { 
-  logger.warn({message : "Reallocate Order : Running...", data : new Date()})
+  //logger.warn({message : "Reallocate Order : Running...", data : new Date()})
   orderControl.cronJobRemoveAllocatedDeliveryBoyByOrderNumber();
 });
 
 cron.schedule("*/5 * * * * *", function() { 
-  logger.warn({message : "Check Payment status : Running...", data : new Date()})
+  //logger.warn({message : "Check Payment status : Running...", data : new Date()})
   orderControl.cronJobCheckPaymentStatusByOrderNumber();
 });
 
