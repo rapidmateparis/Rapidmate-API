@@ -42,8 +42,9 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
     logger.info('/signup response', user);
     return res.status(200).json(utils.buildCreateMessage(200, 'Register is successful', user));
   } catch (error) {
+    let isVerified = await controller.IsExists(req.body.info.userName);
     logger.error('Error in /signup', error);  // Log the error
-    return res.status(400).json(utils.buildErrorObject(400, error.message, 1001));
+    return res.status(400).json(utils.buildErrorObject(400, isVerified? error.message : "Verification is pending", 1010));
   }
 });
 /*
@@ -65,7 +66,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
               return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" ,1001));
+              return res.status(400).json(utils.buildErrorObject(400, error.message, 1010));
           });
         }else{
           controller.login(req.body.info).then(user => {
@@ -77,7 +78,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             }
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" , 1001));
+              return res.status(400).json(utils.buildErrorObject(400, error.message, 1010));
           });
         }
     }

@@ -991,7 +991,7 @@ exports.allocateDeliveryBoy = async (req, res) => {
 exports.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber = async () => {
   try {
     var responseData = await getScheduleUnallocateOrderList();
-    logger.warn({message : "Unallocated Orders : ", data : responseData});
+    //logger.warn({message : "Unallocated Orders : ", data : responseData});
     if (responseData) {
         responseData.forEach(order => {
           logger.warn({message : "Allocated Started on " +  new Date(), order : order.order_number});
@@ -1006,7 +1006,7 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByOrderNumber = async () => {
 exports.cronJobRemoveAllocatedDeliveryBoyByOrderNumber = async () => {
   try {
     var responseData = await updateAlloctatedButNotAcceptedOrderList();
-    logger.warn({message : "Reallocate Orders : ", data : responseData});
+    //logger.warn({message : "Reallocate Orders : ", data : responseData});
  } catch (error) {
     logger.warn({message : "Error Reallocate Orders" , error : error});
   }
@@ -1146,7 +1146,7 @@ const scheduleAllocateDeliveryBoyByOrderNumber = async (order_number) => {
 exports.cronJobCheckPaymentStatusByOrderNumber = async () => {
   try {
     var responseData = await checkAndUpdatePaymentStatusByOrderNumber();
-    logger.warn({message : "Check Payment status : ", data : responseData});
+    //logger.warn({message : "Check Payment status : ", data : responseData});
  } catch (error) {
     logger.warn({message : "Error Check Payment status" , error : error});
   }
