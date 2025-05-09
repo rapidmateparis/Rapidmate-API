@@ -259,7 +259,7 @@ async function signupVerify(userInfo) {
 
 
 async function login(userInfo) {
-    let isVerified = await IsExists(userInfo["userName"]);
+    let isVerifieduserData = await IsExists(userInfo["userName"]);
     if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve , reject) => {
                 var authenticationData =
@@ -331,9 +331,9 @@ async function login(userInfo) {
                         logger.error("onFailure");
                         logger.error(cognitoErr);
                         let errorResponse = {
-                            "message": isVerified ? {cognitoErr} : "Verification is pending",
+                            "message": isVerifieduserData ? isVerifieduserData : {cognitoErr},
                         }
-                        reject(isVerified ? cognitoErr : errorResponse);
+                        reject(errorResponse);
                     },
                 });
         });
@@ -874,8 +874,8 @@ async function deleteUserDataInDB(userName, extId){
 }
 
 async function IsExists(userName){
-    const userData = await fetch("select is_email_verified from vw_rmt_user where username = ?", [userName]);
-    return userData && userData[0]?.is_email_verified=='1' || userData[0]?.is_email_verified==1;
+    const userData = await fetch("select is_email_verified, username, role from vw_rmt_user where username = ?", [userName]);
+    return (userData && userData[0]?.is_email_verified=='1' || userData[0]?.is_email_verified==1) ? null : userData;
 }
 
 function disableCognitoUser(userInfo) {
