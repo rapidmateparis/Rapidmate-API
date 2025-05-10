@@ -42,10 +42,9 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
     logger.info('/signup response', user);
     return res.status(200).json(utils.buildCreateMessage(200, 'Register is successful', user));
   } catch (error) {
-    let isVerified = await controller.IsExists(req.body.info.userName);
+    let isVerifieduserData = await controller.IsExists(req.body.info.userName);
     logger.error('Error in /signup', error);  // Log the error
-    return res.status(400).json(utils.buildErrorObject(400, isVerified? error.message : "Verification is pending", 1010));
-  }
+    return res.status(400).json(utils.buildErrorObject(400, isVerifieduserData? isVerifieduserData : error.message, 1010));  }
 });
 /*
  * Login route
@@ -234,7 +233,10 @@ router.post('/delete/account',trimRequest.all,validate.deleteAccount, function (
       logger.error('/delete/account Status 400 Invalid request format')
       return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
   }
-
+  const isValidPassword = controller.isValidateUserPassword(req.body.info.username, req.body.info.password);
+  if(isValidPassword == null){
+    return res.status(400).json(utils.buildErrorObject(400,'Invalid password',1001));
+  }
   controller.deleteCognitoUser(req.body.info).then(user => {
       if(user == null){
         return res.status(400).json(utils.buildErrorObject(400,'Invalid verification code',1001));
