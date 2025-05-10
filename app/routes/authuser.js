@@ -233,7 +233,10 @@ router.post('/delete/account',trimRequest.all,validate.deleteAccount, function (
       logger.error('/delete/account Status 400 Invalid request format')
       return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
   }
-
+  const isValidPassword = controller.isValidateUserPassword(req.body.info.username, req.body.info.password);
+  if(isValidPassword == null){
+    return res.status(400).json(utils.buildErrorObject(400,'Invalid password',1001));
+  }
   controller.deleteCognitoUser(req.body.info).then(user => {
       if(user == null){
         return res.status(400).json(utils.buildErrorObject(400,'Invalid verification code',1001));
