@@ -823,12 +823,25 @@ function resetPassword(userInfo) {
       });
 }
 
+async function isValidateUserPassword(username, password){
+    const userData = await getUserDataWithPassword(username);
+    if(userData && userData.length > 0){
+    return await bcrypt.compare(password, userData[0].password, async function(err, res) {
+        if (err){
+            return (null);
+        }
+        if (res) {
+            return (userData);
+        }
+        });
+    }
+}
+
 function deleteCognitoUser(userInfo) {
 
     return new Promise(resolve => {
         logger.info("userInfo");
         logger.info(userInfo);
-
         var params = {
             UserPoolId: userPoolId,
             Username: userInfo["userName"]
@@ -1084,5 +1097,6 @@ module.exports = {
     isAuthorized,
     changePassword,
     logout,
-    IsExists
+    IsExists,
+    isValidateUserPassword
 };
