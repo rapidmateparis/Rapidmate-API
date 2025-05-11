@@ -826,15 +826,9 @@ function resetPassword(userInfo) {
 async function isValidateUserPassword(username, password){
     const userData = await getUserDataWithPassword(username);
     if(userData && userData.length > 0){
-    return await bcrypt.compare(password, userData[0].password, async function(err, res) {
-        if (err){
-            return (null);
-        }
-        if (res) {
-            return (userData);
-        }
-        });
+        return await bcrypt.compare(password, userData[0].password);
     }
+    return false;
 }
 
 function deleteCognitoUser(userInfo) {
