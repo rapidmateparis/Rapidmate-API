@@ -15,5 +15,10 @@ router.put(
   versionController.updateVersion
 )
 
+router.get(
+  '/rmkey',
+  trimRequest.all,
+  versionController.getRmKey
+)
 
 module.exports = router
