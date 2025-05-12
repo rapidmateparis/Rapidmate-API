@@ -16,6 +16,13 @@ const ADMIN_ROLE = "ADMIN";
 const DELEIVERY_BOY_ROLE = "DELIVERY_BOY";
 const ENTERPRISE_ROLE = "ENTERPRISE";
 const CONSUMER_ROLE = "CONSUMER";
+const crypto = require('crypto');
+const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+  modulusLength: 2048,
+});
+const publicKeyPem = publicKey.export({ type: 'pkcs1', format: 'pem' });
+const privateKeyPem = privateKey.export({ type: 'pkcs1', format: 'pem' });
+
 const logger = require('log4js').getLogger(require('path').basename(__filename));
 var poolData =
 {
@@ -86,6 +93,12 @@ function createUser(userInfo) {
             }
         });
   });
+}
+
+function decryptRSA(encryptedBase64) {
+  const encryptedBuffer = Buffer.from(encryptedBase64, 'base64');
+  const decrypted = crypto.privateDecrypt(privateKeyPem, encryptedBuffer);
+  return decrypted.toString('utf8');
 }
 
 async function signup(userInfo) {
@@ -259,6 +272,9 @@ async function signupVerify(userInfo) {
 
 
 async function login(userInfo) {
+    let epassword = userInfo["password"];
+    console.log("--------------------------------------");
+    console.log(decryptRSA(epassword));
     let isVerifieduserData = await IsExists(userInfo["userName"]);
     if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve , reject) => {

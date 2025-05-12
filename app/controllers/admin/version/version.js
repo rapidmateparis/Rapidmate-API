@@ -1,6 +1,22 @@
 const utils = require('../../../middleware/utils')
 const { runQuery, updateQuery } = require('../../../middleware/db')
 const redisClient = require('../../../../config/cacheClient');
+const crypto = require('crypto');
+const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+  modulusLength: 2048,
+});
+
+exports.getRmKey = async (req, res) => {
+  try {
+    const publicKeyPem = publicKey.export({ type: 'pkcs1', format: 'pem' });
+    //const privateKeyPem = privateKey.export({ type: 'pkcs1', format: 'pem' });
+
+    return res.status(200).json(utils.buildCreateMessage(200, message, publicKeyPem))
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Error rmkey', 1001));
+  }
+}
 
 exports.getVersions = async (req, res) => {
   try {
