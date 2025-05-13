@@ -274,8 +274,6 @@ async function signupVerify(userInfo) {
 
 async function login(userInfo) {
     let epassword = userInfo["password"];
-    console.log("--------------------------------------");
-    console.log(decryptRSA(epassword));
     let isVerifieduserData = await IsExists(userInfo["userName"]);
     if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve , reject) => {
