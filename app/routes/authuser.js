@@ -34,7 +34,7 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
     }
 
     // Call the signup function
-    req.body.info.passowrd = controller.decryptPassword(req.body.info.passowrd);
+    req.body.info.password = controller.decryptPassword(req.body.info.password);
     const user = await controller.signup(req.body.info);
     if(user == null){
       return res.status(400).json(utils.buildErrorObject(400, "User already exists!!!", 1001));
@@ -61,7 +61,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
         }
         if(process.env.PROD_FLAG == "true"){
-          req.body.info.passowrd = controller.decryptPassword(req.body.info.passowrd);
+          req.body.info.password = controller.decryptPassword(req.body.info.password);
           controller.login(req.body.info).then(user => {
               logger.info('/login response',user)
               return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
@@ -70,7 +70,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
               return res.status(400).json(utils.buildErrorObject(400, error.message, 1010));
           });
         }else{
-          req.body.info.passowrd = controller.decryptPassword(req.body.info.passowrd);
+          req.body.info.password = controller.decryptPassword(req.body.info.password);
           controller.login(req.body.info).then(user => {
             //console.log("data 000000", user);
             if(user == null){
