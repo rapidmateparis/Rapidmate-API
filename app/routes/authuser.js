@@ -34,7 +34,7 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
     }
 
     // Call the signup function
-    req.body.info.passowrd = constroller.decryptPassword(req.body.info.passowrd);
+    req.body.info.passowrd = controller.decryptPassword(req.body.info.passowrd);
     const user = await controller.signup(req.body.info);
     if(user == null){
       return res.status(400).json(utils.buildErrorObject(400, "User already exists!!!", 1001));
@@ -61,7 +61,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
         }
         if(process.env.PROD_FLAG == "true"){
-          req.body.info.passowrd = constroller.decryptPassword(req.body.info.passowrd);
+          req.body.info.passowrd = controller.decryptPassword(req.body.info.passowrd);
           controller.login(req.body.info).then(user => {
               logger.info('/login response',user)
               return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
@@ -70,7 +70,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
               return res.status(400).json(utils.buildErrorObject(400, error.message, 1010));
           });
         }else{
-          req.body.info.passowrd = constroller.decryptPassword(req.body.info.passowrd);
+          req.body.info.passowrd = controller.decryptPassword(req.body.info.passowrd);
           controller.login(req.body.info).then(user => {
             //console.log("data 000000", user);
             if(user == null){
@@ -129,8 +129,8 @@ router.post('/changepassword',trimRequest.all,validate.changepassword, trimReque
           logger.error(' /changepassword Status 400 Invalid request format')
           return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
       }
-      req.body.info.newPassword = constroller.decryptPassword(req.body.info.newPassword);
-      req.body.info.oldPassword = constroller.decryptPassword(req.body.info.oldPassword);
+      req.body.info.newPassword = controller.decryptPassword(req.body.info.newPassword);
+      req.body.info.oldPassword = controller.decryptPassword(req.body.info.oldPassword);
       controller.changePassword(req.body.info).then(user => {
           logger.info('/changepassword response',user)
           return res.status(200).json(utils.buildCreateMessage(200,"Password change successfully.",user))
@@ -196,7 +196,7 @@ router.post('/resetpassword',trimRequest.all,validate.resetPassword,function (re
     return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
   }
   
-  req.body.info.newPassword = constroller.decryptPassword(req.body.info.newPassword);
+  req.body.info.newPassword = controller.decryptPassword(req.body.info.newPassword);
   controller.resetPassword(req.body.info).then(user => {
     if (!user) {
       logger.error('/resetpassword Status 401 Invalid user or password')
@@ -238,7 +238,7 @@ router.post('/delete/account',trimRequest.all,validate.deleteAccount, function (
       logger.error('/delete/account Status 400 Invalid request format')
       return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
   }
-  req.body.info.password = constroller.decryptPassword(req.body.info.password);
+  req.body.info.password = controller.decryptPassword(req.body.info.password);
   const isValidPassword = controller.isValidateUserPassword(req.body.info.userName, req.body.info.password);
   if(!isValidPassword){
     return res.status(400).json(utils.buildErrorObject(400,'Invalid password',1001));
