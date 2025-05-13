@@ -92,14 +92,16 @@ function createUser(userInfo) {
   });
 }
 
-function decryptPassword(rawPassword) {
-    if(rawPassword){
-        const decipher = crypto.createDecipheriv('aes-256-cbc', SECRET_KEY, IV);
-        let decrypted = decipher.update(rawPassword, 'base64', 'utf8');
-        decrypted += decipher.final('utf8');
-        return decrypted;
-    }
+function decryptPassword(encryptedBase64) {
+  try {
+    const decipher = crypto.createDecipheriv('aes-256-cbc', SECRET_KEY, IV);
+    let decrypted = decipher.update(encryptedBase64, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (err) {
+    console.error('Decryption error:', err.message);
     return null;
+  }
 }
 
 async function signup(userInfo) {
@@ -273,9 +275,7 @@ async function signupVerify(userInfo) {
 
 
 async function login(userInfo) {
-    let epassword = userInfo["password"];
-    console.log("--------------------------------------");
-    console.log(decryptRSA(epassword));
+    
     let isVerifieduserData = await IsExists(userInfo["userName"]);
     if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve , reject) => {
