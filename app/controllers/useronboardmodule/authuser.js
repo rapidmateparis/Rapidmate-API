@@ -17,11 +17,8 @@ const DELEIVERY_BOY_ROLE = "DELIVERY_BOY";
 const ENTERPRISE_ROLE = "ENTERPRISE";
 const CONSUMER_ROLE = "CONSUMER";
 const crypto = require('crypto');
-const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
-  modulusLength: 2048,
-});
-const publicKeyPem = publicKey.export({ type: 'pkcs1', format: 'pem' });
-const privateKeyPem = privateKey.export({ type: 'pkcs1', format: 'pem' });
+const SECRET_KEY = Buffer.from('R@p1dmat3@2025$20250525023532345', 'utf-8');
+const IV = Buffer.from('1234567890123456', 'utf-8'); // 16 bytes
 
 const logger = require('log4js').getLogger(require('path').basename(__filename));
 var poolData =
@@ -95,10 +92,14 @@ function createUser(userInfo) {
   });
 }
 
-function decryptRSA(encryptedBase64) {
-  const encryptedBuffer = Buffer.from(encryptedBase64, 'base64');
-  const decrypted = crypto.privateDecrypt(privateKeyPem, encryptedBuffer);
-  return decrypted.toString('utf8');
+function decryptPassword(rawPassword) {
+    if(rawPassword){
+        const decipher = crypto.createDecipheriv('aes-256-cbc', SECRET_KEY, IV);
+        let decrypted = decipher.update(encryptedBase64, 'base64', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    }
+    return null;
 }
 
 async function signup(userInfo) {
@@ -1108,5 +1109,6 @@ module.exports = {
     changePassword,
     logout,
     IsExists,
-    isValidateUserPassword
+    isValidateUserPassword,
+    decryptPassword
 };
