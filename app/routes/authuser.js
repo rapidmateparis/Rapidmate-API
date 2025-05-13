@@ -45,7 +45,7 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
   } catch (error) {
     let isVerifieduserData = await controller.IsExists(req.body.info.userName);
     logger.error('Error in /signup', error);  // Log the error
-    return res.status(400).json(utils.buildErrorObject(400, isVerifieduserData? isVerifieduserData : error.message, 1010));  }
+    return res.status(400).json(utils.buildErrorObject(400,"Please try again", 1010));  }
 });
 /*
  * Login route
@@ -67,7 +67,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
               return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400, error.message, 1010));
+              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!", 1010));
           });
         }else{
           req.body.info.password = controller.decryptPassword(req.body.info.password);
@@ -80,7 +80,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             }
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400, error.message, 1010));
+              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" , 1010));
           });
         }
     }
