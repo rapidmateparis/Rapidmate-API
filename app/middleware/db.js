@@ -210,7 +210,7 @@ module.exports = {
     } catch (error) {
       //console.log(error);
       await connection.rollback();
-      throw error;
+      return error;
     } finally {
       connection.release();
     }
@@ -264,7 +264,7 @@ module.exports = {
       return result;
     } catch (error) {
       console.error('Error fetching planning data with slots:', error); // Debug: Output error
-      throw error;
+      return error;
     } finally {
       connection.release();
     }
@@ -323,7 +323,7 @@ module.exports = {
       return result;
     } catch (error) {
       console.error('Error fetching planning data with slots by delivery_boy_id:', error); // Debug: Output error
-      throw error;
+      return error;
     } finally {
       connection.release();
     }
@@ -371,7 +371,7 @@ module.exports = {
       return { id: result.insertId};
     } catch (error) {
       await connections.rollback(); // Rollback the transaction in case of error
-      throw error;
+      return error;
     } finally {
       connections.release(); // Release the connection back to the pool
     }
@@ -512,7 +512,7 @@ module.exports = {
       return { id: result.insertId};
     } catch (error) {
       await connections.rollback(); // Rollback the transaction in case of error
-      throw error;
+      return error;
     } finally {
       connections.release(); // Release the connection back to the pool
     }
@@ -602,7 +602,7 @@ module.exports = {
                   }
                 );
               } else {
-                throw new Error('No slots provided');
+                return 'No slots provided';
               }
               tax_amount = ((total_slot_amount * 20) / 100).toFixed(2);
               total_amount_with_tax = (total_slot_amount + ((total_slot_amount * 20) / 100)).toFixed(2);
@@ -615,7 +615,7 @@ module.exports = {
       return { id: result.insertId};
     } catch (error) {
       await connections.rollback(); // Rollback the transaction in case of error
-      throw error;
+      return error;
     } finally {
       connections.release(); // Release the connection back to the pool
     }
