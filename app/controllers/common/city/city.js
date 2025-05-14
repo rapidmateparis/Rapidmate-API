@@ -153,7 +153,7 @@ exports.deleteItem = async (req, res) => {
         return res.status(500).json(utils.buildErrorMessage(500, 'Unable to delete the city. Please try again later.', 1009));
       }
     }
-    return res.status(404).json(utils.buildErrorObject(404, 'City not found. Please provide deltail and try again.', 1010));
+    return res.status(404).json(utils.buildErrorObject(404, 'City not found. Please provide deltail and try again.', 1000));
   } catch (error) {
     return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to deleting the city. Please try again later.', 1011));
   }
