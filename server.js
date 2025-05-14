@@ -43,8 +43,6 @@ const limiter = rateLimit({
 
 // ===== ✅ CORS FIX START =====
 const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
   'https://rapidmate.fr',
   'https://admin.rapidmate.fr',
 ];
@@ -57,7 +55,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
   credentials: true,
 };
@@ -200,27 +198,27 @@ cron.schedule("*/5 * * * * *", function() {
 
 eOrderControl.currenDateTimeInDatabase();
 
+app.use((err, req, res, next) => {
+  logger.error({
+    message: 'Unhandled error middleware',
+    error: err.stack || err.message || err,
+    url: req.originalUrl,
+    method: req.method,
+    body: req.body,
+  });
+
+  return res.status(500).json({
+    success: false,
+    message: 'A server error occurred. Please try again later.',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+  });
+});
+
+
 server.listen(app.get('port'), () => {
   logger.warn({message : "Server is running on port", port : app.get('port')})
 });
 
-app.use((err, req, res, next) => {
-  console.error(err); // Log the original error
 
-  // Send a custom error response
-  res.status(500).json({
-    message: 'A network request failed. Please try again later.',
-    error: err.message, // Include the original error message for debugging purposes
-  });
-});
-
-app.get('/health', async (req, res) => {
-  try {
-    await redisClient.ping();
-    res.send('Redis is healthy ✅');
-  } catch (err) {
-    res.status(500).send('Redis not reachable ❌');
-  }
-});
 
 module.exports = app;
