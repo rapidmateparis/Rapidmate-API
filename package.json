@@ -25,6 +25,7 @@
     "compression": "^1.7.4",
     "consolidate": "^1.0.0",
     "cors": "^2.8.5",
+    "crypto-js": "^3.3.0",
     "csv-parse": "^5.5.0",
     "csv-parser": "^3.0.0",
     "date-fns": "^2.11.1",
