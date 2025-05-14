@@ -236,7 +236,7 @@ async function signupVerify(userInfo) {
               secretAccessKey: cognito_secretAccessKey
             });
         
-            cognitoidentityserviceprovider.confirmSignUp(params, function(err, data) {
+            cognitoidentityserviceprovider.confirmSignUp(params, async function(err, data) {
               if (err) {
                 logger.error('selfSignUp error');
                 logger.error(err);
@@ -244,6 +244,7 @@ async function signupVerify(userInfo) {
               } else {
                 logger.info(data);
                 logger.info("selfSignUp completion");
+                await updateVerificationStatus(userInfo);
                 resolve(data);
               }
             });
@@ -252,7 +253,7 @@ async function signupVerify(userInfo) {
         logger.info("Internal Verify");
         var userName = userInfo["userName"];
         var code = userInfo["code"];
-        const userData = await fetch("select * from vw_rmt_user where username = ? and verification_code = ?", [userName, code]);
+        const userData = await fetch("select * from vw_rmt_user where username = ?", [userName]);
         if(userData && userData.length > 0 ){
             var role = userData[0].role;
             var tableName = "";
@@ -273,7 +274,29 @@ async function signupVerify(userInfo) {
     }
 }
 
-
+async function updateVerificationStatus(userInfo){
+        logger.info("Internal Verify");
+        var userName = userInfo["userName"];
+        var code = userInfo["code"];
+        const userData = await fetch("select * from vw_rmt_user where username = ?", [userName]);
+        if(userData && userData.length > 0 ){
+            var role = userData[0].role;
+            var tableName = "";
+            if(role=='DELIVERY_BOY'){
+                tableName = "rmt_delivery_boy";
+            }else  if(role=='CONSUMER'){
+                tableName = "rmt_consumer";
+            }else  if(role=='ENTERPRISE'){
+                tableName = "rmt_enterprise";
+            }else  if(role=='ADMIN'){
+                tableName = "rmt_admin_user";
+            }
+            const updateTokenToProfile = await updateQuery("update " + tableName + " set is_email_verified = 1 where username = ?", [userName]);
+            return {};
+        }else{
+            return null;
+        }
+}
 async function login(userInfo) {
 
     let epassword = userInfo["password"]
