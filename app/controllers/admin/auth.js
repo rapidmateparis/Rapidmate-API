@@ -457,4 +457,3 @@ exports.updateWebToken = async (req, res) => {
     res.status(500).json({ message: "Error updating web token", error: error.message });
   }
 };
-
