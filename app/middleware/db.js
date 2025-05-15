@@ -78,7 +78,7 @@ module.exports = {
           resolve({})
         }
       } catch (err) {
-        //console.log((' err', err)
+        //console.log(' err', err)
       }
     })
   },
@@ -102,43 +102,43 @@ module.exports = {
 
   async fetch(query, param = []) {
     try {
-      // //console.log((query, param);
+      // //console.log(query, param);
       return await pool
         .execute(query, param)
         .then(([rows, fields]) => {
           return rows
         })
         .catch((err) => {
-          //console.log((err);
+          //console.log(err);
           return err
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
     }
   },
 
   async executeQuery(query, param = []) {
     try {
-      //console.log((query, param);
+      //console.log(query, param);
       return await pool
         .execute(query, param)
         .then(([rows, fields]) => {
           return rows
         })
         .catch((err) => {
-          //console.log((err);
+          //console.log(err);
           return err
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
     }
   },
 
   async insertQuery(query,param=[]) {
     try {
-      // //console.log((query,param)
+      // //console.log(query,param)
       return await pool.execute(query, param).then(([rows, fields]) => {
           return rows
         })
@@ -147,7 +147,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
@@ -155,7 +155,7 @@ module.exports = {
   
   async updateQuery(query,param=[]) {
     try {
-      //console.log((query);
+      //console.log(query);
       return await pool
         .execute(query,param)
         .then(([rows, fields]) => {
@@ -166,7 +166,7 @@ module.exports = {
           // res.status(500).json({ error: "Something Went wrong" });
         })
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return error
       // res.status(500).json({ error: "Failed to execute the query" });
     }
@@ -180,7 +180,7 @@ module.exports = {
       arySlotValues = [];
   
       slots.forEach(async slot => {
-        //console.log(("Time", slot);
+        //console.log("Time", slot);
         slot.times.forEach(timeData => {
          arySlotValues.push({
               planningSetupId : planningSetupId,
@@ -193,7 +193,7 @@ module.exports = {
           }
         );
       });
-      //console.log(("arySlotValues", arySlotValues);
+      //console.log("arySlotValues", arySlotValues);
       let mapSlots = arySlotValues.map(slot => [
         slot.planningSetupId,
         slot.day,
@@ -203,14 +203,14 @@ module.exports = {
         slot.planning_date
       ]
       );
-      //console.log(("mapSlots", mapSlots);
+      //console.log("mapSlots", mapSlots);
       await connection.query(INSERT_SLOTS_QUERY, [mapSlots]);
       await connection.commit();
       return planningSetupId;
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       await connection.rollback();
-      throw error;
+      return error;
     } finally {
       connection.release();
     }
@@ -221,7 +221,7 @@ module.exports = {
     try {
       const [rows] = await connection.execute(GET_ALL_PLANNING_WITH_SLOTS_QUERY);
 
-      //console.log(('Query result:', rows); // Debug: Output raw rows
+      //console.log('Query result:', rows); // Debug: Output raw rows
 
       // Create a map to store planning records and their associated slots
       const planningMap = new Map();
@@ -259,12 +259,12 @@ module.exports = {
 
       // Convert the map to an array of planning records
       const result = Array.from(planningMap.values());
-      //console.log(('Processed result:', result); // Debug: Output processed result
+      //console.log('Processed result:', result); // Debug: Output processed result
 
       return result;
     } catch (error) {
       console.error('Error fetching planning data with slots:', error); // Debug: Output error
-      throw error;
+      return error;
     } finally {
       connection.release();
     }
@@ -280,7 +280,7 @@ module.exports = {
     try {
       const [rows] = await connection.execute(GET_PLANNING_WITH_SLOTS_BY_DELIVERY_BOY_QUERY, [deliveryBoyId]);
 
-      //console.log(('Query result:', rows); // Debug: Output raw rows
+      //console.log('Query result:', rows); // Debug: Output raw rows
 
       // Create a map to store planning records and their associated slots
       const planningMap = new Map();
@@ -318,12 +318,12 @@ module.exports = {
 
       // Convert the map to an array of planning records
       const result = Array.from(planningMap.values());
-      //console.log(('Processed result:', result); // Debug: Output processed result
+      //console.log('Processed result:', result); // Debug: Output processed result
 
       return result;
     } catch (error) {
       console.error('Error fetching planning data with slots by delivery_boy_id:', error); // Debug: Output error
-      throw error;
+      return error;
     } finally {
       connection.release();
     }
@@ -332,10 +332,11 @@ module.exports = {
   //Enterprise planning 
   async persistEnterpriseOrder(req,enterprise_ext_id) {
     console.info(req);
-    if(parseInt(req.is_scheduled_order) == 1){
+    if(parseInt(req.is_scheduled_order) == 1 || req.schedule_date_time){
       req.consumer_order_title ="Scheduled on ";
       req.delivery_boy_order_title = "Scheduled on ";
-      req.schedule_date_time = req.order_date;
+      req.order_date = req.schedule_date_time;
+      req.is_scheduled_order = 1;
     }else{
       req.consumer_order_title ="Order placed on ";
       req.delivery_boy_order_title = "Order received on ";
@@ -349,39 +350,40 @@ module.exports = {
         order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,
-        drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
 
       } = req; 
       const [result] = await connections.query(
         `INSERT INTO rmt_enterprise_order (
           order_number,enterprise_id, branch_id, delivery_type_id, service_type_id, vehicle_type_id, order_date,pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
           repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,
-          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
-        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
+        ) VALUES (concat('EO',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,(LPAD(FLOOR(RAND() * 9999.99),4,  '0')),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,
           pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,distance,total_amount,commission_percentage,commission_amount,
           delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
-          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
         ]
       );
       await connections.commit(); // Commit the transaction
       return { id: result.insertId};
     } catch (error) {
       await connections.rollback(); // Rollback the transaction in case of error
-      throw error;
+      return error;
     } finally {
       connections.release(); // Release the connection back to the pool
     }
   },
   
   async persistMultipleDeliveries(req,enterprise_ext_id) {
-    if(parseInt(req.is_scheduled_order) == 1){
-      req.consumer_order_title ="Scheduled on ";
-      req.delivery_boy_order_title = "Scheduled on ";
-      req.schedule_date_time = req.order_date;
-      }else{
+    if(parseInt(req.is_scheduled_order) == 1 || req.schedule_date_time){
+        req.consumer_order_title ="Scheduled on ";
+        req.delivery_boy_order_title = "Scheduled on ";
+        req.order_date = req.schedule_date_time;
+        req.is_scheduled_order = 1;
+    }else{
         req.consumer_order_title ="Order placed on ";
         req.delivery_boy_order_title = "Order received on ";
     }
@@ -395,7 +397,7 @@ module.exports = {
         branch_id,delivery_type_id,service_type_id,vehicle_type_id,order_date,pickup_location_id,dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day,
         package_photo,package_id,pickup_notes,is_same_dropoff_location,repeat_dropoff_location_id ,distance, total_amount,commission_percentage,commission_amount,
         delivery_boy_amount,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,
-        drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+        drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
 
       } = req; 
       const [result] = await connections.query(
@@ -404,14 +406,14 @@ module.exports = {
           order_date, pickup_location, dropoff_location, is_repeat_mode, repeat_mode, 
           repeat_every, repeat_until, repeat_day, package_photo,package_id,otp,distance,amount,commission_percentage,commission_amount,delivery_boy_amount,
           pickup_notes,is_scheduled_order,schedule_date_time,
-          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
-        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          drop_first_name,drop_last_name,drop_company_name,drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
+        ) VALUES (concat('EM',(now()+1)),(select id from rmt_enterprise where ext_id=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           enterprise_ext_id, branch_id,delivery_type_id,service_type_id,vehicle_type_id,
           order_date,pickup_location_id, dropoff_location_id,is_repeat_mode,repeat_mode,repeat_every,repeat_until,repeat_day, 
           package_photo,package_id,otp,distance,total_amount,commission_percentage,commission_amount,
           delivery_boy_amount,pickup_notes,is_scheduled_order,schedule_date_time,drop_first_name,drop_last_name,drop_company_name,
-          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later
+          drop_mobile,drop_email,drop_notes,consumer_order_title,delivery_boy_order_title,is_pay_later,tax,order_amount
         ]
       );
       // rmt_enterprise_order_line
@@ -510,13 +512,13 @@ module.exports = {
       return { id: result.insertId};
     } catch (error) {
       await connections.rollback(); // Rollback the transaction in case of error
-      throw error;
+      return error;
     } finally {
       connections.release(); // Release the connection back to the pool
     }
   },
 
-  async persistShiftOrder(req,enterprise_ext_id) {
+  async persistShiftOrder(req, enterprise_ext_id) {
     let connections;
     try {
       connections = await pool.getConnection(); // Get a connection from the pool
@@ -532,12 +534,12 @@ module.exports = {
       delivery_boy_order_title = "Completed on ";
       var total_slots = (req?.delivery_type_id === 3 )?(req?.slots && req?.slots?.length > 0)? req?.slots?.length : 1 : 1;
 
-      await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
+      /*await connections.query("update rmt_enterprise_order set consumer_order_title = '" + consumer_order_title + "'"  + ", delivery_boy_order_title = '" +
         delivery_boy_order_title +
         "', order_status = '" +
         status +
         "', next_action_status = '" +
-        next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);
+        next_action_status + "' WHERE branch_id = ? and order_status <> 'COMPLETED'", [req.branch_id]);*/
       const {
         branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount,total_hours,total_days,total_amount
       } = req; 
@@ -548,39 +550,64 @@ module.exports = {
           enterprise_ext_id,branch_id,delivery_type_id,service_type_id,vehicle_type_id,shift_from_date, shift_tp_date, is_same_slot_all_days, amount, total_hours, total_days, total_amount, total_slots
         ]
       );
+      var vehicleData = req.vehicleType;
       // rmt_enterprise_order_line
       if (delivery_type_id === 3 ) { // && req.is_eligible
         if (req.slots && req.slots.length > 0) {
-          //console.log((result.insertId);
+          //console.log(result.insertId);
           if (result) {
               const enterpriseOrderId = result.insertId;
-              //console.log((enterpriseOrderId);
-              await connections.query('update rmt_enterprise_order_slot set is_del = 1 WHERE branch_id = ?', [req.branch_id]);
-             
               let slotPromises = [];
               const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
               const slots =  req.slots;
+              var total_slot_hours = 0;
+              var total_slot_amount = 0.0;
+              let serviceTypeId = parseInt(req.serviceType?.id || 0);
+              let commissionPercentage = 0;
+              if(serviceTypeId === 3 || serviceTypeId === 4){
+                req.amount = req.serviceType.hour_amount;
+                commissionPercentage = req.serviceType.commission_percentage;
+              }else{
+                commissionPercentage = vehicleData.enterprise_commission_percentage;
+              }
               if (req.is_same_slot_all_days === 1 && slots && slots.length > 0) {
                 // Insert slots for all days
+                var slotsSameDay = slots[0];
                 slotPromises = days.map(day =>
                   {
-                    var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
-                    connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
+                    req.amount = Math.abs(req.amount);
+                    slotsSameDay.total_hours = Math.abs(slotsSameDay.total_hours);
+                    total_slot_hours =  total_slot_hours + slotsSameDay.total_hours; 
+                    var total_amount_calc = parseFloat(req.amount) * parseFloat(slotsSameDay.total_hours);
+                    total_slot_amount =  total_slot_amount + total_amount_calc;
+                    let commission_percentage = parseFloat(commissionPercentage);
+                    let commission_amount = total_amount_calc * (parseFloat(commissionPercentage) / 100);
+                    let delivery_boy_amount = total_amount_calc - parseFloat(commission_amount);
+                    connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, day, slots[0].from_time, slots[0].to_time, slots[0].slot_date, enterpriseOrderId, req.amount, slotsSameDay.total_hours, slotsSameDay.total_days, total_amount_calc, delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
               } else if (slots && slots.length > 0) {
                 // Insert provided slots
                 slotPromises = slots.map(slot =>
                   {
+                      req.amount = Math.abs(req.amount);
+                      slot.total_hours = Math.abs(slot.total_hours);
+                      total_slot_hours =  total_slot_hours + slot.total_hours; 
                       var total_amount_calc = parseFloat(req.amount) * parseFloat(slot.total_hours);
-                      connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,total_amount_calc])
+                      total_slot_amount =  total_slot_amount + total_amount_calc;
+                      let commission_percentage = parseFloat(commissionPercentage);
+                      let commission_amount = total_amount_calc * (parseFloat(commissionPercentage) / 100);
+                      let delivery_boy_amount = total_amount_calc - parseFloat(commission_amount);
+                      connections.query(INSERT_SHIFT_SLOTS_QUERY, [req.branch_id, enterpriseOrderId, slot.day, slot.from_time, slot.to_time, slot.slot_date, enterpriseOrderId, req.amount ,slot.total_hours,slot.total_days,total_amount_calc,delivery_boy_amount, commission_percentage, commission_amount])
                   }
                 );
               } else {
-                throw new Error('No slots provided');
+                return 'No slots provided';
               }
-          
-              const data=await Promise.all(slotPromises);
+              tax_amount = ((total_slot_amount * 20) / 100).toFixed(2);
+              total_amount_with_tax = (total_slot_amount + ((total_slot_amount * 20) / 100)).toFixed(2);
+              await connections.query("update rmt_enterprise_order set order_amount = ?, tax =?, total_amount = ?, total_hours = ?  WHERE id = ?", [total_slot_amount, tax_amount, total_amount_with_tax, total_slot_hours, enterpriseOrderId]);
+              const data = await Promise.all(slotPromises);
           }
         }
       }
@@ -588,7 +615,7 @@ module.exports = {
       return { id: result.insertId};
     } catch (error) {
       await connections.rollback(); // Rollback the transaction in case of error
-      throw error;
+      return error;
     } finally {
       connections.release(); // Release the connection back to the pool
     }

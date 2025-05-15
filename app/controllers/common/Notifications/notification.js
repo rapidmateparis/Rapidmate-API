@@ -13,7 +13,7 @@ const { fetch, updateQuery } = require("../../../middleware/db");
  */
 exports.getItems = async (req, res) => {
   try {
-    //console.log(('sdfasd')
+    //console.log('sdfasd')
     const data = await Notification.find({ is_del: false });
     let message = "Notification loaded successfully";
     if (data.length <= 0) {
@@ -76,7 +76,7 @@ exports.getNotificationByExtId = async (req, res) => {
     const updateNotifyData = await updateQuery("update " + tableName + " set is_viewed_notity = 0, notity_count = 0 where ext_id=?", [extId]);
     return res.status(200).json(utils.buildCreateMessage(200, message, notifyData));
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(
@@ -103,7 +103,7 @@ exports.getNotificationCountByExtId = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, "", responseData));
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(
@@ -123,7 +123,7 @@ exports.updateNotifyStatus = async (req, res) => {
     const notifyData = await updateQuery("update " + tableName + " set is_viewed_notity = 0, notity_count = 0 where ext_id=?", [extId]);
     return res.status(200).json(utils.buildCreateMessage(200, "", "Updated"));
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res
       .status(500)
       .json(
@@ -236,7 +236,7 @@ const createNotification = async (req) => {
     rediectTo
   };
 
-  // //console.log((insertData)
+  // //console.log(insertData)
   const notification = new Notification(insertData);
   const savedNotification = await notification.save();
   if (!savedNotification) {
@@ -268,11 +268,11 @@ exports.createItem = async (req, res) => {
 };
 
 const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
-  //console.log(("Block enter-- Notification");
-  //console.log(("Block title", title);
-  //console.log(("Block receiverExtId", receiverExtId);
-  //console.log(("Block payload", payload);
-  //console.log(("Block userRole", userRole);
+  //console.log("Block enter-- Notification");
+  //console.log("Block title", title);
+  //console.log("Block receiverExtId", receiverExtId);
+  //console.log("Block payload", payload);
+  //console.log("Block userRole", userRole);
   try{
     let table=''
     if(userRole=='CONSUMER'){
@@ -293,7 +293,7 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
       return false;
     }
     if(isSendFCMNotify){
-      //console.log(("Eligible to send notify Final Block");
+      //console.log("Eligible to send notify Final Block");
       const messages = {
         notification: {
           title: title,
@@ -303,24 +303,24 @@ const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
         token: token,
       };
       admin.messaging().send(messages).then((response) => {
-        //console.log(("FCM Success : ", response);
+        //console.log("FCM Success : ", response);
         return true;
       }).catch((error) => {
-        //console.log(("FCM: Error ", error);
+        //console.log("FCM: Error ", error);
         return false});
     }else{
-      //console.log(('not send ')
+      //console.log('not send ')
     }
   
   }catch(eror){
-    //console.log((eror);
+    //console.log(eror);
   }
   return false;
 }
 
 exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
   try {
-    //console.log((req);
+    //console.log(req);
     const {title, body, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
     const bodyContent = typeof bodydata === 'object' ? JSON.stringify(bodydata) : (typeof body === 'object' ? JSON.stringify(body) : body || '');
     const insertData = {
@@ -343,26 +343,22 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
       redirect
     };
   
+    var isNofitificationEnabledStatus = await isNofitificationEnabled(receiverExtId);
+    if(isSendFCMNotify && isNofitificationEnabledStatus){
+       //const objId=savedNotification._id
+       const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
+       //console.log(savedNotification);
+    }
     const notification = new Notification(insertData);
     const savedNotification = await notification.save();
     const responseUpdateCount = await updateNotifyCount(receiverExtId);
-    //console.log((savedNotification);
+    console.log(savedNotification)
     if (!savedNotification) {
       return false;
     }
-    var isNofitificationEnabledStatus = await isNofitificationEnabled(receiverExtId);
-    //console.log(("isSendFCMNotify = " , isSendFCMNotify);
-    //console.log(("receiverExtId = " , receiverExtId);
-    //console.log(("isNofitificationEnabledStatus = " , isNofitificationEnabledStatus);
-    if(isSendFCMNotify && isNofitificationEnabledStatus){
-       //console.log(("Eligible to send notify");
-       const objId=savedNotification._id
-       const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-    }
     return savedNotification;
-   
   } catch (error) {
-      //console.log((error);
+      console.log(error);
       return null;
   }
 };
@@ -372,7 +368,7 @@ const updateNotifyCount = async (extId) => {
     var tableName = getTableName(new String(extId).charAt(0));
     const notifyData = await updateQuery("update " + tableName + " set is_viewed_notity = 1, notity_count = (notity_count + 1) where ext_id=?", [extId]);
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
 };
 
@@ -380,10 +376,10 @@ const isNofitificationEnabled = async (extId) => {
   try {
     var tableName = getTableName(new String(extId).charAt(0));
     const notifyData = await fetch("select enable_push_notification from " + tableName + " where ext_id=?", [extId]);
-    //console.log(("notifyData", notifyData);
+    //console.log("notifyData", notifyData);
     return (notifyData && notifyData.length>0 && parseInt(notifyData[0].enable_push_notification) == 1);
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return false;
 };
@@ -441,7 +437,7 @@ exports.sendNotification = async (req, res) => {
     .messaging()
     .send(message)
     .then((response) => {
-      //console.log(("Successfully sent message:", response);
+      //console.log("Successfully sent message:", response);
       return res
         .status(200)
         .json(
@@ -449,7 +445,7 @@ exports.sendNotification = async (req, res) => {
         );
     })
     .catch((error) => {
-      //console.log(("Error sending message:", error);
+      //console.log("Error sending message:", error);
       return res
         .status(500)
         .json(

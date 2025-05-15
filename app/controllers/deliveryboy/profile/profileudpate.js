@@ -79,7 +79,7 @@ exports.reset = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,"Reset successfully",[]))
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
   }
 }
@@ -89,14 +89,14 @@ exports.getDriverAvailablity = async (req, res) => {
     const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 limit 1';
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
-    //console.log((data);
+    //console.log(data);
     if(data.length <=0){
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -105,14 +105,14 @@ exports.getDriverPlanningSetupAvailablity = async (req, res) => {
     const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 and is_active =1 limit 10';
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
-    //console.log((data);
+    //console.log(data);
     if(data.length <=0){
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -139,14 +139,14 @@ exports.search = async (req, res) => {
     const getUserQuerye = 'select * from rmt_delivery_boy where is_del=0 and is_availability=1 limit 1';
     const data = await runQuery(getUserQuerye)
     let message="Items retrieved successfully";
-    //console.log((data);
+    //console.log(data);
     if(data.length <=0){
       message="No items found"
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -172,7 +172,7 @@ exports.getNearbydriver = async (req, res) => {
       return res.status(400).json(utils.buildErrorObject(400,message,1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 /**
@@ -226,7 +226,7 @@ exports.availableDeliveryList = async (req, res) => {
   try {
     const getUserQuery = `select * from vw_available_delivery_boy`;
     const fetchUserData = await fetch(getUserQuery);
-    //console.log((fetchUserData);
+    //console.log(fetchUserData);
     if (!fetchUserData || fetchUserData.length === 0) {
       return res.status(404).json(utils.buildErrorObject(404, "Currently all Delivery boys are busy. Please try again", 1001));
     }
@@ -325,7 +325,7 @@ exports.updateItem = async (req, res) => {
       }
 
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
     }
   }
@@ -366,7 +366,7 @@ exports.createItem = async (req, res) => {
       let identity_card='';
       let autaar='';
       let filename='';
-      // //console.log((req.body)
+      // //console.log(req.body)
       if(req.body.insurance != '') {
         filename ='insurance_'+Date.now()+'.jpg';
         insurance = await utils.uploadFileToS3bucket(req,filename);
@@ -397,7 +397,7 @@ exports.createItem = async (req, res) => {
       return res.status(400).json(utils.buildErrorObject(400,'Email already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -428,7 +428,7 @@ exports.deleteItem = async (req, res) => {
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -454,7 +454,7 @@ exports.updateLocation = async (req, res) => {
       return res.status(200).json(utils.buildCreateMessage(200, 'Record Updated Successfully', deliveryboy));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error,  'Something went wrong', 1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Something went wrong', 1001));
   }
 };
 
@@ -506,14 +506,14 @@ exports.updateAvailability=async (req, res) =>{
 
 
 const createBillingAddressRequest = async (req,delivery_boy_ext_id) => {
-  const executeCreateStmt = await insertQuery(INSERT_DB_BILLING_ADDRESS,[delivery_boy_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type]);
+  const executeCreateStmt = await insertQuery(INSERT_DB_BILLING_ADDRESS,[delivery_boy_ext_id, req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code]);
   return executeCreateStmt;
 }
 
 const updateBillingAddressRequest = async (req) => {
-  //console.log((req);
-  const executeUpdateStmt = await updateQuery(UPDATE_DB_BILLING_ADDRESS,[req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.account_type, req.id]);
-  //console.log((executeUpdateStmt);
+  //console.log(req);
+  const executeUpdateStmt = await updateQuery(UPDATE_DB_BILLING_ADDRESS,[req.first_name,req.last_name,req.address, req.city_id,req.state_id,req.country_id,req.dni_number, req.postal_code, req.id]);
+  //console.log(executeUpdateStmt);
   return executeUpdateStmt;
 }
 
@@ -523,19 +523,19 @@ try {
   var requestData = req.body;
   var stmtResult = {};
   const data = await fetch("select * from rmt_delivery_billing_address where delivery_boy_id = (select id from rmt_delivery_boy where ext_id = ?)",[requestData.delivery_boy_ext_id])
-  //console.log((data);
+  //console.log(data);
   if(data && data.length >0){
       requestData.id = data[0].id;
       stmtResult = await updateBillingAddressRequest(requestData);
   }else{
       stmtResult = await createBillingAddressRequest(requestData,delivery_boy_ext_id);
   }
-  //console.log((stmtResult);
+  //console.log(stmtResult);
   if(stmtResult.affectedRows >=1){
     return res.status(200).json(utils.buildResponse(200,requestData));
   }
 } catch (error) {
-  //console.log((error);
+  //console.log(error);
 }
 return res.status(400).json(utils.buildErrorObject(400,"Unable to update billing address",1001));
 }
@@ -564,7 +564,7 @@ exports.getDelieryDetailsByExtId = async (extId) => {
       return data[0];
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return;
 }

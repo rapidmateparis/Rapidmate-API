@@ -19,7 +19,7 @@ const options = {
   format: "A4",
   orientation: "portrait",
   border: "10mm",
-  phantomPath: require("phantomjs-prebuilt").path,
+  phantomPath: "/usr/local/bin/phantomjs",
 };
 
   
@@ -34,7 +34,7 @@ const options = {
         });
       });
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
     }
     return null;
   };
@@ -70,7 +70,7 @@ const options = {
       }
     });
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
     }
     return null;
   };
@@ -103,7 +103,7 @@ const options = {
       }
       
     } catch (err) {
-      //console.log((err);
+      console.log(err);
       return res.status(500).json(utils.buildErrorMessage(500, "Unable to download invoice", 1001));
     }
   };

@@ -49,7 +49,7 @@ exports.getItems = async (req, res) => {
 
     return res.status(200).json(utils.buildCreateMessage(200, message, resData));
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
     return res.status(500).json(utils.buildErrorMessage(500, "Something went wrong", 1001));
   }
 };
@@ -72,9 +72,9 @@ exports.dashboardItem = async (req, res) => {
     const weekData = await fetch("select week_short_name as month, ifnull(total, 0) as count from rmt_week ms left outer join " + 
       "(select enterprise_id, weekday, sum(total) total from vm_booked_overview_chart where " + 
       "enterprise_id =(select id from rmt_enterprise where ext_id =?) " + conditionQuery + ") wcount on ms.week_id=wcount.weekday", [id]);
-    const branchOverviewData = await fetch("select * from rmt_enterprise_branch branch left join vm_dashboard_branch_overview dbo on branch.id = dbo.branch_id where branch.enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
-    //console.log(("overviewData");
-    //console.log((overviewData);
+    const branchOverviewData = await fetch("select * from rmt_enterprise_branch branch left join vm_dashboard_branch_overview dbo on branch.id = dbo.branch_id where branch.is_del=0 and branch.enterprise_id = (select id from rmt_enterprise where ext_id =?)", [id]);
+    //console.log("overviewData");
+    //console.log(overviewData);
     if(!overviewData){
       overviewData = {  "enterprise_id": 0, "total_order": "0","schedule_order": "0","active_order": "0"};
     }
@@ -82,7 +82,7 @@ exports.dashboardItem = async (req, res) => {
     responseData.weekData = weekData || [];
     responseData.branchOverviewData = branchOverviewData || [];
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return res.status(200).json(utils.buildCreateMessage(200, message, responseData));
 };
@@ -116,7 +116,7 @@ exports.getItem = async (req, res) => {
  */
 const createItem = async (req, insurance, autaar, identity_card, passport) => {
   const registerQuery = `INSERT INTO rmt_enterprise(ENTERPRISE_NAME,ADDRESS,CITY,STATE,COUNTRY,POSTAL_CODE,PHONE_NUMBER,EMAIL,WEBSITE,INDUSTRY,FOUNDED_DATE,IS_DEL) VALUES('${req.enterprise_name}','${req.address}','${req.city}','${req.state}','${req.country}','${req.postal_code}','${req.phone_number}','${req.email}','${req.website}','${req.industry}','${req.founded_date}','${req.is_del}')`;
-  //console.log((registerQuery);
+  //console.log(registerQuery);
   const registerRes = await runQuery(registerQuery);
   return registerRes;
 };
@@ -257,7 +257,7 @@ exports.updateItem = async (req, res) => {
       }
 
     } catch (error) {
-      //console.log((error);
+      //console.log(error);
       return res.status(500).json(utils.buildErrorMessage(500,'Unable to update address. Please try again later [TF].',1001)); //Techinal Fault
     }
   }

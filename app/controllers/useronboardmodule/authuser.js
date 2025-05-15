@@ -16,6 +16,10 @@ const ADMIN_ROLE = "ADMIN";
 const DELEIVERY_BOY_ROLE = "DELIVERY_BOY";
 const ENTERPRISE_ROLE = "ENTERPRISE";
 const CONSUMER_ROLE = "CONSUMER";
+const crypto = require('crypto');
+const SECRET_KEY = Buffer.from('R@p1dmat3@2025$20250525023532345', 'utf-8');
+const IV = Buffer.from('1234567890123456', 'utf-8'); // 16 bytes
+
 const logger = require('log4js').getLogger(require('path').basename(__filename));
 var poolData =
 {
@@ -88,6 +92,18 @@ function createUser(userInfo) {
   });
 }
 
+function decryptPassword(encryptedBase64) {
+  try {
+    const decipher = crypto.createDecipheriv('aes-256-cbc', SECRET_KEY, IV);
+    let decrypted = decipher.update(encryptedBase64, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted?.replace(/"/g, '');
+  } catch (err) {
+    console.error('Decryption error:', err.message);
+    return null;
+  }
+}
+
 async function signup(userInfo) {
     var phone = userInfo["phoneNumber"];
     userInfo["phone_code"] = (phone.includes("+"))?"":"+33";
@@ -150,7 +166,7 @@ async function signup(userInfo) {
           } catch (err) {
             logger.error('selfSignUp error');
             logger.error(err);
-            throw err;
+            return null;
           }
     }else{
         const userData = await getUserProfile(userInfo["userName"]);
@@ -200,7 +216,7 @@ async function createItem(userinfo,tablename,extIds){
     if(tablename=='rmt_admin_user'){
         registerQuery = `INSERT INTO rmt_admin_user(EXT_ID,USERNAME,FIRST_NAME,LAST_NAME,EMAIL,PHONE,PASSWORD,token,verification_code,phone_code) VALUES('A${extIds}','${userinfo['userName']}','${userinfo['firstName']}','${userinfo['lastName']}','${userinfo['email']}','${userinfo['phoneNumber']}','${password}','${userinfo['token']}',123456,'${userinfo['phone_code']}')`; //(LPAD(FLOOR(RAND() * 999999.99),6,  '0')
     }
-    // //console.log(("queery "+registerQuery)
+    // //console.log("queery "+registerQuery)
     const registerRes = runQuery(registerQuery);
     return registerRes;
 }
@@ -220,7 +236,7 @@ async function signupVerify(userInfo) {
               secretAccessKey: cognito_secretAccessKey
             });
         
-            cognitoidentityserviceprovider.confirmSignUp(params, function(err, data) {
+            cognitoidentityserviceprovider.confirmSignUp(params, async function(err, data) {
               if (err) {
                 logger.error('selfSignUp error');
                 logger.error(err);
@@ -228,6 +244,7 @@ async function signupVerify(userInfo) {
               } else {
                 logger.info(data);
                 logger.info("selfSignUp completion");
+                await updateVerificationStatus(userInfo);
                 resolve(data);
               }
             });
@@ -236,7 +253,7 @@ async function signupVerify(userInfo) {
         logger.info("Internal Verify");
         var userName = userInfo["userName"];
         var code = userInfo["code"];
-        const userData = await fetch("select * from vw_rmt_user where username = ? and verification_code = ?", [userName, code]);
+        const userData = await fetch("select * from vw_rmt_user where username = ?", [userName]);
         if(userData && userData.length > 0 ){
             var role = userData[0].role;
             var tableName = "";
@@ -257,8 +274,33 @@ async function signupVerify(userInfo) {
     }
 }
 
-
+async function updateVerificationStatus(userInfo){
+        logger.info("Internal Verify");
+        var userName = userInfo["userName"];
+        var code = userInfo["code"];
+        const userData = await fetch("select * from vw_rmt_user where username = ?", [userName]);
+        if(userData && userData.length > 0 ){
+            var role = userData[0].role;
+            var tableName = "";
+            if(role=='DELIVERY_BOY'){
+                tableName = "rmt_delivery_boy";
+            }else  if(role=='CONSUMER'){
+                tableName = "rmt_consumer";
+            }else  if(role=='ENTERPRISE'){
+                tableName = "rmt_enterprise";
+            }else  if(role=='ADMIN'){
+                tableName = "rmt_admin_user";
+            }
+            const updateTokenToProfile = await updateQuery("update " + tableName + " set is_email_verified = 1 where username = ?", [userName]);
+            return {};
+        }else{
+            return null;
+        }
+}
 async function login(userInfo) {
+
+    let epassword = userInfo["password"]
+    let isVerifieduserData = await IsExists(userInfo["userName"]);
     if(process.env.PROD_FLAG == "true"){
         return new Promise((resolve , reject) => {
                 var authenticationData =
@@ -275,7 +317,7 @@ async function login(userInfo) {
                     Pool : userPool
                 };
                 var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-                //console.log(("=> "+cognitoUser)
+                //console.log("=> "+cognitoUser)
                 cognitoUser.authenticateUser(authenticationDetails,
                 {
                     newPasswordRequired: function (userAttributes, requiredAttributes)
@@ -321,7 +363,7 @@ async function login(userInfo) {
                         logger.info("onSuccess");
                         logger.info(result);
                         username = userInfo["userName"];
-                        //console.log((username);
+                        //console.log(username);
                         loginResponseData(resolve, reject, result, userInfo);
                         // resolve(result);
                     },
@@ -329,7 +371,10 @@ async function login(userInfo) {
                     {
                         logger.error("onFailure");
                         logger.error(cognitoErr);
-                        resolve(cognitoErr);
+                        let errorResponse = {
+                            "message": isVerifieduserData ? isVerifieduserData : {cognitoErr},
+                        }
+                        reject(errorResponse);
                     },
                 });
         });
@@ -340,7 +385,7 @@ async function login(userInfo) {
      }
 }
 async function logout(userInfo) {
-    clearToken(userinfo);
+    clearToken(userInfo);
     if (process.env.PROD_FLAG == "true") {
         return new Promise((resolve, reject) => {
             var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
@@ -819,12 +864,19 @@ function resetPassword(userInfo) {
       });
 }
 
+async function isValidateUserPassword(username, password){
+    const userData = await getUserDataWithPassword(username);
+    if(userData && userData.length > 0){
+        return await bcrypt.compare(password, userData[0].password);
+    }
+    return false;
+}
+
 function deleteCognitoUser(userInfo) {
 
     return new Promise(resolve => {
         logger.info("userInfo");
         logger.info(userInfo);
-
         var params = {
             UserPoolId: userPoolId,
             Username: userInfo["userName"]
@@ -839,27 +891,39 @@ function deleteCognitoUser(userInfo) {
 
         cognitoidentityserviceprovider.adminDeleteUser(params, function (err, data) {
             var body = {};
-
             if (err) {
                 logger.error(err.message);
                 body["error"] = { "message": err.message };
                 resolve(body)
             } else {
                 logger.info(data);
-                resolve(deleteUserDataInDB(userInfo["userName"], userInfo["role"]));
+                resolve(deleteUserDataInDB(userInfo["userName"], userInfo["extId"]));
             }
         });
     });
 }
 
-function deleteUserDataInDB(email, userRole){
-    return new Promise(resolve => {
-        var body = {};
-        var tablename = "dashboard_users";
+async function deleteUserDataInDB(userName, extId){
+    let tableName = "";
+    if(extId.includes("D")){
+        tableName = "rmt_delivery_boy";
+    }else  if(extId.includes("C")){
+        tableName = "rmt_consumer";
+    }else  if(extId.includes("E")){
+        tableName = "rmt_enterprise";
+    }else  if(extId.includes("A")){
+        tableName = "rmt_admin_user";
+    }
+    const updateTokenToProfile = await updateQuery("update " + tableName + " set is_del = 1, deleted_on = now(), token = '', logout_on=now(), is_active=0, updated_on = now(), updated_by = ? where username = ?", [extId, userName]);
+    return  { success : {
+                message : (updateTokenToProfile && parseInt(updateTokenToProfile.affectedRows)>0?"Account has been deleted" : "Unable to delete account")
+                }
+            } 
+}
 
-        logger.info("userrole " + userRole);
-
-    });
+async function IsExists(userName){
+    const userData = await fetch("select is_email_verified, username, role from vw_rmt_user where username = ?", [userName]);
+    return (userData && userData[0]?.is_email_verified=='1' || userData[0]?.is_email_verified==1) ? null : userData;
 }
 
 function disableCognitoUser(userInfo) {
@@ -1067,5 +1131,8 @@ module.exports = {
     resendTemporaryPassword,
     isAuthorized,
     changePassword,
-    logout
+    logout,
+    IsExists,
+    isValidateUserPassword,
+    decryptPassword
 };

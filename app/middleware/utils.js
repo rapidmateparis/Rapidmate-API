@@ -49,7 +49,7 @@ exports.generateOTP = () => {
 exports.handleError = (res, err) => {
   // Prints error in console
   if (process.env.NODE_ENV === 'development') {
-    // //console.log((" Deveopment Error: ", err)
+    // //console.log(" Deveopment Error: ", err)
   }
   // Sends error to user
   res.status(err?.code || 400).json({
@@ -72,6 +72,16 @@ exports.fetchTableNameByOrderNumber = (orderNumber) =>{
       table = "rmt_enterprise_order_slot";
   }else if(orderNumber.includes("E")){
       table = "rmt_enterprise_order";
+  }
+  return table;
+}
+
+exports.cancelRequestTable = (orderNumber) =>{
+  var table;
+  if(orderNumber.includes("EM")){
+    table = "rmt_enterprise_order_line";
+  }else if(orderNumber.includes("ES")){
+      table = "rmt_enterprise_order_slot";
   }
   return table;
 }
@@ -119,7 +129,7 @@ exports.getCountry = (req) =>
  * @param {string} message - error text
  * @param {number} trcode - translate code
  */
-exports.buildErrorObject=(code, error, message, trcode)=>{
+exports.buildErrorObjectForLog=(code, error, message, trcode)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
   const trackId = uuidv4(); // generate a new UUID
   logger.error(error)
@@ -139,6 +149,27 @@ exports.buildErrorObject=(code, error, message, trcode)=>{
     "_trackId": trackId
   }];
 }
+
+exports.buildErrorObject=(code, message, trcode)=>{
+  const timestamp = Date.now(); // current timestamp in milliseconds
+  const trackId = uuidv4(); // generate a new UUID
+  return [{
+    "_success": false,
+    "_httpsStatus": "BAD_REQUEST",
+    "_httpsStatusCode": code,
+    "_responedOn": timestamp,
+    "_errors": {
+        "code": trcode,
+        "message": message,
+        "target": {
+            "code": code,
+            "message": "Invalid"
+        }
+    },
+    "_trackId": trackId
+  }];
+}
+
 
 exports.buildErrorMessage=(code, message, trcode)=>{
   const timestamp = Date.now(); // current timestamp in milliseconds
@@ -320,7 +351,7 @@ exports.uploadFileToS3 = async (req, $filename, file = null) => {
     let uploadRes = await s3.upload(params).promise();
     uploadingRes.status = 'success';
     uploadingRes.data = uploadRes;
-    ////console.log(('uploadingRes : ', uploadingRes);
+    ////console.log('uploadingRes : ', uploadingRes);
     return uploadingRes;
   } catch (error) {
     // console.error('An error occurred S3:', error);
@@ -442,7 +473,7 @@ exports.getValueById=async (value, tableName, conditionParam, conditionValue)=>{
 }
 
 exports.getValuesById=async (value, tableName, conditionParam, conditionValue)=>{
-  let query = `SELECT ${value} FROM ${tableName} WHERE ${conditionParam} = ?`;
+  let query = `SELECT ${value} FROM ${tableName} WHERE is_del=0 and ${conditionParam} = ?`;
   let queryRes = await fetch(query, [conditionValue]);
   if (queryRes.length > 0) {
     return queryRes[0];

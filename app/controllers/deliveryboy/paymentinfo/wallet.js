@@ -19,7 +19,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -39,7 +39,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -59,7 +59,7 @@ exports.getBydeliveryBoyExtid = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data[0]))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch wallent balance',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch wallent balance',1001));
   }
 }
 
@@ -70,7 +70,7 @@ const getWallentBalance = async (id) => {
       return data[0].balance;
     }
   } catch (error) {
-    //console.log((error);
+    //console.log(error);
   }
   return 0.0;
 }
@@ -83,16 +83,16 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
     const orderNumber = req.query.o;
     var additionalQueryConditions ="";
     if(durationType == 'today'){
-      additionalQueryConditions = " and date(trans.created_on) = date(now()) ";
+      additionalQueryConditions = " and date(created_on) = date(now()) ";
     }else if (durationType == 'week') {
-      additionalQueryConditions = " and week(trans.created_on) = week(now()) and year(trans.created_on) = year(now()) ";
+      additionalQueryConditions = " and week(created_on) = week(now()) and year(created_on) = year(now()) ";
     }else if(durationType == 'month'){
-      additionalQueryConditions = " and month(trans.created_on) = month(now()) ";
+      additionalQueryConditions = " and month(created_on) = month(now()) ";
     }else if(durationType == 'year'){
-      additionalQueryConditions = " and year(trans.created_on) = year(now()) ";
+      additionalQueryConditions = " and year(created_on) = year(now()) ";
     }
     if(orderNumber){
-      additionalQueryConditions += " and ord.order_number ='" + orderNumber + "' ";
+      additionalQueryConditions += " and order_number like '%" + orderNumber + "%' ";
     }
     const balance = await getWallentBalance(id);
     var data = await fetch(FETCH_TRANSACTIONS_BY_EXTID + additionalQueryConditions ,[id])
@@ -104,7 +104,7 @@ exports.getTransactionByDeliveryBoyExtid = async (req, res) => {
     responseData.transactions = data;
     return res.status(200).json(utils.buildCreateMessage(200,message,responseData))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Unable to fetch transactions',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch transactions',1001));
   }
 }
 
@@ -132,7 +132,7 @@ exports.updateItem = async (req, res) => {
     }
     return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
     
 }
@@ -163,7 +163,7 @@ exports.createItem = async (req, res) => {
       return res.status(400).json(utils.buildErrorObject(400,'Wallet already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -190,6 +190,6 @@ exports.deleteItem = async (req, res) => {
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(503, error, 'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
