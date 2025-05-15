@@ -34,6 +34,7 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
     }
 
     // Call the signup function
+    req.body.info.password = controller.decryptPassword(req.body.info.password);
     const user = await controller.signup(req.body.info);
     if(user == null){
       return res.status(400).json(utils.buildErrorObject(400, "User already exists!!!", 1001));
@@ -42,9 +43,9 @@ router.post('/signup', trimRequest.all, validate.register, async (req, res) => {
     logger.info('/signup response', user);
     return res.status(200).json(utils.buildCreateMessage(200, 'Register is successful', user));
   } catch (error) {
+    let isVerifieduserData = await controller.IsExists(req.body.info.userName);
     logger.error('Error in /signup', error);  // Log the error
-    return res.status(400).json(utils.buildErrorObject(400, error.message, 1001));
-  }
+    return res.status(400).json(utils.buildErrorObject(400,"Please try again", 1000));  }
 });
 /*
  * Login route
@@ -60,16 +61,18 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
         }
         if(process.env.PROD_FLAG == "true"){
+          req.body.info.password = controller.decryptPassword(req.body.info.password);
           controller.login(req.body.info).then(user => {
               logger.info('/login response',user)
               return res.status(200).json(utils.buildCreateMessage(200,"Login is successfully",user))
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" ,1001));
+              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!", 1000));
           });
         }else{
+          req.body.info.password = controller.decryptPassword(req.body.info.password);
           controller.login(req.body.info).then(user => {
-            console.log("data 000000", user);
+            //console.log("data 000000", user);
             if(user == null){
               return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
             }else{
@@ -77,7 +80,7 @@ router.post('/login',trimRequest.all,validate.login, trimRequest.all,
             }
           }).catch(error => {
               logger.error('Error in /login', error);  // Log the error
-              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" , 1001));
+              return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!" , 1000));
           });
         }
     }
@@ -103,7 +106,7 @@ router.post('/logout',trimRequest.all,validate.logout, trimRequest.all,
         });
       }else{
         controller.logout(req.body.info).then(user => {
-          console.log("data 000000", user);
+          //console.log("data 000000", user);
           if(user == null){
             return res.status(400).json(utils.buildErrorObject(400, "Invalid credentials!!!",1001));
           }else{
@@ -126,7 +129,8 @@ router.post('/changepassword',trimRequest.all,validate.changepassword, trimReque
           logger.error(' /changepassword Status 400 Invalid request format')
           return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
       }
-   
+      req.body.info.newPassword = controller.decryptPassword(req.body.info.newPassword);
+      req.body.info.oldPassword = controller.decryptPassword(req.body.info.oldPassword);
       controller.changePassword(req.body.info).then(user => {
           logger.info('/changepassword response',user)
           return res.status(200).json(utils.buildCreateMessage(200,"Password change successfully.",user))
@@ -191,7 +195,8 @@ router.post('/resetpassword',trimRequest.all,validate.resetPassword,function (re
     logger.error('/resetpassword Status 400 Invalid request format')
     return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
   }
-
+  
+  req.body.info.newPassword = controller.decryptPassword(req.body.info.newPassword);
   controller.resetPassword(req.body.info).then(user => {
     if (!user) {
       logger.error('/resetpassword Status 401 Invalid user or password')
@@ -223,6 +228,31 @@ router.post('/getaccesstoken',trimRequest.all,validate.getAccessToken,function (
       logger.error('Error in /resetpassword', error);  // Log the error
       return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
     });
+});
+
+router.post('/delete/account',trimRequest.all,validate.deleteAccount, function (req, res, next) {
+  if(req.body.info) {
+      logger.info('/delete/account request', req.body.info)
+  }
+  else {
+      logger.error('/delete/account Status 400 Invalid request format')
+      return res.status(400).json(utils.buildErrorObject(400,'Invalid request format',1001));
+  }
+  req.body.info.password = controller.decryptPassword(req.body.info.password);
+  const isValidPassword = controller.isValidateUserPassword(req.body.info.userName, req.body.info.password);
+  if(!isValidPassword){
+    return res.status(400).json(utils.buildErrorObject(400,'Invalid password',1001));
+  }
+  controller.deleteCognitoUser(req.body.info).then(user => {
+      if(user == null){
+        return res.status(400).json(utils.buildErrorObject(400,'Invalid verification code',1001));
+      }
+      logger.info('/delete/account response',user)
+      return res.status(200).json(utils.buildCreateMessage(200,"User account has been deleted successfully",user))
+  }).catch(error => {
+      logger.error('Error in /delete/account', error);  // Log the error
+      return res.status(400).json(utils.buildErrorObject(400,error.message,1001));
+  });
 });
 
 router.get('/map/code', trimRequest.all,commonController.getMapKey);

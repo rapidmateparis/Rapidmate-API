@@ -187,16 +187,20 @@
       <table>
         <p><strong>{{billDetails}}</strong></p>
         <tr>
-          <td>{{deliveryFare}}</td>
-          <td style="text-align: end">€ {{deliveryAmount}}</td>
+          <td>Order Fare</td>
+          <td style="text-align: end">€ {{order_fare}}</td>
         </tr>
         <tr>
-          <td>{{tax}}</td>
-          <td style="text-align: end">€ {{taxValue}}</td>
+          <td>{{tax}}&nbsp;@{{taxValue}}%</td>
+          <td style="text-align: end">€ {{tax_amount}}</td>
+        </tr>
+        <tr>
+          <td>Discount&nbsp;@{{discount}}%</td>
+          <td style="text-align: end">€ {{discount_amount}}</td>
         </tr>
         <tr class="total-row">
           <td>{{total}}</td>
-          <td style="text-align: end">€ {{orderAmountT}}</td>
+          <td style="text-align: end">€ {{total_amount}}</td>
         </tr>
       </table>
 

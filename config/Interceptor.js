@@ -1,9 +1,11 @@
 const interceptor = require('express-interceptor');
+const CryptoJS = require("crypto-js");
 const jwt = require('jsonwebtoken');
 const utils = require('../app/middleware/utils');
 const { HttpStatusCode } = require('axios');
-var JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const { v4: uuidv4 } = require('uuid');
+const SECRET_KEY = 'R@p1dmat3@2025$';
 
 var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
@@ -11,7 +13,8 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
     req.trackId = uuidv4(); // generate a new UUID
     if(!( pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || 
           pathValue.includes("resetpassword") || pathValue.includes("lookup") || pathValue.includes("country") ||
-          pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document") || pathValue.includes("signupverify") || pathValue.includes("reset")
+          pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document") || pathValue.includes("signupverify") || 
+          pathValue.includes("reset") || pathValue.includes("invoice") || pathValue.includes("version")  || pathValue.includes("rmkey") 
           
         )){
         try {
@@ -51,7 +54,7 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
       },
       // Appends a paragraph at the end of the response body
       intercept: function(body, send) {
-        console.log("Content-Type", body);
+        //console.log("Content-Type", body);
         send($document.html());
       }
     };

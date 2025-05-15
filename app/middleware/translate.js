@@ -17,7 +17,7 @@ const consumerImg = fs.readFileSync(
   path.join(__dirname, `../../default/invoice/Consumer.jpg`),
   "base64"
 );
-const deliveryboy = {
+/*const deliveryboy = {
   imageUrl: `data:image/png;base64,${logoBase64}`,
   timeImg: `data:image/png;base64,${timeImg}`,
   vanImg: `data:image/png;base64,${vanImg}`,
@@ -63,7 +63,7 @@ const enterprise = {
   payment: i18n.__("payment"),
   queries: i18n.__("queries"),
 };
-
+*/
 const getTranslate = (role, locale,order) => {
   i18n.setLocale(locale);
   if (role == "deliveryboy") {
@@ -84,7 +84,7 @@ const getTranslate = (role, locale,order) => {
       visit: i18n.__("visit"),
       invoiceNumber:order?.order_number,
       orderNumber:order?.order_number,
-      orderAmount:order?.amount?.toFixed(2) || 0.00,
+      orderAmount:order?.order_amount?.toFixed(2) || 0.00,
       orderAmountT:order?.amount?.toFixed(2) || 0.00,
       distance:order?.distance?.toFixed(2) || 0.00,
       pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country,
@@ -98,7 +98,9 @@ const getTranslate = (role, locale,order) => {
       companyName:order?.company_name || 'N/A',
       discount : order?.discount?.toFixed(2) || 0.00,
       taxValue : order?.tax?.toFixed(2) || 0.00,
-      deliveryAmount : order?.delivery_boy_amount || 0.00
+      deliveryAmount : order?.delivery_boy_amount?.toFixed(2) || 0.00,
+      commission_percentage : order?.commission_percentage || 0.00,
+      commission_amount : order?.commission_amount?.toFixed(2) || 0.00
     };
   } else if (role == "enterprise") {
     return {
@@ -136,7 +138,9 @@ const getTranslate = (role, locale,order) => {
       deliveryBoyName:order?.delivery_boy_name || 'N/A',
       createdOn:order?.created_on,
       taxValue : order?.tax?.toFixed(2) || 0.00,
-      payment_on : order?.payment_on || ""
+      payment_on : order?.payment_on || "",
+      order_fare:order?.order_amount?.toFixed(2) || 0.00,
+      tax_amount : (((order?.order_amount || 0.00) * (order?.tax || 0.00) )/100)?.toFixed(2) || 0.00,
     };
   } else {
     return {
@@ -156,7 +160,7 @@ const getTranslate = (role, locale,order) => {
       visit: i18n.__("visit"),
       orderNumber:order?.order_number,
       orderAmount:order?.amount?.toFixed(2) || 0.00,
-      orderAmountT:order?.amount?.toFixed(2) || 0.00,
+      total_amount:order?.amount?.toFixed(2) || 0.00,
       distance:order?.distance?.toFixed(2) || 0.00,
       pickupAddressLoc: order?.pickup_location_address + order?.pickup_location_city + order?.pickup_location_state + order?.pickup_location_country,
       dropoffAddressLoc: order?.dropoff_location_address + order?.dropoff_location_city + order?.dropoff_location_state + order?.dropoff_location_country,
@@ -170,7 +174,9 @@ const getTranslate = (role, locale,order) => {
       discount : order?.discount?.toFixed(2) || 0.00,
       taxValue : order?.tax?.toFixed(2) || 0.00,
       deliveryAmount : order?.delivery_boy_amount || 0.00,
-     
+      order_fare:order?.order_amount?.toFixed(2) || 0.00,
+      tax_amount : (((order?.order_amount || 0.00) * (order?.tax || 0.00) )/100)?.toFixed(2) || 0.00,
+      discount_amount : (((order?.order_amount || 0.00) * (order?.discount || 0.00) )/100)?.toFixed(2) || 0.00,
     };
   }
 };

@@ -1,6 +1,7 @@
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch,insertQuery,updateQuery} = require('../../../middleware/db')
 const {FETCH_STATE_QUERY,FETCH_STATE_BY_ID,UPDATE_STATE_QUERY,INSERT_STATE_QUERY,DELECT_STATE_QUERY}=require('../../../repo/database.query')
+const redisClient = require('../../../../config/cacheClient');
 
 /********************
  * Public functions *
@@ -12,15 +13,23 @@ const {FETCH_STATE_QUERY,FETCH_STATE_BY_ID,UPDATE_STATE_QUERY,INSERT_STATE_QUERY
  */
 exports.getItems = async (req, res) => {
   try {
-    const data = await runQuery(FETCH_STATE_QUERY)
+    const cachedUser = await redisClient.get("RC_STATE");
+    let responseData;
     let message="States retrieved successfully";
-    if(data.length <=0){
-        message="No states found"
-        return res.status(400).json(utils.buildErrorObject(400,message,1001));
+    if(cachedUser){
+      responseData = JSON.parse(cachedUser);
+    }else{
+      responseData = await runQuery(FETCH_STATE_QUERY)
+     
+      if(responseData.length <=0){
+          message="No states found"
+          return res.status(400).json(utils.buildErrorObject(400,message,1001));
+      }
+      await redisClient.setEx("RC_STATE", 86400, JSON.stringify(responseData)); 
     }
-    return res.status(200).json(utils.buildCreateMessage(200,message,data))
+    return res.status(200).json(utils.buildCreateMessage(200, message, responseData))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unble to fetch states. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unble to fetch states. Please try again later.',1001));
   }
 }
 
@@ -40,7 +49,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch state. please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch state. please try again later.',1001));
   }
 }
 
@@ -68,12 +77,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem.affectedRows > 0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update state. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update state. Please try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'State not found. Please provide detail and try again later.',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'State not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to update state. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to update state. Please try again later.',1001));
   }
     
 }
@@ -95,13 +104,13 @@ exports.createItem = async (req, res) => {
         const currentdata=await fetch(FETCH_STATE_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to create state. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to create state. Please try again later.',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'State name already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create state. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to create state. Please try again later.',1001));
   }
 }
 
@@ -123,11 +132,11 @@ exports.deleteItem = async (req, res) => {
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to delete state. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete state. Please try again later.',1001));
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'State not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to delete state. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to delete state. Please try again later.',1001));
   }
 }

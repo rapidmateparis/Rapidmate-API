@@ -13,10 +13,10 @@ exports.schedule=async(req,res)=>{
                 //here  write after payment code.
 
             } catch (error) {
-                return res.status(500).json(utils.buildErrorObject(500,'Unable to create schedule. Please try again later.',1001)); 
+                return res.status(500).json(utils.buildErrorMessage(500,'Unable to create schedule. Please try again later.',1001)); 
             }
         });
     } catch (error) {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to create schedule. Please try again later.',1001)); 
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to create schedule. Please try again later.',1001)); 
     }
 }

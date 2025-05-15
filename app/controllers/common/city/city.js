@@ -1,6 +1,7 @@
 const utils = require('../../../middleware/utils');
 const { runQuery, fetch, insertQuery, updateQuery } = require('../../../middleware/db');
 const { FETCH_CITY_ALL, FETCH_CITY_BY_ID, INSERT_CITY_QUERY, UPDATE_CITY_QUERY, DELETE_CITY_QUERY, FETCH_CITY_BY_STATEID } = require('../../../repo/database.query');
+const redisClient = require('../../../../config/cacheClient');
 
 /********************
  * Public functions *
@@ -13,15 +14,23 @@ const { FETCH_CITY_ALL, FETCH_CITY_BY_ID, INSERT_CITY_QUERY, UPDATE_CITY_QUERY, 
  */
 exports.getItems = async (req, res) => {
   try {
-    const data = await runQuery(FETCH_CITY_ALL);
+    const cachedUser = await redisClient.get("RC_CITY");
     let message = "Cities retrieved successfully.";
-    if (data.length <= 0) {
-      message = "No cities found.";
-      return res.status(404).json(utils.buildErrorObject(404, message, 1001));
+    let responseData;
+    if(cachedUser){
+      responseData = JSON.parse(cachedUser);
+    }else{
+      responseData = await runQuery(FETCH_CITY_ALL);
+    
+      if (responseData.length <= 0) {
+        message = "No cities found.";
+        return res.status(404).json(utils.buildErrorObject(404, message, 1001));
+      }
+      await redisClient.setEx("RC_CITY", 86400, JSON.stringify(responseData));
     }
-    return res.status(200).json(utils.buildCreateMessage(200, message, data));
+    return res.status(200).json(utils.buildCreateMessage(200, message, responseData));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Unable to fetch cities. Please try again later.', 1002));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to fetch cities. Please try again later.', 1002));
   }
 }
 
@@ -36,7 +45,7 @@ exports.getItemByState = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Unable to fetch cities for this state. Please try again later.', 1002));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to fetch cities for this state. Please try again later.', 1002));
   }
 }
 
@@ -56,7 +65,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200, message, data));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Unable to fetch city. Please try again later.', 1002));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to fetch city. Please try again later.', 1002));
   }
 }
 
@@ -84,12 +93,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdateMessage(200, 'City updated successfully.'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500, 'Unable to update city. Please try again later.', 1004));
+        return res.status(500).json(utils.buildErrorMessage(500, 'Unable to update city. Please try again later.', 1004));
       }
     }
     return res.status(404).json(utils.buildErrorObject(404, 'City not found. Please provide detail and try again.', 1005));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Unable to update city. Please try again later.', 1006));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to update city. Please try again later.', 1006));
   }
 }
 
@@ -112,13 +121,13 @@ exports.createItem = async (req, res) => {
         const currentData = await fetch(FETCH_CITY_BY_ID, [item.insertId]);
         return res.status(201).json(utils.buildCreateMessage(201, 'City created successfully.', currentData));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500, 'Unable to create the city. Please try again later.', 1007));
+        return res.status(500).json(utils.buildErrorMessage(500, 'Unable to create the city. Please try again later.', 1007));
       }
     } else {
       return res.status(400).json(utils.buildErrorObject(400, 'A city with this name already exists.', 1003));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Unable to create city. Please try again later.', 1008));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to create city. Please try again later.', 1008));
   }
 }
 
@@ -141,12 +150,12 @@ exports.deleteItem = async (req, res) => {
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdateMessage(200, 'City deleted successfully.'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500, 'Unable to delete the city. Please try again later.', 1009));
+        return res.status(500).json(utils.buildErrorMessage(500, 'Unable to delete the city. Please try again later.', 1009));
       }
     }
-    return res.status(404).json(utils.buildErrorObject(404, 'City not found. Please provide deltail and try again.', 1010));
+    return res.status(404).json(utils.buildErrorObject(404, 'City not found. Please provide deltail and try again.', 1000));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500, 'Unable to deleting the city. Please try again later.', 1011));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error,  'Unable to deleting the city. Please try again later.', 1011));
   }
 }
 

@@ -19,7 +19,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -39,7 +39,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -59,7 +59,7 @@ exports.getConsumerExtid = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -81,12 +81,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
     
 }
@@ -97,7 +97,7 @@ exports.updateItem = async (req, res) => {
  */
 const createItem = async (req,consumer_ext_id) => {
     const payMethodResult = await insertQuery(INSERT_PAYMENTCMETHOD,[consumer_ext_id,req.card_number,req.card_holder_name,req.expiration_date,req.cvv,req.payment_method_type_id]);
-    console.log(payMethodResult);
+    //console.log(payMethodResult);
     return payMethodResult;
 }
 
@@ -105,20 +105,20 @@ exports.createItem = async (req, res) => {
   try {
     const consumer_ext_id=req.query.ext_id
     const doesNameExists =await utils.nameExists(req.body.card_number,'rmt_consumer_payment_method','card_number')
-    console.log(doesNameExists);
+    //console.log(doesNameExists);
     if (!doesNameExists) {
       const item = await createItem(req.body,consumer_ext_id)
       if(item.insertId){
         const currentdata=await fetch(FETCH_PAYMENTCMETHOD_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Card number already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }
 
@@ -140,11 +140,11 @@ exports.deleteItem = async (req, res) => {
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Something went wrong',1001));
   }
 }

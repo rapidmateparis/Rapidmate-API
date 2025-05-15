@@ -30,7 +30,7 @@ exports.getItem = async (req, res) => {
       );
       return res.status(200).json(utils.buildCreateMessage(200,message,shiftWithSlots))
     } catch (error) {
-      return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+      return res.status(500).json(utils.buildErrorMessage(500,error.message,1001));
     }
 }
 
@@ -48,10 +48,10 @@ exports.createItem=async(req,res)=>{
       const currentdata=await fetch(FETCH_BRANCH_BY_ID,[item.insertId])
       return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currentdata))
     }else{
-      return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+      return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,error.message,1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, error.message,1001));
   }
 
 }
@@ -76,9 +76,9 @@ exports.updateItem= async(req,res)=>{
                 const message=result.message
                 return res.status(200).json(utils.buildUpdatemessage(200, message));
             }
-            return res.status(500).json(utils.buildErrorObject(500, 'Something went wrong1', 1001));
+            return res.status(500).json(utils.buildErrorMessage(500, 'Something went wrong1', 1001));
         }
-        return res.status(500).json(utils.buildErrorObject(500, 'Once a shift is accepted, it cannot be updated. Please contact the admin for assistance.', 1001)); 
+        return res.status(500).json(utils.buildErrorMessage(500, 'Once a shift is accepted, it cannot be updated. Please contact the admin for assistance.', 1001)); 
     }
     return res.status(404).json(utils.buildErrorObject(404, 'No data for update', 1001));
 }

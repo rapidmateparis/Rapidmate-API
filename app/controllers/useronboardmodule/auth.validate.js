@@ -208,3 +208,16 @@ check('info.newPassword')
   validationResult(req, res, next)
 }
 ]
+
+
+exports.deleteAccount = [
+  check('info.userName')
+    .exists()
+    .withMessage('MISSING')
+    .not()
+    .isEmpty()
+    .withMessage('IS_EMPTY'),
+  (req, res, next) => {
+    validationResult(req, res, next)
+  }
+]

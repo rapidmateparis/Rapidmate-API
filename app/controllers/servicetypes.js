@@ -22,7 +22,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch service. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch service. Please try again later.',1001));
   }
 }
 
@@ -42,7 +42,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch service. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch service. Please try again later.',1001));
   }
 }
 
@@ -64,12 +64,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update service. Pleast try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update service. Pleast try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Service not found. Please provide detail and try again later.',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Service not found. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to update service. Pleast try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to update service. Pleast try again later.',1001));
   }
     
 }
@@ -91,13 +91,13 @@ exports.createItem = async (req, res) => {
       if(item.insertId){
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',item))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to create service. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to create service. Please try again later.',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Service name already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create service. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to create service. Please try again later.',1001));
   }
 }
 
@@ -119,11 +119,11 @@ exports.deleteItem = async (req, res) => {
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Something went wrong',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Something went wrong',1001));
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Data not found.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to delete service. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to delete service. Please try again later.',1001));
   }
 }

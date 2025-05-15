@@ -21,7 +21,7 @@ exports.getItems = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch supports. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch supports. Please try again later.',1001));
   }
 }
 
@@ -41,7 +41,7 @@ exports.getItem = async (req, res) => {
     }
     return res.status(200).json(utils.buildCreateMessage(200,message,data))
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to fetch support. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to fetch support. Please try again later.',1001));
   }
 }
 
@@ -63,12 +63,12 @@ exports.updateItem = async (req, res) => {
       if (updatedItem.affectedRows >0) {
           return res.status(200).json(utils.buildUpdatemessage(200,'Record Updated Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to update support. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to update support. Please try again later.',1001));
       }
     }
-    return res.status(500).json(utils.buildErrorObject(500,'Support not found. Please provide detail and try again later',1001));
+    return res.status(500).json(utils.buildErrorMessage(500,'Support not found. Please provide detail and try again later',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to update support. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to update support. Please try again later.',1001));
   }
     
 }
@@ -91,13 +91,13 @@ exports.createItem = async (req, res) => {
         const currData=await fetch(FETCH_SUPPORT_BY_ID,[item.insertId])
         return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',currData))
       }else{
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to create support. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to create support. Please try again later.',1001));
       }
     }else{
       return res.status(400).json(utils.buildErrorObject(400,'Support email already exists',1001));
     }
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to create support. Please try again later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to create support. Please try again later.',1001));
   }
 }
 
@@ -119,11 +119,11 @@ exports.deleteItem = async (req, res) => {
       if (deletedItem.affectedRows > 0) {
         return res.status(200).json(utils.buildUpdatemessage(200,'Record Deleted Successfully'));
       } else {
-        return res.status(500).json(utils.buildErrorObject(500,'Unable to delete support. Please try again later.',1001));
+        return res.status(500).json(utils.buildErrorMessage(500,'Unable to delete support. Please try again later.',1001));
       }
     }
     return res.status(400).json(utils.buildErrorObject(400,'Support not deleted. Please provide detail and try again later.',1001));
   } catch (error) {
-    return res.status(500).json(utils.buildErrorObject(500,'Unable to delete support. Please try agin later.',1001));
+    return res.status(500).json(utils.buildErrorObjectForLog(503, error, 'Unable to delete support. Please try agin later.',1001));
   }
 }
