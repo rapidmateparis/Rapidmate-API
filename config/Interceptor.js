@@ -45,7 +45,7 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
         }
     }
    
-    /* return {
+     return {
       Only HTML responses will be intercepted
       isIntQerceptable: function(){
         return /text\/html/.test(res.get('Content-Type'));
@@ -55,8 +55,8 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
         //console.log("Content-Type", body);
         send($document.html());
       }
-    }; */
-    next();
+    }; 
+    //next();
 })
 
 module.exports = httpRequestResponseInterceptor;
