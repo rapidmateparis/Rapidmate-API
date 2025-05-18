@@ -29,6 +29,7 @@ exports.deliveryBoyAssigner = async (req, res) => {
         orderStatus: "ASSIGNED",
       },
       extId: orderNumber,
+      orderNumber: orderNumber,
       message: "You have been received new order successfully",
       topic: "",
       token: "",
