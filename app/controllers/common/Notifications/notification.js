@@ -2,7 +2,7 @@ const utils = require("../../../middleware/utils");
 const Notification = require("../../../models/Notification");
 const admin = require("../../../../config/admin");
 const { fetch, updateQuery } = require("../../../middleware/db");
-
+var logger = require('../../../../config/log').logger;
 /********************
  * Public functions *
  ********************/
@@ -66,9 +66,9 @@ exports.getNotificationByExtId = async (req, res) => {
     var extId = req.query.ext_id;
     const perPage = utils.getSize(req.query.size);
     const page = utils.getPage(req.query.page);
-    const notifyData = await Notification.find({ receiverExtId: extId, is_del: false }).sort({createdAt:-1}).skip(page * perPage).limit(perPage);
+    const notifyData = await Notification.find({ receiverExtId: extId, is_del: false }).sort({ createdAt: -1 }).skip(page * perPage).limit(perPage);
     let message = "Items retrieved successfully";
-    if(!notifyData || notifyData.length==0){
+    if (!notifyData || notifyData.length == 0) {
       message = "No notifications";
       return res.status(404).json(utils.buildErrorObject(404, message, 1001));
     }
@@ -95,11 +95,11 @@ exports.getNotificationCountByExtId = async (req, res) => {
     var tableName = getTableName(new String(extId).charAt(0));
     var totalCount = 0;
     const notifyData = await fetch("select notity_count,is_viewed_notity from " + tableName + " where ext_id=?", [extId]);
-    if(notifyData && notifyData.length>0){
+    if (notifyData && notifyData.length > 0) {
       totalCount = notifyData[0].notity_count;
     }
     var responseData = {
-      notificationCount : totalCount
+      notificationCount: totalCount
     }
     return res.status(200).json(utils.buildCreateMessage(200, "", responseData));
   } catch (error) {
@@ -136,16 +136,16 @@ exports.updateNotifyStatus = async (req, res) => {
   }
 };
 
-const getTableName = (role) =>{
+const getTableName = (role) => {
   var tableName = "rmt_admin_user";
-  if(role=='D'){
+  if (role == 'D') {
     tableName = "rmt_delivery_boy";
-  }else  if(role=='C'){
-      tableName = "rmt_consumer";
-  }else  if(role=='E'){
-      tableName = "rmt_enterprise";
-  }else  if(role=='A'){
-      tableName = "rmt_admin_user";
+  } else if (role == 'C') {
+    tableName = "rmt_consumer";
+  } else if (role == 'E') {
+    tableName = "rmt_enterprise";
+  } else if (role == 'A') {
+    tableName = "rmt_admin_user";
   }
   return tableName;
 }
@@ -216,7 +216,7 @@ exports.updateNotification = async (req, res) => {
  * @param {Object} res - response object
  */
 const createNotification = async (req) => {
-  const {title, bodydata, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,rediectTo} = req;
+  const { title, bodydata, message, topic, token, senderExtId, receiverExtId, statusDescription, status, notifyStatus, tokens, tokenList, actionName, path, userRole, rediectTo } = req;
   const insertData = {
     title,
     body: bodydata,
@@ -248,11 +248,11 @@ const createNotification = async (req) => {
 exports.createItem = async (req, res) => {
   try {
     const item = await createNotification(req.body)
-    
-    if(item){
-      return res.status(200).json(utils.buildCreateMessage(200,'Record Inserted Successfully',[item]))
-    }else{
-      return res.status(500).json(utils.buildErrorMessage(500,'Unable to create notification. Please try again later.',1001));
+
+    if (item) {
+      return res.status(200).json(utils.buildCreateMessage(200, 'Record Inserted Successfully', [item]))
+    } else {
+      return res.status(500).json(utils.buildErrorMessage(500, 'Unable to create notification. Please try again later.', 1001));
     }
   } catch (error) {
     return res
@@ -267,66 +267,84 @@ exports.createItem = async (req, res) => {
   }
 };
 
-const sendNotfn= async(title,message,receiverExtId,payload,userRole)=>{
-  //console.log("Block enter-- Notification");
-  //console.log("Block title", title);
-  //console.log("Block receiverExtId", receiverExtId);
-  //console.log("Block payload", payload);
-  //console.log("Block userRole", userRole);
-  try{
-    let table=''
-    if(userRole=='CONSUMER'){
-      table='rmt_consumer'
-    }else if(userRole=='ENTERPRISE'){
-      table='rmt_enterprise'
-    }else if(userRole=='DELIVERY_BOY'){
-      table='rmt_delivery_boy'
-    }else{
-      table='rmt_admin_user'
+const sendNotificationService = async (title, message, receiverExtId, payload, userRole) => {
+  let responseData = {
+    token: "",
+    status: 0,
+    message : ""
+  }
+  try {
+    let table = ''
+    if (userRole == 'CONSUMER') {
+      table = 'rmt_consumer'
+    } else if (userRole == 'ENTERPRISE') {
+      table = 'rmt_enterprise'
+    } else if (userRole == 'DELIVERY_BOY') {
+      table = 'rmt_delivery_boy'
+    } else {
+      table = 'rmt_admin_user'
     }
-    const query=`SELECT token,enable_push_notification,enable_email_notification from ${table} WHERE ext_id=?`;
-    const [result]=await fetch(query,[receiverExtId]);
-    const token = (result?.token === undefined)? false : result?.token;
+    const query = `SELECT token,enable_push_notification,enable_email_notification from ${table} WHERE ext_id=?`;
+    const [result] = await fetch(query, [receiverExtId]);
+    const token = result?.token;
     const isSendFCMNotify = result?.enable_push_notification
     const isSendEmail = result?.enable_email_notification
-    if (!token) {
-      return false;
+    responseData.token = token;
+    if (token && token !== undefined && token !== 'undefined') {
+      if (isSendFCMNotify) {
+        //console.log("Eligible to send notify Final Block");
+        const messages = {
+          notification: {
+            title: title,
+            body: message,
+          },
+          data: payload,
+          token: token,
+        };
+        admin.messaging().send(messages).then((response) => {
+          console.log("FCM Success : ", response);
+          responseData.status = 1;
+          responseData.message = "FCM Success";
+          responseData.response = response;
+        }).catch((error) => {
+          console.log("FCM: Error ", error);
+          responseData.status = 4;
+          responseData.message = "FCM Error";
+          responseData.error = error;
+        });
+      } else {
+         responseData.status = 3;
+         responseData.message = "Nofitication status off by User";
+      }
+    } else {
+       responseData.status = 2;
+       responseData.message = "Token is empty";
+       console.log("responseData = ", responseData);
     }
-    if(isSendFCMNotify){
-      //console.log("Eligible to send notify Final Block");
-      const messages = {
-        notification: {
-          title: title,
-          body: message,
-        },
-        data: payload,
-        token: token,
-      };
-      admin.messaging().send(messages).then((response) => {
-        //console.log("FCM Success : ", response);
-        return true;
-      }).catch((error) => {
-        //console.log("FCM: Error ", error);
-        return false});
-    }else{
-      //console.log('not send ')
-    }
-  
-  }catch(eror){
-    //console.log(eror);
+  } catch (error) {
+    console.log(error);
+    responseData.status = 5;
+    responseData.message = "Internal Error";
+    responseData.error = error;
   }
-  return false;
+  console.log(responseData);
+  return responseData;
 }
 
 exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
+  let notificationResponse = {
+      token: "",
+      status: 0,
+      message : ""
+  };
+  const { title, body, bodydata, payload, message, topic, token, senderExtId, receiverExtId, statusDescription, status, notifyStatus, tokens, tokenList, actionName, path, userRole, redirect, extId, orderNumber } = req;
   try {
     //console.log(req);
-    const {title, body, bodydata, payload, message, topic,token,senderExtId,receiverExtId,statusDescription,status,notifyStatus,tokens,tokenList,actionName,path,userRole,redirect,extId} = req;
     const bodyContent = typeof bodydata === 'object' ? JSON.stringify(bodydata) : (typeof body === 'object' ? JSON.stringify(body) : body || '');
     const insertData = {
       title,
-      body:bodyContent,
-      message, 
+      body: bodyContent,
+      message,
       topic,
       token,
       extId,
@@ -340,27 +358,31 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
       actionName,
       path,
       userRole,
-      redirect
+      redirect,
+      orderNumber
     };
-  
-    var isNofitificationEnabledStatus = await isNofitificationEnabled(receiverExtId);
-    if(isSendFCMNotify && isNofitificationEnabledStatus){
-       //const objId=savedNotification._id
-       const sendNotification = await sendNotfn(title,message,receiverExtId,payload,userRole)
-       //console.log(savedNotification);
+    if (isSendFCMNotify) {
+      notificationResponse = await sendNotificationService(title, message, receiverExtId, payload, userRole);
+      console.log(notificationResponse);
+      if(notificationResponse.status == 1){
+      }
+      const notification = new Notification(insertData);
+      const savedNotification = await notification.save();
+      const responseUpdateCount = await updateNotifyCount(receiverExtId);
+     }else{
+      notificationResponse.status = 6;
+      console.log(notificationResponse);
     }
-    const notification = new Notification(insertData);
-    const savedNotification = await notification.save();
-    const responseUpdateCount = await updateNotifyCount(receiverExtId);
-    console.log(savedNotification)
-    if (!savedNotification) {
-      return false;
-    }
-    return savedNotification;
   } catch (error) {
-      console.log(error);
-      return null;
+    console.log(error);
+    notificationResponse.status = 6;
+    notificationResponse.message = "Internal Nofitication Off By system";
+    notificationResponse.error = error;
   }
+  notificationResponse.orderNumber = orderNumber;
+  await updateNotifyStatus(notificationResponse)
+  logger.info({message : "Notification FCN" + orderNumber + " Response ", response : notificationResponse});
+  return notificationResponse;
 };
 
 const updateNotifyCount = async (extId) => {
@@ -372,12 +394,26 @@ const updateNotifyCount = async (extId) => {
   }
 };
 
+const updateNotifyStatus = async (notificationResponse) => {
+  try {
+    let tableName = utils.fetchTableNameNorEOrderByOrderNumber(notificationResponse.orderNumber);
+    let message = notificationResponse.message;
+    if(message && message.length > 200){
+      message = message.substring(0, 200);
+    }
+    const notifyData = await updateQuery("update " + tableName + " set dboy_notified_on = now(), notify_status = ?, notify_response = ? where order_number=?", [notificationResponse.status, message, notificationResponse.orderNumber]);
+    console.log(notifyData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const isNofitificationEnabled = async (extId) => {
   try {
     var tableName = getTableName(new String(extId).charAt(0));
     const notifyData = await fetch("select enable_push_notification from " + tableName + " where ext_id=?", [extId]);
     //console.log("notifyData", notifyData);
-    return (notifyData && notifyData.length>0 && parseInt(notifyData[0].enable_push_notification) == 1);
+    return (notifyData && notifyData.length > 0 && parseInt(notifyData[0].enable_push_notification) == 1);
   } catch (error) {
     //console.log(error);
   }
@@ -423,7 +459,7 @@ exports.deleteItem = async (req, res) => {
  */
 exports.sendNotification = async (req, res) => {
   const { token, title, data, notifications } = req.body;
- 
+
   const message = {
     notification: {
       title: title,
