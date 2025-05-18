@@ -1,7 +1,7 @@
 const utils = require("../../../middleware/utils");
 const Notification = require("../../../models/Notification");
 const admin = require("../../../../config/admin");
-const { fetch, updateQuery } = require("../../../middleware/db");
+const { fetch, updateQuery, insertQuery } = require("../../../middleware/db");
 var logger = require('../../../../config/log').logger;
 /********************
  * Public functions *
@@ -301,7 +301,7 @@ const sendNotificationService = async (title, message, receiverExtId, payload, u
           data: payload,
           token: token,
         };
-        admin.messaging().send(messages).then((response) => {
+        let fcmResponse = await admin.messaging().send(messages).then((response) => {
           console.log("FCM Success : ", response);
           responseData.status = 1;
           responseData.message = "FCM Success";
@@ -312,6 +312,7 @@ const sendNotificationService = async (title, message, receiverExtId, payload, u
           responseData.message = "FCM Error";
           responseData.error = error;
         });
+        console.log(fcmResponse);
       } else {
          responseData.status = 3;
          responseData.message = "Nofitication status off by User";
@@ -371,15 +372,17 @@ exports.createNotificationRequest = async (req, isSendFCMNotify = true) => {
       const responseUpdateCount = await updateNotifyCount(receiverExtId);
      }else{
       notificationResponse.status = 6;
+      notificationResponse.message = "Internal Nofitication Off By system";
       console.log(notificationResponse);
     }
   } catch (error) {
-    console.log(error);
-    notificationResponse.status = 6;
-    notificationResponse.message = "Internal Nofitication Off By system";
+    console.log("error    ---->" + error);
+    notificationResponse.status = 7;
+    notificationResponse.message = "Unhandled Nofitication";
     notificationResponse.error = error;
   }
   notificationResponse.orderNumber = orderNumber;
+  notificationResponse.receiverExtId = receiverExtId;
   await updateNotifyStatus(notificationResponse)
   logger.info({message : "Notification FCN" + orderNumber + " Response ", response : notificationResponse});
   return notificationResponse;
@@ -395,6 +398,22 @@ const updateNotifyCount = async (extId) => {
 };
 
 const updateNotifyStatus = async (notificationResponse) => {
+  try {
+    let tableName = utils.fetchTableNameNorEOrderByOrderNumber(notificationResponse.orderNumber);
+    let message = notificationResponse.message;
+    if(message && message.length > 200){
+      message = message.substring(0, 200);
+    }
+    const notifyData = await updateQuery("update " + tableName + " set dboy_notified_on = now(), notify_status = ?, notify_response = ? where order_number=?", [notificationResponse.status, message, notificationResponse.orderNumber]);
+    console.log(notifyData);
+    const fcmNotifyData = await insertQuery("Insert into rmt_fcm_history(order_number, extId, token, status, notify_mesage) values(?, ?, ?, ?, ?)", [notificationResponse.orderNumber, notificationResponse.receiverExtId, notificationResponse.token, notificationResponse.status, message]);
+    console.log(fcmNotifyData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateFCMNotifyStatus = async (notificationResponse) => {
   try {
     let tableName = utils.fetchTableNameNorEOrderByOrderNumber(notificationResponse.orderNumber);
     let message = notificationResponse.message;
