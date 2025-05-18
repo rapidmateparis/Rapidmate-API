@@ -76,6 +76,10 @@ exports.fetchTableNameByOrderNumber = (orderNumber) =>{
   return table;
 }
 
+exports.fetchTableNameNorEOrderByOrderNumber = (orderNumber) =>{
+  return orderNumber.includes("E")?"rmt_enterprise_order" : "rmt_order";
+}
+
 exports.cancelRequestTable = (orderNumber) =>{
   var table;
   if(orderNumber.includes("EM")){

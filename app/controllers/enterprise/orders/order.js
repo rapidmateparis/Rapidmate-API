@@ -360,6 +360,7 @@ exports.updateOrderStatus = async (req, res) => {
             orderNumber: requestData.order_number,
           },
           extId: "",
+          orderNumber : requestData.order_number,
           message: "Your Delivered OTP is " + deliveredOTPNumber,
           topic: "",
           token: "",
@@ -471,6 +472,7 @@ exports.createEnterpriseOrder = async (req, res) => {
           orderNumber : currData[0].order_number
         },
         extId: currData[0].order_number,
+        orderNumber : currData[0].order_number,
         message : titleText, 
         topic : "",
         token : "",
@@ -835,6 +837,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
                   orderNumber : order_number
                 },
                 extId: order_number,
+                orderNumber : order_number,
                 message : "Driver has been allocated successfully for your order", 
                 topic : "",
                 token : "",
@@ -864,6 +867,7 @@ exports.allocateEnterpriseDeliveryBoyByOrderNumber = async (req, res) => {
                     orderStatus : "ORDER_ALLOCATED"
                 },
                 extId: order_number,
+                orderNumber : order_number,
                 message : "You have been received new order successfully", 
                 topic : "",
                 token : "",
@@ -1219,6 +1223,7 @@ const scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
                   orderNumber : order_number
                 },
                 extId: order_number,
+                orderNumber : order_number,
                 message : "Driver has been allocated successfully for your order", 
                 topic : "",
                 token : "",
@@ -1248,6 +1253,7 @@ const scheduleAllocateDeliveryBoyByEOrderNumber = async (order_number) => {
                     orderStatus : "ORDER_ALLOCATED"
                 },
                 extId: order_number,
+                orderNumber : order_number,
                 message : "You have been received new order successfully", 
                 topic : "",
                 token : "",
