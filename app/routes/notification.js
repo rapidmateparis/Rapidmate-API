@@ -3,7 +3,7 @@ const validate = require('../controllers/common/Notifications/notification.valid
 const express = require('express')
 const router = express.Router()
 const trimRequest = require('trim-request')
-
+const notifyRouter = require('../middleware/routes/admin/notify')
 /*
  * Notification routes
  */
@@ -95,4 +95,6 @@ router.post(
   validate.sendNotifcation,
   controller.sendNotification
 )
+
+router.use(notifyRouter)
 module.exports = router

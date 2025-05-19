@@ -70,7 +70,7 @@ TZ="UTC";
 const server = http.createServer(app);
 const io = socketIo(server);
 
-app.use(httpRequestResponseInterceptor);
+// app.use(httpRequestResponseInterceptor);
 app.set('port', process.env.PORT || 3004);
 app.set('io', io);
 
@@ -198,22 +198,9 @@ cron.schedule("*/5 * * * * *", function() {
 
 eOrderControl.currenDateTimeInDatabase();
 
-app.use((err, req, res, next) => {
-  logger.error({
-    message: 'Unhandled error middleware',
-    error: err.stack || err.message || err,
-    url: req.originalUrl,
-    method: req.method,
-    body: req.body,
-  });
-
-  return res.status(500).json({
-    success: false,
-    message: 'A server error occurred. Please try again later.',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
-  });
+app.use((req, res, next) => {
+  res.render('index')
 });
-
 
 server.listen(app.get('port'), () => {
   logger.warn({message : "Server is running on port", port : app.get('port')})
