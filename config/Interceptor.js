@@ -4,12 +4,15 @@ const utils = require('../app/middleware/utils');
 const { HttpStatusCode } = require('axios');
 var JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const { v4: uuidv4 } = require('uuid');
+const logger = require('./../config/log').logger;
 
 var httpRequestResponseInterceptor = interceptor(function(req, res){
     const pathValue = req.path;
-    
+    const ua = req.headers['user-agent'];
+    logger.info({message : "REQUEST-BY", data : ua});
     req.trackId = uuidv4(); // generate a new UUID
-    if(!( pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || 
+    try{
+        if(!( pathValue.includes("login") || pathValue.includes("signup") || pathValue.includes("forgotpassword") || 
           pathValue.includes("resetpassword") || pathValue.includes("lookup") || pathValue.includes("country") ||
           pathValue.includes("state") || pathValue.includes("city") || pathValue.includes("document") || pathValue.includes("signupverify") || 
           pathValue.includes("reset") || pathValue.includes("invoice") || pathValue.includes("version") 
@@ -44,7 +47,10 @@ var httpRequestResponseInterceptor = interceptor(function(req, res){
             return res.status(401).json(utils.buildResponseMessageContent(HttpStatusCode.Unauthorized, "Unauthorized", 1001, "Restricted to access this service. Please contact your administrator"));
         }
     }
-   
+    }catch(error){
+      logger.error(error);
+      return res.status(401).json(utils.buildResponseMessageContent(HttpStatusCode.Unauthorized, "Unauthorized", 1001, "Restricted to access this service. Please contact your administrator"));
+    }
     return {
       // Only HTML responses will be intercepted
       isInterceptable: function(){
