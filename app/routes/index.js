@@ -3,6 +3,8 @@ const router = express.Router()
 const fs = require('fs')
 const routesPath = `${__dirname}/`
 const { removeExtensionFromFile } = require('../middleware/utils')
+const authenticateUser = require('../middleware/authenticate'); // ✅ cleaner
+
 
 /*
  * Load routes statically and/or dynamically
@@ -18,7 +20,7 @@ fs.readdirSync(routesPath).filter((file) => {
   const routeFile = removeExtensionFromFile(file)
   // Prevents loading of this file and auth file
   return routeFile !== 'index' && routeFile !== 'auth'
-    ? router.use(`/${routeFile}`, require(`./${routeFile}`))
+    ? router.use(`/${routeFile}`,authenticateUser, require(`./${routeFile}`))
     : ''
 })
 
@@ -33,12 +35,22 @@ router.get('/', (req, res) => {
  * Handle 404 error
  */
 router.use('*', (req, res) => {
-  res.status(404).json({
-    status: 'error',
-    errors: {
-      msg: 'URL_NOT_FOUND'
+  // res.status(404).json({
+  //   status: 'error',
+  //   errors: {
+  //     msg: 'URL_NOT_FOUND'
+  //   }
+  // })
+
+  res.status(404).json([{
+    "_success": false,
+    "_httpsStatus": "URL_NOT_FOUND",
+    "_httpsStatusCode": 404,
+    "_errors": {
+        "code": 404,
+        "message": "URL_NOT_FOUND",
     }
-  })
+  }]);
 })
 
 module.exports = router
