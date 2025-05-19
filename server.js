@@ -20,7 +20,9 @@ const httpRequestResponseInterceptor =require('./config/Interceptor');
 const rateLimit = require('express-rate-limit');
 const logger = require('./config/log').logger;
 const redisClient = require('./config/cacheClient')
-const connectDB = require('./config/db')
+const connectDB = require('./config/db');
+const useragent = require('express-useragent');
+
 require('log4js').configure({
   appenders: {
     out: { type: 'stdout' },
@@ -50,13 +52,14 @@ const allowedOrigins = [
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
+      console.log(callback);
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', "Accept"],
   credentials: true,
 };
 
@@ -198,7 +201,7 @@ cron.schedule("*/5 * * * * *", function() {
 
 eOrderControl.currenDateTimeInDatabase();
 
-app.use((err, req, res, next) => {
+/* app.use((err, req, res, next) => {
   logger.error({
     message: 'Unhandled error middleware',
     error: err.stack || err.message || err,
@@ -212,13 +215,13 @@ app.use((err, req, res, next) => {
     message: 'A server error occurred. Please try again later.',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
-});
+}); */
 
 
 server.listen(app.get('port'), () => {
   logger.warn({message : "Server is running on port", port : app.get('port')})
 });
 
-
+app.use(useragent.express());
 
 module.exports = app;
