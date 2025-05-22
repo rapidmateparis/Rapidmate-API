@@ -489,7 +489,10 @@ async function loginResponseData(resolve, reject, result, userInfo) {
         }else  if(role=='ADMIN'){
             tableName = "rmt_admin_user";
         }
-        const updateTokenToProfile = await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
+        let platform = userInfo["platform"];
+        if(!(platform && platform === "web") && token){
+            await updateQuery("update " + tableName + " set token = ? where username = ?", [token, username]);
+        }
         profileData[0].token = token;
         const tokenKey = {
             ext_id : profileData[0].ext_id,
