@@ -3,7 +3,6 @@ const fs = require("fs");
 const moment = require("moment");
 const utils = require('../../../middleware/utils')
 const { runQuery,fetch} = require('../../../middleware/db');
-const { Console } = require("console");
 const BASE_DIR  = process.env.BASE_RESOURCE_DIR;
 const { v4: uuidv4 } = require('uuid');
 
@@ -24,16 +23,15 @@ const upload = async (req, res) => {
     const refNo = uuidv4().replaceAll("-","");
     const persist = "INSERT INTO rmt_document(file_name, path, ref_no) VALUES('" + req.file.originalname + "','" + uploadDirectory + "', '" + refNo + "')";
     const persistRes = await runQuery(persist);
-    res.status(200).send({ id: refNo , error: null });
-    return;
+    return res.status(200).send({ id: refNo , error: null });
   } catch (err) {
     console.log(err);
     if (err.code == "LIMIT_FILE_SIZE") {
-      res.status(500).json(utils.buildErrorMessage(500, "File size cannot be larger than 1MB", 1001));
-      return 
+      return res.status(500).json(utils.buildErrorMessage(500, "File size cannot be larger than 1MB", 1001));
+    
     }
-     res.status(500).json(utils.buildErrorMessage(500, "Could not upload the file:", 1001));
-     return
+     return res.status(500).json(utils.buildErrorMessage(500, "Could not upload the file:", 1001));
+    
   }
 };
 
@@ -57,7 +55,7 @@ const getListFiles = (req, res) => {
       });
     });
 
-    res.status(200).send(fileInfos);
+    return res.status(200).send(fileInfos);
   });
 };
 
@@ -104,12 +102,12 @@ const remove = (req, res) => {
 
   fs.unlink(directoryPath + fileName, (err) => {
     if (err) {
-      res.status(500).send({
+      return res.status(500).send({
         message: "Could not delete the file. " + err,
       });
     }
 
-    res.status(200).send({
+    return res.status(200).send({
       message: "File is deleted.",
     });
   });
@@ -122,11 +120,11 @@ const removeSync = (req, res) => {
   try {
     fs.unlinkSync(directoryPath + fileName);
 
-    res.status(200).send({
+    return res.status(200).send({
       message: "File is deleted.",
     });
   } catch (err) {
-    res.status(500).send({
+    return res.status(500).send({
       message: "Could not delete the file. " + err,
     });
   }

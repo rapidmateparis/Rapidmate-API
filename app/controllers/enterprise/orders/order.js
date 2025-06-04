@@ -1137,7 +1137,7 @@ exports.cronJobScheduleOrderAllocateDeliveryBoyByEOrderNumber = async () => {
     var responseData = await getScheduleUnallocateOrderList();
     if (responseData) {
         responseData.forEach(order => {
-          console.log({message : "Allocated Started on " +  new Date(), order : order.order_number});
+          // console.log({message : "Allocated Started on " +  new Date(), order : order.order_number});
           scheduleAllocateDeliveryBoyByEOrderNumber(order.order_number);
         })
     }
