@@ -2670,7 +2670,7 @@ const getDelieryOTP = async (orderNumber, extId, line) => {
     }else if(orderNumber.includes("E")){
       deliveryQuery = "select delivered_otp from rmt_enterprise_order where order_number = ?  and enterprise_id = (select id from rmt_enterprise where ext_id = ?)";
     }
-    console.log(deliveryQuery);
+    // console.log(deliveryQuery);
     const data = await fetch(deliveryQuery, deliveyAry);
     const filterdata = await transformKeysToLowercase(data);
     return filterdata
