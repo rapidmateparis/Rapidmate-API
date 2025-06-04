@@ -22,6 +22,7 @@ const logger = require('./config/log').logger;
 const redisClient = require('./config/cacheClient')
 const connectDB = require('./config/db');
 const useragent = require('express-useragent');
+const handleSocketConnection = require('./app/controllers/socket');
 
 require('log4js').configure({
   appenders: {
@@ -45,6 +46,7 @@ const limiter = rateLimit({
 
 // ===== ✅ CORS FIX START =====
 const allowedOrigins = [
+  'http://localhost:5173',
   'https://rapidmate.fr',
   'https://admin.rapidmate.fr',
 ];
@@ -101,6 +103,7 @@ i18n.configure({
   header: 'accept-language'
 });
 app.use((req, res, next) => {
+  req.io=io
   const pathValue = req.path;
   if(!pathValue.includes("login")){
     requestData = {
@@ -126,40 +129,41 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 app.use('/api', require('./app/routes'));
 
-io.on('connection', (socket) => {
-  //console.log('A user connected', socket.id);
+handleSocketConnection(io)
+// io.on('connection', (socket) => {
+//   //console.log('A user connected', socket.id);
 
-  socket.on('join', (driverId) => {
-    socket.join(driverId);
-    //console.log(`Driver ${driverId} joined room ${driverId}`);
-  });
+//   socket.on('join', (driverId) => {
+//     socket.join(driverId);
+//     //console.log(`Driver ${driverId} joined room ${driverId}`);
+//   });
 
-  socket.on('update-latlng',async (data)=>{
-    const {delivery_boy_id,latitude,longitute}=data
-    //update delivery boy latitude and longitude
-    const res =await updateDeliveryboyLatlng(delivery_boy_id,latitude,longitute)
-    if(res){
-      io.emit('new-latlng',data)
-    } 
-  });
-  // add mongo db latlng here
-  socket.on('add-latlng',async (data)=>{
-    const {delivery_boy_id,latitude,longitute}=data
-    const res=await addLatlng(delivery_boy_id,latitude,longitute);
-    if(res){
-      io.emit('get-latng',{delivery_boy_id});
-    }
-  })
+//   socket.on('update-latlng',async (data)=>{
+//     const {delivery_boy_id,latitude,longitute}=data
+//     //update delivery boy latitude and longitude
+//     const res =await updateDeliveryboyLatlng(delivery_boy_id,latitude,longitute)
+//     if(res){
+//       io.emit('new-latlng',data)
+//     } 
+//   });
+//   // add mongo db latlng here
+//   socket.on('add-latlng',async (data)=>{
+//     const {delivery_boy_id,latitude,longitute}=data
+//     const res=await addLatlng(delivery_boy_id,latitude,longitute);
+//     if(res){
+//       io.emit('get-latng',{delivery_boy_id});
+//     }
+//   })
   
-  socket.on('add-order-latlng',async (data)=>{
-    const {order_number,latitude,longitute}=data
-    const res=await addOrderLatlng(order_number,latitude,longitute)
-    io.emit('send-location',{order_number,latitude,longitute})
-  })
-  socket.on('disconnect', () => {
-    //console.log('User disconnected', socket.id);
-  });
-});
+//   socket.on('add-order-latlng',async (data)=>{
+//     const {order_number,latitude,longitute}=data
+//     const res=await addOrderLatlng(order_number,latitude,longitute)
+//     io.emit('send-location',{order_number,latitude,longitute})
+//   })
+//   socket.on('disconnect', () => {
+//     //console.log('User disconnected', socket.id);
+//   });
+// });
 // set cron for automatic delete notification at 23:59 pm
 
 const softDeleteOldNotifications = async () => {

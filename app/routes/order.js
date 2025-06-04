@@ -6,6 +6,9 @@ const router = express.Router()
 const isAuthorized = require("../middleware/authorization")
 const trimRequest = require('trim-request')
 
+const socketOrderRoute=require("../middleware/routes/socketOrder")
+
+
 /*
  * Order routes
  */
@@ -212,4 +215,6 @@ router.get(
   trimRequest.all,
   controller.deliveryOTP
 )
+
+router.use("/socketorder",socketOrderRoute)
 module.exports = router
