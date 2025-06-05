@@ -208,7 +208,7 @@ exports.acceptOrder = async (req, res) => {
       responseData.deliveryBoy = await getDeliveryInfo(deliveryboyId);
       responseData.vehicle = await getVehicleInfo(deliveryboyId);
       if(orderInfo.is_multi_order) {
-        responseData.orderLines = await getOrderLineInfo(order_number);
+        responseData.orderLines = await getOrderLineInfo(orderNumber);
               
       }
       if(orderData?.delivery_type_id==3){
@@ -216,14 +216,10 @@ exports.acceptOrder = async (req, res) => {
         responseData.slots=slots
       }
       if (orderData?.pickup_location_id) {
-        responseData.order.pickup_details = await getLocationInfo(
-          orderData.pickup_location_id
-        );
+        responseData.order.pickup_details = await getLocationInfo(orderData.pickup_location_id);
       }
       if (orderData?.dropoff_location_id) {
-        responseData.order.drop_details = await getLocationInfo(
-          orderData.dropoff_location_id
-        );
+        responseData.order.drop_details = await getLocationInfo(orderData.dropoff_location_id);
       }
       req.io.to(`order_${orderNumber}`).emit("orderUpdate", responseData);
       req.io.to(`order_${orderNumber}`).emit("orderAccepted");
